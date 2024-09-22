@@ -1,0 +1,74 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap');
+#adminmenu .toplevel_page_product-feed .wp-menu-image > img {
+  width: 22px !important;
+  margin: 8.5px 7px;
+  display: block;
+  padding: 0;
+}
+
+
+/* feature updated notice area */
+.rex-feed-notice {
+  font-family: "Roboto", sans-serif;
+  box-shadow: 0px 15px 20px rgba(202, 202, 224, 0.247296);
+  border-radius: 10px;
+  margin: 45px 20px 15px 0;
+}
+.rex-feed-notice__content-area {
+  clear: both;
+}
+.rex-feed-notice__header {
+  position: relative;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 25px;
+  background-color: #f6f9ff;
+  border-bottom: 1px solid #e0ebff;
+  margin: 10px 0 0;
+  border-radius: 10px 10px 0px 0px;
+}
+.rex-feed-notice__heading {
+  font-size: 18px;
+  font-weight: bold;
+  color: #216df0;
+  line-height: 21px;
+  margin: 0;
+}
+.rex-feed-notice__close-icon {
+  cursor: pointer;
+}
+.rex-feed-notice__content {
+  display: grid;
+  grid-template-columns: 5fr 1fr;
+  gap: 20px;
+  padding: 0 44px 0 25px;
+  align-items: self-start;
+  background-color: #fff;
+  border-radius: 0px 0px 10px 10px;
+}
+.rex-feed-notice__lists {
+  padding: 8px 0 25px;
+}
+.rex-feed-notice__lists ul {
+  margin: 0;
+}
+.rex-feed-notice__list {
+  font-size: 15px;
+  font-weight: 400;
+  color: #697385;
+  padding: 7px 0;
+  margin: 0;
+}
+.rex-feed-notice__list span {
+  font-weight: 500;
+  color: #216df0;
+  line-height: 21px;
+}
+
+/*Upgrade Notice*/
+.rex-feed-major-update-warning + p {
+  display: none;
+}

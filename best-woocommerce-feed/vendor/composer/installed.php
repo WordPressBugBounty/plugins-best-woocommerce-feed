@@ -1,0 +1,41 @@
+<?php return array(
+    'root' => array(
+        'pretty_version' => 'dev-develop',
+        'version' => 'dev-develop',
+        'type' => 'wordpress-plugin',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'reference' => 'b6d4e61a73fd15f0a626e5f8cb2d533cdd9d8270',
+        'name' => 'rextheme/best-woocommerce-feed',
+        'dev' => false,
+    ),
+    'versions' => array(
+        'appsero/client' => array(
+            'pretty_version' => 'v1.4.0',
+            'version' => '1.4.0.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../appsero/client',
+            'aliases' => array(),
+            'reference' => '43289d79f1d55de687f667b17a2834b986cc7b6e',
+            'dev_requirement' => false,
+        ),
+        'philipnewcomer/wp-ajax-helper' => array(
+            'pretty_version' => '1.0.1',
+            'version' => '1.0.1.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../philipnewcomer/wp-ajax-helper',
+            'aliases' => array(),
+            'reference' => '3416943af039cbca4eba1efbf4d9f728860e3a5e',
+            'dev_requirement' => false,
+        ),
+        'rextheme/best-woocommerce-feed' => array(
+            'pretty_version' => 'dev-develop',
+            'version' => 'dev-develop',
+            'type' => 'wordpress-plugin',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'reference' => 'b6d4e61a73fd15f0a626e5f8cb2d533cdd9d8270',
+            'dev_requirement' => false,
+        ),
+    ),
+);

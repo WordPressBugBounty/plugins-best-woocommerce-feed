@@ -1,0 +1,2012 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WooCommerce Product Feed Manager\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-06-04 07:18+0000\n"
+"PO-Revision-Date: 2024-03-18 06:10+0000\n"
+"Last-Translator: \n"
+"Language-Team: العربية\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100 >= 3 "
+"&& n%100<=10 ? 3 : n%100 >= 11 && n%100<=99 ? 4 : 5;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.6.6; wp-6.4.3"
+
+#: admin/partials/on_boarding.php:29
+msgid "1 Hour"
+msgstr "1 ساعة"
+
+#: admin/partials/on_boarding.php:34
+msgid "1 Week"
+msgstr "أسبوع 1"
+
+#: admin/partials/on_boarding.php:32
+msgid "12 Hours"
+msgstr "12 ساعات"
+
+#: admin/partials/on_boarding.php:33
+msgid "24 Hours"
+msgstr "24 ساعات"
+
+#: admin/partials/on_boarding.php:30
+msgid "3 Hours"
+msgstr "3 ساعات"
+
+#: admin/partials/on_boarding.php:31
+msgid "6 Hours"
+msgstr "6 ساعات"
+
+#: admin/partials/setup-wizard.php:57
+msgid "A Complete Guide To Facebook"
+msgstr "الدليل الكامل للفيسبوك"
+
+#: admin/partials/setup-wizard.php:22
+msgid "A Complete Guide To Google Shopping"
+msgstr "الدليل الكامل للتسوق عبر Google"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:21
+#, fuzzy
+#| msgid "Access to a elite support team."
+msgid "Access to an Elite Support Team"
+msgstr "الوصول إلى فريق دعم النخبة."
+
+#: admin/partials/rex-feed-google-merchant.php:165
+msgid ""
+"Access token has expired. Please, authenticate again if you want to submit a "
+"completely new feed to Google Merchant Center."
+msgstr ""
+"انتهت صلاحية رمز الوصول. يُرجى إجراء المصادقة مرة أخرى إذا كنت تريد إرسال "
+"خلاصة جديدة تمامًا إلى Google Merchant Center."
+
+#: admin/partials/feed-config-metabox-display-filter.php:56
+#: admin/partials/feed-config-metabox-display.php:37
+msgid "Action"
+msgstr "فعل"
+
+#: admin/partials/rex-feed-product-filter-header-section.php:41
+msgid "Add Custom Filter"
+msgstr "إضافة عامل تصفية مخصص"
+
+#: admin/partials/on_boarding.php:354
+#, fuzzy
+#| msgid ""
+#| "Add Detailed Product Attributes ( Size, Color, Pattern, Material, Age "
+#| "group, Gender, Additional info ) to product"
+msgid ""
+"Add Detailed Product Attributes ( Size, Color, Pattern, Material, Age group, "
+"Gender ) to product"
+msgstr ""
+"أضف سمات المنتج التفصيلية (الحجم ، اللون ، النمط ، المادة ، الفئة العمرية ، "
+"الجنس ، معلومات إضافية) إلى المنتج"
+
+#: admin/partials/rex-feed-product-filter-header-section.php:32
+msgid "Add Feed Rule"
+msgstr "إضافة قاعدة تغذية"
+
+#: admin/class-rex-product-feed-admin.php:319
+msgid "Add More Attributes To Your Feed"
+msgstr "أضف المزيد من السمات إلى خلاصتك"
+
+#: admin/partials/rex-feed-config-table.php:51
+msgid "Add New Attribute"
+msgstr "إضافة سمة جديدة"
+
+#: admin/partials/category_mapping.php:21
+msgid "Add New Category Map"
+msgstr "إضافة خريطة فئة جديدة"
+
+#: admin/class-rex-product-feed-cpt.php:45
+msgid "Add New Feed"
+msgstr "إضافة موجز جديد"
+
+#: admin/class-rex-product-feed-cpt.php:46
+msgid "Add New Product Feed"
+msgstr "إضافة خلاصة منتج جديد"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:258
+msgid "Add Two Decimal Points"
+msgstr "أضف نقطتين عشريتين"
+
+#: admin/partials/on_boarding.php:325
+#, fuzzy
+#| msgid ""
+#| "Add Unique Product Identifiers ( Brand, GTIN, MPN, UPC, EAN, JAN, ISBN, "
+#| "ITF14, Offer price, Offer effective date ) to product"
+msgid ""
+"Add Unique Product Identifiers ( Brand, GTIN, MPN, UPC, EAN, JAN, ISBN, "
+"ITF14, Offer price, Offer effective date, Additional info ) to product"
+msgstr ""
+"إضافة معرّفات منتجات فريدة (العلامة التجارية ، GTIN ، MPN ، UPC ، EAN ، JAN "
+"، ISBN ، ITF14 ، سعر العرض ، تاريخ سريان العرض) إلى المنتج"
+
+#: admin/partials/rex-feed-product-settings-section.php:413
+msgid "Aelia Currency"
+msgstr "Aelia عملة"
+
+#: admin/class-rex-product-feed-metabox.php:225
+msgid "All Featured Products"
+msgstr "جميع المنتجات المميزة"
+
+#: admin/class-rex-product-feed-cpt.php:43
+msgid "All Product Feeds"
+msgstr "جميع خلاصات المنتج"
+
+#: admin/class-rex-product-feed-metabox.php:224
+msgid "All Published Products"
+msgstr "جميع المنتجات المنشورة"
+
+#: admin/partials/rex-feed-filter-description-body.php:16
+msgid "All the published products will be included in the feed."
+msgstr "سيتم تضمين جميع المنتجات المنشورة في الخلاصة."
+
+#: admin/partials/on_boarding.php:403
+msgid "Allow Private Products"
+msgstr "السماح بالمنتجات الخاصة"
+
+#: admin/partials/rex-feed-review-request-body-content.php:42
+msgid "Already Rated"
+msgstr "تم تقييمه بالفعل"
+
+#: admin/class-rex-product-feed-system-status.php:123
+msgid "An error occurred, please try again."
+msgstr "حدث خطأ، يرجى المحاولة مرة أخرى."
+
+#: admin/partials/rex-feed-product-settings-section.php:480
+#, fuzzy
+#| msgid "Analytics parameters"
+msgid "Analytics Parameters "
+msgstr "معلمات التحليلات"
+
+#: admin/partials/rex-product-feed-feed-filters-body.php:28
+#: admin/partials/rex-product-feed-feed-filters-body.php:57
+#: admin/partials/rex-product-feed-feed-filters-body.php:90
+#: admin/partials/rex-product-feed-feed-filters-body.php:120
+msgid "AND"
+msgstr "و"
+
+#: admin/class-rex-product-feed-actions.php:326
+msgid "and Regenerate"
+msgstr "وتجديد"
+
+#: admin/class-rex-product-feed-actions.php:341
+msgid "and we will assist you."
+msgstr "ونحن سوف تساعدك."
+
+#: admin/class-rex-google-merchant-content-api.php:205
+#: admin/partials/rex-feed-google-merchant.php:25
+msgid "API Method (Require authorization)"
+msgstr "طريقة واجهة برمجة التطبيقات (تتطلب إذنًا)"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:16
+msgid "Apply Feed Rules"
+msgstr "تطبيق قواعد الخلاصة"
+
+#: admin/partials/feed-config-metabox-display.php:28
+msgid "Assigned Values"
+msgstr "القيم المخصصة"
+
+#: admin/class-rex-product-feed-actions.php:345
+msgid ""
+"Attach your temporary feed link, and screenshots of your feed attributes, "
+"feed settings, and the feed filter section in the email."
+msgstr ""
+"قم بإرفاق رابط الخلاصة المؤقتة ولقطات شاشة لسمات الخلاصة وإعدادات الخلاصة "
+"وقسم تصفية الخلاصة في البريد الإلكتروني."
+
+#: admin/feed-templates/abstract-rex-feed-template.php:201
+msgid "Attribute"
+msgstr "يصف"
+
+#: admin/partials/feed-config-metabox-display.php:27
+msgid "Attribute Type"
+msgstr "نوع السمة"
+
+#: admin/class-rex-google-merchant-content-api.php:148
+#: admin/partials/rex-feed-google-merchant.php:166
+msgid "Authenticate"
+msgstr "مصادقة"
+
+#: admin/class-rex-google-merchant-content-api.php:177
+msgid ""
+"Authorize with GMC to send a new feed for the first time with API Method"
+msgstr "قم بالتفويض مع GMC لإرسال موجز جديد لأول مرة باستخدام طريقة API"
+
+#: admin/partials/rex-feed-product-settings-section.php:21
+msgid "Auto-Generate Your Feed"
+msgstr "إنشاء خلاصتك تلقائيًا"
+
+#: admin/partials/on_boarding.php:515
+msgid "Available Merchants"
+msgstr "التجار المتاحة"
+
+#: admin/partials/rex-feed-review-request-body-content.php:19
+msgid "Awesome, you've generated the feed successfully!"
+msgstr "رائع، لقد قمت بإنشاء الخلاصة بنجاح!"
+
+#: admin/partials/setup-wizard.php:281
+msgid "Boost your ROI with the largest marketplaces"
+msgstr "عزز عائد استثمارك مع أكبر الأسواق"
+
+#: admin/partials/rex-feed-product-settings-section.php:543
+msgid "Campaign"
+msgstr "حملة"
+
+#: admin/partials/rex-feed-product-settings-section.php:570
+#, fuzzy
+#| msgid "Campaign content"
+msgid "Campaign Content"
+msgstr "محتوى الحملة"
+
+#: admin/partials/rex-feed-product-settings-section.php:557
+#, fuzzy
+#| msgid "Campaign term"
+msgid "Campaign Term"
+msgstr "مصطلح الحملة"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:40
+msgid "Cancel"
+msgstr "يلغي"
+
+#: admin/class-rex-product-feed-metabox.php:226
+#, fuzzy
+#| msgid "Category Filter"
+msgid "Category Filters"
+msgstr "تصفية الفئاتتصفية الفئات"
+
+#: admin/class-rex-product-feed-admin.php:390
+#: admin/class-rex-product-feed-admin.php:391
+msgid "Category Mapping"
+msgstr "تصنيف الفئات"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:253
+msgid "CDATA"
+msgstr "CDATA"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:254
+msgid "CDATA without space"
+msgstr "CDATA بدون مساحة"
+
+#: admin/partials/feed-config-metabox-display.php:31
+msgid "char Limit"
+msgstr "حد شار"
+
+#: admin/partials/rex-feed-google-merchant.php:26
+msgid "Check Abbreviation Lists"
+msgstr "التحقق من قوائم الاختصارات"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:24
+#: admin/partials/rex-feed-product-taxonomies-section.php:74
+msgid "Check All"
+msgstr "تحقق من الكل"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:152
+msgid ""
+"Choose option if you want to include/exclude the old price attribute from "
+"the feed if it is less/equal than/to the current price."
+msgstr ""
+"اختر خيارًا إذا كنت تريد تضمين/استبعاد سمة السعر القديم من الخلاصة إذا كانت "
+"أقل/تساوي/إلى السعر الحالي."
+
+#: admin/class-rex-product-feed-actions.php:324
+#: admin/partials/on_boarding.php:195
+#, fuzzy
+#| msgid "Clear batch"
+msgid "Clear Batch"
+msgstr "دفعة واضحة"
+
+#: admin/partials/on_boarding.php:192
+msgid "Clear Batch (Remove all)"
+msgstr "مسح الدفعة (إزالة الكل)"
+
+#: admin/partials/feed-config-metabox-display.php:34
+msgid "Click Here To Edit Attributes"
+msgstr "انقر هنا لتحرير السمات"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:48
+msgid "Click Here To Start"
+msgstr "اضغط هنا للبدأ"
+
+#: admin/class-rex-product-feed-admin.php:339
+msgid ""
+"Click on the Feed Settings button to: %s - Schedule Feed Update %s - Include "
+"Out of Stock Products %s - Include Product with No Price %s - Include/ "
+"Exclude Product Type %s - Skip Products/ Attributes With Empty Values %s - "
+"Track Campaign With UTM Parameters"
+msgstr ""
+"انقر فوق الزر \"إعدادات الموجز\" من أجل: %s - جدولة تحديث الموجز %s - تضمين "
+"المنتجات غير المتوفرة في المخزون %s - تضمين المنتج بدون سعر %s - "
+"تضمين/استبعاد نوع المنتج %s - تخطي المنتجات/السمات ذات القيم الفارغة %s - "
+"تتبع الحملة باستخدام معلمات UTM"
+
+#: admin/class-rex-product-feed-admin.php:350
+msgid ""
+"Click on the publish button to start generating the feed. %s - Once you "
+"click on the Publish button, this tour will end. %s - You will see a feed "
+"loading bar once the feed generation starts. %s - Once the feed generation "
+"is completed, you can view or download the generated feed. %s - Once the "
+"feed is generated, you can click on the View/ Download button to view the "
+"feed or to download the generated feed"
+msgstr ""
+"انقر على زر النشر لبدء إنشاء الخلاصة. %s - بمجرد النقر على زر النشر، ستنتهي "
+"هذه الجولة. %s - ستشاهد شريط تحميل الخلاصة بمجرد بدء إنشاء الخلاصة. %s - "
+"بمجرد اكتمال إنشاء الخلاصة، يمكنك عرض أو تنزيل الخلاصة التي تم إنشاؤها. %s - "
+"بمجرد إنشاء الخلاصة، يمكنك النقر فوق الزر \"عرض/ تنزيل\" لعرض الخلاصة أو "
+"تنزيل الخلاصة التي تم إنشاؤها"
+
+#: admin/class-rex-product-feed-admin.php:328
+msgid ""
+"Click on this Product Filter button to: %s - Use All Featured Products "
+"Filter %s - Category Filter %s - Tag Filter %s - Custom Filter %s - Product "
+"Filter (Pro) %s - Product Rule (Pro)"
+msgstr ""
+"انقر فوق زر عامل تصفية المنتج هذا من أجل: %s - استخدام عامل تصفية كافة "
+"المنتجات المميزة %s - عامل تصفية الفئة %s - عامل تصفية العلامات %s - عامل "
+"التصفية المخصص %s - عامل تصفية المنتج (Pro) %s - قاعدة المنتج (Pro)"
+
+#: admin/partials/merchant_settings.php:59
+msgid "Client ID#: "
+msgstr "معرف العميل #:"
+
+#: admin/partials/merchant_settings.php:63
+msgid "Client Secret: "
+msgstr "سر العميل:"
+
+#: admin/class-rex-product-feed-admin.php:344
+msgid "Close The Settings Drawer"
+msgstr "أغلق درج الإعدادات"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:68
+msgid "Comma (,)"
+msgstr "فاصلة (,)"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:166
+msgid "Company Name"
+msgstr "اسم الشركة"
+
+#: admin/feed/abstract-rex-product-feed-generator.php:1280
+msgid "Completed feed generation job."
+msgstr "أنجزت مهمة توليد الأعلاف."
+
+#: admin/partials/feed-config-metabox-display-filter.php:44
+msgid "Condition"
+msgstr "حالة"
+
+#: admin/partials/rex-feed-google-merchant.php:169
+msgid "Configure"
+msgstr "تهيئة"
+
+#: admin/class-rex-product-feed-admin.php:265
+msgid "Configure Category Mapping"
+msgstr "تكوين تعيين الفئة"
+
+#: admin/feed-filter/class-rex-product-filter.php:204
+msgid "Contains"
+msgstr "يتضمن"
+
+#: admin/partials/on_boarding.php:101 admin/partials/on_boarding.php:171
+msgid "Controls"
+msgstr "ضوابط"
+
+#: admin/partials/on_boarding.php:605
+msgid "Copy log"
+msgstr "نسخ السجل"
+
+#: admin/partials/rex-feed-system-status-markups.php:27
+msgid "Copy Status"
+msgstr "حالة النسخ"
+
+#: admin/partials/rex-feed-ebay-seller-sections.php:29
+#: admin/partials/rex-feed-ebay-seller-sections.php:32
+#: admin/partials/rex-feed-product-settings-section.php:73
+msgid "Country"
+msgstr "دولة"
+
+#: admin/partials/setup-wizard.php:145
+msgid "Create Feed"
+msgstr "إنشاء موجز"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:42
+msgid "CSV"
+msgstr "CSV"
+
+#: admin/class-rex-product-feed-admin.php:723
+msgid "Custom field deleted."
+msgstr "تم حذف الحقل المخصص."
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:14
+msgid "Custom Field Support - Brand, GTIN, MPN, etc."
+msgstr "الدعم الميداني المخصص - العلامة التجارية ورقم GTIN وMPN وما إلى ذلك."
+
+#: admin/class-rex-product-feed-admin.php:722
+msgid "Custom field updated."
+msgstr "تم تحديث الحقل المخصص."
+
+#: admin/partials/feed-config-metabox-display-filter.php:25
+msgid "Custom Filter"
+msgstr "تصفية مخصصتصفية مخصص"
+
+#: admin/class-rex-product-feed-metabox.php:195
+msgid "Daily"
+msgstr "اليومياليومي"
+
+#: admin/class-rex-product-feed-actions.php:509
+msgid "Dashboard"
+msgstr "لوحة القيادة"
+
+#: admin/class-rex-product-feed-cpt.php:95
+msgid "Date"
+msgstr "تاريخ"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:259
+msgid "Decimal Separator - Comma (,)"
+msgstr "الفاصل العشري - الفاصلة (،)"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:256
+msgid "Decode URL"
+msgstr "فك ترميز URL"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:240
+msgid "Default"
+msgstr "تقصير"
+
+#: admin/class-rex-product-feed-admin.php:376
+#: admin/partials/category_mapping.php:67
+msgid "Delete"
+msgstr "حذف"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:15
+msgid "Detailed Product Attributes Support  - Size, Gender, Material, etc."
+msgstr "دعم سمات المنتج التفصيلية - الحجم والجنس والمواد وما إلى ذلك."
+
+#: admin/class-rex-google-merchant-content-api.php:195
+#: admin/partials/rex-feed-google-merchant.php:24
+msgid "Direct Upload Method (No need for authorization)"
+msgstr "طريقة التحميل المباشر (لا حاجة للترخيص)"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:35
+msgid "Do you still want to continue?"
+msgstr "هل مازلت تريد الاستمرار؟"
+
+#: admin/partials/rex-feed-filter-settings-body-content.php:20
+#: admin/partials/setup-wizard.php:292
+msgid "Documentation"
+msgstr "توثيق"
+
+#: admin/feed-filter/class-rex-product-filter.php:205
+msgid "Does not contain"
+msgstr "لا يحتوي"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:215
+msgid ""
+"Dollar rate, specify the real value if the prices in the product feed are "
+"given in dollars. If the prices are given in hryvnias, you can leave it "
+"empty."
+msgstr ""
+"سعر الدولار، حدد القيمة الحقيقية إذا كانت الأسعار في خلاصة المنتج معطاة "
+"بالدولار. إذا تم تقديم الأسعار بالهريفنيا، فيمكنك تركها فارغة."
+
+#: admin/class-rex-product-feed-cpt.php:173
+msgid "Download"
+msgstr "تحميل"
+
+#: admin/partials/rex-feed-feed-file-section-content.php:24
+msgid "Download Feed"
+msgstr "تحميل الأعلاف"
+
+#: admin/partials/setup-wizard.php:258
+msgid "Dynamic Pricing feature to manipulate your product pricing"
+msgstr "ميزة التسعير الديناميكي للتحكم في أسعار منتجك"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:249
+msgid "Each Word Uppercase"
+msgstr "كل كلمة كبيرة"
+
+#: admin/class-rex-feed-attributes.php:665
+msgid "EAN"
+msgstr "EAN"
+
+#: admin/partials/rex-feed-ebay-seller-sections.php:51
+#: admin/partials/rex-feed-ebay-seller-sections.php:55
+msgid "eBaySeller Currency"
+msgstr "eBaySeller عملة"
+
+#: admin/partials/rex-feed-ebay-seller-sections.php:16
+#: admin/partials/rex-feed-ebay-seller-sections.php:19
+msgid "eBaySeller Site ID"
+msgstr "eBaySeller معرف الموقع"
+
+#: admin/class-rex-product-feed-cpt.php:47
+msgid "Edit Product Feed"
+msgstr "تحرير خلاصة المنتج"
+
+#: admin/partials/on_boarding.php:454
+msgid "Enable Facebook Pixel"
+msgstr "تمكين Facebook Pixel"
+
+#: admin/partials/on_boarding.php:257
+msgid "Enable log"
+msgstr "تمكين السجل"
+
+#: admin/partials/rex-feed-product-settings-section.php:186
+msgid "Enable this option to exclude invisible/hidden products from your feed "
+msgstr "قم بتمكين هذا الخيار لاستبعاد المنتجات غير المرئية/المخفية من خلاصتك"
+
+#: admin/partials/rex-feed-product-settings-section.php:243
+msgid "Enable this option to include grouped products in your feed"
+msgstr "قم بتمكين هذا الخيار لتضمين المنتجات المجمعة في خلاصتك"
+
+#: admin/class-rex-product-data-retriever.php:202
+msgid "End product processing."
+msgstr "معالجة المنتج النهائي."
+
+#: admin/class-rex-product-feed-rollback.php:72
+msgid ""
+"Error occurred, The version selected is invalid. Try selecting different "
+"version."
+msgstr "حدث خطأ، الإصدار المحدد غير صالح. حاول اختيار إصدار مختلف."
+
+#: admin/partials/rex-feed-product-settings-section.php:212
+#: admin/partials/rex-feed-product-settings-section.php:269
+msgid "Example:"
+msgstr "مثال:"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:212
+msgid "Exchange Rate"
+msgstr "سعر الصرف"
+
+#: admin/feed-filter/class-rex-product-filter.php:226
+#: admin/partials/rex-feed-merchant-dropdown-section.php:94
+#: admin/partials/rex-feed-merchant-dropdown-section.php:160
+msgid "Exclude"
+msgstr "استبعاد"
+
+#: admin/partials/rex-feed-product-settings-section.php:183
+#, fuzzy
+#| msgid "Exclude invisible/hidden products"
+msgid "Exclude Invisible/Hidden Products"
+msgstr "استبعاد المنتجات غير المرئية / المخفية"
+
+#: admin/partials/on_boarding.php:382
+msgid "Exclude TAX from structured data prices"
+msgstr "استبعاد TAX من أسعار البيانات المنظمة"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:20
+#, fuzzy
+#| msgid "Ability To Exclude Tax From Structured Data Prices"
+msgid "Exclude Tax From Structured Data Prices"
+msgstr "القدرة على استبعاد الضرائب من أسعار البيانات المنظمة"
+
+#: admin/partials/on_boarding.php:475
+#| msgid "Facebook Pixel ID"
+msgid "Facebook Pixel ID"
+msgstr "معرف بكسل الفيسبوك"
+
+#: admin/class-rex-product-feed-admin.php:308
+msgid "Feed Attributes & Product Data Mapping"
+msgstr "سمات الخلاصة وتخطيط بيانات المنتج"
+
+#: admin/class-rex-product-feed-cpt.php:89
+msgid "Feed File"
+msgstr "ملف التغذية"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:18
+msgid "Feed Merchant"
+msgstr "تاجر أعلاف"
+
+#: admin/class-rex-product-feed-admin.php:337
+msgid "Feed Settings Option"
+msgstr "خيار إعدادات الخلاصة"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:33
+msgid "Feed Type"
+msgstr "نوع التغذية"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:16
+msgid "Filter feed by WooCommerce product categories"
+msgstr "قم بتصفية الخلاصة حسب فئات منتجات WooCommerce"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:66
+msgid "Filter feed by WooCommerce tags "
+msgstr "تصفية الخلاصة حسب علامات WooCommerce"
+
+#: admin/partials/rex-feed-filter-products-dropdown-section.php:17
+msgid "Filter Products"
+msgstr "منتجات التصفية"
+
+#: admin/partials/feed-config-metabox-display-filter.php:28
+msgid "Filter your feed products with your preferred condition"
+msgstr "قم بتصفية منتجات الأعلاف الخاصة بك حسب حالتك المفضلة"
+
+#: admin/class-rex-product-feed-admin.php:353
+msgid "Finish Tour"
+msgstr "إنهاء الجولة"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:184
+msgid "Firm ID"
+msgstr "معرف الشركة"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:198
+msgid "Firm Name"
+msgstr "اسم الشركة"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:248
+msgid "First Word Uppercase"
+msgstr "الكلمة الأولى كبيرة"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:19
+#, fuzzy
+#| msgid "Fix WooCommerce's (JSON-LD) structure data bug"
+msgid "Fix WooCommerce's (JSON-LD) Structure Data Bug"
+msgstr "أصلح خطأ بيانات هيكل WooCommerce (JSON-LD)"
+
+#: admin/partials/on_boarding.php:569
+#, fuzzy
+#| msgid "General"
+msgid "Generate"
+msgstr "جنرال لواء"
+
+#. Description of the plugin
+msgid ""
+"Generate and maintain your WooCommerce product feed for Google Shopping, "
+"Social Catalogs, Yandex, Idealo, Vivino, Pinterest, eBay MIP, BestPrice, "
+"Skroutz, Fruugo, Bonanza & 180+ Merchants."
+msgstr ""
+"قم بإنشاء وصيانة خلاصة منتج WooCommerce الخاصة بك لـ Google Shopping، "
+"وSocial Catalogs، وYandex، وIdealo، وVivino، وPinterest، وeBay MIP، "
+"وBestPrice، وSkroutz، وFruugo، وBonanza، وأكثر من 180 تاجرًا."
+
+#: admin/partials/setup-wizard.php:13
+msgid "Generate Feed"
+msgstr "توليد الأعلاف"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:13
+msgid "Generate Unlimited Products (Free version is limited to 200 products)"
+msgstr "إنشاء عدد غير محدود من المنتجات (الإصدار المجاني يقتصر على 200 منتج)"
+
+#: admin/partials/on_boarding.php:495
+msgid "Get email notification if your feed is not generated properly"
+msgstr "احصل على إشعار عبر البريد الإلكتروني إذا لم يتم إنشاء خلاصتك بشكل صحيح"
+
+#: admin/partials/setup-wizard.php:237
+msgid "Get Pro Now"
+msgstr "احصل على المحترفين الآن"
+
+#: admin/class-rex-product-feed-admin.php:435
+#: admin/class-rex-product-feed-admin.php:436
+msgid "Get Started"
+msgstr "البدء"
+
+#: admin/class-rex-product-feed-admin.php:300
+msgid "Give A Name To This Feed"
+msgstr "إعطاء اسم لهذه الخلاصة"
+
+#: admin/class-rex-product-feed-actions.php:512
+#: admin/class-rex-product-feed-admin.php:425
+msgid "Go Pro"
+msgstr "احصل على الاشتراك الرئيسي"
+
+#: admin/partials/setup-wizard.php:127
+msgid "Go to Plugin Dashboard"
+msgstr "انتقل إلى لوحة تحكم البرنامج المساعد"
+
+#: admin/partials/merchant_settings.php:54
+msgid "Google Merchant Center Authorization"
+msgstr "ترخيص مركز جوجل التجاري"
+
+#: admin/class-rex-product-feed-admin.php:400
+#: admin/class-rex-product-feed-admin.php:401
+msgid "Google Merchant Settings"
+msgstr "إعدادات التاجر من Google"
+
+#: admin/feed-filter/class-rex-product-filter.php:208
+msgid "Greater than"
+msgstr "أكثر من"
+
+#: admin/feed-filter/class-rex-product-filter.php:209
+msgid "Greater than or equal to"
+msgstr "أكبر من أو يساوي"
+
+#: admin/class-rex-product-feed-cpt.php:201
+msgid "Group products : "
+msgstr "منتجات المجموعة:"
+
+#: admin/class-rex-product-feed-admin.php:305
+msgid ""
+"Here, you can change the merchant/marketplace and choose the file type when "
+"the product feed is generated."
+msgstr ""
+"هنا، يمكنك تغيير التاجر/السوق واختيار نوع الملف عند إنشاء خلاصة المنتج."
+
+#: admin/partials/on_boarding.php:273
+msgid "Hide Character Limit Column"
+msgstr "إخفاء عمود الحد الأقصى لعدد الأحرف"
+
+#: admin/class-rex-product-feed-metabox.php:194
+#: admin/class-rex-product-feed-metabox.php:383
+msgid "Hourly"
+msgstr "باستمرارساعيا"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:30
+msgid "How about we guide you on how to create your first product feed?"
+msgstr "ماذا عن إرشادك حول كيفية إنشاء خلاصة منتجك الأولى؟"
+
+#: admin/partials/setup-wizard.php:30
+msgid "How to auto-sync product feed to Google Merchant Shop"
+msgstr "كيفية مزامنة خلاصة المنتج تلقائيًا مع Google Merchant Shop"
+
+#: admin/partials/setup-wizard.php:101
+msgid "How to generate WooCommerce product feed for Ceneo"
+msgstr "كيفية إنشاء خلاصة منتج WooCommerce لـ Ceneo"
+
+#: admin/partials/setup-wizard.php:61
+msgid "How to generate WooCommerce product feed for Facebook"
+msgstr "كيفية إنشاء خلاصة منتج WooCommerce لفيسبوك"
+
+#: admin/partials/setup-wizard.php:83
+msgid "How to generate WooCommerce product feed for Favi"
+msgstr "كيفية إنشاء خلاصة منتج WooCommerce لـ Favi"
+
+#: admin/partials/setup-wizard.php:74
+msgid "How to generate WooCommerce product feed for Fruugo"
+msgstr "كيفية إنشاء خلاصة منتج WooCommerce لـ Fruugo"
+
+#: admin/partials/setup-wizard.php:48
+msgid "How to generate WooCommerce product feed for Glami"
+msgstr "كيفية إنشاء خلاصة منتج WooCommerce لـ Glami"
+
+#: admin/partials/setup-wizard.php:26
+msgid "How to generate WooCommerce product feed for Google"
+msgstr "كيفية إنشاء خلاصة منتج WooCommerce لـ Google"
+
+#: admin/partials/setup-wizard.php:110
+msgid "How to generate WooCommerce product feed for Heureka"
+msgstr "كيفية إنشاء خلاصة منتج WooCommerce لـ Heureka"
+
+#: admin/partials/setup-wizard.php:39
+msgid "How to generate WooCommerce product feed for Vivino"
+msgstr "كيفية إنشاء خلاصة منتج WooCommerce لـ Vivino"
+
+#: admin/partials/setup-wizard.php:92
+msgid "How to List WooCommerce Store Products On Idealo"
+msgstr "كيفية إدراج منتجات متجر WooCommerce على موقع Idealo"
+
+#: admin/partials/setup-wizard.php:65
+msgid "How to upload your WooCommerce products on the Facebook store"
+msgstr "كيفية تحميل منتجات WooCommerce الخاصة بك على متجر فيسبوك"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:243
+msgid "HTML Entities"
+msgstr "كيانات HTML"
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+msgid "https://rextheme.com"
+msgstr ""
+
+#: admin/partials/rex-feed-product-settings-section.php:560
+msgid "Identify the paid keywords"
+msgstr "تحديد الكلمات الرئيسية المدفوعة"
+
+#: admin/partials/feed-config-metabox-display-filter.php:40
+msgid "If"
+msgstr "إذا"
+
+#: admin/class-rex-product-feed-actions.php:339
+#| msgid "If these doesn't work, please reach out to us at"
+msgid "If these don't work, please reach out to us at"
+msgstr "إذا لم تنجح هذه، يرجى التواصل معنا على"
+
+#: admin/feed-filter/class-rex-product-filter.php:225
+#: admin/partials/rex-feed-merchant-dropdown-section.php:93
+#: admin/partials/rex-feed-merchant-dropdown-section.php:159
+msgid "Include"
+msgstr "يشمل"
+
+#: admin/partials/setup-wizard.php:250
+msgid ""
+"Include all the required attributes in your feed (GTIN, MPN, EAN, UPC, etc)"
+msgstr ""
+"تضمين جميع السمات المطلوبة في خلاصتك (رقم GTIN ورقم MPN ورقم EAN وUPC وما "
+"إلى ذلك)"
+
+#: admin/partials/rex-feed-product-settings-section.php:267
+msgid ""
+"Include all the Variable Products Variations in your feed (these are only "
+"the product variations)"
+msgstr ""
+"قم بتضمين جميع أشكال المنتجات المتغيرة في خلاصتك (هذه فقط أشكال المنتج "
+"المختلفة)"
+
+#: admin/partials/rex-feed-product-settings-section.php:262
+msgid "Include All Variable Products Variations"
+msgstr "تضمين كافة أشكال المنتجات المتغيرة"
+
+#: admin/partials/setup-wizard.php:254
+msgid ""
+"Include detailed product attributes (Size, Pattern, Material, Gender, Color, "
+"etc)  "
+msgstr ""
+"قم بتضمين سمات المنتج التفصيلية (الحجم والنمط والمواد والجنس واللون وما إلى "
+"ذلك)"
+
+#: admin/partials/rex-feed-product-settings-section.php:240
+msgid "Include Grouped Products"
+msgstr "تضمين المنتجات المجمعة"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:86
+msgid ""
+"Include or exclude XML file header attributes (title, link, description, "
+"datetime)"
+msgstr ""
+"تضمين أو استبعاد سمات رأس ملف XML (العنوان، الرابط، الوصف، التاريخ والوقت)"
+
+#: admin/partials/rex-feed-product-settings-section.php:112
+msgid "Include Out of Stock Products"
+msgstr "قم بتضمين المنتجات غير المتوفرة في المخزون"
+
+#: admin/partials/rex-feed-product-settings-section.php:135
+msgid "Include Product with No Price"
+msgstr "قم بتضمين المنتج بدون سعر"
+
+#: admin/partials/rex-feed-product-settings-section.php:210
+msgid "Include the variation name in the product title"
+msgstr "قم بتضمين اسم الاختلاف في عنوان المنتج"
+
+#: admin/partials/rex-feed-product-settings-section.php:161
+#: admin/partials/rex-feed-product-settings-section.php:164
+msgid "Include Variable Parent Product (No Variations)"
+msgstr "تضمين المنتج الأصلي المتغير (بدون اختلافات)"
+
+#: admin/partials/rex-feed-product-settings-section.php:205
+msgid "Include Variation Name In The Product Title"
+msgstr "قم بتضمين اسم الاختلاف في عنوان المنتج"
+
+#: admin/partials/on_boarding.php:428
+#, fuzzy
+#| msgid ""
+#| "Increase the number of products that will be approved in Google's "
+#| "Merchant Center:\n"
+#| "                                            This option will fix "
+#| "WooCommerce's (JSON-LD) structured data bug and add extra structured data "
+#| "elements to your pages"
+msgid ""
+"Increase the number of products that will be approved in Google's Merchant "
+"Center: This option will fix WooCommerce's (JSON-LD) structured data bug and "
+"add extra structured data elements to your pages"
+msgstr ""
+"زيادة عدد المنتجات التي ستتم الموافقة عليها في Merchant Center من Google: "
+"سيعمل هذا الخيار على إصلاح خطأ البيانات المنظمة لـ WooCommerce (JSON-LD) "
+"وإضافة عناصر بيانات منظمة إضافية إلى صفحاتك"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:244
+msgid "Integer"
+msgstr "عدد صحيح"
+
+#: admin/class-rex-product-feed-factory.php:316
+msgid "Invalid Merchant."
+msgstr "تاجر غير صالح."
+
+#: admin/feed-filter/class-rex-product-filter.php:206
+msgid "Is equal to"
+msgstr "مساوي ل"
+
+#: admin/feed-filter/class-rex-product-filter.php:207
+msgid "Is not equal to"
+msgstr "لا يساوي"
+
+#: rex-product-feed.php:190
+#, fuzzy
+#| msgid ""
+#| "It looks like you have an older version of %1$s%2$s. Please update "
+#| "%1$s%2$s to the latest version to use <strong>Pro</strong> features "
+#| "properly."
+msgid ""
+"It looks like you have an older version of %1$s%2$s. Please update %1$s%2$s "
+"to the latest version to use Pro features properly."
+msgstr ""
+"يبدو أن لديك إصدارًا أقدم من %1$s%2$s. يرجى تحديث %1$s%2$s إلى الإصدار "
+"الأحدث لاستخدام ميزات Pro بشكل صحيح."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:128
+msgid "Item Wrapper"
+msgstr "غلاف العنصر"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:100
+msgid "Items Wrapper"
+msgstr "غلاف العناصر"
+
+#: admin/class-rex-product-feed-cpt.php:215
+msgid "Last Updated: "
+msgstr "آخر تحديث:"
+
+#: admin/partials/rex-feed-product-settings-section.php:24
+#: admin/partials/rex-feed-product-settings-section.php:77
+#: admin/partials/rex-feed-product-settings-section.php:186
+#: admin/partials/rex-feed-product-settings-section.php:220
+#: admin/partials/rex-feed-product-settings-section.php:480
+#: admin/partials/rex-feed-product-taxonomies-section.php:28
+#: admin/partials/rex-feed-product-taxonomies-section.php:78
+msgid "Learn How"
+msgstr "تعلم كيف"
+
+#: admin/feed-filter/class-rex-product-filter.php:210
+msgid "Less than"
+msgstr "أقل من"
+
+#: admin/feed-filter/class-rex-product-filter.php:211
+msgid "Less than or equal to"
+msgstr "اقل او يساوي"
+
+#: admin/partials/on_boarding.php:165
+msgid "Logs"
+msgstr "السجلات"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:18
+msgid "Manipulate Product Pricing"
+msgstr "التلاعب بتسعير المنتجات"
+
+#: admin/partials/category_mapping.php:25
+msgid "Mapper Name"
+msgstr "اسم معين"
+
+#: admin/partials/rex-feed-product-settings-section.php:533
+msgid "Marketing medium: (e.g. cpc, banner, email)"
+msgstr "وسيط التسويق: (مثل تكلفة النقرة أو البانر أو البريد الإلكتروني)"
+
+#: admin/partials/rex-feed-product-settings-section.php:530
+msgid "Medium"
+msgstr "متوسط"
+
+#: admin/class-rex-product-feed-cpt.php:88
+msgid "Merchant"
+msgstr "تاجر"
+
+#: admin/partials/merchant_settings.php:67
+msgid "Merchant ID# : "
+msgstr "معرف التاجر #:"
+
+#: admin/partials/on_boarding.php:133
+msgid "Merchants"
+msgstr "التجار"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:17
+msgid "Merge Multiple Attributes Values Together"
+msgstr "دمج قيم السمات المتعددة معًا"
+
+#: admin/class-rex-product-feed-metabox.php:381
+msgid "Monthly"
+msgstr "شهريا"
+
+#: admin/class-rex-google-merchant-content-api.php:157
+#: admin/class-rex-google-merchant-content-api.php:267
+msgid ""
+"NB: This session expiration is set by Google. You only need to authorize "
+"while submitting a new feed. You can ignore this if you've already submitted "
+"your feed to Google."
+msgstr ""
+"ملاحظة: يتم تعيين انتهاء صلاحية الجلسة هذه بواسطة Google. ما عليك سوى الحصول "
+"على إذن أثناء إرسال موجز جديد. يمكنك تجاهل هذا إذا كنت قد أرسلت خلاصتك إلى "
+"Google بالفعل."
+
+#: admin/partials/rex-feed-config-table.php:59
+msgid "New Attribute"
+msgstr "سمة جديدة"
+
+#: admin/partials/rex-feed-config-table.php:62
+#, fuzzy
+#| msgid "Add New Custom Attribute"
+msgid "New Custom Attribute"
+msgstr "إضافة سمة مخصصة جديدة"
+
+#: admin/class-rex-product-feed-cpt.php:48
+#, fuzzy
+#| msgid "Product Feed"
+msgid "New Product Feed"
+msgstr "خلاصة المنتج"
+
+#: admin/class-rex-product-feed-admin.php:355
+msgid "Next"
+msgstr "التالي"
+
+#: admin/class-rex-product-feed-cpt.php:226
+msgid "Next Schedule: "
+msgstr "الجدول التالي"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:43
+msgid "No Categories"
+msgstr "لا توجد فئات"
+
+#: admin/class-rex-product-feed-metabox.php:193
+msgid "No Interval"
+msgstr "لا يوجد فاصل زمني"
+
+#: admin/class-rex-product-feed-cpt.php:51
+msgid "No product feeds found"
+msgstr "لم يتم العثور على خلاصات المنتج"
+
+#: admin/class-rex-product-feed-cpt.php:52
+msgid "No product feeds found in trash"
+msgstr "لم يتم العثور على خلاصات المنتج في سلة المهملات"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:93
+msgid "No Terms"
+msgstr "لا شروط"
+
+#: admin/partials/rex-feed-save-filters-changes-warning-popup.php:39
+#: admin/partials/rex-feed-save-settings-changes-warning-popup.php:39
+msgid "No, Close"
+msgstr "لا، إغلاق"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:41
+msgid "No, Thanks"
+msgstr "ًلا شكرا"
+
+#: admin/partials/rex-feed-review-request-body-content.php:50
+msgid "Not Now"
+msgstr "ليس الآن"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:44
+msgid "Okay"
+msgstr "تمام"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:149
+msgid "Old Price"
+msgstr "سعر قديم"
+
+#: admin/partials/rex-feed-product-settings-section.php:499
+msgid "On Toggle to activate UTM Params"
+msgstr "قم بالتبديل لتنشيط UTM Params"
+
+#: admin/class-rex-product-feed-admin.php:314
+msgid ""
+"Once you have mapped the attribute values, you can click on Publish and the "
+"feed will be generated. %s **This tour will end if you click on the Publish "
+"button and the feed will start generating. %s - You can view the generated "
+"feed once the feed generation is completed. %s - Click on the Next to skip "
+"feed generation for now and  to learn more options to configure the feed. %s"
+msgstr ""
+"بمجرد تعيين قيم السمات، يمكنك النقر فوق نشر وسيتم إنشاء الخلاصة. %s **ستنتهي "
+"هذه الجولة إذا قمت بالنقر فوق الزر \"نشر\" وسيبدأ إنشاء الموجز. %s - يمكنك "
+"عرض الخلاصة التي تم إنشاؤها بمجرد اكتمال إنشاء الخلاصة. %s - انقر فوق "
+"\"التالي\" لتخطي إنشاء الخلاصة في الوقت الحالي ولمعرفة المزيد من الخيارات "
+"لتكوين الخلاصة. %s"
+
+#: admin/class-rex-product-feed-admin.php:334
+#: admin/class-rex-product-feed-admin.php:345
+msgid ""
+"Once you make any changes, click on the Close button to get back to the "
+"Attributes section."
+msgstr "بمجرد إجراء أي تغييرات، انقر فوق الزر \"إغلاق\" للعودة إلى قسم السمات."
+
+#: admin/partials/rex-feed-filter-description-body.php:24
+msgid "Only the featured products will be included in the feed."
+msgstr "سيتم تضمين المنتجات المميزة فقط في الخلاصة."
+
+#: admin/class-rex-product-feed-admin.php:266
+msgid "Optimize Product Title"
+msgstr "تحسين عنوان المنتج"
+
+#: admin/partials/rex-product-feed-feed-filters-body.php:139
+msgid "OR"
+msgstr "أو"
+
+#: admin/class-rex-product-feed-merchants.php:1120
+msgid "Others"
+msgstr "آحرون"
+
+#: admin/partials/setup-wizard.php:286
+msgid "Our Support"
+msgstr "دعمنا"
+
+#: admin/partials/feed-config-metabox-display.php:30
+msgid "Output Filter"
+msgstr "مرشح الإخراج"
+
+#: admin/class-rex-product-feed-cpt.php:53
+msgid "Parent Product Feed:"
+msgstr "خلاصة المنتج الأصلي:"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:70
+msgid "Pipe (|)"
+msgstr "الأنابيب (|)"
+
+#: admin/partials/rex-feed-review-request-body-content.php:29
+#| msgid ""
+#| "Please do give us a %srating%s if you like using our plugin. It will only "
+#| "take 2 minutes."
+msgid ""
+"Please do give us a %s if you like using our plugin. It will only take 2 "
+"minutes."
+msgstr ""
+"من فضلك قم بتزويدنا بـ %s إذا كنت ترغب في استخدام المكون الإضافي الخاص بنا. "
+"سوف يستغرق دقيقتين فقط."
+
+#: admin/partials/rex-feed-google-merchant.php:55
+msgid ""
+"Please note that Google has fixed abbreviations for Language. For example, "
+"the abbreviation for language, English is en."
+msgstr ""
+"يرجى ملاحظة أن Google قامت بإصلاح الاختصارات للغة. على سبيل المثال، اختصار "
+"اللغة الإنجليزية هو En."
+
+#: admin/partials/rex-feed-google-merchant.php:38
+msgid ""
+"Please note that Google has fixed abbreviations for Location. For example, "
+"the abbreviation for target location, United States is US."
+msgstr ""
+"يرجى ملاحظة أن Google قامت بإصلاح الاختصارات للموقع. على سبيل المثال، اختصار "
+"الموقع المستهدف، الولايات المتحدة هو US."
+
+#: admin/feed-filter/class-rex-product-filter.php:286
+#: admin/feed-filter/class-rex-product-filter.php:289
+#: admin/feed-templates/abstract-rex-feed-template.php:167
+#: admin/feed-templates/abstract-rex-feed-template.php:203
+#: admin/partials/feed-config-metabox-display.php:58
+#: admin/partials/feed-config-metabox-display.php:167
+#: admin/partials/on_boarding.php:596
+msgid "Please Select"
+msgstr "الرجاء التحديد"
+
+#: admin/feed/ceneo/Feed.php:415 admin/feed/daisycon/Feed.php:319
+#: admin/feed/favi/Feed.php:379 admin/feed/fruugo/Feed.php:366
+#: admin/feed/glami/Feed.php:347
+#: admin/feed/google-custom-search-ads/Feed.php:464
+#: admin/feed/google-local-products/Feed.php:406
+#: admin/feed/grupo_zap/Feed.php:332 admin/feed/gulog_gratis/Feed.php:448
+#: admin/feed/hotline/Feed.php:436 admin/feed/marktplaats/Feed.php:338
+#: admin/feed/pinterest/Feed.php:327
+#: admin/feed/rex-shopping-bestprice/Feed.php:388
+#: admin/feed/rex-shopping-deals4u/Feed.php:390
+#: admin/feed/rex-shopping-feed/Feed.php:422
+#: admin/feed/rex-shopping-heureka-availability/Feed.php:410
+#: admin/feed/rex-shopping-heureka/Feed.php:388
+#: admin/feed/rex-shopping-ibud/Feed.php:396
+#: admin/feed/rex-shopping-mirakl/Feed.php:423
+#: admin/feed/rex-shopping-rakuten/Feed.php:372
+#: admin/feed/rex-shopping-spartoo-fr/Feed.php:441
+#: admin/feed/rex-shopping-wish/Feed.php:369
+#: admin/feed/rex-shopping-zbozi/Feed.php:379 admin/feed/rozetka/Feed.php:467
+#: admin/feed/shopping/Feed.php:357 admin/feed/sooqr/Feed.php:354
+#: admin/feed/spartoo/Feed.php:343 admin/feed/yandex/Feed.php:423
+#: admin/feed/zap_co_il/Feed.php:445
+#: includes/library/GoogleShoppingFeed/Feed.php:324
+msgid "Please select a Google Category"
+msgstr "الرجاء تحديد فئة جوجل"
+
+#: admin/partials/category_mapping.php:80
+msgid "Please update WPFM database"
+msgstr "يرجى تحديث قاعدة بيانات WPFM"
+
+#: admin/class-rex-product-feed-merchants.php:1114
+msgid "Popular Merchants"
+msgstr "التجار المشهورين"
+
+#: admin/class-rex-product-feed-cpt.php:42
+msgctxt "Post Type General Name"
+msgid "Product Feed"
+msgstr "تغذية المنتج"
+
+#: admin/class-rex-product-feed-cpt.php:41
+#: admin/class-rex-product-feed-cpt.php:44
+msgctxt "Post Type General Name"
+msgid "Product Feeds"
+msgstr ""
+
+#: admin/partials/feed-config-metabox-display.php:80
+#: admin/partials/feed-config-metabox-display.php:190
+msgid "Prefix"
+msgstr "اختصار"
+
+#: admin/partials/feed-config-metabox-display.php:76
+#: admin/partials/feed-config-metabox-display.php:186
+msgid "Prefix/Suffix"
+msgstr "لاحقة البادئة"
+
+#: admin/partials/rex-feed-config-table.php:73
+msgid "Preview Feed"
+msgstr "معاينة الخلاصة"
+
+#: admin/class-rex-product-feed-admin.php:356
+msgid "Previous"
+msgstr "سابق"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:245
+msgid "Price"
+msgstr "سعر"
+
+#: admin/partials/setup-wizard.php:234
+msgid "Prices start at $79.99 "
+msgstr "تبدأ الأسعار من 79.99 دولارًا"
+
+#: admin/partials/on_boarding.php:321 admin/partials/on_boarding.php:350
+#: admin/partials/on_boarding.php:377 admin/partials/on_boarding.php:422
+#: admin/partials/on_boarding.php:491 admin/partials/on_boarding.php:557
+#: admin/partials/rex-feed-product-filter-header-section.php:30
+msgid "pro"
+msgstr "طليعة"
+
+#: admin/class-rex-product-feed-merchants.php:1117
+msgid "Pro Merchants"
+msgstr "التجار المحترفين"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:12
+msgid "Product Categories"
+msgstr "فئات المنتجات"
+
+#: admin/partials/setup-wizard.php:262
+msgid "Product data manipulation along with find & replace feature"
+msgstr "معالجة بيانات المنتج مع ميزة البحث والاستبدال"
+
+#: admin/class-rex-product-feed-admin.php:730
+msgid "Product feed draft updated."
+msgstr "تم تحديث مسودة خلاصة المنتج."
+
+#: admin/partials/setup-wizard.php:180
+msgid "Product Feed for WooCommerce"
+msgstr "خلاصة المنتج لـ WooCommerce"
+
+#. Plugin Name of the plugin
+#: admin/partials/setup-wizard.php:135
+msgid "Product Feed Manager for WooCommerce"
+msgstr "مدير تغذية المنتج لـ WooCommerce"
+
+#: admin/class-rex-product-feed-admin.php:726
+msgid "Product feed published."
+msgstr "تم نشر خلاصة المنتج."
+
+#: admin/class-rex-product-feed-admin.php:727
+msgid "Product feed saved."
+msgstr "تم حفظ خلاصة المنتج."
+
+#: admin/class-rex-product-feed-admin.php:721
+#: admin/class-rex-product-feed-admin.php:724
+msgid "Product feed updated."
+msgstr "تم تحديث خلاصة المنتج."
+
+#: admin/partials/rex-feed-filter-settings-body-content.php:28
+#: admin/partials/rex-feed-product-filter-header-section.php:5
+msgid "Product Filter"
+msgstr "مرشح المنتج"
+
+#: admin/class-rex-product-feed-admin.php:333
+msgid "Product Filter Close Button"
+msgstr "زر إغلاق فلتر المنتج"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:62
+msgid "Product Tags"
+msgstr "علامات المنتج"
+
+#: admin/partials/rex-feed-product-settings-section.php:546
+msgid "Product, promo code, or slogan (e.g. spring_sale)"
+msgstr "المنتج أو الرمز الترويجي أو الشعار (على سبيل المثال ، spring_sale)"
+
+#: admin/partials/rex-feed-filter-products-dropdown-section.php:14
+msgid "Products"
+msgstr "منتجاتمنتجات"
+
+#: admin/partials/on_boarding.php:177
+msgid ""
+"Products per batch (Free users cannot generate more than %d products. For "
+"free users it will run only 1 batch)"
+msgstr ""
+"المنتجات لكل دفعة (لا يمكن للمستخدمين المجانيين إنشاء أكثر من %d منتج. "
+"بالنسبة للمستخدمين المجانيين، سيتم تشغيل دفعة واحدة فقط)"
+
+#: admin/partials/rex-feed-config-table.php:76
+msgid "Publish"
+msgstr "ينشر"
+
+#: admin/class-rex-product-feed-admin.php:348
+msgid "Publish Feed"
+msgstr "نشر الخلاصة"
+
+#: admin/class-rex-product-feed-admin.php:312
+msgid "Publish To Generate The Product Feed"
+msgstr "انشر لإنشاء خلاصة المنتج"
+
+#: admin/class-rex-product-feed-actions.php:528
+#: admin/partials/on_boarding.php:202 admin/partials/on_boarding.php:204
+msgid "Purge Cache"
+msgstr "تطهير ذاكرة التخزين المؤقت"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:131
+msgid ""
+"Put custom xml attribute item wrapper name. Keep blank incase of using "
+"default structure."
+msgstr ""
+"ضع اسم مجمّع عنصر سمة XML المخصص. اتركه فارغًا في حالة استخدام البنية "
+"الافتراضية."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:117
+msgid ""
+"Put custom xml attribute item wrapper_el name. Keep blank incase of using "
+"default structure."
+msgstr ""
+"ضع اسم Wrapper_el لعنصر سمة XML المخصص. اتركه فارغًا في حالة استخدام البنية "
+"الافتراضية."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:103
+msgid ""
+"Put custom xml attribute items wrapper name. Keep blank incase of using "
+"default structure."
+msgstr ""
+"ضع اسم مجمّع عناصر سمة XML المخصصة. اتركه فارغًا في حالة استخدام البنية "
+"الافتراضية."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:169
+msgid ""
+"Put your company name to include in the xml header section with company tag."
+msgstr "ضع اسم شركتك لتضمينه في قسم رأس XML مع علامة الشركة."
+
+#: admin/partials/rex-feed-review-request-body-content.php:46
+msgid "Rate Now"
+msgstr "قيم الآن"
+
+#: admin/partials/rex-feed-review-request-body-content.php:34
+msgid "rating"
+msgstr "تقييم"
+
+#: admin/partials/merchant_settings.php:72
+msgid "Redirect URL"
+msgstr "إعادة توجيه URL"
+
+#: admin/partials/rex-feed-product-settings-section.php:517
+msgid "Referrer"
+msgstr "المرجع"
+
+#: admin/class-rex-product-feed-cpt.php:90
+msgid "Refresh Interval"
+msgstr "الفاصل الزمني للتحديثالفاصل الزمني للتحديث"
+
+#: admin/partials/on_boarding.php:302 admin/partials/on_boarding.php:304
+msgid "Reinstall"
+msgstr "أعد التثبيت"
+
+#: admin/partials/on_boarding.php:241
+msgid "Remove All Plugin Data on Plugin Uninstallation"
+msgstr "إزالة كافة بيانات البرنامج المساعد عند إلغاء تثبيت البرنامج المساعد"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:257
+msgid "Remove Decimal Points"
+msgstr "إزالة النقاط العشرية"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:260
+msgid "Remove Hyphen"
+msgstr "إزالة الواصلة"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:261
+msgid "Remove Hyphen and Space"
+msgstr "إزالة الواصلة والمسافة"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:250
+msgid "Remove ShortCodes"
+msgstr "إزالة الرموز المختصرة"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:251
+msgid "Remove ShortCodes and Tags"
+msgstr "إزالة الرموز القصيرة والعلامات"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:246
+msgid "Remove Space"
+msgstr "إزالة الفضاء"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:252
+msgid "Remove Special Character"
+msgstr "إزالة الحرف الخاص"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:247
+msgid "Remove Tab"
+msgstr "إزالة علامة التبويب"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:255
+msgid "Remove Underscore"
+msgstr "إزالة الشرطة السفلية"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:263
+msgid "Replace Comma with Backslash"
+msgstr "استبدل الفاصلة بخط مائل عكسي"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:264
+msgid "Replace Decimal with Hyphen"
+msgstr "استبدل العلامة العشرية بالواصلة"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:262
+msgid "Replace Space with Hyphen"
+msgstr "استبدل المسافة بالواصلة"
+
+#: admin/partials/feed-config-metabox-display.php:26
+msgid "Required Attributes"
+msgstr "السمات المطلوبة"
+
+#: admin/partials/merchant_settings.php:76
+msgid "Reset"
+msgstr "إعادة تعيين"
+
+#: admin/class-rex-product-feed-admin.php:725
+msgid "Revision restored."
+msgstr "تمت استعادة المراجعة."
+
+#. Author of the plugin
+msgid "RexTheme"
+msgstr "موضوع ريكس"
+
+#: admin/partials/on_boarding.php:290
+msgid "Rollback to Older Version"
+msgstr "العودة إلى الإصدار الأقدم"
+
+#: admin/class-rex-product-feed-rollback.php:92
+msgid "Rollback to Previous Version"
+msgstr "العودة إلى الإصدار السابق"
+
+#: admin/class-rex-product-feed-rollback.php:202
+msgid "Rollback to Product Feed Manager for WooCommerce previous version"
+msgstr "العودة إلى Product Feed Manager للإصدار السابق من WooCommerce"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:44
+msgid "RSS"
+msgstr "RSS"
+
+#: admin/partials/category_mapping.php:38 admin/partials/on_boarding.php:184
+#: admin/partials/on_boarding.php:229 admin/partials/on_boarding.php:480
+#: admin/partials/on_boarding.php:500
+msgid "Save"
+msgstr "حفظ"
+
+#: admin/partials/rex-feed-google-merchant.php:62
+#: admin/partials/rex-feed-google-merchant.php:65
+msgid "Schedule"
+msgstr "جدول"
+
+#: admin/class-rex-product-feed-cpt.php:50
+msgid "Search Product Feeds"
+msgstr "البحث في خلاصات المنتج"
+
+#: admin/partials/rex-feed-product-settings-section.php:77
+msgid ""
+"Select a country for the Shipping attribute value for Google/Facebook "
+"merchants."
+msgstr "حدد بلدًا لقيمة سمة الشحن لتجار Google/Facebook."
+
+#: admin/partials/rex-feed-google-merchant.php:83
+#: admin/partials/rex-feed-google-merchant.php:86
+#, fuzzy
+#| msgid "Select day of month"
+msgid "Select Day of Month"
+msgstr "اختر يوم من الشهر"
+
+#: admin/partials/rex-feed-google-merchant.php:108
+#: admin/partials/rex-feed-google-merchant.php:111
+#, fuzzy
+#| msgid "Select day of week"
+msgid "Select Day of Week"
+msgstr "اختر يوم من الأسبوع"
+
+#: admin/partials/rex-feed-google-merchant.php:133
+#: admin/partials/rex-feed-google-merchant.php:136
+msgid "Select Hour"
+msgstr "اختر ساعة"
+
+#: admin/partials/setup-wizard.php:136
+msgid "Select merchant and create feed"
+msgstr "حدد التاجر وقم بإنشاء خلاصة"
+
+#: admin/class-rex-product-feed-admin.php:304
+msgid "Select Merchant And Feed Type"
+msgstr "حدد نوع التاجر والخلاصة"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:56
+msgid "Select separator"
+msgstr "حدد الفاصل"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:36
+msgid "Select your feed file type"
+msgstr "حدد نوع ملف الخلاصة الخاص بك"
+
+#: admin/class-rex-product-feed-merchants.php:1104
+msgid "Select your merchant"
+msgstr "اختر التاجر الخاص بك"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:21
+msgid "Select your preferred merchant from the list"
+msgstr "اختر التاجر المفضل لديك من القائمة"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:69
+msgid "Semi-colon (;)"
+msgstr "فاصلة منقوطة (؛)"
+
+#: admin/class-rex-product-feed-metabox.php:365
+#: admin/class-rex-product-feed-metabox.php:378
+msgid "Send to Google Merchant"
+msgstr "أرسل إلى Google Merchant"
+
+#: admin/partials/rex-feed-google-merchant.php:186
+msgid "Send to google merchant"
+msgstr "إرسال إلى تاجر جوجل"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:53
+msgid "Separator"
+msgstr "فاصل"
+
+#: admin/partials/rex-feed-product-settings-section.php:24
+msgid "Set auto-update to keep your feed in sync with WooCommerce "
+msgstr "قم بتعيين التحديث التلقائي للحفاظ على مزامنة خلاصتك مع WooCommerce"
+
+#: admin/class-rex-product-feed-admin.php:410
+#: admin/class-rex-product-feed-admin.php:411
+#: admin/class-rex-product-feed-metabox.php:177
+#: admin/partials/rex-feed-filter-settings-body-content.php:32
+#: admin/partials/rex-feed-product-settings-section.php:9
+msgid "Settings"
+msgstr "الإعدادات"
+
+#: admin/class-rex-product-feed-cpt.php:198
+msgid "Simple products : "
+msgstr "منتجات بسيطة:"
+
+#: admin/partials/rex-feed-product-settings-section.php:329
+msgid "Skip attributes with empty value"
+msgstr "تخطي السمات ذات القيمة الفارغة"
+
+#: admin/partials/rex-feed-product-settings-section.php:306
+msgid "Skip products with empty value"
+msgstr "تخطي المنتجات ذات القيمة الفارغة"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:27
+msgid "Some required attributes are not configured properly!"
+msgstr "لم يتم تكوين بعض السمات المطلوبة بشكل صحيح!"
+
+#: admin/feed/abstract-rex-product-feed-generator.php:505
+msgid "Start feed processing job by cron"
+msgstr "ابدأ مهمة معالجة الخلاصة بواسطة cron"
+
+#: admin/feed/abstract-rex-product-feed-generator.php:515
+msgid "Start feed processing job."
+msgstr "ابدأ مهمة معالجة الخلاصة."
+
+#: admin/class-rex-product-data-retriever.php:194
+msgid "Start product processing."
+msgstr "ابدأ معالجة المنتج."
+
+#: admin/feed-templates/abstract-rex-feed-template.php:201
+msgid "Static"
+msgstr "ثابتة"
+
+#: admin/class-rex-product-feed-cpt.php:91
+msgid "Status"
+msgstr "حالة"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:241
+msgid "Strip Tags"
+msgstr "علامات الشريط"
+
+#: admin/partials/merchant_settings.php:80
+msgid "Submit"
+msgstr "خضع"
+
+#: admin/partials/feed-config-metabox-display.php:82
+#: admin/partials/feed-config-metabox-display.php:192
+msgid "Suffix"
+msgstr "لاحقة"
+
+#: admin/class-rex-product-feed-admin.php:419
+msgid "Support"
+msgstr "الدعم"
+
+#: admin/partials/on_boarding.php:156
+#: admin/partials/rex-feed-system-status-markups.php:23
+msgid "System Status"
+msgstr "حالة النظام"
+
+#: admin/class-rex-product-feed-metabox.php:227
+#, fuzzy
+#| msgid "Tag Filter"
+msgid "Tag Filters"
+msgstr "فلتر العلامةتصفية العلامات"
+
+#: admin/partials/setup-wizard.php:164
+msgid "Take Tour"
+msgstr "قم بجولة"
+
+#: admin/partials/rex-feed-google-merchant.php:35
+msgid "Target Country"
+msgstr "البلد المستهدف"
+
+#: admin/partials/rex-feed-google-merchant.php:52
+msgid "Target Language"
+msgstr "لغة الهدف"
+
+#: admin/class-rex-product-feed-actions.php:350
+msgid "Temporary Feed URL: "
+msgstr "عنوان URL للخلاصة المؤقتة:"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:41
+msgid "TEXT"
+msgstr ""
+
+#: admin/partials/setup-wizard.php:179
+msgid "The best plugin to generate"
+msgstr "أفضل البرنامج المساعد لتوليد"
+
+#: admin/partials/rex-feed-product-settings-section.php:520
+msgid "The referrer: (e.g. google, newsletter)"
+msgstr "المُحيل: (مثل google ، رسالة إخبارية)"
+
+#: admin/partials/feed-config-metabox-display-filter.php:52
+msgid "Then"
+msgstr "ثم"
+
+#: admin/class-rex-product-feed-actions.php:318
+msgid ""
+"There was an error when generating the feed. Please try the following to "
+"troubleshoot the issue."
+msgstr ""
+"حدث خطأ أثناء إنشاء الخلاصة. الرجاء تجربة ما يلي لاستكشاف المشكلة وإصلاحها."
+
+#: admin/class-rex-product-feed-admin.php:309
+msgid ""
+"These are the list of attributes that you are supposed to include for your "
+"products in the product feed. We will be mapping your store product data as "
+"the values of the attributes in this section. %s However, most of these are "
+"already mapped, and you do not need to make any changes to them."
+msgstr ""
+"هذه هي قائمة السمات التي من المفترض أن تقوم بتضمينها لمنتجاتك في خلاصة "
+"المنتج. سنقوم بتعيين بيانات منتج متجرك كقيم للسمات في هذا القسم. %s ومع ذلك، "
+"تم تعيين معظمها بالفعل، ولا تحتاج إلى إجراء أية تغييرات عليها."
+
+#: admin/partials/rex-feed-product-settings-section.php:455
+msgid ""
+"This option will convert all your product prices using WooCommerce Multi-"
+"Currency Switcher"
+msgstr ""
+"سيؤدي هذا الخيار إلى تحويل جميع أسعار منتجاتك باستخدام WooCommerce Multi-"
+"Currency Switcher"
+
+#: admin/partials/rex-feed-product-settings-section.php:376
+msgid ""
+"This option will convert all your product prices using WooCommerce "
+"Multilingual & Multicurrency"
+msgstr ""
+"سيؤدي هذا الخيار إلى تحويل جميع أسعار منتجاتك باستخدام WooCommerce "
+"Multilingual & Multicurrency"
+
+#: admin/partials/rex-feed-product-settings-section.php:115
+msgid "This option will include/exclude out of stock products from feed"
+msgstr "سيشمل هذا الخيار/يستبعد المنتجات غير المتوفرة في الخلاصة"
+
+#: admin/partials/rex-feed-product-settings-section.php:138
+msgid ""
+"This option will include/exclude products with no regular price set or with "
+"regular price zero (0)"
+msgstr ""
+"سيشمل هذا الخيار/يستبعد المنتجات التي لم يتم تحديد أسعار عادية لها أو بسعر "
+"عادي صفر (0)"
+
+#: admin/partials/rex-feed-product-settings-section.php:332
+msgid ""
+"This option will remove any attribute with empty value (XML feed format only)"
+msgstr "سيؤدي هذا الخيار إلى إزالة أي سمة ذات قيمة فارغة (تنسيق خلاصة XML فقط)"
+
+#: admin/partials/rex-feed-product-settings-section.php:309
+msgid ""
+"This option will remove products if there is a single attribute with empty "
+"value"
+msgstr ""
+"سيؤدي هذا الخيار إلى إزالة المنتجات إذا كانت هناك سمة واحدة ذات قيمة فارغة"
+
+#: admin/class-rex-product-feed-cpt.php:87
+msgid "Title"
+msgstr "عنوان"
+
+#: admin/class-rex-google-merchant-content-api.php:184
+msgid ""
+"To send a feed to the Google Merchant Center, you need to authorize with "
+"Google Merchant Center. You can send the feed to Google Merchant Center "
+"through direct upload method or by using the Content API."
+msgstr ""
+"لإرسال خلاصة إلى Google Merchant Center، يلزمك الحصول على تفويض من Google "
+"Merchant Center. يمكنك إرسال الخلاصة إلى Google Merchant Center من خلال "
+"طريقة التحميل المباشر أو باستخدام Content API."
+
+#: admin/class-rex-product-feed-cpt.php:94
+msgid "Total Products"
+msgstr "إجمالي المنتجات"
+
+#: admin/class-rex-product-feed-cpt.php:194
+msgid "Total products : "
+msgstr "إجمالي المنتجات:"
+
+#: admin/class-rex-product-feed-cpt.php:196
+msgid "Total reviews : "
+msgstr "إجمالي التقييمات :"
+
+#: admin/partials/rex-feed-product-settings-section.php:477
+msgid "Track Your Campaign"
+msgstr "تتبع حملتك"
+
+#: admin/partials/rex-feed-filter-settings-body-content.php:24
+msgid "Troubleshoot"
+msgstr "استكشاف الاخطاء"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:43
+msgid "TSV"
+msgstr "TSV"
+
+#: admin/partials/rex-feed-save-filters-changes-warning-popup.php:34
+#: admin/partials/rex-feed-save-settings-changes-warning-popup.php:34
+msgid ""
+"Uh-oh! You're trying to exit without saving your changes. Would you like to "
+"save them?"
+msgstr "اه أوه! أنت تحاول الخروج دون حفظ التغييرات. هل ترغب في حفظهم؟"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:187
+msgid "Unique code of the firm."
+msgstr "الرمز الفريد للشركة."
+
+#: admin/class-rex-product-feed-admin.php:374
+#: admin/class-rex-product-feed-cpt.php:167
+#: admin/partials/category_mapping.php:66
+msgid "Update"
+msgstr "تحديث"
+
+#: admin/class-rex-product-feed-admin.php:375
+msgid "Update & Close"
+msgstr "تحديث وإغلاق"
+
+#: admin/class-rex-product-feed-cpt.php:92
+msgid "Update Feed"
+msgstr "تحديث الخلاصة"
+
+#: admin/partials/on_boarding.php:212
+msgid "Update List"
+msgstr "قائمة التحديث"
+
+#: admin/partials/on_boarding.php:210
+msgid ""
+"Update WooCommerce variation child list that has no parent assigned "
+"(abandoned child)"
+msgstr ""
+"تحديث القائمة الفرعية لتنوع WooCommerce التي لم يتم تعيين أحد الوالدين لها "
+"(الفرع المهجور)"
+
+#: admin/class-rex-product-feed-cpt.php:96
+msgid "Updated"
+msgstr "محدث"
+
+#: admin/class-rex-product-feed-metabox.php:412
+msgid "Upgrade Notice"
+msgstr "إشعار الترقية"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:40
+msgid "Upgrade to Pro"
+msgstr "التطور للاحترافية"
+
+#: admin/partials/setup-wizard.php:230
+msgid "Upgrade to Pro to get access to our premium features"
+msgstr "قم بالترقية إلى Pro لتتمكن من الوصول إلى ميزاتنا المميزة"
+
+#: admin/class-rex-product-feed-admin.php:326
+msgid "Use Advanced Filters"
+msgstr "استخدم المرشحات المتقدمة"
+
+#: admin/partials/setup-wizard.php:266
+msgid ""
+"Use eBay (MIP), Google Remarketing (DRM), Google Review, Leguide merchant "
+"templates"
+msgstr ""
+"استخدم قوالب eBay (MIP) وGoogle Remarketing (DRM) وGoogle Review وLeguide "
+"التجارية"
+
+#: admin/partials/rex-feed-google-merchant.php:168
+msgid ""
+"Use Google Auto-sync to send data to your Google Merchant Center at fixed "
+"intervals. Configure and Authenticate Auto-sync with Google to be able to "
+"use this feature."
+msgstr ""
+"استخدم Google Auto-sync لإرسال البيانات إلى Google Merchant Center الخاص بك "
+"على فترات زمنية محددة. قم بتكوين وتوثيق المزامنة التلقائية مع Google لتتمكن "
+"من استخدام هذه الميزة."
+
+#: admin/partials/setup-wizard.php:246
+msgid "Use Product Filter feature to include/exclude specific products"
+msgstr "استخدم ميزة تصفية المنتجات لتضمين/استبعاد منتجات محددة"
+
+#: admin/class-rex-product-feed-actions.php:332
+msgid "Use Strip Tags For Description"
+msgstr "استخدم علامات الشريط للوصف"
+
+#: admin/partials/rex-feed-product-settings-section.php:573
+msgid "Use to differentiate ads"
+msgstr "استخدم لتمييز الإعلانات"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:242
+msgid "UTF-8 Encode"
+msgstr "ترميز UTF-8"
+
+#: admin/partials/rex-feed-product-settings-section.php:504
+msgid "UTM Parameters"
+msgstr "معلمات UTM"
+
+#: admin/partials/feed-config-metabox-display-filter.php:48
+msgid "Value"
+msgstr "القيمة"
+
+#: admin/class-rex-product-feed-cpt.php:199
+msgid "Variable parent : "
+msgstr "الأصل المتغير:"
+
+#: admin/class-rex-product-feed-cpt.php:200
+msgid "Variations : "
+msgstr "الاختلافات:"
+
+#: admin/class-rex-product-feed-cpt.php:172
+msgid "View"
+msgstr "منظر"
+
+#: admin/partials/setup-wizard.php:217
+msgid "View All Merchants"
+msgstr "عرض جميع التجار"
+
+#: admin/class-rex-product-feed-actions.php:328
+#: admin/class-rex-product-feed-actions.php:334
+msgid "View Doc"
+msgstr "عرض الوثيقة"
+
+#: admin/partials/rex-feed-feed-file-section-content.php:19
+msgid "View Feed"
+msgstr "عرض الخلاصةعرض الخلاصة"
+
+#: admin/partials/on_boarding.php:601
+msgid "View log"
+msgstr "سجل عرض"
+
+#: admin/class-rex-product-feed-cpt.php:49
+msgid "View Product Feed"
+msgstr "عرض خلاصة المنتج"
+
+#: admin/class-rex-product-feed-cpt.php:93
+msgid "View/Download"
+msgstr "مشاهدة تحميل"
+
+#: admin/partials/on_boarding.php:309
+msgid ""
+"Warning: Please back up your database before making the rollback as you "
+"might lose you previous data."
+msgstr ""
+"تحذير: يرجى عمل نسخة احتياطية من قاعدة البيانات الخاصة بك قبل إجراء "
+"الاستعادة حيث قد تفقد بياناتك السابقة."
+
+#: admin/partials/rex-feed-product-settings-section.php:373
+msgid "WCML Currency"
+msgstr "عملة WCML"
+
+#: admin/class-rex-product-feed-metabox.php:196
+#: admin/class-rex-product-feed-metabox.php:382
+msgid "Weekly"
+msgstr "أسبوعي"
+
+#: admin/partials/setup-wizard.php:134
+msgid "Welcome to"
+msgstr "مرحبا بك في"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:27
+#, fuzzy
+#| msgid "WooCommerce Product Feed Manager"
+msgid "Welcome to Product Feed Manager!"
+msgstr "مدير خلاصة منتج WooCommerce"
+
+#: admin/partials/on_boarding.php:233
+msgid "When the cache will be expired."
+msgstr "عندما تنتهي صلاحية ذاكرة التخزين المؤقت."
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:28
+#, fuzzy
+#| msgid "Why upgrade to Premium Version?"
+msgid "Why Upgrade To The Premium Version?"
+msgstr "لماذا الترقية إلى الإصدار المميز؟"
+
+#: admin/partials/rex-feed-product-settings-section.php:452
+msgid "WooCommerce Multi-Currency"
+msgstr "ووكومرس متعدد العملات"
+
+#: admin/partials/on_boarding.php:218
+msgid "WPFM cache TTL"
+msgstr "ذاكرة التخزين المؤقت WPFM TTL"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:114
+msgid "Wrapper Element"
+msgstr "عنصر الغلاف"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:40
+msgid "XML"
+msgstr "XML"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:83
+msgid "XML Header"
+msgstr "رأس XML"
+
+#: admin/partials/rex-feed-save-filters-changes-warning-popup.php:43
+#: admin/partials/rex-feed-save-settings-changes-warning-popup.php:43
+msgid "Yes, Save"
+msgstr "نعم احفظ"
+
+#: admin/class-rex-google-merchant-content-api.php:226
+#, fuzzy
+#| msgid "You are authorized."
+msgid "You Are Authorized."
+msgstr "أنت مصرح لك."
+
+#: admin/class-rex-google-merchant-content-api.php:152
+msgid "You Are Not Authorized"
+msgstr "أنك غير مخول"
+
+#: admin/class-rex-google-merchant-content-api.php:265
+#, fuzzy
+#| msgid "You are not authorized."
+msgid "You Are Not Authorized."
+msgstr "أنك غير مخول."
+
+#: admin/class-rex-google-merchant-content-api.php:227
+msgid ""
+"You are now ready to send feed from Product Feed Manager for WooCommerce to "
+"your Google Merchant Center. "
+msgstr ""
+"أنت الآن جاهز لإرسال موجز من Product Feed Manager لـ WooCommerce إلى Google "
+"Merchant Center الخاص بك."
+
+#: admin/class-rex-product-feed-admin.php:321
+msgid ""
+"You can also include more attributes for your products using these buttons. "
+"%s The \"Add New Attribute\" will let you choose from other available "
+"attributes for your selected merchant and then you can map the value with a "
+"product data. %s The \"Add New Custom Attribute\" will let you name an "
+"attribute title yourself and then map the value with a product data."
+msgstr ""
+"يمكنك أيضًا تضمين المزيد من السمات لمنتجاتك باستخدام هذه الأزرار. %s \"إضافة "
+"سمة جديدة\" ستتيح لك الاختيار من بين السمات الأخرى المتاحة للتاجر الذي حددته "
+"ومن ثم يمكنك تعيين القيمة باستخدام بيانات المنتج. %s \"إضافة سمة مخصصة "
+"جديدة\" ستتيح لك تسمية عنوان السمة بنفسك ثم تعيين القيمة باستخدام بيانات "
+"المنتج."
+
+#: admin/partials/rex-feed-google-merchant.php:19
+msgid ""
+"You can send the feed to Google Merchant Center through direct upload method "
+"or by using the Content API."
+msgstr ""
+"يمكنك إرسال الخلاصة إلى Google Merchant Center من خلال طريقة التحميل المباشر "
+"أو باستخدام Content API."
+
+#: admin/class-rex-product-feed-admin.php:301
+msgid ""
+"You may give any name. It's just to help you save settings for this feed "
+"generation and help you distinguish between other feeds you generate in the "
+"future."
+msgstr ""
+"يمكنك إعطاء أي اسم. إنها فقط لمساعدتك على حفظ الإعدادات الخاصة بإنشاء "
+"الخلاصات هذه ومساعدتك على التمييز بين الخلاصات الأخرى التي تنشئها في "
+"المستقبل."
+
+#: admin/class-rex-google-merchant-content-api.php:156
+#: admin/class-rex-google-merchant-content-api.php:266
+msgid ""
+"Your access token has expired. This application uses OAuth 2.0 to Access "
+"Google APIs. Please insert the information below and authenticate token for "
+"Google Merchant Shop. Generated access token expires after 3600 sec."
+msgstr ""
+"لقد انتهت صلاحية رمز الوصول الخاص بك. يستخدم هذا التطبيق OAuth 2.0 للوصول "
+"إلى Google APIs. الرجاء إدخال المعلومات أدناه ومصادقة الرمز المميز لـ Google "
+"Merchant Shop. تنتهي صلاحية رمز الوصول الذي تم إنشاؤه بعد 3600 ثانية."
+
+#: admin/partials/progress-bar.php:21
+msgid "Your feed is generating"
+msgstr "خلاصتك تولد"
+
+#: admin/partials/rex-feed-feed-file-section-content.php:13
+msgid "Your Feed URL"
+msgstr "عنوان تغذية الخاص بك"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:201
+msgid "Your hotline store name."
+msgstr "اسم متجر الخط الساخن الخاص بك."
