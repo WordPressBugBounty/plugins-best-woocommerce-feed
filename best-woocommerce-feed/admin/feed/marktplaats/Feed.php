@@ -205,56 +205,57 @@ class Feed
     /**
      * Adds items to feed
      */
-    private function addItemsToFeed()
-    {
+	private function addItemsToFeed() {
+		$budgetNodes = [ 'totalBudget', 'dailyBudget', 'cpc' ];
+		foreach ( $this->items as $item ) {
+			/** @var SimpleXMLElement $feedItemNode */
+			$feedItemNode = ! empty( $this->channelName ) ? $this->feed->{$this->channelName}->addChild( $this->itemlName ) : $this->feed->addChild( $this->itemlName );
 
+			$shippingOptions = [];
 
-        foreach ($this->items as $item) {
+			foreach ( $item->nodes() as $itemNode ) {
+				if ( is_array( $itemNode ) ) {
+					foreach ( $itemNode as $node ) {
+						$feedItemNode->addChild( str_replace( ' ', '_', $node->get( 'name' ) ),
+							$node->get( 'value' ),
+							$node->get( '_namespace' ) );
+					}
+				} else {
+					$nodeName  = $itemNode->get( 'name' );
+					$nodeValue = $itemNode->get( 'value' );
 
-            $s_nodes = array('media', 'totalBudget', 'dailyBudget', 'cpc');
+					if ( preg_match( '/^(shippingType|cost|time|location)_(\d+)$/', $nodeName, $matches ) ) {
+						$shippingOptions[ $matches[ 2 ] ][ $matches[ 1 ] ] = $nodeValue;
+					} elseif ( 'media' === $nodeName ) {
+						$media  = $feedItemNode->addChild( 'media' );
+						$values = is_array( $nodeValue ) ? $nodeValue : [ $nodeValue ];
+						foreach ( $values as $value ) {
+							$image = $media->addChild( 'image' );
+							$image->addAttribute( 'url', $value );
+						}
+					} elseif ( in_array( $nodeName, $budgetNodes ) ) {
+						$budgetNode = $feedItemNode->children( 'admarkt',
+							true )->budget ?? $feedItemNode->addChild( 'budget' );
+						$budgetNode->addChild( $nodeName, $nodeValue );
+					} else {
+						$itemNode->attachNodeTo( $feedItemNode );
+					}
+				}
+			}
 
-            /** @var SimpleXMLElement $feedItemNode */
-            if ( $this->channelName && !empty($this->channelName) ) {
-                $feedItemNode = $this->feed->{$this->channelName}->addChild($this->itemlName);
-            }else{
-                $feedItemNode = $this->feed->addChild($this->itemlName);
-            }
+			if ( ! empty( $shippingOptions ) ) {
+				$shippingOptionsNode = $feedItemNode->addChild( 'shippingOptions' );
+				foreach ( $shippingOptions as $option ) {
+					$shippingOptionNode = $shippingOptionsNode->addChild( 'shippingOption' );
+					foreach ( $option as $key => $value ) {
+						$shippingOptionNode->addChild( $key, $value );
+					}
+				}
+			}
+		}
+	}
 
-            $budget = false;
-            foreach ($item->nodes() as $itemNode) {
-                if (is_array($itemNode)) {
-                    foreach ($itemNode as $node) {
-                        $feedItemNode->addChild(str_replace(' ', '_', $node->get('name')), $node->get('value'), $node->get('_namespace'));
-                    }
-                } else {
-                    if(in_array($itemNode->get('name'), $s_nodes)) {
-                        if($itemNode->get('name') == 'media') {
-	                        $media = $feedItemNode->addChild('media');
-                            if(is_array($itemNode->get('value'))) {
-                                foreach ($itemNode->get('value') as $value) {
-                                    $image = $media->addChild('image');
-                                    $image->addAttribute('url', $value);
-                                }
-                            }
-                            else {
-	                            $image = $media->addChild('image');
-	                            $image->addAttribute('url', $itemNode->get('value'));
-                            }
-                        }else {
-                            if(!isset($feedItemNode->children('admarkt',true)->budget)) {
-                                $feedItemNode->addChild('budget');
-                            }
-                            $feedItemNode->children('admarkt',true)->budget->addChild($itemNode->get('name'), $itemNode->get('value'));
-                        }
-                    }else {
-                        $itemNode->attachNodeTo($feedItemNode);
-                    }
-                }
-            }
-        }
-    }
-
-    private function addItemsToFeedText() {
+	private function addItemsToFeedText() {
         $str = '';
         if(count($this->items)){
             $this->items_row[] = array_keys(end($this->items)->nodes());
@@ -354,7 +355,6 @@ class Feed
         if (ob_get_contents()) ob_end_clean();
         $this->addItemsToFeed();
 
-//        $data = html_entity_decode($this->feed->asXml());
         $data = $this->feed->asXml();
         if ($output) {
             header('Content-Type: application/xml; charset=utf-8');

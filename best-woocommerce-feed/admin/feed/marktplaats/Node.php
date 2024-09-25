@@ -81,18 +81,21 @@ class Node
      * Attachs actual node to a parent node
      * @param \SimpleXMLElement $parent
      */
-    public function attachNodeTo(\SimpleXMLElement $parent)
-    {
-        if ( preg_match("/CDATA/", $this->value)) {
-            $this->value = str_replace("CDATA","",$this->value);
-            $this->value = str_replace("%20","",$this->value);
-            $this->value = str_replace("]]>","",$this->value);
-            $new_child = $parent->addChild(str_replace(' ', '_', $this->name));
-            $node = dom_import_simplexml($new_child);
-            $no=$node->ownerDocument;
-            $node->appendChild($no->createCDATASection($this->value));
-        }else {
-            $parent->addChild(str_replace(' ', '_', $this->name), htmlspecialchars($this->value), $this->_namespace);
-        }
-    }
+	public function attachNodeTo( \SimpleXMLElement $parent ) {
+		if ( is_string( $this->value ) ) {
+			if ( preg_match( "/CDATA/", $this->value ) ) {
+				$this->value = str_replace( "CDATA", "", $this->value );
+				$this->value = str_replace( "%20", "", $this->value );
+				$this->value = str_replace( "]]>", "", $this->value );
+				$new_child   = $parent->addChild( str_replace( ' ', '_', $this->name ) );
+				$node        = dom_import_simplexml( $new_child );
+				$no          = $node->ownerDocument;
+				$node->appendChild( $no->createCDATASection( $this->value ) );
+			} else {
+				$parent->addChild( str_replace( ' ', '_', $this->name ),
+					htmlspecialchars( $this->value ),
+					$this->_namespace );
+			}
+		}
+	}
 }

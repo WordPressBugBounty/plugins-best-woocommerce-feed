@@ -24,8 +24,8 @@ class Rex_Feed_Template_Marktplaats extends Rex_Feed_Abstract_Template {
 	 * @return void
 	 */
 	protected function init_atts() {
-		$this->attributes = array(
-			'Required Fields' => array(
+		$this->attributes = [
+			'Required Fields' => [
 				'vendorId'        => 'Vendor ID',
 				'title'           => 'Product Title',
 				'description'     => 'Description',
@@ -35,12 +35,36 @@ class Rex_Feed_Template_Marktplaats extends Rex_Feed_Abstract_Template {
 				'price'           => 'Product Price',
 				'priceType'       => 'Price Type',
 				'media'           => 'Media',
-				'totalBudget'     => 'Total Budget',
-				'dailyBudget'     => 'Daily Budget',
-				'cpc'             => 'Cost Per Click Value',
-				'emailAdvertiser' => 'Email Advertiser',
-			),
-		);
+				'emailAdvertiser' => 'Email Advertiser'
+			],
+			'Budget'          => [
+				'totalBudget' => 'Total Budget',
+				'dailyBudget' => 'Daily Budget',
+				'cpc'         => 'Cost Per Click'
+			],
+			'Shipping Options' => [
+				'shippingType_1' => 'Shipping Type - 1',
+				'cost_1'         => 'Shipping Cost - 1',
+				'time_1'         => 'Shipping Time - 1',
+				'location_1'     => 'Shipping Location - 1',
+				'shippingType_2' => 'Shipping Type - 2',
+				'cost_2'         => 'Shipping Cost - 2',
+				'time_2'         => 'Shipping Time - 2',
+				'location_2'     => 'Shipping Location - 2',
+				'shippingType_3' => 'Shipping Type - 3',
+				'cost_3'         => 'Shipping Cost - 3',
+				'time_3'         => 'Shipping Time - 3',
+				'location_3'     => 'Shipping Location - 3',
+				'shippingType_4' => 'Shipping Type - 4',
+				'cost_4'         => 'Shipping Cost - 4',
+				'time_4'         => 'Shipping Time - 4',
+				'location_4'     => 'Shipping Location - 4',
+				'shippingType_5' => 'Shipping Type - 5',
+				'cost_5'         => 'Shipping Cost - 5',
+				'time_5'         => 'Shipping Time - 5',
+				'location_5'     => 'Shipping Location - 5',
+			]
+		];
 	}
 
 	/**

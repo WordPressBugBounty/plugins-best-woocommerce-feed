@@ -1005,12 +1005,16 @@ abstract class Rex_Product_Feed_Abstract_Generator
             }
 
             $meta_join = wpfm_get_cached_data( "rexfeed_custom_filter_meta_join_$this->id" );
-            if( empty( $meta_join ) && !empty( $this->custom_filter_args[ 'meta_exists' ] ) ) {
+            if( empty( $meta_join ) && !empty( $this->custom_filter_args[ 'meta_keys' ] ) ) {
                 $total_meta = preg_match_all('/RexMeta/i', $query) / 2;
                 if( $total_meta ) {
-                    for( $i = 1; $i <= $total_meta; $i++ ) {
-                        $meta_join .= " INNER JOIN {$wpdb->postmeta} AS RexMeta{$i}";
+	                for( $i = 1; $i <= $total_meta; $i++ ) {
+		                $meta_key = $this->custom_filter_args[ 'meta_keys' ][$i-1] ?? null;
+                        $meta_join .= " LEFT JOIN {$wpdb->postmeta} AS RexMeta{$i}";
                         $meta_join .= " ON ({$wpdb->posts}.ID = RexMeta{$i}.post_id) ";
+						if ( !empty( $meta_key ) ) {
+							$meta_join .= " AND (RexMeta{$i}.meta_key = '{$meta_key}') ";
+						}
                     }
                     wpfm_set_cached_data( "rexfeed_custom_filter_meta_join_$this->id", $meta_join );
                 }

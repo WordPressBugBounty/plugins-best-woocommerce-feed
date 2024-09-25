@@ -6,11 +6,11 @@ Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, 
 Requires at least: 5.0
 Tested up to:  6.6
 Requires PHP: 7.4
-Stable tag:  7.4.18
+Stable tag:  7.4.19
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Generate WooCommerce product feeds for Google Shopping, Social Catalogs, Instagram, Google Local Products Inventory, Pinterest, Bing, Yandex, All Google Shopping Feeds & more than 180+ Merchants.
+Generate WooCommerce product feeds for Google Shopping, Facebook product feed, Instagram, Google Local Products Inventory, Pinterest, Bing, Yandex, & more than 180+ Marketplaces.
 
 
 == Description ==
@@ -23,7 +23,7 @@ Use our pre-defined merchant templates to generate flawless feeds for popular me
 <h4>👉 Check Out 180+ supported Marketplaces with Product Feed Manager </a> </h4>
 
 - <a href="https://rextheme.com/best-woocommerce-product-feed/google-product-feed/?utm_source=repo-CTA&utm_medium=PFM-Repo&utm_campaign=PFM-repo-Google-Landing" target="_blank">Google Shopping feed </a> & Other WooCommerce Google Product Feeds.
-- <a href="https://rextheme.com/best-woocommerce-product-feed/facebook-catalog/?utm_source=repo-CTA&utm_medium=PFM-Repo&utm_campaign=PFM-repo-FB-Landing" target="_blank">Facebook Catalog feed & Instagram Product Feeds</a>
+- <a href="https://rextheme.com/best-woocommerce-product-feed/facebook-catalog/?utm_source=repo-CTA&utm_medium=PFM-Repo&utm_campaign=PFM-repo-FB-Landing" target="_blank">Facebook feed & Instagram Product Feeds</a>
 - <a href="https://rextheme.com/tiktok-feed-for-woocommerce-products/?utm_source=repo-CTA&utm_medium=PFM-repo&utm_campaign=repo-to-tiktok-blog" target="_blank">TikTok Ads</a>
 - Idealo
 - Yandex Market (YML)
@@ -61,11 +61,11 @@ Use features such as **Category mapping, Custom fields, Product filters, Google 
 
 <h4>👉 Checkout All Features: <a target="_blank" href="https://rextheme.com/best-woocommerce-product-feed/features/?utm_source=pfm-repo&utm_medium=pfm-repo&utm_campaign=pfm-repo-features">From here</a></h4>
 
-== 🌟 Best Plugin To Generate WooCommerce Product Feeds For Google Shopping & Facebook Catalog 🌟==
+== 🌟 Best Plugin To Generate WooCommerce Product Feeds For Google Shopping & Facebook Feed 🌟==
 
 Product Feed Manager for WooCommerce is considered the easiest and the most effective Product Feed Management plugin to generate WooCommerce Google Shopping Feed and facebook product feed.
 
-You will get everything you need that is required by Google merchant feed (Google Shopping Feed) and Facebook feed including:
+You will get everything you need that is required by Google merchant feed (Google Shopping Feed) and Facebook Catalog Feed including:
 
 - Custom Fields for Unique Identifiers
 - Advanced Category Mapping
@@ -88,7 +88,7 @@ But you can do so much more with it such as,
 - Add additional product data,
 - Category mapping with Google's category,
 - Advanced filter options to generate feed with selected products,
-- Create a custom feed for merchants that we do have a template for.
+- Create a custom feed for merchants for which we do have a template.
 
 ==🌟 Automate Feed Generation Processs 🌟==
 
@@ -340,7 +340,7 @@ So, use just one single plugin to generate a Google shopping feed for all Google
 Product Feed Manager for WooCommerce supports merchant templates for popular marketplaces in the USA such as:
 
 - Google Shopping
-- Facebook
+- Facebook Feed
 - Walmart
 - Target+
 - Bonanza
@@ -429,7 +429,7 @@ In the free version, you can generate product feed for up to 50 products per fee
 Check out the easiest way to create Google Shopping feeds for your store:
 [youtube https://youtu.be/Xg-zBdYfIZM]
 
-= How do I create a Facebook Catalog feed? =
+= How do I create a Facebook Product feed? =
 Check out the tutorial to generate an WooCommerce facebook product feed:
 [youtube https://youtu.be/cWwsiCZu55Q]
 
@@ -489,6 +489,12 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 
 == Changelog ==
+
+= 7.4.19 (2024-09-24) =
+* Enhancement: `shippingOptions` support for Marktplaats feed template
+* Fixed: Manual price fetching issue with WCML [(#issue)](https://wordpress.org/support/topic/feed-prices-wpml-problem/)
+* Fixed: Product exclusion issue with custom filters for ACF attributes
+* Fixed: Unnecessary `xmlns` removed from Glami XML feed template
 
 = 7.4.18 (2024-09-04) =
 * Enhancement: Settings page markups updated
@@ -1810,5 +1816,5 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 == Upgrade Notice ==
 
-= 7.4.18 =
+= 7.4.19 =
 🚀 Recommended Upgrade 🚀 For users on v7.2.x or older, it'll amp up your plugin experience with better product filtering and RTL support. Some tweaks may be needed in your current feed settings/filters, so give 'em a check after switching to this version for smooth sailing. 😎🔧

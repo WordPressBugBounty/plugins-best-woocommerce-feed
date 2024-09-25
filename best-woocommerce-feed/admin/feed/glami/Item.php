@@ -82,7 +82,7 @@ class Item
     public function id($id)
     {
         $node = new Node('id');
-        $this->nodes['id'] = $node->value($id)->_namespace($this->namespace);
+        $this->nodes['id'] = $node->value($id);
     }
 
     /**
@@ -94,7 +94,7 @@ class Item
     {
         $node = new Node('title');
         $title = $this->safeCharEncodeText($title);
-        $this->nodes['title'] = $node->value($title)->addCdata()->_namespace($this->namespace);
+        $this->nodes['title'] = $node->value($title)->addCdata();
     }
 
     /**
@@ -117,7 +117,7 @@ class Item
     public function price($price)
     {
         $node = new Node('price');
-        $this->nodes['price'] = $node->value($price)->_namespace($this->namespace);
+        $this->nodes['price'] = $node->value($price);
     }
 
     /**
@@ -127,15 +127,8 @@ class Item
      */
     public function sale_price($salePrice)
     {
-
-//        if ($salePrice) {
-//            $node = new Node('sale_price');
-//            $this->nodes['sale_price'] = $node->value($salePrice)->_namespace($this->namespace);
-//        }
-
-        $node = new Node('sale_price');
-        $this->nodes['sale_price'] = $node->value($salePrice)->_namespace($this->namespace);
-
+		$node = new Node('sale_price');
+        $this->nodes['sale_price'] = $node->value($salePrice);
     }
 
     /**
@@ -158,7 +151,7 @@ class Item
     public function condition($condition)
     {
         $node = new Node('condition');
-        $this->nodes['condition'] = $node->value($condition)->_namespace($this->namespace)->addCdata();
+        $this->nodes['condition'] = $node->value($condition)->addCdata();
     }
 
     /**
@@ -169,7 +162,7 @@ class Item
     public function expiration_date($expirationDate)
     {
         $node = new Node('expiration_date');
-        $this->nodes['expiration_date'] = $node->value($expirationDate)->_namespace($this->namespace)->addCdata();
+        $this->nodes['expiration_date'] = $node->value($expirationDate)->addCdata();
     }
 
     /**
@@ -181,7 +174,7 @@ class Item
     {
         $node = new Node('image_link');
         $imageLink = $this->safeCharEncodeURL($imageLink);
-        $this->nodes['image_link'] = $node->value($imageLink)->_namespace($this->namespace)->addCdata();
+        $this->nodes['image_link'] = $node->value($imageLink)->addCdata();
     }
 
     /**
@@ -193,7 +186,7 @@ class Item
     {
         $node = new Node('brand');
         $brand = $this->safeCharEncodeText($brand);
-        $this->nodes['brand'] = $node->value($brand)->_namespace($this->namespace)->addCdata();
+        $this->nodes['brand'] = $node->value($brand)->addCdata();
     }
 
     /**
@@ -204,7 +197,7 @@ class Item
     public function mpn($mpn)
     {
         $node = new Node('mpn');
-        $this->nodes['mpn'] = $node->value($mpn)->_namespace($this->namespace)->addCdata();
+        $this->nodes['mpn'] = $node->value($mpn)->addCdata();
     }
 
     /**
@@ -215,7 +208,7 @@ class Item
     public function gtin($gtin)
     {
         $node = new Node('gtin');
-        $this->nodes['gtin'] = $node->value($gtin)->_namespace($this->namespace)->addCdata();
+        $this->nodes['gtin'] = $node->value($gtin)->addCdata();
     }
 
     /**
@@ -226,7 +219,7 @@ class Item
     public function identifier_exists($identifier_exists)
     {
         $node = new Node('identifier_exists');
-        $this->nodes['identifier_exists'] = $node->value($identifier_exists)->_namespace($this->namespace)->addCdata();
+        $this->nodes['identifier_exists'] = $node->value($identifier_exists)->addCdata();
     }
 
     /**
@@ -238,7 +231,7 @@ class Item
     {
         $node = new Node('product_type');
         $brand = $this->safeCharEncodeText($productType);
-        $this->nodes['product_type'] = $node->value($productType)->_namespace($this->namespace)->addCdata();
+        $this->nodes['product_type'] = $node->value($productType)->addCdata();
     }
 
     /**
@@ -249,7 +242,7 @@ class Item
     public function google_product_category($googleProductCategory)
     {
         $node = new Node('google_product_category');
-        $this->nodes['google_product_category'] = $node->value($googleProductCategory)->_namespace($this->namespace);
+        $this->nodes['google_product_category'] = $node->value($googleProductCategory);
     }
 
     /**
@@ -260,7 +253,7 @@ class Item
     public function availability($availability)
     {
         $node = new Node('availability');
-        $this->nodes['availability'] = $node->value($availability)->_namespace($this->namespace);
+        $this->nodes['availability'] = $node->value($availability);
     }
 
     /**
@@ -277,7 +270,7 @@ class Item
         if (! isset($this->nodes['shipping'])) {
             $this->nodes['shipping'] = array();
         }
-        $this->nodes['shipping'][] = $node->value($value)->_namespace($this->namespace);
+        $this->nodes['shipping'][] = $node->value($value);
     }
 
 
@@ -318,7 +311,7 @@ class Item
     public function size($size)
     {
         $node = new Node('size');
-        $this->nodes['size'] = $node->value($size)->_namespace($this->namespace);
+        $this->nodes['size'] = $node->value($size);
     }
 
     /**
@@ -329,7 +322,7 @@ class Item
     public function gender($gender)
     {
         $node = new Node('gender');
-        $this->nodes['gender'] = $node->value($gender)->_namespace($this->namespace);
+        $this->nodes['gender'] = $node->value($gender);
     }
 
     /**
@@ -340,7 +333,7 @@ class Item
     public function age_group($ageGroup)
     {
         $node = new Node('age_group');
-        $this->nodes['age_group'] = $node->value($ageGroup)->_namespace($this->namespace);
+        $this->nodes['age_group'] = $node->value($ageGroup);
     }
 
     /**
@@ -351,7 +344,7 @@ class Item
     public function color($color)
     {
         $node = new Node('color');
-        $this->nodes['color'] = $node->value($color)->_namespace($this->namespace);
+        $this->nodes['color'] = $node->value($color);
     }
 
     /**
@@ -363,7 +356,7 @@ class Item
     public function item_group_id($id)
     {
         $node = new Node('item_group_id');
-        $this->nodes['item_group_id'] = $node->value($id)->_namespace($this->namespace);
+        $this->nodes['item_group_id'] = $node->value($id);
     }
 
     /**
@@ -372,7 +365,7 @@ class Item
     public function custom_label_0($customLabel)
     {
         $node = new Node('custom_label_0');
-        $this->nodes['custom_label_0'] = $node->value($customLabel)->_namespace($this->namespace);
+        $this->nodes['custom_label_0'] = $node->value($customLabel);
     }
 
     /**
@@ -381,7 +374,7 @@ class Item
     public function custom_label_1($customLabel)
     {
         $node = new Node('custom_label_1');
-        $this->nodes['custom_label_1'] = $node->value($customLabel)->_namespace($this->namespace);
+        $this->nodes['custom_label_1'] = $node->value($customLabel);
     }
 
     /**
@@ -390,7 +383,7 @@ class Item
     public function custom_label_2($customLabel)
     {
         $node = new Node('custom_label_2');
-        $this->nodes['custom_label_2'] = $node->value($customLabel)->_namespace($this->namespace);
+        $this->nodes['custom_label_2'] = $node->value($customLabel);
     }
 
     /**
@@ -399,7 +392,7 @@ class Item
     public function custom_label_3($customLabel)
     {
         $node = new Node('custom_label_3');
-        $this->nodes['custom_label_3'] = $node->value($customLabel)->_namespace($this->namespace);
+        $this->nodes['custom_label_3'] = $node->value($customLabel);
     }
 
     /**
@@ -408,7 +401,7 @@ class Item
     public function custom_label_4($customLabel)
     {
         $node = new Node('custom_label_4');
-        $this->nodes['custom_label_4'] = $node->value($customLabel)->_namespace($this->namespace);
+        $this->nodes['custom_label_4'] = $node->value($customLabel);
     }
 
 

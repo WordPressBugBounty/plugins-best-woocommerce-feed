@@ -344,8 +344,8 @@ class Rex_Product_Filter {
     public static function get_custom_filter_where_query( $filter_mappings ) {
         $where                  = '';
         $inner_where            = '';
-        $meta_exists            = false;
         $term_exists            = false;
+		$meta_keys			    = [];
         self::$meta_table_count = 0;
         self::$term_table_count = 0;
 
@@ -383,11 +383,10 @@ class Rex_Product_Filter {
                             continue;
                         }
                         $term_exists = true;
-                    }
-                    elseif( 'postmeta_' === $prefix ) {
-                        self::$meta_table_count++;
-                        $meta_exists = true;
-                        $if = preg_replace('/^va_pa_/i', 'attribute_pa_', $if );
+                    } elseif ( 'postmeta_' === $prefix ) {
+	                    self::$meta_table_count ++;
+	                    $if          = preg_replace( '/^va_pa_/i', 'attribute_pa_', $if );
+	                    $meta_keys[] = $if;
                     }
 
                     $function = "{$prefix}{$condition}";
@@ -409,8 +408,8 @@ class Rex_Product_Filter {
 
         return [
             'where'       => $where,
-            'meta_exists' => $meta_exists,
             'term_exists' => $term_exists,
+            'meta_keys'   => $meta_keys
         ];
     }
 
@@ -761,7 +760,8 @@ class Rex_Product_Filter {
         global $wpdb;
         $op = 'exc' === $operator ? '<>' : '=';
         $value = is_numeric( $value ) ? $wpdb->esc_like( $value ) : "'{$wpdb->esc_like( $value )}'";
-        return '(RexMeta' . self::$meta_table_count . ".meta_key = '{$column}' AND RexMeta". self::$meta_table_count .".meta_value {$op} {$value})";
+	    return '<>' === $op ? "(RexMeta". self::$meta_table_count .".meta_value IS NULL OR RexMeta". self::$meta_table_count .".meta_value {$op} {$value})"
+		    : '(RexMeta' . self::$meta_table_count . ".meta_key = '{$column}' AND RexMeta". self::$meta_table_count .".meta_value {$op} {$value})";
     }
 
     /**
@@ -778,7 +778,8 @@ class Rex_Product_Filter {
         global $wpdb;
         $op = 'exc' === $operator ? '=' : '<>';
         $value = is_numeric( $value ) ? $wpdb->esc_like( $value ) : "'{$wpdb->esc_like( $value )}'";
-        return '(RexMeta' . self::$meta_table_count . ".meta_key = '{$column}' AND RexMeta". self::$meta_table_count .".meta_value {$op} {$value})";
+	    return '<>' === $op ? "(RexMeta". self::$meta_table_count .".meta_value IS NULL OR RexMeta". self::$meta_table_count .".meta_value {$op} {$value})"
+		    : '(RexMeta' . self::$meta_table_count . ".meta_key = '{$column}' AND RexMeta". self::$meta_table_count .".meta_value {$op} {$value})";
     }
 
     /**

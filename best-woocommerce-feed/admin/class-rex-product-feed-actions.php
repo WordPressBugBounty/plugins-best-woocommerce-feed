@@ -759,22 +759,27 @@ class Rex_Product_Feed_Actions {
      *
      * @since 7.4.0
      */
-    public function update_price_compatibility_with_wpml( $product_price, $product, $type, $feed_retriever_obj ) {
-        if ( defined( 'ICL_LANGUAGE_CODE' ) && $feed_retriever_obj->get_wcml_currency() === ICL_LANGUAGE_CODE ) {
+	public function update_price_compatibility_with_wpml( $product_price, $product, $type, $feed_retriever_obj ) {
+        $feed_wcml_currency = $feed_retriever_obj->get_wcml_currency();
+        if ( get_option( 'woocommerce_currency' ) === $feed_wcml_currency ) {
             return $product_price;
         }
-        if ( $feed_retriever_obj->is_wcml_active() ) {
-            $updated_price = apply_filters(
-                'wcml_raw_price_amount',
-                $product_price,
-                $feed_retriever_obj->get_wcml_currency()
-            );
-            if ( !empty( $updated_price ) ) {
-                return $updated_price;
-            }
-        }
-        return $product_price;
-    }
+		if ( ! empty( $product ) && ! empty( $type ) && $product->get_meta( '_wcml_custom_prices_status' ) ) {
+			return $product->get_meta( "{$type}_{$feed_wcml_currency}" );
+		}
+		if ( defined( 'ICL_LANGUAGE_CODE' ) && $feed_retriever_obj->get_wcml_currency() === ICL_LANGUAGE_CODE ) {
+			return $product_price;
+		}
+		if ( $feed_retriever_obj->is_wcml_active() ) {
+			$updated_price = apply_filters( 'wcml_raw_price_amount',
+				$product_price,
+				$feed_retriever_obj->get_wcml_currency() );
+			if ( ! empty( $updated_price ) ) {
+				return $updated_price;
+			}
+		}
+		return $product_price;
+	}
 
     /**
      * Retrieves the converted product price using WooCommerce Multi-Currency (WMC).
