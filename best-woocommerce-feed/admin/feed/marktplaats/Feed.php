@@ -206,12 +206,13 @@ class Feed
      * Adds items to feed
      */
 	private function addItemsToFeed() {
-		$budgetNodes = [ 'totalBudget', 'dailyBudget', 'cpc' ];
+		$budgetNodes = [ 'totalBudget', 'dailyBudget', 'cpc', 'autobid' ];
 		foreach ( $this->items as $item ) {
 			/** @var SimpleXMLElement $feedItemNode */
 			$feedItemNode = ! empty( $this->channelName ) ? $this->feed->{$this->channelName}->addChild( $this->itemlName ) : $this->feed->addChild( $this->itemlName );
 
 			$shippingOptions = [];
+            $attributes = [];
 
 			foreach ( $item->nodes() as $itemNode ) {
 				if ( is_array( $itemNode ) ) {
@@ -223,10 +224,11 @@ class Feed
 				} else {
 					$nodeName  = $itemNode->get( 'name' );
 					$nodeValue = $itemNode->get( 'value' );
-
 					if ( preg_match( '/^(shippingType|cost|time|location)_(\d+)$/', $nodeName, $matches ) ) {
 						$shippingOptions[ $matches[ 2 ] ][ $matches[ 1 ] ] = $nodeValue;
-					} elseif ( 'media' === $nodeName ) {
+					} else if ( preg_match( '/^(attributeValue|attributeName|attributeLocale|attributeLabel)_(\d+)$/', $nodeName, $matches ) ) {
+                        $attributes[ $matches[ 2 ] ][ $matches[ 1 ] ] = $nodeValue;
+                    } elseif ( 'media' === $nodeName ) {
 						$media  = $feedItemNode->addChild( 'media' );
 						$values = is_array( $nodeValue ) ? $nodeValue : [ $nodeValue ];
 						foreach ( $values as $value ) {
@@ -252,6 +254,16 @@ class Feed
 					}
 				}
 			}
+
+            if ( ! empty( $attributes ) ) {
+                $attributesNode = $feedItemNode->addChild( 'attributes' );
+                foreach ( $attributes as $option ) {
+                    $attributeNode = $attributesNode->addChild( 'attribute' );
+                    foreach ( $option as $key => $value ) {
+                        $attributeNode->addChild( $key, $value );
+                    }
+                }
+            }
 		}
 	}
 

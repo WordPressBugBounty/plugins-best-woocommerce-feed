@@ -930,4 +930,25 @@ class Rex_Product_Feed_Actions {
         }
         return false;
     }
+
+	/**
+	 * Adds a translated value using TranslatePress.
+	 *
+	 * This function takes a value, a rule, and an instance, and returns the translated value
+	 * based on the TranslatePress language setting. If the language is not set, it defaults to 'en_US'.
+	 *
+	 * @param mixed  $value    The value to be translated.
+	 * @param mixed  $rule     The rule associated with the value.
+	 * @param object $instance The instance containing the feed data.
+	 * @return mixed The translated value.
+	 *
+	 * @since 7.4.20
+	 */
+    public function add_translate_press_value( $value, $rule, $instance ) {
+        if ( wpfm_is_translatePress_active() ) {
+            $language = $instance->feed->translatepress_language ?? 'en_US';
+            $value = trp_translate( $value, $language, false );
+        }
+        return $value;
+    }
 }

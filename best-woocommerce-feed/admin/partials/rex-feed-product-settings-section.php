@@ -69,6 +69,33 @@
 		</div>
 
 		<div class="<?php echo esc_attr( $this->prefix ) . 'country_list_area'; ?>">
+            <?php
+            $merchant = get_post_meta( get_the_ID(), '_rex_feed_merchant', true );
+            $merchant = $merchant ?: get_post_meta( get_the_ID(), 'rex_feed_merchant', true );
+            $display  = 'google' === $merchant ? '' : 'style="display:none;"';
+            ?>
+            <div class="<?php echo esc_attr( $this->prefix ) . 'is_google_content_api'; ?> pl-10" <?php echo $display;?>>
+                <label for="<?php echo esc_attr( $this->prefix ) . 'is_google_content_api'; ?>">
+					<?php esc_html_e( 'Send Products via Google Content API', 'rex-product-feed' ); ?>
+                    <span class="rex_feed-tooltip">
+						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
+						<p><?php esc_html_e( 'Sync Products using Google Content API.', 'rex-product-feed' ); ?></p>
+					</span>
+                </label>
+
+                <div class="switch">
+                    <div class="wpfm-switcher">
+						<?php
+						$saved_value = get_post_meta( get_the_ID(), '_rex_feed_is_google_content_api', true );
+						$saved_value = $saved_value ?: 'no';
+						$checked = 'yes' === $saved_value ? ' checked' : '';
+						?>
+                        <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'is_google_content_api'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'is_google_content_api'?>" <?php echo esc_attr( $checked )?>>
+                        <label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'is_google_content_api'?>"></label>
+                    </div>
+                </div>
+            </div>
+
 			<div class="<?php echo esc_attr( $this->prefix ) . 'country_list_content'; ?> pl-10">
 				<label for="<?php echo esc_attr( $this->prefix ) . 'feed_country_label'; ?>"><?php esc_html_e( 'Country', 'rex-product-feed' ); ?>
 					<span class="rex_feed-tooltip">
@@ -122,7 +149,7 @@
                         $saved_value = get_post_meta(get_the_ID(), '_rex_feed_include_out_of_stock', true);
                         $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_include_out_of_stock', true);
                         $saved_value = $saved_value ?: 'yes';
-                        $checked = $saved_value === 'yes' ? ' checked' : '';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
 						<input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'include_out_of_stock'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'include_out_of_stock'?>" <?php echo esc_attr( $checked )?>>
 						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'include_out_of_stock'?>"></label>
@@ -145,7 +172,7 @@
                         $saved_value = get_post_meta(get_the_ID(), '_rex_feed_include_zero_price_products', true);
                         $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_include_zero_price_products', true);
                         $saved_value = $saved_value ?: 'yes';
-                        $checked = $saved_value === 'yes' ? ' checked' : '';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
                         <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'include_zero_price_products'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'include_zero_price_products'?>" <?php echo esc_attr( $checked )?>>
 						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'include_zero_price_products'?>"></label>
@@ -171,7 +198,7 @@
                         $saved_value = get_post_meta(get_the_ID(), '_rex_feed_variable_product', true);
                         $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_variable_product', true);
                         $saved_value = $saved_value ?: 'no';
-                        $checked = $saved_value === 'yes' ? ' checked' : '';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
                         <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'variable_product'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'variable_product'?>" <?php echo esc_attr( $checked )?>>
 						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'variable_product'?>"></label>
@@ -193,7 +220,7 @@
                         $saved_value = get_post_meta(get_the_ID(), '_rex_feed_hidden_products', true);
                         $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_hidden_products', true);
                         $saved_value = $saved_value ?: 'no';
-                        $checked = $saved_value === 'yes' ? ' checked' : '';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
                         <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'hidden_products'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'hidden_products'?>" <?php echo esc_attr( $checked )?>>
 						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'hidden_products'?>"></label>
@@ -228,7 +255,7 @@
                         $saved_value = get_post_meta(get_the_ID(), '_rex_feed_variation_product_name', true);
                         $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_variation_product_name', true);
                         $saved_value = $saved_value ?: 'no';
-                        $checked = $saved_value === 'yes' ? ' checked' : '';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
                         <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'variation_product_name'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'variation_product_name'?>" <?php echo esc_attr( $checked )?>>
 						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'variation_product_name'?>"></label>
@@ -250,7 +277,7 @@
                         $saved_value = get_post_meta(get_the_ID(), '_rex_feed_parent_product', true);
                         $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_parent_product', true);
                         $saved_value = $saved_value ?: 'yes';
-                        $checked = $saved_value === 'yes' ? ' checked' : '';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
                         <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'parent_product'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'parent_product'?>" <?php echo esc_attr( $checked )?>>
 						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'parent_product'?>"></label>
@@ -291,7 +318,7 @@
                         $saved_value = get_post_meta(get_the_ID(), '_rex_feed_variations', true);
                         $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_variations', true);
                         $saved_value = $saved_value ?: 'yes';
-                        $checked = $saved_value === 'yes' ? ' checked' : '';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
                         <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'variations'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'variations'?>" <?php echo esc_attr( $checked )?>>
 						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'variations'?>"></label>
@@ -332,7 +359,7 @@
                         $saved_value = get_post_meta(get_the_ID(), '_rex_feed_skip_product', true);
                         $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_skip_product', true);
                         $saved_value = $saved_value ?: 'no';
-                        $checked = $saved_value === 'yes' ? ' checked' : '';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
                         <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'skip_product'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'skip_product'?>" <?php echo esc_attr( $checked )?>>
 						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'skip_product'?>"></label>
@@ -355,7 +382,7 @@
                         $saved_value = get_post_meta(get_the_ID(), '_rex_feed_skip_row', true);
                         $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_skip_row', true);
                         $saved_value = $saved_value ?: 'no';
-                        $checked = $saved_value === 'yes' ? ' checked' : '';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
                         <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'skip_row'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'skip_row'?>" <?php echo esc_attr( $checked )?>>
 						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'skip_row'?>"></label>
@@ -490,6 +517,35 @@
 
 			<?php } ?>
 
+<!--            TranslatePress start here -->
+            <?php
+            if ( wpfm_is_translatePress_active() ) {
+                $translatePress_languages = trp_get_languages();
+                ?>
+                <div class="<?php echo esc_attr( $this->prefix ) . 'translate_press_language';?>">
+                    <label for="<?php echo esc_attr( $this->prefix ) . 'translate_press_language';?>"><?php esc_html_e('Language by TranslatePress', 'rex-product-feed')?>
+                        <span class="rex_feed-tooltip">
+						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
+						<p><?php esc_html_e( 'This option will translate your site string to the selected language.', 'rex-product-feed' ); ?></p>
+					</span>
+                    </label>
+                    <select name="<?php echo esc_html( $this->prefix ) . 'translate_press_language';?>" id="<?php echo esc_html( $this->prefix ) . 'translate_press_language';?>" class="">
+                        <?php
+                        $selected_language = get_post_meta( get_the_ID(), '_rex_feed_translate_press_language', true );
+                        if ( is_array( $translatePress_languages ) && !empty( $translatePress_languages ) ) {
+                            foreach ( $translatePress_languages as $key => $value ) {
+                                $selected = $selected_language === $key ? ' selected' : '';
+                                echo '<option value="' . esc_attr( $key ) . '" ' . esc_html( $selected ) . '>' . esc_html( $value ) . '</option>';
+                            }
+                        }
+                        ?>
+                    </select>
+                </div>
+
+            <?php } ?>
+
+<!--            TranslatePress end here-->
+
             <!-- Multi-currency by WOOCS -->
             <?php
             if( defined( 'WOOCS_VERSION' ) ) {
@@ -537,7 +593,7 @@
                         $saved_value = get_post_meta(get_the_ID(), '_rex_feed_analytics_params_options', true);
                         $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_analytics_params_options', true);
                         $saved_value = $saved_value ?: 'no';
-                        $checked = $saved_value === 'yes' ? ' checked' : '';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
                         <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'analytics_params_options'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'analytics_params_options'?>" <?php echo esc_attr( $checked )?>>
 						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'analytics_params_options'?>"></label>
@@ -555,11 +611,11 @@
 				<?php
 				$analytics_params = get_post_meta( get_the_ID(), '_rex_feed_analytics_params', true );
 				$analytics_params = $analytics_params ?: get_post_meta( get_the_ID(), 'rex_feed_analytics_params', true );
-				$utm_source       = isset( $analytics_params[ 'utm_source' ] ) ? $analytics_params[ 'utm_source' ] : '';
-				$utm_medium       = isset( $analytics_params[ 'utm_medium' ] ) ? $analytics_params[ 'utm_medium' ] : '';
-				$utm_campaign     = isset( $analytics_params[ 'utm_campaign' ] ) ? $analytics_params[ 'utm_campaign' ] : '';
-				$utm_term         = isset( $analytics_params[ 'utm_term' ] ) ? $analytics_params[ 'utm_term' ] : '';
-				$utm_content      = isset( $analytics_params[ 'utm_content' ] ) ? $analytics_params[ 'utm_content' ] : '';
+				$utm_source       = $analytics_params[ 'utm_source' ] ?? '';
+				$utm_medium       = $analytics_params[ 'utm_medium' ] ?? '';
+				$utm_campaign     = $analytics_params[ 'utm_campaign' ] ?? '';
+				$utm_term         = $analytics_params[ 'utm_term' ] ?? '';
+				$utm_content      = $analytics_params[ 'utm_content' ] ?? '';
 
 				echo '<li>';
 				?>

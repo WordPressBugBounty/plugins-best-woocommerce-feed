@@ -17,9 +17,9 @@ class Rex_Feed_Sales_Notification_Bar
     public function __construct()
     {
         // Hook into the admin_notices action to display the banner
-        add_action( 'admin_notices', array( $this, 'display_banner' ) );
+        // add_action( 'admin_notices', array( $this, 'display_banner' ) );
         // Add styles
-        add_action( 'admin_head', [ $this, 'enqueue_css' ] );
+        // add_action( 'admin_head', [ $this, 'enqueue_css' ] );
 
         add_action( 'wp_ajax_rexfeed_sales_notification_notice', [ $this, 'sales_notification_notice' ] );
         add_action( 'wp_ajax_nopriv_rexfeed_sales_notification_notice', [ $this, 'sales_notification_notice' ] );

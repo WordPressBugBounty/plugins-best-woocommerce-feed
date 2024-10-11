@@ -87,6 +87,10 @@ class Rex_Feed_Attributes {
 			$attributes = array_merge( $attributes, self::get_aioseo_attributes() );
 		}
 
+        if ( defined('YITH_WCBR_VERSION') ) {
+            $attributes = array_merge( $attributes, self::get_yith_brand_attributes() );
+        }
+
 		// Get product custom attributes.
 		$_custom_attributes                        = self::get_product_custom_attributes();
 		$attributes[ 'Product Custom Attributes' ] = $_custom_attributes;
@@ -741,4 +745,18 @@ class Rex_Feed_Attributes {
 			'AIO SEO Attributes' => $attributes,
 		);
    }
+
+    /**
+     * Gets YITH Brand attributes
+     *
+     * @return string[][]
+     * @since 7.4.20
+     */
+    public static function get_yith_brand_attributes() {
+        return array(
+            'YITH Brand' => array(
+                'yith_brand' => 'YITH Product Brand',
+            ),
+        );
+    }
 }

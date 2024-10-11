@@ -63,7 +63,29 @@ class Rex_Feed_Template_Marktplaats extends Rex_Feed_Abstract_Template {
 				'cost_5'         => 'Shipping Cost - 5',
 				'time_5'         => 'Shipping Time - 5',
 				'location_5'     => 'Shipping Location - 5',
-			]
+			],
+            'Attributes' => [
+                'attributeName_1' => 'Attribute Name - 1',
+                'attributeLocale_1' => 'Attribute Locale - 1',
+                'attributeLabel_1' => 'Attribute Label - 1',
+                'attributeValue_1' => 'Attribute Value - 1',
+                'attributeName_2' => 'Attribute Name - 2',
+                'attributeLocale_2' => 'Attribute Locale - 2',
+                'attributeLabel_2' => 'Attribute Label - 2',
+                'attributeValue_2' => 'Attribute Value - 2',
+                'attributeName_3' => 'Attribute Name - 3',
+                'attributeLocale_3' => 'Attribute Locale - 3',
+                'attributeLabel_3' => 'Attribute Label - 3',
+                'attributeValue_3' => 'Attribute Value - 3',
+                'attributeName_4' => 'Attribute Name - 4',
+                'attributeLocale_4' => 'Attribute Locale - 4',
+                'attributeLabel_4' => 'Attribute Label - 4',
+                'attributeValue_4' => 'Attribute Value - 4',
+                'attributeName_5' => 'Attribute Name - 5',
+                'attributeLocale_5' => 'Attribute Locale - 5',
+                'attributeLabel_5' => 'Attribute Label - 5',
+                'attributeValue_5' => 'Attribute Value - 5',
+            ],
 		];
 	}
 

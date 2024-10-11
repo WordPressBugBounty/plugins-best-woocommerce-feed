@@ -423,6 +423,8 @@ class Rex_Feed_Scheduler {
         $hotline_firm_id             = get_post_meta( $feed_id, '_rex_feed_hotline_firm_id', true );
         $hotline_firm_name           = get_post_meta( $feed_id, '_rex_feed_hotline_firm_name', true );
         $hotline_exch_rate           = get_post_meta( $feed_id, '_rex_feed_hotline_exchange_rate', true );
+        $translatepress_language    = get_post_meta( $feed_id, '_rex_feed_translate_press_language', true );
+        $is_google_content_api       = 'yes' === get_post_meta( $feed_id, '_rex_feed_is_google_content_api', true );
         $yandex_old_price            = 'include' === $yandex_old_price;
 
         if( apply_filters( 'wpfm_is_premium', false ) ) {
@@ -491,7 +493,9 @@ class Rex_Feed_Scheduler {
             'hotline_firm_id'             => $hotline_firm_id,
             'hotline_firm_name'           => $hotline_firm_name,
             'hotline_exch_rate'           => $hotline_exch_rate,
-            'feed_rules_button'           => $feed_rules_button
+            'feed_rules_button'           => $feed_rules_button,
+            'is_google_content_api'       => $is_google_content_api,
+            'translatepress_language'     => $translatepress_language,
         );
     }
 

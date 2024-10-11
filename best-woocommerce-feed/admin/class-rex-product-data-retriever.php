@@ -117,7 +117,7 @@ class Rex_Product_Data_Retriever {
 	 *
 	 * @var Rex_Product_Feed_Abstract_Generator
 	 */
-	protected $feed;
+	public $feed;
 
 	/**
 	 * Language by WPML
@@ -336,9 +336,20 @@ class Rex_Product_Data_Retriever {
 				$val = $this->set_rex_dynamic_discount_attr( $rule[ 'meta_key' ] );
 			} elseif ( 'meta' === $rule[ 'type' ] && $this->is_aioseo_attr( $rule[ 'meta_key' ] ) ) {
 				$val = $this->set_aioseo_attr( $rule[ 'meta_key' ] );
+			} elseif ( 'meta' === $rule[ 'type' ] && $this->is_yith_brand_attr( $rule[ 'meta_key' ] ) ) {
+				$val = $this->set_yith_brand_attr();
 			}
 		}
-		return $val;
+
+        /**
+         * Apply filters to the raw value of a product attribute.
+         *
+         * @param mixed $val The raw value of the product attribute.
+         * @param array $rule The rule associated with the product attribute.
+         * @return mixed The filtered value of the product attribute.
+         * @since 7.4.20
+         */
+        return apply_filters( 'rexfeed_product_attribute_raw_value', $val, $rule, $this );
 	}
 
 
@@ -3100,4 +3111,45 @@ class Rex_Product_Data_Retriever {
 			return '';
 		}
 	}
+
+    /**
+     * Helper to check if a attribute is a YITH Brand Attribute.
+     *
+     * @param string $key Attribute key.
+     *
+     * @return bool
+     * @since 7.4.20
+     */
+    protected function is_yith_brand_attr( $key ) {
+        return !empty( $this->product_meta_keys[ 'YITH Brand' ] ) && array_key_exists( $key, $this->product_meta_keys[ 'YITH Brand' ] );
+    }
+
+    /**
+     * Sets the YITH brand attribute for the product.
+     *
+     * This function retrieves the YITH brand terms associated with the product.
+     * If the product is a variation, it retrieves the terms for the parent product.
+     * The terms are concatenated into a comma-separated string.
+     *
+     * @return string The concatenated YITH brand names.
+     * @since 7.4.20
+     */
+    protected function set_yith_brand_attr() {
+        if ( 'WC_Product_Variation' === get_class( $this->product ) ) {
+            $brands = wp_get_post_terms( $this->product->get_parent_id(), 'yith_product_brand', array( "fields" => "all" ) );
+        } else {
+            $brands = wp_get_post_terms( $this->product->get_id(), 'yith_product_brand', array( "fields" => "all" ) );
+        }
+        $brnd = '';
+        $i    = 0;
+        foreach ( $brands as $brand ) {
+            if ( 0 === $i ) {
+                $brnd .= $brand->name;
+            } else {
+                $brnd .= ', ' . $brand->name;
+            }
+            $i++;
+        }
+        return $brnd;
+    }
 }

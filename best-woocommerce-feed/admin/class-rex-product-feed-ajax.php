@@ -85,7 +85,7 @@ class Rex_Product_Feed_Ajax {
 
         // Google merchant settings.
         wp_ajax_helper()->handle( 'rexfeed-google-merchant-settings' )
-                        ->with_callback( array( 'Rex_Google_Merchant_Settings_Api', 'save_settings' ) )
+                        ->with_callback( array( 'Rex_Product_Feed_Ajax', 'save_google_api_credentials' ) )
                         ->with_validation( $validations );
 
         // Send to Google Merchant Center.
@@ -214,9 +214,9 @@ class Rex_Product_Feed_Ajax {
                         ->with_callback( array( 'Rex_Product_Feed_Ajax', 'is_settings_changed' ) )
                         ->with_validation( $validations );
 
-        wp_ajax_helper()->handle( 'rex-feed-hide-deal-notice' )
-                        ->with_callback( array( 'Rex_Product_Feed_Ajax', 'hide_special_deal_notice' ) )
-                        ->with_validation( $validations );
+	    wp_ajax_helper()->handle( 'rexfeed-fetch-gmc-report' )
+	                    ->with_callback( array( 'Rex_Product_Feed_Ajax', 'fetch_gmc_report' ) )
+	                    ->with_validation( $validations );
     }
 
 
@@ -285,6 +285,10 @@ class Rex_Product_Feed_Ajax {
     public static function generate_feed( $config ) {
         try {
             $merchant = Rex_Product_Feed_Factory::build( $config );
+        if( $config[ 'info' ][ 'batch' ] === $config[ 'info' ][ 'total_batch' ] ) {
+              Rex_Product_Feed_Controller::update_feed_status( $config[ 'info' ][ 'post_id' ], 'completed' );
+	        update_post_meta( $config[ 'info' ][ 'post_id' ], '_rex_mas_last_sync', time() );
+        }
         }
         catch ( Exception $e ) {
             return $e->getMessage();
@@ -334,7 +338,7 @@ class Rex_Product_Feed_Ajax {
         $template_markup = apply_filters(
             "rexfeed_{$merchant_name}_template_markups",
             plugin_dir_path( __FILE__ ) . 'partials/feed-config-metabox-display.php',
-            $feed_template, $feed_format, $feed_separator
+            $feed_template, $feed_format, $feed_separator,
         );
         include_once $template_markup;
 
@@ -378,7 +382,7 @@ class Rex_Product_Feed_Ajax {
                     array(
                         'status'   => $status,
                         'location' => $cat_map_url,
-                    )
+                    ),
                 );
             }
             if( '' !== $wpfm_hash ) {
@@ -672,7 +676,7 @@ class Rex_Product_Feed_Ajax {
                 [ 'status' => 'failed' ],
                 [
                     'hook'   => 'rex_feed_regenerate_feed_batch',
-                    'status' => 'processing'
+                    'status' => 'processing',
                 ],
             );
             $wpdb->update(
@@ -680,7 +684,7 @@ class Rex_Product_Feed_Ajax {
                 [ 'status' => 'failed' ],
                 [
                     'hook'   => 'rex_feed_regenerate_feed_batch',
-                    'status' => 'pending'
+                    'status' => 'pending',
                 ],
             );
             $wpdb->update(
@@ -731,7 +735,7 @@ class Rex_Product_Feed_Ajax {
                 return [
                     'success'  => false,
                     'content'  => 'Access Denied!',
-                    'file_url' => ''
+                    'file_url' => '',
                 ];
             }
 
@@ -742,13 +746,13 @@ class Rex_Product_Feed_Ajax {
             return [
                 'success'  => true,
                 'content'  => $out,
-                'file_url' => $file_url
+                'file_url' => $file_url,
             ];
         }
         return [
             'success'  => false,
             'content'  => '',
-            'file_url' => ''
+            'file_url' => '',
         ];
     }
 
@@ -1021,7 +1025,7 @@ class Rex_Product_Feed_Ajax {
                     'feed_config' => $feed_config,
                     'req_attr'    => $required_attr,
                     'labels'      => $labels,
-                )
+                ),
             );
         }
         wp_send_json_error(
@@ -1030,7 +1034,7 @@ class Rex_Product_Feed_Ajax {
                 'feed_config' => '',
                 'req_attr'    => '',
                 'labels'      => '',
-            )
+            ),
         );
     }
 
@@ -1409,22 +1413,6 @@ class Rex_Product_Feed_Ajax {
     }
 
     /**
-     * Updates an option on notice dismissal [for deal],
-     * so that deal notice doesn't appear again
-     *
-     * @return array
-     * @since 7.3.1
-     */
-    public static function hide_special_deal_notice( $payload ) {
-        $occasion = $payload[ 'occasion' ] ?? null;
-        if ( $occasion ) {
-            update_option( $occasion, 'hidden' );
-            return [ 'status' => true ];
-        }
-        return [ 'status' => false ];
-    }
-
-    /**
      * Creates a contact using the provided name and email.
      *
      * This function verifies a nonce for security, then extracts the name and email
@@ -1464,4 +1452,52 @@ class Rex_Product_Feed_Ajax {
         }
     }
 
+	/**
+	 * Fetches Google Merchant Center (GMC) report data based on provided payload parameters.
+	 *
+	 * @param array $payload An array containing parameters like pageToken, maxResult, and feed_id.
+	 *
+	 * @return void Sends a JSON response with the GMC report data and related markups or an error if no data is available.
+	 * @since 7.4.20
+	 */
+	public static function fetch_gmc_report( $payload ) {
+		$page_token          = $payload[ 'pageToken' ] ?? null;
+		$max_result          = $payload[ 'maxResult' ] ?? 10;
+		$feed_id             = $payload[ 'feed_id' ] ?? null;
+
+		$rex_google_api   = new Rex_Feed_Google_Shopping_Api();
+		$product_status_data = $rex_google_api->get_product_detailed_stats( $page_token, $max_result );
+		if ( !empty( $product_status_data ) ) {
+			$markups = $rex_google_api->build_product_status_table_data( $product_status_data, $feed_id );
+			wp_send_json_success( [
+				'report'  => $product_status_data,
+				'markups' => $markups,
+			] );
+		}
+		wp_send_json_error( $product_status_data );
+	}
+
+	/**
+	 * Saves Google API credentials.
+	 *
+	 * This function updates the options for Google API credentials, including client ID, client secret, and merchant ID.
+	 * It sends a JSON success response after updating the options.
+	 *
+	 * @param array $payload The payload array containing the Google API credentials.
+	 * @return void
+     *
+     * @since 7.4.20
+	 */
+    public static function save_google_api_credentials( $payload ) {
+	    if ( isset( $payload[ 'client_id' ] ) ) {
+		    update_option( 'rex_google_client_id', $payload[ 'client_id' ] );
+	    }
+	    if ( isset( $payload[ 'client_secret' ] ) ) {
+		    update_option( 'rex_google_client_secret', $payload[ 'client_secret' ] );
+	    }
+	    if ( isset( $payload[ 'merchant_id' ] ) ) {
+		    update_option( 'rex_google_merchant_id', $payload[ 'merchant_id' ] );
+	    }
+        wp_send_json_success();
+    }
 }

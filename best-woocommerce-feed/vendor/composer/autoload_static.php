@@ -930,6 +930,8 @@ class ComposerStaticInit4c4b99044a2541264cd0b6680902f5e3
         'Rex_Feed_Abstract_Template' => __DIR__ . '/../..' . '/admin/feed-templates/abstract-rex-feed-template.php',
         'Rex_Feed_Attributes' => __DIR__ . '/../..' . '/admin/class-rex-feed-attributes.php',
         'Rex_Feed_Discount_Rules_Asana_Plugins' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-discount-rules-asana-plugins.php',
+        'Rex_Feed_Google_Shopping_Api' => __DIR__ . '/../..' . '/admin/api/class-rex-feed-google-shopping-api.php',
+        'Rex_Feed_Handle_Google_Product' => __DIR__ . '/../..' . '/admin/api-data-handlers/class-rex-feed-google-product-data-handler.php',
         'Rex_Feed_Merchants' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-merchants.php',
         'Rex_Feed_Rollback' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-rollback.php',
         'Rex_Feed_Sales_Notification_Bar' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-sales-notification-bar.php',

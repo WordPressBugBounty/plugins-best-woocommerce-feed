@@ -477,6 +477,18 @@ class Rex_Product_Feed_Admin {
             10
         );
 
+	    $this->setup_wizard_hook_suffix = add_submenu_page(
+		    null,
+		    esc_html__( 'Google Merchant Product Diagnostics', 'rex-product-feed' ),
+		    esc_html__( 'Google Merchant Product Diagnostics', 'rex-product-feed' ),
+		    'read',
+		    'gmc-products-report',
+		    function() {
+			    require_once plugin_dir_path( __FILE__ ) . '/partials/rex-feed-gmc-products-diagnostics-report.php';
+		    },
+		    10
+	    );
+
         // PFM actions.
         add_filter( 'plugin_action_links_' . $this->plugin_basename, array( new Rex_Product_Feed_Actions(), 'plugin_action_links' ) );
     }

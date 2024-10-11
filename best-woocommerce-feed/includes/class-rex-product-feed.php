@@ -153,18 +153,19 @@ class Rex_Product_Feed {
 	 * @access   private
 	 */
     private function define_admin_hooks() {
-	    $plugin_admin   = new Rex_Product_Feed_Admin( $this->get_plugin_name(), $this->get_version() );
-	    $feed_actions   = new Rex_Product_Feed_Actions();
-	    $cpt            = new Rex_Product_CPT();
-	    $ajax           = new Rex_Product_Feed_Ajax();
-	    $metabox        = new Rex_Product_Metabox();
-	    $rollback       = new Rex_Feed_Rollback();
-	    $appsero_data   = new Rex_Product_Appsero_Data();
-	    $scheduler      = new Rex_Feed_Scheduler();
+	    $plugin_admin           = new Rex_Product_Feed_Admin( $this->get_plugin_name(), $this->get_version() );
+	    $feed_actions           = new Rex_Product_Feed_Actions();
+	    $cpt                    = new Rex_Product_CPT();
+	    $ajax                   = new Rex_Product_Feed_Ajax();
+	    $metabox                = new Rex_Product_Metabox();
+	    $rollback               = new Rex_Feed_Rollback();
+	    $appsero_data           = new Rex_Product_Appsero_Data();
+	    $scheduler              = new Rex_Feed_Scheduler();
+
         $special_banner = new Rex_Feed_Special_Occasion_Banner(
-            'eid_ul_adha_2024',
-            '2024-06-14 00:00:00',
-            '2024-06-25 00:00:00'
+            'halloween_first_deal_2024',
+            '2024-10-09 00:00:00',
+            '2024-10-25 00:00:00'
         ); // Date format: YYYY-MM-DD HH:MM:SS
 
         if ( !defined( 'REX_PRODUCT_FEED_PRO_VERSION' ) && 'no' === get_option( 'rexfeed_hide_sales_notification_bar', 'no' ) ) {
@@ -230,8 +231,10 @@ class Rex_Product_Feed {
         $this->loader->add_filter( 'rex_feed_product_price_before_formatting', $feed_actions, 'get_converted_price_by_woocs', 10, 4 );
 
         //setup wizard ajax
-        $this->loader->add_action( 'wp_ajax_create_contact', $ajax, 'create_contact' );
-        $this->loader->add_action( 'wp_ajax_nopriv_create_contact', $ajax, 'create_contact' );
+        $this->loader->add_action( 'wp_ajax_rexfeed_create_contact', $ajax, 'create_contact' );
+        $this->loader->add_action( 'wp_ajax_nopriv_rexfeed_create_contact', $ajax, 'create_contact' );
+
+        $this->loader->add_filter( 'rexfeed_product_attribute_raw_value', $feed_actions, 'add_translate_press_value', 10, 3);
     }
 
 

@@ -9,23 +9,22 @@
  * @subpackage Rex_Product_Feed/admin/partials
  */
 
-$rex_google_merchant = new Rex_Google_Merchant_Settings_Api();
+$rex_google_merchant = new Rex_Feed_Google_Shopping_Api();
 $data                = function_exists( 'rex_feed_get_sanitized_get_post' ) ? rex_feed_get_sanitized_get_post() : array();
 $data                = !empty( $data[ 'get' ] ) ? $data[ 'get' ] : array();
 $current_page        = isset( $data[ 'page' ] ) ? sanitize_text_field( $data[ 'page' ] ) : '';
 $html                = '';
-$disable             = '';
-$client_id           = $rex_google_merchant::$client_id;
-$client_secret       = $rex_google_merchant::$client_secret;
-$merchant_id         = $rex_google_merchant::$merchant_id;
-$redirect_uri        = admin_url( 'admin.php?page=merchant_settings' );
+$client_id           = $rex_google_merchant->get_client_id();
+$client_secret       = $rex_google_merchant->get_client_secret();
+$merchant_id         = $rex_google_merchant->get_merchant_id();
+$redirect_uri        = $rex_google_merchant->get_redirect_url();
 
-if ( isset( $data[ 'code' ] ) && 'merchant_settings' === $current_page ) {
-	$code = sanitize_text_field( $data[ 'code' ] );
-	$rex_google_merchant->save_access_token( sanitize_text_field( $data[ 'code' ] ) );
+if ( 'merchant_settings' === $current_page ) {
+	$code = !empty( $data[ 'code' ] ) ? sanitize_text_field( $data[ 'code' ] ) : null;
+	$rex_google_merchant->fetch_access_token( $code );
 }
 
-if ( !( $rex_google_merchant->is_authenticate() ) ) {
+if ( !( $rex_google_merchant->is_authorized() ) ) {
 	if ( $client_id && $client_secret && $merchant_id ) {
 		$html = $rex_google_merchant->get_access_token_html();
 	}
@@ -35,10 +34,6 @@ if ( !( $rex_google_merchant->is_authenticate() ) ) {
 }
 else {
 	$html = $rex_google_merchant->authorization_success_html();
-}
-
-if ( $client_id && $client_secret && $merchant_id ) {
-	$disable = 'disabled';
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'loading-spinner.php';
@@ -77,7 +72,7 @@ require_once plugin_dir_path( __FILE__ ) . 'loading-spinner.php';
 
 							</button>
 
-							<button class="btn waves-effect waves-light btn-default" type="submit" name="action" <?php echo esc_html( $disable ); ?>><?php echo esc_html__( 'Submit', 'rex-product-feed' ); ?>
+							<button class="btn waves-effect waves-light btn-default" type="submit" name="action"><?php echo esc_html__( 'Submit', 'rex-product-feed' ); ?>
 
 							</button>
 						</div>

@@ -903,6 +903,8 @@ return array(
     'Rex_Feed_Abstract_Template' => $baseDir . '/admin/feed-templates/abstract-rex-feed-template.php',
     'Rex_Feed_Attributes' => $baseDir . '/admin/class-rex-feed-attributes.php',
     'Rex_Feed_Discount_Rules_Asana_Plugins' => $baseDir . '/admin/class-rex-product-feed-discount-rules-asana-plugins.php',
+    'Rex_Feed_Google_Shopping_Api' => $baseDir . '/admin/api/class-rex-feed-google-shopping-api.php',
+    'Rex_Feed_Handle_Google_Product' => $baseDir . '/admin/api-data-handlers/class-rex-feed-google-product-data-handler.php',
     'Rex_Feed_Merchants' => $baseDir . '/admin/class-rex-product-feed-merchants.php',
     'Rex_Feed_Rollback' => $baseDir . '/admin/class-rex-product-feed-rollback.php',
     'Rex_Feed_Sales_Notification_Bar' => $baseDir . '/admin/class-rex-product-feed-sales-notification-bar.php',

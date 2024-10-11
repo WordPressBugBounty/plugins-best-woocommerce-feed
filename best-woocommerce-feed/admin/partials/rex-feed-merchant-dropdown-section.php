@@ -45,6 +45,25 @@ $icon = 'icon/icon-svg/icon-question.php';
 	</select>
 </div>
 
+<?php
+$is_google_content_api = get_post_meta( get_the_ID(), '_rex_feed_is_google_content_api', true );
+$last_sync             = get_post_meta( get_the_ID(), '_rex_mas_last_sync', true );
+if ( 'google' === $saved_merchant && 'yes' === get_post_meta( get_the_ID(), '_rex_feed_is_google_content_api', true ) && !empty( $last_sync ) ):?>
+<div class="rex_feed_config_div">
+    <div class="rex-feed-feed-report">
+        <span><?php esc_html_e( 'Google Diagnostics Report', 'rex-product-feed' );?></span>
+        <a class="rex-feed-diagnostics-report-btn" target="_blank" href="<?php echo sanitize_url( admin_url( 'edit.php?post_type=product-feed&page=gmc-products-report&feed_id=' . get_the_ID() ) );?>">
+            <?php esc_html_e( 'View Report', 'rex-product-feed' );?>
+
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11.7497 11L16.7497 6L11.7497 1" stroke="#396BE7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M16.1113 6L0.91684 6" stroke="#396BE7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+    </div>
+</div>
+<?php endif;?>
+
 <div class="rex_feed_config_div rex-feed-feed-separator" style="display: none">
 	<label for="
 	<?php

@@ -1257,6 +1257,9 @@
                 if (response == "false" || response == "") {
                     generate_feed(product, offset, batch, per_batch, total_batch);
                 } else if (response.msg == "finish") {
+                    if ( response?.error_msg ) {
+                        alert( response?.error_msg );
+                    }
                     rex_feed_feed_progressBar(progressWidth);
                     $("#wpfm-feed-clock").stopwatch().stopwatch("stop");
                     $("#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn").removeClass("disabled");
@@ -1339,7 +1342,6 @@
         wpAjaxHelperRequest("rexfeed-google-merchant-settings", payload)
             .success(function (response) {
                 console.log("Woohoo!");
-                $(".merchant-action").html(response.html);
                 $("#rex_feed_config_heading .inside .rex-loading-spinner").css("display", "none");
                 location.reload();
             })
@@ -1357,62 +1359,63 @@
         event.preventDefault();
         $("#rex_feed_config_heading .inside .rex-loading-spinner").css("display", "flex");
 
+        const $scheduleSelectedOption = $( '#rex_feed_google_schedule option:selected' );
         let payload = {
             feed_id: $("#post_ID").val(),
-            schedule: $("#rex_feed_google_schedule option:selected").val(),
+            schedule: $scheduleSelectedOption.val(),
             hour: $("#rex_feed_google_schedule_time option:selected").val(),
             country: $("#rex_feed_google_target_country").val(),
             language: $("#rex_feed_google_target_language").val(),
         };
-
-        if ($("#rex_feed_google_schedule option:selected").val() == "monthly") {
+        if ( 'monthly' === $scheduleSelectedOption.val() ) {
             payload["month"] = $("#rex_feed_google_schedule_month option:selected").val();
             payload["day"] = "";
-        } else if ($("#rex_feed_google_schedule option:selected").val() == "weekly") {
+        } else if ( 'weekly' === $scheduleSelectedOption.val() ) {
             payload["day"] = $("#rex_feed_google_schedule_week_day option:selected").val();
             payload["month"] = "";
         } else {
             payload["month"] = "";
             payload["day"] = "";
         }
-        $(".rex-google-status").removeClass("info");
-        $(".rex-google-status").removeClass("success");
-        $(".rex-google-status").removeClass("warning");
-        $(".rex-google-status").removeClass("error");
-        $(".rex-google-status").addClass("info");
-        $(".rex-google-status").show();
-        $(".rex-google-status").html("<p>Feed is sending. Please wait...</p>");
+        const $rexGoogleStatus = $( '.rex-google-status' );
+        $rexGoogleStatus.removeClass("info");
+        $rexGoogleStatus.removeClass("success");
+        $rexGoogleStatus.removeClass("warning");
+        $rexGoogleStatus.removeClass("error");
+        $rexGoogleStatus.addClass("info");
+        $rexGoogleStatus.show();
+        $rexGoogleStatus.html("<p>Feed is sending. Please wait...</p>");
         wpAjaxHelperRequest("rexfeed-send-to-google", payload)
             .success(function (response) {
                 if (response.success) {
-                    $(".rex-google-status").removeClass("info");
-                    $(".rex-google-status").removeClass("success");
-                    $(".rex-google-status").removeClass("warning");
-                    $(".rex-google-status").removeClass("error");
-                    $(".rex-google-status").addClass("success");
-                    $(".rex-google-status").show();
-                    $(".rex-google-status").html("<p>Feed sent to google successfully.</p>");
+                    $rexGoogleStatus.removeClass("info");
+                    $rexGoogleStatus.removeClass("success");
+                    $rexGoogleStatus.removeClass("warning");
+                    $rexGoogleStatus.removeClass("error");
+                    $rexGoogleStatus.addClass("success");
+                    $rexGoogleStatus.show();
+                    $rexGoogleStatus.html("<p>Feed sent to google successfully.</p>");
                     console.log("Woohoo!");
                     location.reload();
                 } else {
-                    $(".rex-google-status").removeClass("info");
-                    $(".rex-google-status").removeClass("success");
-                    $(".rex-google-status").removeClass("warning");
-                    $(".rex-google-status").removeClass("error");
-                    $(".rex-google-status").addClass("warning");
-                    $(".rex-google-status").show();
-                    $(".rex-google-status").html("<p>Feed not sent to google. Please check.</p><p>" + response.reason + ": " + response.message + "</p>");
+                    $rexGoogleStatus.removeClass("info");
+                    $rexGoogleStatus.removeClass("success");
+                    $rexGoogleStatus.removeClass("warning");
+                    $rexGoogleStatus.removeClass("error");
+                    $rexGoogleStatus.addClass("warning");
+                    $rexGoogleStatus.show();
+                    $rexGoogleStatus.html("<p>Feed not sent to google. Please check.</p><p>" + response.reason + ": " + response.message + "</p>");
                     console.log(response);
                 }
             })
             .error(function (response) {
-                $(".rex-google-status").removeClass("info");
-                $(".rex-google-status").removeClass("success");
-                $(".rex-google-status").removeClass("warning");
-                $(".rex-google-status").removeClass("error");
-                $(".rex-google-status").addClass("error");
-                $(".rex-google-status").show();
-                $(".rex-google-status").html("<p>Something wrong happened. Please check.</p><p>" + response.reason + ": " + response.message + "</p>");
+                $rexGoogleStatus.removeClass("info");
+                $rexGoogleStatus.removeClass("success");
+                $rexGoogleStatus.removeClass("warning");
+                $rexGoogleStatus.removeClass("error");
+                $rexGoogleStatus.addClass("error");
+                $rexGoogleStatus.show();
+                $rexGoogleStatus.html("<p>Something wrong happened. Please check.</p><p>" + response.reason + ": " + response.message + "</p>");
                 console.log("Uh, oh!");
                 console.log(response);
             });
@@ -2949,7 +2952,15 @@
         }
     });
 
-   
+   $( '#rex_feed_merchant' ).on( 'change', function () {
+       const merchant = $('select#rex_feed_merchant').children().find( 'option:selected' ).val();
+
+       if ('google' === merchant) {
+           $('.rex_feed_is_google_content_api').show();
+       } else {
+           $('.rex_feed_is_google_content_api').hide();
+       }
+   });
 
 })(jQuery);
 

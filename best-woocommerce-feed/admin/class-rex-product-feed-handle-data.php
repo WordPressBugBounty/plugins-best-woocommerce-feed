@@ -238,6 +238,14 @@ class Rex_Product_Feed_Data_Handle {
         if( !empty( $feed_data[ 'rex_feed_tax_id' ] ) ) {
             $settings_data[ 'rex_feed_tax_id' ] = $feed_data[ 'rex_feed_tax_id' ];
         }
+        if( !empty( $feed_data[ 'rex_feed_is_google_content_api' ] ) ) {
+            $settings_data[ 'rex_feed_is_google_content_api' ] = $feed_data[ 'rex_feed_is_google_content_api' ];
+        }
+
+        if( !empty( $feed_data[ 'rex_feed_translate_press_language' ] ) ) {
+            $settings_data[ 'rex_feed_translate_press_language' ] = $feed_data[ 'rex_feed_translate_press_language' ];
+        }
+
 
         /**
          * Filter the list of settings drawer data to save.
@@ -350,5 +358,18 @@ class Rex_Product_Feed_Data_Handle {
         if( isset( $data[ 'rex_feed_tax_id' ] ) ) {
             update_post_meta( $feed_id, '_rex_feed_tax_id', $data[ 'rex_feed_tax_id' ] );
         }
+        if( isset( $data[ 'rex_feed_is_google_content_api' ] ) ) {
+            update_post_meta( $feed_id, '_rex_feed_is_google_content_api', $data[ 'rex_feed_is_google_content_api' ] );
+        }
+        else {
+	        update_post_meta( $feed_id, '_rex_feed_is_google_content_api', 'no' );
+        }
+
+        if( isset( $data['rex_feed_translate_press_language'] ) ){
+            update_post_meta( $feed_id, '_rex_feed_translate_press_language', $data[ 'rex_feed_translate_press_language' ] );
+        }else{
+            delete_post_meta( $feed_id, '_rex_feed_translate_press_language');
+        }
+
     }
 }

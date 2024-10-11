@@ -411,6 +411,16 @@ abstract class Rex_Product_Feed_Abstract_Generator
      */
     public $woocs_currency = '';
 
+	protected $is_google_content_api = false;
+
+	/**
+	 * TranslatePress language
+	 *
+	 * @since 7.4.20
+	 * @var string
+	 */
+    public $translatepress_language = '';
+
     /**
      * Define the core functionality of the plugin.
      *
@@ -432,6 +442,7 @@ abstract class Rex_Product_Feed_Abstract_Generator
         $this->merchant           = $config[ 'merchant' ] ?? '';
         $this->feed_format        = $config[ 'feed_format' ] ?? '';
         $this->wcml               = function_exists( 'wpfm_is_wcml_active' ) && wpfm_is_wcml_active();
+
         if ( $this->bypass ) {
             $wc_currency                   = function_exists( 'get_woocommerce_currency' ) ? get_woocommerce_currency() : 'USD';
             $this->id                      = !empty( $config[ 'info' ][ 'post_id' ] ) ? $config[ 'info' ][ 'post_id' ] : 0;
@@ -473,7 +484,9 @@ abstract class Rex_Product_Feed_Abstract_Generator
             $this->hotline_firm_id         = !empty( $config[ 'hotline_firm_id' ] ) ? $config[ 'hotline_firm_id' ] : '';
             $this->hotline_firm_name       = !empty( $config[ 'hotline_firm_name' ] ) ? $config[ 'hotline_firm_name' ] : '';
             $this->hotline_exch_rate       = !empty( $config[ 'hotline_exch_rate' ] ) ? $config[ 'hotline_exch_rate' ] : '';
-            $this->link                    = esc_url( home_url( '/' ) );
+            $this->is_google_content_api   = !empty( $config[ 'is_google_content_api' ] ) ? $config[ 'is_google_content_api' ] : false;
+	        $this->translatepress_language = !empty( $translatepress_language[ 'translatepress_language' ] ) ? $translatepress_language[ 'translatepress_language' ] : '';
+	        $this->link                    = esc_url( home_url( '/' ) );
 
             if ( isset( $config[ 'custom_filter_option' ] ) && 'added' === $config[ 'custom_filter_option' ] ) {
                 $this->custom_filter_option = true;
@@ -789,36 +802,36 @@ abstract class Rex_Product_Feed_Abstract_Generator
         $feed_configs = [];
         $wc_currency  = get_woocommerce_currency();
         wp_parse_str( $config, $feed_configs );
-
-        $include_variable_product   = isset( $feed_configs[ 'rex_feed_variable_product' ] ) ? esc_attr( $feed_configs[ 'rex_feed_variable_product' ] ) : '';
-        $include_variations         = isset( $feed_configs[ 'rex_feed_variations' ] ) ? esc_attr( $feed_configs[ 'rex_feed_variations' ] ) : '';
-        $include_parent             = isset( $feed_configs[ 'rex_feed_parent_product' ] ) ? esc_attr( $feed_configs[ 'rex_feed_parent_product' ] ) : '';
-        $include_variations_name    = isset( $feed_configs[ 'rex_feed_variation_product_name' ] ) ? esc_attr( $feed_configs[ 'rex_feed_variation_product_name' ] ) : '';
-        $exclude_hidden_products    = isset( $feed_configs[ 'rex_feed_hidden_products' ] ) ? esc_attr( $feed_configs[ 'rex_feed_hidden_products' ] ) : '';
-        $rex_feed_skip_product      = isset( $feed_configs[ 'rex_feed_skip_product' ] ) ? esc_attr( $feed_configs[ 'rex_feed_skip_product' ] ) : '';
-        $rex_feed_skip_row          = isset( $feed_configs[ 'rex_feed_skip_row' ] ) ? esc_attr( $feed_configs[ 'rex_feed_skip_row' ] ) : '';
-        $include_out_of_stock       = isset( $feed_configs[ 'rex_feed_include_out_of_stock' ] ) ? esc_attr( $feed_configs[ 'rex_feed_include_out_of_stock' ] ) : '';
-        $include_zero_priced        = isset( $feed_configs[ 'rex_feed_include_zero_price_products' ] ) ? esc_attr( $feed_configs[ 'rex_feed_include_zero_price_products' ] ) : '';
-        $this->feed_separator       = isset( $feed_configs[ 'rex_feed_separator' ] ) ? esc_attr( $feed_configs[ 'rex_feed_separator' ] ) : '';
-        $this->aelia_currency       = isset( $feed_configs[ 'rex_feed_aelia_currency' ] ) ? esc_attr( $feed_configs[ 'rex_feed_aelia_currency' ] ) : 'USD';
-        $custom_filter_option       = isset( $feed_configs[ 'rex_feed_custom_filter_option_btn' ] ) ? esc_attr( $feed_configs[ 'rex_feed_custom_filter_option_btn' ] ) : 'removed';
-        $this->feed_country         = isset( $feed_configs[ 'rex_feed_feed_country' ] ) ? esc_attr( $feed_configs[ 'rex_feed_feed_country' ] ) : '';
-        $this->custom_wrapper       = isset( $feed_configs[ 'rex_feed_custom_wrapper' ] ) ? esc_attr( $feed_configs[ 'rex_feed_custom_wrapper' ] ) : '';
-        $this->custom_wrapper_el    = isset( $feed_configs[ 'rex_feed_custom_wrapper_el' ] ) ? esc_attr( $feed_configs[ 'rex_feed_custom_wrapper_el' ] ) : '';
-        $this->custom_items_wrapper = isset( $feed_configs[ 'rex_feed_custom_items_wrapper' ] ) ? esc_attr( $feed_configs[ 'rex_feed_custom_items_wrapper' ] ) : '';
-        $this->feed_zip_code        = isset( $feed_configs[ 'rex_feed_zip_codes' ] ) ? esc_attr( $feed_configs[ 'rex_feed_zip_codes' ] ) : '';
-        $this->custom_xml_header    = isset( $feed_configs[ 'rex_feed_custom_xml_header' ] ) ? esc_attr( $feed_configs[ 'rex_feed_custom_xml_header' ] ) : '';
-        $this->yandex_company_name  = isset( $feed_configs[ 'rex_feed_yandex_company_name' ] ) ? esc_attr( $feed_configs[ 'rex_feed_yandex_company_name' ] ) : '';
-        $this->feed_rules_option    = isset( $feed_configs[ 'rex_feed_feed_rules_button' ] ) ? esc_attr( $feed_configs[ 'rex_feed_feed_rules_button' ] ) : 'removed';
-        $this->yandex_old_price     = isset( $feed_configs[ 'rex_feed_yandex_old_price' ] ) ? esc_attr( $feed_configs[ 'rex_feed_yandex_old_price' ] ) : '';
-        $this->hotline_firm_name    = isset( $feed_configs[ 'rex_feed_hotline_firm_name' ] ) ? esc_attr( $feed_configs[ 'rex_feed_hotline_firm_name' ] ) : '';
-        $this->hotline_firm_id      = isset( $feed_configs[ 'rex_feed_hotline_firm_id' ] ) ? esc_attr( $feed_configs[ 'rex_feed_hotline_firm_id' ] ) : '';
-        $this->hotline_exch_rate    = isset( $feed_configs[ 'rex_feed_hotline_exchange_rate' ] ) ? esc_attr( $feed_configs[ 'rex_feed_hotline_exchange_rate' ] ) : '';
-        $this->wcml_currency        = !empty( $feed_configs[ 'rex_feed_wcml_currency' ] ) ? esc_html( $feed_configs[ 'rex_feed_wcml_currency' ] ) : $wc_currency;
-        $this->wmc_currency         = !empty( $feed_configs[ 'rex_feed_wmc_currency' ] ) ? esc_html( $feed_configs[ 'rex_feed_wmc_currency' ] ) : $wc_currency;
-        $this->woocs_currency       = !empty( $feed_configs[ 'rex_feed_woocs_currency' ] ) ? esc_html( $feed_configs[ 'rex_feed_woocs_currency' ] ) : $wc_currency;
-        $this->yandex_old_price     = 'include' === $this->yandex_old_price;
-
+	    $include_variable_product    = isset( $feed_configs[ 'rex_feed_variable_product' ] ) ? esc_attr( $feed_configs[ 'rex_feed_variable_product' ] ) : '';
+	    $include_variations          = isset( $feed_configs[ 'rex_feed_variations' ] ) ? esc_attr( $feed_configs[ 'rex_feed_variations' ] ) : '';
+	    $include_parent              = isset( $feed_configs[ 'rex_feed_parent_product' ] ) ? esc_attr( $feed_configs[ 'rex_feed_parent_product' ] ) : '';
+	    $include_variations_name     = isset( $feed_configs[ 'rex_feed_variation_product_name' ] ) ? esc_attr( $feed_configs[ 'rex_feed_variation_product_name' ] ) : '';
+	    $exclude_hidden_products     = isset( $feed_configs[ 'rex_feed_hidden_products' ] ) ? esc_attr( $feed_configs[ 'rex_feed_hidden_products' ] ) : '';
+	    $rex_feed_skip_product       = isset( $feed_configs[ 'rex_feed_skip_product' ] ) ? esc_attr( $feed_configs[ 'rex_feed_skip_product' ] ) : '';
+	    $rex_feed_skip_row           = isset( $feed_configs[ 'rex_feed_skip_row' ] ) ? esc_attr( $feed_configs[ 'rex_feed_skip_row' ] ) : '';
+	    $include_out_of_stock        = isset( $feed_configs[ 'rex_feed_include_out_of_stock' ] ) ? esc_attr( $feed_configs[ 'rex_feed_include_out_of_stock' ] ) : '';
+	    $include_zero_priced         = isset( $feed_configs[ 'rex_feed_include_zero_price_products' ] ) ? esc_attr( $feed_configs[ 'rex_feed_include_zero_price_products' ] ) : '';
+	    $this->feed_separator        = isset( $feed_configs[ 'rex_feed_separator' ] ) ? esc_attr( $feed_configs[ 'rex_feed_separator' ] ) : '';
+	    $this->aelia_currency        = isset( $feed_configs[ 'rex_feed_aelia_currency' ] ) ? esc_attr( $feed_configs[ 'rex_feed_aelia_currency' ] ) : 'USD';
+	    $custom_filter_option        = isset( $feed_configs[ 'rex_feed_custom_filter_option_btn' ] ) ? esc_attr( $feed_configs[ 'rex_feed_custom_filter_option_btn' ] ) : 'removed';
+	    $this->feed_country          = isset( $feed_configs[ 'rex_feed_feed_country' ] ) ? esc_attr( $feed_configs[ 'rex_feed_feed_country' ] ) : '';
+	    $this->custom_wrapper        = isset( $feed_configs[ 'rex_feed_custom_wrapper' ] ) ? esc_attr( $feed_configs[ 'rex_feed_custom_wrapper' ] ) : '';
+	    $this->custom_wrapper_el     = isset( $feed_configs[ 'rex_feed_custom_wrapper_el' ] ) ? esc_attr( $feed_configs[ 'rex_feed_custom_wrapper_el' ] ) : '';
+	    $this->custom_items_wrapper  = isset( $feed_configs[ 'rex_feed_custom_items_wrapper' ] ) ? esc_attr( $feed_configs[ 'rex_feed_custom_items_wrapper' ] ) : '';
+	    $this->feed_zip_code         = isset( $feed_configs[ 'rex_feed_zip_codes' ] ) ? esc_attr( $feed_configs[ 'rex_feed_zip_codes' ] ) : '';
+	    $this->custom_xml_header     = isset( $feed_configs[ 'rex_feed_custom_xml_header' ] ) ? esc_attr( $feed_configs[ 'rex_feed_custom_xml_header' ] ) : '';
+	    $this->yandex_company_name   = isset( $feed_configs[ 'rex_feed_yandex_company_name' ] ) ? esc_attr( $feed_configs[ 'rex_feed_yandex_company_name' ] ) : '';
+	    $this->feed_rules_option     = isset( $feed_configs[ 'rex_feed_feed_rules_button' ] ) ? esc_attr( $feed_configs[ 'rex_feed_feed_rules_button' ] ) : 'removed';
+	    $this->yandex_old_price      = isset( $feed_configs[ 'rex_feed_yandex_old_price' ] ) ? esc_attr( $feed_configs[ 'rex_feed_yandex_old_price' ] ) : '';
+	    $this->hotline_firm_name     = isset( $feed_configs[ 'rex_feed_hotline_firm_name' ] ) ? esc_attr( $feed_configs[ 'rex_feed_hotline_firm_name' ] ) : '';
+	    $this->hotline_firm_id       = isset( $feed_configs[ 'rex_feed_hotline_firm_id' ] ) ? esc_attr( $feed_configs[ 'rex_feed_hotline_firm_id' ] ) : '';
+	    $this->hotline_exch_rate     = isset( $feed_configs[ 'rex_feed_hotline_exchange_rate' ] ) ? esc_attr( $feed_configs[ 'rex_feed_hotline_exchange_rate' ] ) : '';
+	    $this->wcml_currency         = ! empty( $feed_configs[ 'rex_feed_wcml_currency' ] ) ? esc_html( $feed_configs[ 'rex_feed_wcml_currency' ] ) : $wc_currency;
+	    $this->wmc_currency          = ! empty( $feed_configs[ 'rex_feed_wmc_currency' ] ) ? esc_html( $feed_configs[ 'rex_feed_wmc_currency' ] ) : $wc_currency;
+	    $this->woocs_currency        = ! empty( $feed_configs[ 'rex_feed_woocs_currency' ] ) ? esc_html( $feed_configs[ 'rex_feed_woocs_currency' ] ) : $wc_currency;
+	    $this->is_google_content_api = ! empty( $feed_configs[ 'rex_feed_is_google_content_api' ] ) && 'yes' === $feed_configs[ 'rex_feed_is_google_content_api' ] && 'google' === $this->merchant;
+	    $this->yandex_old_price      = 'include' === $this->yandex_old_price;
+        $this->translatepress_language = ! empty( $feed_configs[ 'rex_feed_translate_press_language' ] ) ? esc_html( $feed_configs[ 'rex_feed_translate_press_language' ] ) : '';
 
         if ( isset( $feed_configs[ 'product_filter_condition' ] ) ) {
             $this->product_filter_condition = $feed_configs[ 'product_filter_condition' ];
@@ -887,9 +900,16 @@ abstract class Rex_Product_Feed_Abstract_Generator
         }
 
         $settings_data = Rex_Product_Feed_Data_Handle::get_settings_drawer_data( $feed_configs );
+		if ( 'google' !== $this->merchant ) {
+			unset( $settings_data[ 'rex_feed_is_google_content_api' ] );
+		}
         if( !empty( $settings_data ) ) {
             Rex_Product_Feed_Data_Handle::save_settings_drawer_data( $this->id, $settings_data );
         }
+
+		if ( $this->is_google_content_api ) {
+			delete_post_meta( $this->id, '_rex_feed_xml_file' );
+		}
 
         /**
          * Fires after saving settings drawer data

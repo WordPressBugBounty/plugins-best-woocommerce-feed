@@ -742,7 +742,7 @@
             url: window.rex_wpfm_ajax.ajax_url,
             type: 'POST',
             data: {
-                action: 'create_contact',
+                action: 'rexfeed_create_contact',
                 email: email,
                 name: name,
                 security: window.rex_wpfm_ajax.ajax_nonce

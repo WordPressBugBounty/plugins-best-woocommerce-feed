@@ -811,5 +811,33 @@ if( ! function_exists('wpfm_aioseo_is_active')){
 	function wpfm_aioseo_is_active(){
 		return function_exists( 'aioseo' );
 	}
+}
 
+if ( ! function_exists( 'wpfm_get_wc_parent_product' ) ) {
+	/**
+	 * Retrieves the parent product ID for a WooCommerce product.
+	 *
+	 * @param int $product_id The ID of the product for which to find the parent.
+	 *
+	 * @global object $wpdb WordPress database access abstraction object.
+	 *
+	 * @return string|null Returns the parent product ID if found, otherwise null.
+	 * @since 7.4.20
+	 */
+	function wpfm_get_wc_parent_product( $product_id ) {
+		global $wpdb;
+		return $wpdb->get_var( $wpdb->prepare( "SELECT `post_parent` FROM %i WHERE `ID`=%d", [ $wpdb->posts, $product_id ] ) );
+	}
+}
+
+if ( ! function_exists( 'wpfm_is_translatePress_active' ) ) {
+    /**
+     * @desc check if TranslatePress is active.
+     *
+     * @return bool
+     * @since 7.4.20
+     */
+    function wpfm_is_translatePress_active() {
+        return defined( 'TRP_PLUGIN_VERSION' );
+    }
 }
