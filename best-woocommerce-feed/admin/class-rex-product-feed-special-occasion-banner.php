@@ -81,21 +81,21 @@ class Rex_Feed_Special_Occasion_Banner {
 	 * Updates an option on notice dismissal [for deal],
 	 * so that deal notice doesn't appear again
 	 *
-	 * @return array
+	 * @return void
 	 * @since 7.3.1
 	 */
 	public static function hide_special_deal_notice() {
 		$nonce = filter_input( INPUT_POST, 'nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		if ( ! wp_verify_nonce( $nonce, 'wpvr' ) || ! current_user_can( 'manage_options' ) ) {
-			return [ 'status' => false, 'message' => 'Unauthorized request' ];
+		if ( ! wp_verify_nonce( $nonce, 'rex-wpfm-ajax' ) || ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( [ 'message' => 'Unauthorized request' ] );
 		}
 
 		$occasion = filter_input( INPUT_POST, 'occasion', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( $occasion ) {
 			update_option( $occasion, 'hidden' );
-			return [ 'status' => true ];
+			wp_send_json_success( [ 'message' => 'Success' ] );
 		}
-		return [ 'status' => false ];
+		wp_send_json_error( [ 'message' => 'An unknown error occurred!' ] );
 	}
 
     /**
