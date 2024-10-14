@@ -492,7 +492,7 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 == Changelog ==
 
-= 7.4.21 (2024-10-21) =
+= 7.4.21 (2024-10-11) =
 * Fixed: Ajax nonce verification updated
 
 = 7.4.20 (2024-10-11) =
