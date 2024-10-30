@@ -309,6 +309,7 @@ class Rex_Feed_Special_Occasion_Banner {
                 display: block;
                 max-height: 110px;
                 object-fit: cover;
+                z-index: 0;
             }
 
             .pfm-banner .rex-notification-counter {

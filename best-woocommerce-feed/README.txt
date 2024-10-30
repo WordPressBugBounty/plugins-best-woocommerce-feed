@@ -6,7 +6,7 @@ Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, 
 Requires at least: 5.0
 Tested up to:  6.6
 Requires PHP: 7.4
-Stable tag:  7.4.21
+Stable tag:  7.4.22
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -491,6 +491,9 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 
 == Changelog ==
+
+= 7.4.22 (2024-10-30) =
+* Fixed: Incomplete Title Output When Variation Title Contains " , "
 
 = 7.4.21 (2024-10-11) =
 * Fixed: Ajax nonce verification updated

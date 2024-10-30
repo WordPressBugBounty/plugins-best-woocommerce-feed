@@ -624,27 +624,14 @@ class Rex_Product_Data_Retriever {
 
 					return $this->product->get_name();
 				} else {
-					if ( $this->is_children() ) {
-						$_product     = wc_get_product( $this->product );
-						$attr_summary = $_product->get_attribute_summary();
-						$attr_array   = explode( ",", $attr_summary );
-
-						$each_child_attr = array();
-						foreach ( $attr_array as $ata ) {
-							$attr              = strpbrk( $ata, ":" );
-							$each_child_attr[] = $attr;
-						}
-						$each_child_attr_two = array();
-						foreach ( $each_child_attr as $eca ) {
-							$each_child_attr_two[] = str_replace( ": ", " ", $eca );
-						}
-
-						$_title = $this->product->get_title() . " - ";
-						return $_title . implode( ', ', $each_child_attr_two );
-					} else {
-						return $this->product->get_name();
-					}
-				}
+                    if ( $this->is_children() ) {
+                        $_product     = wc_get_product( $this->product );
+                        $attr_summary = $_product->get_attribute_summary();
+                        return ! empty( $attr_summary ) ? $this->product->get_title() . ' - ' . trim( preg_replace( '/[^,]*:/', '', $attr_summary ) ) : $this->product->get_name();
+                    } else {
+                        return $this->product->get_name();
+                    }
+                }
 			case 'description':
 				if ( $this->is_children() ) {
 					$description = $this->product->get_description();

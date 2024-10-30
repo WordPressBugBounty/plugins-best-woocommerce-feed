@@ -478,7 +478,7 @@ class Rex_Product_Feed_Admin {
         );
 
 	    $this->setup_wizard_hook_suffix = add_submenu_page(
-		    null,
+		    '',
 		    esc_html__( 'Google Merchant Product Diagnostics', 'rex-product-feed' ),
 		    esc_html__( 'Google Merchant Product Diagnostics', 'rex-product-feed' ),
 		    'read',
