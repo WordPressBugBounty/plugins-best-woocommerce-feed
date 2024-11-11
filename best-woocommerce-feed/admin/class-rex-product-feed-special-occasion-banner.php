@@ -133,22 +133,27 @@ class Rex_Feed_Special_Occasion_Banner {
             <!-- Name: WordPress Anniversary Notification Banner -->
 
             <div class="rex-feed-tb__notification pfm-banner" id="rexfeed_deal_notification">
-
                 <div class="banner-overflow">
                     <div class="rex-notification-counter">
                         <div class="rex-notification-counter__container">
                             <div class="rex-notification-counter__content">
 
+                                <figure class="rex-notification-counter__biggest-sale">
+                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/biggest-sale-text.webp'; ?>" alt="<?php esc_attr_e('Biggest sale of the year!', 'rex-product-feed'); ?>" class="rex-notification-counter__img" >
+                                </figure>
+
                                 <figure class="rex-notification-counter__figure-logo">
-                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/halloween/halloween-logo.webp'; ?>" alt="<?php esc_attr_e('Halloween special offer banner', 'pfm'); ?>" class="rex-notification-counter__img" >
+                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/black-friday-logo.webp'; ?>" alt="<?php esc_attr_e('Black Friday special offer logo', 'rex-product-feed'); ?>" class="rex-notification-counter__img" >
                                 </figure>
 
                                 <figure class="rex-notification-counter__figure-percentage">
-                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/halloween/discount-percent.webp'; ?>" alt="<?php esc_attr_e('Halloween special offer banner', 'pfm'); ?>" class="rex-notification-counter__img" >
+                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/discount-percent.webp'; ?>" alt="<?php esc_attr_e('Black Friday special discount', 'rex-product-feed'); ?>" class="rex-notification-counter__img" >
                                 </figure>
 
                                 <div id="rex-halloween-countdown" class="rex-notification-counter__countdown" aria-live="polite">
-                                    <h3 class="screen-reader-text"><?php esc_html_e('Offer Countdown', 'pfm'); ?></h3>
+                                    <span class="screen-reader-text">
+                                        <?php esc_html_e('Offer Countdown', 'rex-product-feed'); ?>
+                                    </span>
                                     <ul class="rex-notification-counter__list">
                                         <?php foreach (['days', 'hours', 'mins'] as $unit): ?>
                                             <li class="rex-notification-counter__item">
@@ -165,29 +170,30 @@ class Rex_Feed_Special_Occasion_Banner {
 
                                 <div class="rex-notification-counter__btn-area">
                                     <a 
-                                        href="<?php echo esc_url( 'https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=plugin-CTA&utm_medium=pfm-free-plugin&utm_campaign=halloween-2024' ); ?>"
+                                        href="<?php echo esc_url( 'https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=plugin-CTA&utm_medium=pfm-free-plugin&utm_campaign=bfcm-2024' ); ?>"
                                         class="rex-notification-counter__btn"
                                         target="_blank"
                                     >
 
-                                        <span class="screen-reader-text"><?php esc_html_e('Click to view Halloween sale products', 'pfm'); ?></span>
+                                        <span class="screen-reader-text">
+                                            <?php esc_html_e('Click to view Black Friday sale products', 'rex-product-feed'); ?>
+                                        </span>
 
-                                        <?php esc_html_e('FLAT', 'pfm'); ?> 
-                                        <strong class="rex-notification-counter__stroke-font">30%</strong> 
-                                        <?php esc_html_e('OFF', 'pfm'); ?>
+                                        <?php esc_html_e('Get Discount Now', 'rex-product-feed'); ?> 
+                                        <!-- <strong class="rex-notification-counter__stroke-font">30%</strong>  -->
+                                        <?php //esc_html_e('OFF', 'rex-product-feed'); ?>
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
+            
                 <div class="rex-feed-tb__cross-top" id="rexfeed_deal_close_btn">
                     <svg width="12" height="13" fill="none" viewBox="0 0 12 13" xmlns="http://www.w3.org/2000/svg">
                         <path stroke="#7A8B9A" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 1.97L1 11.96m0-9.99l10 9.99" />
                     </svg>
                 </div>
-
             </div>
             <!-- .rex-feed-tb-notification end -->
 
@@ -265,7 +271,7 @@ class Rex_Feed_Special_Occasion_Banner {
     public function enqueue_css() {
         $plugin_dir_url = plugin_dir_url(__FILE__ );
         ?>
-        <style id="rexfeed-promotional-banner-style" type="text/css">
+        <style id="promotional-banner-style" type="text/css">
             @font-face {
                 font-family: 'Inter';
                 src: url(<?php echo "{$plugin_dir_url}assets/fonts/campaign-font/Inter-Bold.woff2"; ?>) format('woff2');
@@ -283,8 +289,8 @@ class Rex_Feed_Special_Occasion_Banner {
             }
 
             @font-face {
-                font-family: "Circular Std Book";
-                src: url(<?php echo "{$plugin_dir_url}assets/fonts/campaign-font/CircularStd-Book.woff2"; ?>) format('woff2');
+                font-family: "Inter";
+                src: url(<?php echo "{$plugin_dir_url}assets/fonts/campaign-font/Inter-Regular.woff2"; ?>) format('woff2');
                 font-weight: 400;
                 font-style: normal;
                 font-display: swap;
@@ -296,10 +302,10 @@ class Rex_Feed_Special_Occasion_Banner {
             }
 
             .rex-feed-tb__notification.pfm-banner {
-                background-color: #03031e;
+                background-color: #05041E;
                 width: calc(100% - 20px);
                 margin: 50px 0 20px;
-                background-image: url(<?php echo "{$plugin_dir_url}assets/icon/halloween/promotional-banner-bg.webp"; ?>);
+                background-image: url(<?php echo "{$plugin_dir_url}assets/icon/banner-images/black-friday-banner-bg.webp"; ?>);
                 background-position: center;
                 background-repeat: no-repeat;
                 background-size: cover;
@@ -315,8 +321,13 @@ class Rex_Feed_Special_Occasion_Banner {
             .pfm-banner .rex-notification-counter {
                 position: relative;
                 z-index: 1111;
-                padding: 9px 0 4px;
+                padding: 12px 0;
             }
+
+            .pfm-banner .rex-notification-counter figure {
+                margin: 0;
+            }
+
             .pfm-banner .rex-notification-counter__container {
                 position: relative;
                 width: 100%;
@@ -331,13 +342,16 @@ class Rex_Feed_Special_Occasion_Banner {
                 align-items: center;
                 gap: 20px;
             }
+            .pfm-banner .rex-notification-counter__biggest-sale {
+                max-width: 188px;
+            }
             .pfm-banner .rex-notification-counter__figure-logo {
-                max-width: 268px;
-                margin: 0;
+                max-width: 226px;
             }
             .pfm-banner .rex-notification-counter__figure-percentage {
-                max-width: 248px;
-                margin: 0;
+                max-width: 270px;
+                position: relative;
+                top: -5px;
             }
             .pfm-banner .rex-notification-counter__img {
                 width: 100%;
@@ -347,7 +361,7 @@ class Rex_Feed_Special_Occasion_Banner {
             .pfm-banner .rex-notification-counter__list {
                 display: flex;
                 justify-content: center;
-                gap: 10px;
+                gap: 14px;
                 margin: 0;
                 padding: 0;
                 list-style: none;
@@ -367,11 +381,11 @@ class Rex_Feed_Special_Occasion_Banner {
             .pfm-banner .rex-notification-counter__item {
                 display: flex;
                 flex-direction: column;
-                width: 56.14px;
-                font-family: "Circular Std Book";
-                font-size: 15px;
-                font-weight: 500;
-                line-height: normal;
+                width: 55px;
+                font-family: "Inter";
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 1;
                 letter-spacing: 0.75px;
                 text-transform: uppercase;
                 text-align: center;
@@ -395,19 +409,29 @@ class Rex_Feed_Special_Occasion_Banner {
                     width: 47px;
                 }
             }
+            .pfm-banner .rex-notification-counter__label {
+                font-weight: 400;
+            }
+
             .pfm-banner .rex-notification-counter__time {
-                font-size: 32px;
+                font-size: 28px;
                 font-family: "Inter";
                 font-style: normal;
                 font-weight: 700;
                 line-height: normal;
                 color: #fff;
                 text-align: center;
-                margin-bottom: 6px;
-                border-radius: 3px 3px 10px 10px;
-                border: 1px solid #00B4FF;
-                border-bottom-width: 5px;
-                background: linear-gradient(155deg, #0075A6 2.02%, #100E35 55.1%, #100E35 131.47%);
+                height: 44px;
+                padding: 1px 2px 0px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 10px;
+                border-radius: 10px;
+                box-shadow: 0px 4px 0px 0px #216DEF;
+                background-image: linear-gradient(148deg, #216DEF 17.69%, #081C3E 80.41%), linear-gradient(180deg, #00B4FF, #216DEF);
+                background-origin: border-box;
+                background-clip: content-box, border-box;
             }
             @media only screen and (max-width: 1199px) {
                 .pfm-banner .rex-notification-counter__time {
@@ -428,17 +452,16 @@ class Rex_Feed_Special_Occasion_Banner {
                 position: relative;
                 background-color: #216DEF;
                 font-family: "Inter";
-                font-size: 20px;
-                font-weight: 500;
-                line-height: normal;
+                font-size: 18px;
+                font-weight: 600;
+                line-height: 1;
                 color: #fff;
                 text-align: center;
                 filter: drop-shadow(0px 30px 60px rgba(21, 19, 119, 0.20));
-                padding: 12px 22px;
+                padding: 18px 20px;
                 display: inline-block;
                 border-radius: 10px;
                 cursor: pointer;
-                text-transform: uppercase;
                 transition: all 0.3s ease;
                 text-decoration: none;
                 box-shadow: none;
@@ -453,7 +476,7 @@ class Rex_Feed_Special_Occasion_Banner {
                 font-weight: 600;
             }
 
-            .rex-feed-tb__notification .rex-feed-tb__cross-top {
+            .rex-feed-tb__notification.pfm-banner .rex-feed-tb__cross-top {
                 position: absolute;
                 top: -10px;
                 right: -9px;
@@ -472,9 +495,6 @@ class Rex_Feed_Special_Occasion_Banner {
             
 
             @media only screen and (max-width: 1599px) {
-                .pfm-banner .rex-notification-counter__container {
-                    max-width: 1030px;
-                }
                 .pfm-banner .rex-notification-counter__figure-logo {
                     max-width: 200px;
                 }
@@ -496,27 +516,67 @@ class Rex_Feed_Special_Occasion_Banner {
                     background-position: left center;
                 }
 
+                .pfm-banner .rex-notification-counter__container {
+                    max-width: 1140px;
+                }
+
+                .pfm-banner .rex-notification-counter {
+                    padding: 12px 0;
+                }
+                .pfm-banner .rex-notification-counter__biggest-sale {
+                    max-width: 128px;
+                }
+                .pfm-banner .rex-notification-counter__figure-logo {
+                    max-width: 160px;
+                }
+                .pfm-banner .rex-notification-counter__figure-percentage {
+                    max-width: 180px;
+                    top: 0;
+                }
+
+                .pfm-banner .rex-notification-counter__list {
+                    gap: 8px;
+                }
+                .pfm-banner .rex-notification-counter__item {
+                    width: 44px;
+                    font-size: 12px;
+                }
+                .pfm-banner .rex-notification-counter__time {
+                    font-size: 24px;
+                    height: 36px;
+                }
+
+                .pfm-banner .rex-notification-counter__btn {
+                    padding: 15px 20px;
+                }
+
             }
 
             @media only screen and (max-width: 1199px) {
                 .pfm-banner .rex-notification-counter__container {
-                    max-width: 740px;
+                    max-width: 820px;
+                }
+                .pfm-banner .rex-notification-counter__biggest-sale {
+                    max-width: 110px;
                 }
                 .pfm-banner .rex-notification-counter__figure-logo {
-                    max-width: 140px;
+                    max-width: 130px;
                 }
                 .pfm-banner .rex-notification-counter__figure-percentage {
                     max-width: 140px;
                 }
                 .pfm-banner .rex-notification-counter__time {
-                    font-size: 22px;
-                    padding: 2px 0;
+                    font-size: 18px;
+                    height: 32px;
                     font-weight: 500;
+                    border-radius: 7px;
+                }
+                .pfm-banner .rex-notification-counter__item {
+                    font-size: 11px;
+                    width: 42px;
                 }
                 .pfm-banner .rex-notification-counter__btn {
                     font-size: 13px;
-                    padding: 8px 16px;
-                    transform: translateY(-2px);
                 }
                 .pfm-banner .rex-notification-counter__stroke-font {
                     font-size: 20px;
@@ -525,11 +585,31 @@ class Rex_Feed_Special_Occasion_Banner {
             }
 
             @media only screen and (max-width: 991px) {
+                .pfm-banner .rex-notification-counter__biggest-sale {
+                    max-width: 100px;
+                }
+                .pfm-banner .rex-notification-counter__figure-logo {
+                    max-width: 110px;
+                }
+
                 .pfm-banner .rex-notification-counter__item {
-                    font-size: 12px;
+                    width: 36px;
+                    font-size: 10px;
+                }
+                .pfm-banner .rex-notification-counter__time {
+                    height: 28px;
+                }
+                .pfm-banner .rex-notification-counter__figure-percentage {
+                    max-width: 140px;
+                }
+
+                .pfm-banner .rex-notification-counter__btn {
+                    padding: 12px 14px;
+                    border-radius: 6px;
                 }
 
             }
+
         </style>
 
         <?php

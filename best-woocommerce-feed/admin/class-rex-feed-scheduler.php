@@ -88,17 +88,47 @@ class Rex_Feed_Scheduler {
         if( function_exists( 'as_has_scheduled_action' ) && function_exists( 'as_schedule_recurring_action' ) ) {
             $hourly_schedule = as_has_scheduled_action( HOURLY_SCHEDULE_HOOK, null, 'wpfm' );
             if( !$hourly_schedule ) {
-                as_schedule_recurring_action( time(), 3600, HOURLY_SCHEDULE_HOOK, [], 'wpfm' );
+                as_schedule_recurring_action(
+					time(),
+	                /**
+	                 * Apply a filter to set the interval for the hourly cron job in seconds.
+	                 *
+	                 * @param int $interval The interval in seconds for the hourly cron job.
+	                 * @return int The modified interval in seconds.
+	                 */
+					apply_filters( 'rexfeed_hourly_cron_interval', 3600 ),
+					HOURLY_SCHEDULE_HOOK, [], 'wpfm'
+                );
             }
 
             $daily_schedule = as_has_scheduled_action( DAILY_SCHEDULE_HOOK, null, 'wpfm' );
             if( !$daily_schedule ) {
-                as_schedule_recurring_action( time(), 24 * 3600, DAILY_SCHEDULE_HOOK, [], 'wpfm' );
+                as_schedule_recurring_action(
+					time(),
+	                /**
+	                 * Apply a filter to set the interval for the daily cron job in seconds.
+	                 *
+	                 * @param int $interval The interval in seconds for the daily cron job.
+	                 * @return int The modified interval in seconds.
+	                 */
+	                apply_filters( 'rexfeed_daily_cron_interval', 24 * 3600 ),
+					DAILY_SCHEDULE_HOOK, [], 'wpfm'
+                );
             }
 
             $weekly_schedule = as_has_scheduled_action( WEEKLY_SCHEDULE_HOOK, null, 'wpfm' );
             if( !$weekly_schedule ) {
-                as_schedule_recurring_action( time(), 7 * 24 * 3600, WEEKLY_SCHEDULE_HOOK, [], 'wpfm' );
+                as_schedule_recurring_action(
+					time(),
+	                /**
+	                 * Apply a filter to set the interval for the weekly cron job in seconds.
+	                 *
+	                 * @param int $interval The interval in seconds for the weekly cron job.
+	                 * @return int The modified interval in seconds.
+	                 */
+	                apply_filters( 'rexfeed_weekly_cron_interval', 7 * 24 * 3600 ),
+					WEEKLY_SCHEDULE_HOOK, [], 'wpfm'
+                );
             }
         }
     }

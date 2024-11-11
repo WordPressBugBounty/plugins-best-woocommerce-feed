@@ -163,9 +163,9 @@ class Rex_Product_Feed {
 	    $scheduler              = new Rex_Feed_Scheduler();
 
         $special_banner = new Rex_Feed_Special_Occasion_Banner(
-            'halloween_second_deal_2024',
-            '2024-10-30 00:00:00',
-            '2024-11-05 00:00:00'
+            'blackfriday_deal_2024',
+		   	'2024-11-11 00:00:00',
+		   	'2024-12-05 23:59:59'
         ); // Date format: YYYY-MM-DD HH:MM:SS
 
         if ( !defined( 'REX_PRODUCT_FEED_PRO_VERSION' ) && 'no' === get_option( 'rexfeed_hide_sales_notification_bar', 'no' ) ) {

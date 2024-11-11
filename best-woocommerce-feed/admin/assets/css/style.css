@@ -1258,7 +1258,7 @@ a,
   font-size: 20px;
 }
 .wpfm-setup-wizard__container .setup-wizard__inner-container .setup-wizard__features-section-container .setup-wizard__pro-features-section-container .setup-wizard__pro-features-price .setup-wizard__discount-price-label::before {
-  content: "Save 20%";
+  content: "Save 40%";
   position: absolute;
   background: #00b4ff;
   border-radius: 16px 16px 16px 0;
@@ -2724,7 +2724,7 @@ a,
   font-size: 16px;
 }
 .rex-premium-feature__discount-price-label:before {
-  content: "Save 20%";
+  content: "Save 40%";
   position: absolute;
   background: #00b4ff;
   border-radius: 16px 16px 16px 0;
