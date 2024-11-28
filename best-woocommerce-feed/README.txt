@@ -2,15 +2,16 @@
 
 Contributors: rextheme, coderexltd, coderexco
 Donate link: https://rextheme.com/best-WooCommerce-product-feed/
-Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, product feed, google feed, google merchant, product feed, google shopping feed, facebook feed, facebook product feed, woocommerce product feed manager, XML feed, google local products inventory, Instagram Feed, eBay MIP, woocommerce xml feed, CSV feed, marktplaats, skroutz, produktfeed, bing shopping, yml, YML for Yandex Market, woocommerce google product feed, facebook pixel, pinterest feed, tiktok feed, Google Remarketing Pixel, twitter ads, woocommerce google shopping, Instagram product feed
+Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, product feed, google feed, google merchant, product feed, google shopping feed, facebook feed, facebook product feed, woocommerce product feed manager, XML feed, google local products inventory, Instagram Feed, eBay MIP, woocommerce xml feed, CSV feed, marktplaats, feed generator wordpress, produktfeed, bing shopping, yml, YML for Yandex Market, woocommerce google product feed, facebook pixel, pinterest feed, tiktok feed, Google Remarketing Pixel, twitter ads, woocommerce google shopping, Instagram product feed
 Requires at least: 5.0
 Tested up to:  6.6
 Requires PHP: 7.4
-Stable tag:  7.4.23
+Stable tag:  7.4.24
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Generate accurate WooCommerce Product Feed for Google Shopping, Facebook, Instagram, Pinterest, Bing, Idealo, Snapchat, TikTok & 180+ Others.
+
 
 == Description ==
 
@@ -492,6 +493,9 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 
 == Changelog ==
+
+= 7.4.24 (2024-11-28) =
+* Fixed: Compatibility with WP 6.7
 
 = 7.4.23 (2024-11-11) =
 * Fixed: PHP deprecated warning in the feed generation process
