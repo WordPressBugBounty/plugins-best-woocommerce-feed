@@ -56,7 +56,7 @@
 
                     <?php
                         $price = '$79.99'; // This could be dynamic
-                        $price_discount = '$47.99'; // This could be dynamic
+                        $price_discount = '$63.99'; // This could be dynamic
                     ?>
 
                     <div class="rex-premium-feature__discount-price">

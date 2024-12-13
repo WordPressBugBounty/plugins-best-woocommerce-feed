@@ -6,7 +6,7 @@ Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, 
 Requires at least: 5.0
 Tested up to:  6.6
 Requires PHP: 7.4
-Stable tag:  7.4.24
+Stable tag:  7.4.25
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,7 +27,7 @@ Use our pre-defined merchant templates to generate flawless feeds for popular me
 - <a href="https://rextheme.com/tiktok-feed-for-woocommerce-products/?utm_source=repo-CTA&utm_medium=PFM-repo&utm_campaign=repo-to-tiktok-blog" target="_blank">TikTok Ads</a>
 - Idealo
 - Yandex Market (YML)
-- Twitter Ads (Currently X)
+- [Twitter Ads](https://youtu.be/he1zVVyoeTM?si=DFtrVK6A-o12fLf-) (Currently X)
 - Bing Shopping feed
 - Pinterest Product Feed & Snapchat Product Feed
 - Vivino XML Feed
@@ -37,10 +37,8 @@ Use our pre-defined merchant templates to generate flawless feeds for popular me
 -  **<a target="_blank" href="https://rextheme.com/best-woocommerce-product-feed/online-merchants/?utm_source=PFM-repo-cta&utm_medium=PFM-repo&utm_campaign=repo_to_merchant">And 180+ More!</a>**
 
 
-🙌 Special Black Friday Sale 🙌
+<h4><a href="https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=repo-CTA&utm_medium=PFM-repo&utm_campaign=PFM-repo-to-pricing" target="_blank">🔥 Get Product Feed Manager for WooCommerce - Pro at a 20% Discount Today! 🔥</a> </h4>
 
-
-<h4><a href="https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=repo-CTA&utm_medium=PFM-repo&utm_campaign=bfcm-2024" target="_blank">🔥 Get Product Feed Manager for WooCommerce - Pro at a 40% Discount Today! 💸 🔥 </a> </h4>
 
 == 🌟 Why Use Product Feed Manager for WooCommerce? 🌟 ==
 
@@ -493,6 +491,9 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 
 == Changelog ==
+
+= 7.4.25 (2024-12-13) =
+* Enhancement: Update pricing on setup wizard
 
 = 7.4.24 (2024-11-28) =
 * Fixed: Compatibility with WP 6.7
