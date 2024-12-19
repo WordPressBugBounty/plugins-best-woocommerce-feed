@@ -831,13 +831,190 @@ if ( ! function_exists( 'wpfm_get_wc_parent_product' ) ) {
 }
 
 if ( ! function_exists( 'wpfm_is_translatePress_active' ) ) {
-    /**
-     * @desc check if TranslatePress is active.
+	/**
+	 * @desc check if TranslatePress is active.
+	 *
+	 * @return bool
+	 * @since 7.4.20
+	 */
+	function wpfm_is_translatePress_active() {
+		return defined( 'TRP_PLUGIN_VERSION' );
+	}
+
+	function wpfm_is_curcy_active() {
+		return defined( 'WOOMULTI_CURRENCY_F_VERSION' );
+	}
+}
+
+if ( !function_exists( 'rexfeed_get_variable_parent_product_price' ) ) {
+	/**
+	 * Get the price of the default variation for a variable product.
+	 *
+	 * @param WC_Product $product The variable product object.
+	 * @param string $type The type of price to retrieve (e.g., 'regular_price', 'sale_price').
+	 *
+	 * @return string The price of the default variation or an empty string if not found.
+	 *
+	 * @since 7.4.24
+	 */
+	function rexfeed_get_variable_parent_product_price( WC_Product $product, string $type ) {
+		$default_attributes = rex_feed_get_default_variable_attributes( $product );
+
+		if ( !empty( $default_attributes ) ) {
+			$variation_id = rex_feed_find_matching_product_variation( $product, $default_attributes );
+			if ( !empty( $variation_id ) ) {
+				$_variation_product = wc_get_product( $variation_id );
+				$method             = "get{$type}";
+				$product_price      = method_exists( $_variation_product, $method ) ? $_variation_product->$method() : '';
+			}
+		}
+		else {
+			$method        = "get_variation{$type}";
+			$product_price = method_exists( $product, $method ) ? $product->$method() : '';
+		}
+		return $product_price ?? '';
+	}
+}
+
+if ( !function_exists( 'wpfm_utf8_decode' ) ) {
+	/**
+	 * Decodes a UTF-8 encoded string to ISO-8859-1 encoding.
+	 *
+	 * @param string $string The string to be decoded.
      *
-     * @return bool
-     * @since 7.4.20
-     */
-    function wpfm_is_translatePress_active() {
-        return defined( 'TRP_PLUGIN_VERSION' );
+	 * @return string The decoded string.
+     *
+     * @since 7.4.24
+	 */
+    function wpfm_utf8_decode( $string ) {
+	    $utf8_to_iso88591 = [
+		    "\xC2\xA0" => "\xA0", // Non-breaking space
+		    "\xC2\xA1" => "\xA1", // Inverted exclamation mark
+		    "\xC2\xA2" => "\xA2", // Cent sign
+		    "\xC2\xA3" => "\xA3", // Pound sign
+		    "\xC2\xA4" => "\xA4", // Currency sign
+		    "\xC2\xA5" => "\xA5", // Yen sign
+		    "\xC2\xA6" => "\xA6", // Broken bar
+		    "\xC2\xA7" => "\xA7", // Section sign
+		    "\xC2\xA8" => "\xA8", // Diaeresis
+		    "\xC2\xA9" => "\xA9", // Copyright sign
+		    "\xC2\xAA" => "\xAA", // Feminine ordinal indicator
+		    "\xC2\xAB" => "\xAB", // Left-pointing double angle quotation mark
+		    "\xC2\xAC" => "\xAC", // Not sign
+		    "\xC2\xAD" => "\xAD", // Soft hyphen
+		    "\xC2\xAE" => "\xAE", // Registered sign
+		    "\xC2\xAF" => "\xAF", // Macron
+		    "\xC2\xB0" => "\xB0", // Degree sign
+		    "\xC2\xB1" => "\xB1", // Plus-minus sign
+		    "\xC2\xB2" => "\xB2", // Superscript two
+		    "\xC2\xB3" => "\xB3", // Superscript three
+		    "\xC2\xB4" => "\xB4", // Acute accent
+		    "\xC2\xB5" => "\xB5", // Micro sign
+		    "\xC2\xB6" => "\xB6", // Pilcrow sign
+		    "\xC2\xB7" => "\xB7", // Middle dot
+		    "\xC2\xB8" => "\xB8", // Cedilla
+		    "\xC2\xB9" => "\xB9", // Superscript one
+		    "\xC2\xBA" => "\xBA", // Masculine ordinal indicator
+		    "\xC2\xBB" => "\xBB", // Right-pointing double angle quotation mark
+		    "\xC2\xBC" => "\xBC", // Vulgar fraction one quarter
+		    "\xC2\xBD" => "\xBD", // Vulgar fraction one half
+		    "\xC2\xBE" => "\xBE", // Vulgar fraction three quarters
+		    "\xC2\xBF" => "\xBF", // Inverted question mark
+		    "\xC3\x80" => "\xC0", // À
+		    "\xC3\x81" => "\xC1", // Á
+		    "\xC3\x82" => "\xC2", // Â
+		    "\xC3\x83" => "\xC3", // Ã
+		    "\xC3\x84" => "\xC4", // Ä
+		    "\xC3\x85" => "\xC5", // Å
+		    "\xC3\x86" => "\xC6", // Æ
+		    "\xC3\x87" => "\xC7", // Ç
+		    "\xC3\x88" => "\xC8", // È
+		    "\xC3\x89" => "\xC9", // É
+		    "\xC3\x8A" => "\xCA", // Ê
+		    "\xC3\x8B" => "\xCB", // Ë
+		    "\xC3\x8C" => "\xCC", // Ì
+		    "\xC3\x8D" => "\xCD", // Í
+		    "\xC3\x8E" => "\xCE", // Î
+		    "\xC3\x8F" => "\xCF", // Ï
+		    "\xC3\x90" => "\xD0", // Ð
+		    "\xC3\x91" => "\xD1", // Ñ
+		    "\xC3\x92" => "\xD2", // Ò
+		    "\xC3\x93" => "\xD3", // Ó
+		    "\xC3\x94" => "\xD4", // Ô
+		    "\xC3\x95" => "\xD5", // Õ
+		    "\xC3\x96" => "\xD6", // Ö
+		    "\xC3\x97" => "\xD7", // ×
+		    "\xC3\x98" => "\xD8", // Ø
+		    "\xC3\x99" => "\xD9", // Ù
+		    "\xC3\x9A" => "\xDA", // Ú
+		    "\xC3\x9B" => "\xDB", // Û
+		    "\xC3\x9C" => "\xDC", // Ü
+		    "\xC3\x9D" => "\xDD", // Ý
+		    "\xC3\x9E" => "\xDE", // Þ
+		    "\xC3\x9F" => "\xDF", // ß
+		    "\xC3\xA0" => "\xE0", // à
+		    "\xC3\xA1" => "\xE1", // á
+		    "\xC3\xA2" => "\xE2", // â
+		    "\xC3\xA3" => "\xE3", // ã
+		    "\xC3\xA4" => "\xE4", // ä
+		    "\xC3\xA5" => "\xE5", // å
+		    "\xC3\xA6" => "\xE6", // æ
+		    "\xC3\xA7" => "\xE7", // ç
+		    "\xC3\xA8" => "\xE8", // è
+		    "\xC3\xA9" => "\xE9", // é
+		    "\xC3\xAA" => "\xEA", // ê
+		    "\xC3\xAB" => "\xEB", // ë
+		    "\xC3\xAC" => "\xEC", // ì
+		    "\xC3\xAD" => "\xED", // í
+		    "\xC3\xAE" => "\xEE", // î
+		    "\xC3\xAF" => "\xEF", // ï
+		    "\xC3\xB0" => "\xF0", // ð
+		    "\xC3\xB1" => "\xF1", // ñ
+		    "\xC3\xB2" => "\xF2", // ò
+		    "\xC3\xB3" => "\xF3", // ó
+		    "\xC3\xB4" => "\xF4", // ô
+		    "\xC3\xB5" => "\xF5", // õ
+		    "\xC3\xB6" => "\xF6", // ö
+		    "\xC3\xB7" => "\xF7", // ÷
+		    "\xC3\xB8" => "\xF8", // ø
+		    "\xC3\xB9" => "\xF9", // ù
+		    "\xC3\xBA" => "\xFA", // ú
+		    "\xC3\xBB" => "\xFB", // û
+		    "\xC3\xBC" => "\xFC", // ü
+		    "\xC3\xBD" => "\xFD", // ý
+		    "\xC3\xBE" => "\xFE", // þ
+		    "\xC3\xBF" => "\xFF", // ÿ
+	    ];
+	    return strtr($string, $utf8_to_iso88591);
+    }
+}
+
+if ( !function_exists( 'rexfeed_get_trp_default_language' ) ) {
+	/**
+	 * Get the default language from TranslatePress settings.
+	 *
+	 * @return string The default language code.
+     *
+     * @since 7.4.25
+	 */
+	function rexfeed_get_trp_default_language() {
+		$trp_settings = get_option( 'trp_settings', 'not_set' );
+		return $trp_settings[ 'default-language' ] ?? 'en_US';
+    }
+}
+
+if ( !function_exists( 'rexfeed_get_trp_url_slug' ) ) {
+	/**
+	 * Get the URL slug for a given language from TranslatePress settings.
+	 *
+	 * @param string $language The language code.
+     *
+	 * @return string The URL slug for the given language.
+     *
+     * @since 7.4.25
+	 */
+	function rexfeed_get_trp_url_slug( $language ) {
+		$trp_settings = get_option( 'trp_settings', 'not_set' );
+		return $trp_settings[ 'url-slugs' ][ $language ] ?? '';
     }
 }

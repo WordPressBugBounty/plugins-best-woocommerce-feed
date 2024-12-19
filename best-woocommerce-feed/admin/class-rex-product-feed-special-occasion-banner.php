@@ -130,7 +130,7 @@ class Rex_Feed_Special_Occasion_Banner {
         ?>
 
 
-            <!-- Name: WordPress Anniversary Notification Banner -->
+            <!-- Name: Christmas Notification Banner -->
 
             <div class="rex-feed-tb__notification pfm-banner" id="rexfeed_deal_notification">
                 <div class="banner-overflow">
@@ -138,16 +138,16 @@ class Rex_Feed_Special_Occasion_Banner {
                         <div class="rex-notification-counter__container">
                             <div class="rex-notification-counter__content">
 
-                                <figure class="rex-notification-counter__biggest-sale">
-                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/biggest-sale-text.webp'; ?>" alt="<?php esc_attr_e('Biggest sale of the year!', 'rex-product-feed'); ?>" class="rex-notification-counter__img" >
+                                <figure class="rex-notification-counter__figure-logo">
+                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/christmas-logo.webp'; ?>" alt="<?php esc_attr_e('Christmas special offer logo', 'rex-product-feed'); ?>" class="rex-notification-counter__img">
                                 </figure>
 
-                                <figure class="rex-notification-counter__figure-logo">
-                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/black-friday-logo.webp'; ?>" alt="<?php esc_attr_e('Black Friday special offer logo', 'rex-product-feed'); ?>" class="rex-notification-counter__img" >
+                                <figure class="rex-notification-counter__biggest-sale">
+                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/year-end-text.webp'; ?>" alt="<?php esc_attr_e('Biggest sale of the year!', 'rex-product-feed'); ?>" class="rex-notification-counter__img">
                                 </figure>
 
                                 <figure class="rex-notification-counter__figure-percentage">
-                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/discount-percent.webp'; ?>" alt="<?php esc_attr_e('Black Friday special discount', 'rex-product-feed'); ?>" class="rex-notification-counter__img" >
+                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/discount-percent.webp'; ?>" alt="<?php esc_attr_e('christmas special discount', 'rex-product-feed'); ?>" class="rex-notification-counter__img">
                                 </figure>
 
                                 <div id="rex-halloween-countdown" class="rex-notification-counter__countdown" aria-live="polite">
@@ -170,13 +170,14 @@ class Rex_Feed_Special_Occasion_Banner {
 
                                 <div class="rex-notification-counter__btn-area">
                                     <a 
-                                        href="<?php echo esc_url( 'https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=plugin-CTA&utm_medium=pfm-free-plugin&utm_campaign=bfcm-2024' ); ?>"
+                                        href="<?php echo esc_url( 'https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=plugin-notification-bar-CTA&utm_medium=free-plugin-notification-bar&utm_campaign=christmas-sale2024'); ?>"
                                         class="rex-notification-counter__btn"
                                         target="_blank"
                                     >
 
+
                                         <span class="screen-reader-text">
-                                            <?php esc_html_e('Click to view Black Friday sale products', 'rex-product-feed'); ?>
+                                            <?php esc_html_e('Click to view christmas sale products', 'rex-product-feed'); ?>
                                         </span>
 
                                         <?php esc_html_e('Get Discount Now', 'rex-product-feed'); ?> 
@@ -184,6 +185,7 @@ class Rex_Feed_Special_Occasion_Banner {
                                         <?php //esc_html_e('OFF', 'rex-product-feed'); ?>
                                     </a>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -305,7 +307,7 @@ class Rex_Feed_Special_Occasion_Banner {
                 background-color: #05041E;
                 width: calc(100% - 20px);
                 margin: 50px 0 20px;
-                background-image: url(<?php echo "{$plugin_dir_url}assets/icon/banner-images/black-friday-banner-bg.webp"; ?>);
+                background-image: url(<?php echo "{$plugin_dir_url}assets/icon/banner-images/christmas-banner-bg.webp"; ?>);
                 background-position: center;
                 background-repeat: no-repeat;
                 background-size: cover;
@@ -321,7 +323,7 @@ class Rex_Feed_Special_Occasion_Banner {
             .pfm-banner .rex-notification-counter {
                 position: relative;
                 z-index: 1111;
-                padding: 12px 0;
+                padding: 8px 0;
             }
 
             .pfm-banner .rex-notification-counter figure {
@@ -332,7 +334,7 @@ class Rex_Feed_Special_Occasion_Banner {
                 position: relative;
                 width: 100%;
                 max-height: 110px;
-                max-width: 1310px;
+                max-width: 1430px;
                 margin: 0 auto;
                 padding: 0px 15px;
             }
@@ -346,12 +348,10 @@ class Rex_Feed_Special_Occasion_Banner {
                 max-width: 188px;
             }
             .pfm-banner .rex-notification-counter__figure-logo {
-                max-width: 226px;
+                max-width: 287px;
             }
             .pfm-banner .rex-notification-counter__figure-percentage {
-                max-width: 270px;
-                position: relative;
-                top: -5px;
+                max-width: 243px;
             }
             .pfm-banner .rex-notification-counter__img {
                 width: 100%;
@@ -429,15 +429,17 @@ class Rex_Feed_Special_Occasion_Banner {
                 margin-bottom: 10px;
                 border-radius: 10px;
                 box-shadow: 0px 4px 0px 0px #216DEF;
-                background-image: linear-gradient(148deg, #216DEF 17.69%, #081C3E 80.41%), linear-gradient(180deg, #00B4FF, #216DEF);
                 background-origin: border-box;
+                background-image: linear-gradient(148deg, #216def 17.69%, #081c3e 80.41%), linear-gradient(180deg, #00b4ff, #216def);
                 background-clip: content-box, border-box;
             }
             @media only screen and (max-width: 1199px) {
                 .pfm-banner .rex-notification-counter__time {
                     font-size: 30px;
                 }
+
             }
+
             @media only screen and (max-width: 991px) {
                 .pfm-banner .rex-notification-counter__time {
                     font-size: 24px;
@@ -495,6 +497,11 @@ class Rex_Feed_Special_Occasion_Banner {
             
 
             @media only screen and (max-width: 1599px) {
+
+                .pfm-banner .rex-notification-counter__container {
+                    max-width: 1170px;
+                }
+
                 .pfm-banner .rex-notification-counter__figure-logo {
                     max-width: 200px;
                 }
@@ -505,8 +512,13 @@ class Rex_Feed_Special_Occasion_Banner {
                 .pfm-banner .rex-notification-counter__btn {
                     font-size: 16px;
                 }
+
                 .pfm-banner .rex-notification-counter__stroke-font {
                     font-size: 22px;
+                }
+
+                .pfm-banner .rex-notification-counter__biggest-sale {
+                    max-width: 120px;
                 }
 
             }
@@ -553,6 +565,18 @@ class Rex_Feed_Special_Occasion_Banner {
             }
 
             @media only screen and (max-width: 1199px) {
+
+                .rex-feed-tb__notification.pfm-banner .rex-feed-tb__cross-top {
+                    top: -7px;
+                    right: -7px;
+                    width: 22px;
+                    height: 22px;
+                }
+                .rex-feed-tb__notification.pfm-banner .rex-feed-tb__cross-top svg {
+                    width: 10px;
+                    height: 10px;
+                }
+
                 .pfm-banner .rex-notification-counter__container {
                     max-width: 820px;
                 }
@@ -589,7 +613,7 @@ class Rex_Feed_Special_Occasion_Banner {
                     max-width: 100px;
                 }
                 .pfm-banner .rex-notification-counter__figure-logo {
-                    max-width: 110px;
+                    max-width: 120px;
                 }
 
                 .pfm-banner .rex-notification-counter__item {

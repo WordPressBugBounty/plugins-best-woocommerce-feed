@@ -25,17 +25,12 @@ class Rex_Product_Metabox
         $post_id   = isset( $data[ 'post' ] ) ? sanitize_text_field( $data[ 'post' ] ) : '';
         $post_type = $post_id !== '' ? get_post_type( $post_id ) : '';
 
-        add_action( 'add_meta_boxes', array( $this, 'rex_feed_filter_settings_section' ) );
-
-        $feed_url = get_post_meta( $post_id, '_rex_feed_xml_file', true ) || get_post_meta( $post_id, 'rex_feed_xml_file', true );
-        if ( $this->rex_feed_is_google_merchant() && $feed_url ) {
-            add_action( 'add_meta_boxes', array( $this, 'rex_feed_google_merchant_section' ) );
-        }
-
-        add_action( 'add_meta_boxes', array( $this, 'rex_feed_feed_config_section' ) );
-        add_action( 'add_meta_boxes', array( $this, 'rex_feed_product_settings_section' ) );
-        add_action( 'add_meta_boxes', array( $this, 'rex_feed_product_filters_section' ) );
-        add_action( 'add_meta_boxes', array( $this, 'rex_feed_feed_file_section' ) );
+	    add_action( 'add_meta_boxes', array( $this, 'rex_feed_filter_settings_section' ) );
+	    add_action( 'add_meta_boxes', array( $this, 'rex_feed_google_merchant_section' ) );
+	    add_action( 'add_meta_boxes', array( $this, 'rex_feed_feed_config_section' ) );
+	    add_action( 'add_meta_boxes', array( $this, 'rex_feed_product_settings_section' ) );
+	    add_action( 'add_meta_boxes', array( $this, 'rex_feed_product_filters_section' ) );
+	    add_action( 'add_meta_boxes', array( $this, 'rex_feed_feed_file_section' ) );
 
         if ( $post_type === 'product-feed' ) {
             $this->rex_feed_trigger_based_review_helper();
@@ -49,14 +44,13 @@ class Rex_Product_Metabox
     /**
      * Check if current merchant is google
      */
-    private function rex_feed_is_google_merchant()
-    {
-        $data = function_exists( 'rex_feed_get_sanitized_get_post' ) ? rex_feed_get_sanitized_get_post() : [];
-        $data = isset( $data[ 'get' ] ) ? $data[ 'get' ] : [];
-        $feed_id = isset( $data['post'] ) ? sanitize_text_field($data['post']) : '';
-        $merchant = get_post_meta( $feed_id, '_rex_feed_merchant', true ) ?: get_post_meta( $feed_id, 'rex_feed_merchant', true );
-        return 'google' === $merchant;
-    }
+	private function rex_feed_is_google_merchant() {
+		$data     = function_exists( 'rex_feed_get_sanitized_get_post' ) ? rex_feed_get_sanitized_get_post() : [];
+		$data     = isset( $data['get'] ) ? $data['get'] : [];
+		$feed_id  = isset( $data['post'] ) ? sanitize_text_field( $data['post'] ) : '';
+		$merchant = get_post_meta( $feed_id, '_rex_feed_merchant', true ) ?: get_post_meta( $feed_id, 'rex_feed_merchant', true );
+		return 'google' === $merchant;
+	}
 
 
     /**

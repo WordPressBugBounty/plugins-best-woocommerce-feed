@@ -166,7 +166,7 @@ class Rex_Product_Feed_Shopping extends Rex_Product_Feed_Other {
                 if ( $this->rex_feed_skip_row && $this->feed_format === 'xml' ) {
                     if ( $value != '' ) {
                         if( is_array($value) ) {
-                            $value = call_user_func_array('array_merge', $value);
+                            $value = call_user_func_array('array_merge', array_values( $value ));
                             $value = implode( ', ', $value );
                         }
                         $item->$key($value); // invoke $key as method of $item object.
@@ -174,7 +174,7 @@ class Rex_Product_Feed_Shopping extends Rex_Product_Feed_Other {
                 }
                 else {
                     if( is_array($value) ) {
-                        $value = call_user_func_array('array_merge', $value);
+                        $value = call_user_func_array('array_merge', array_values( $value ));
                         $value = implode( ', ', $value );
                     }
                     $item->$key($value); // invoke $key as method of $item object.
@@ -200,16 +200,10 @@ class Rex_Product_Feed_Shopping extends Rex_Product_Feed_Other {
         return RexShopping::asRss();
     }
 
-
-    protected function get_product_data( WC_Product $product, $product_meta_keys ){
-
-        $data = new Rex_Shopping_Product_Data_Retriever( $product, $this, $product_meta_keys );
-        return $data->get_all_data();
-    }
-
-
+	/**
+	 * Replaces the footer in the feed by removing the closing </products> tag.
+	 */
     public function footer_replace() {
         $this->feed = str_replace('</products>', '', $this->feed);
     }
-
 }

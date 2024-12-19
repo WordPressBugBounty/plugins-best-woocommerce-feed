@@ -8,6 +8,7 @@ $value        = $value ?: 'US';
 $schedule_val = get_post_meta( $feed_id, '_rex_feed_google_schedule', true );
 $schedule_val = $schedule_val ?: get_post_meta( $feed_id, 'rex_feed_google_schedule', true );
 $display_none = 'style="display: none"';
+$is_google_content_api = 'yes' === get_post_meta( $feed_id, '_rex_feed_is_google_content_api', true );
 ?>
 
 
@@ -57,27 +58,26 @@ $display_none = 'style="display: none"';
 				</label>
 				<input type="text" id="<?php echo esc_attr( $this->prefix ) . 'google_target_language';?>" value="<?php echo esc_attr($value)?>" name="<?php echo esc_attr( $this->prefix ) . 'google_target_language'?>" required>
 			</div>
+		</div>
 
-			<div id="<?php echo esc_attr( $this->prefix ) . 'google_schedule__content'; ?>" class="<?php echo esc_attr( $this->prefix ) . 'google_schedule__content'; ?>">
-				<label for="<?php echo esc_attr( $this->prefix ) . 'google_schedule';?>"><?php esc_html_e('Schedule', 'rex-product-feed')?>
-					<span class="rex_feed-tooltip">
+		<div class="<?php echo esc_attr( $this->prefix ) . 'google_schedule_all__content'; ?>">
+            <div id="<?php echo esc_attr( $this->prefix ) . 'google_schedule__content'; ?>" class="<?php echo esc_attr( $this->prefix ) . 'google_schedule__content'; ?>">
+                <label for="<?php echo esc_attr( $this->prefix ) . 'google_schedule';?>"><?php esc_html_e('Schedule', 'rex-product-feed')?>
+                    <span class="rex_feed-tooltip">
 								<?php include plugin_dir_path(__FILE__) . $icon;?>
 								<p><?php esc_html_e('Schedule', 'rex-product-feed')?></p>
 							</span>
-				</label>
-				<select name="<?php echo esc_attr( $this->prefix ) . 'google_schedule'; ?>" id="<?php echo esc_attr( $this->prefix ) . 'google_schedule'; ?>">
+                </label>
+                <select name="<?php echo esc_attr( $this->prefix ) . 'google_schedule'; ?>" id="<?php echo esc_attr( $this->prefix ) . 'google_schedule'; ?>">
 					<?php
-                    $schedule_val = $schedule_val ?: 'monthly';
+					$schedule_val = $schedule_val ?: 'monthly';
 					foreach ( $schedules as $key => $value ) {
 						$selected = $key == $schedule_val ? ' selected' : '';
 						echo '<option value="'.esc_attr($key).'" ' .esc_attr($selected). '>'.esc_attr($value).'</option>';
 					}
 					?>
-				</select>
-			</div>
-		</div>
-
-		<div class="<?php echo esc_attr( $this->prefix ) . 'google_schedule_all__content'; ?>">
+                </select>
+            </div>
 
 			<div id="<?php echo esc_attr( $this->prefix ) . 'google_schedule_month__content'; ?>" class="<?php echo esc_attr( $this->prefix ) . 'google_schedule_month__content'; ?>" <?php if('monthly' !== $schedule_val) {echo $display_none;}?>>
 				<label for="<?php echo esc_attr( $this->prefix ) . 'google_schedule_month';?>"><?php esc_html_e('Select Day of Month', 'rex-product-feed')?>
@@ -159,6 +159,7 @@ $display_none = 'style="display: none"';
 			$feed_merchant = $feed_merchant ?: get_post_meta( $feed_id, 'rex_feed_merchant', true );
 
 			if ( $feed_merchant === 'google' ) {
+				$feed_url = get_post_meta( $feed_id, '_rex_feed_xml_file', true ) || get_post_meta( $feed_id, 'rex_feed_xml_file', true );
 				$rex_google_merchant = new Rex_Google_Merchant_Settings_Api();
 
                 if ( $rex_google_merchant::$client_id && $rex_google_merchant::$client_secret && $rex_google_merchant::$merchant_id ) {
@@ -181,7 +182,7 @@ $display_none = 'style="display: none"';
 
 						echo '</div>';
 				}
-				else {
+				else if ( !empty( $feed_url ) ) {
 					echo '<a class="btn waves-effect waves-light" id="send-to-google" href="#">
 							' . esc_attr__( 'Send to google merchant', 'rex-product-feed' ) . '
 						</a> ';

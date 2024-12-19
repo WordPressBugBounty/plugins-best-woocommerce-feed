@@ -68,7 +68,9 @@
             ?>
 		</div>
 
-		<div class="<?php echo esc_attr( $this->prefix ) . 'country_list_area'; ?>">
+		<div class="<?php echo esc_attr( $this->prefix ) . 'country_list_area'; ?>"
+
+        <div class="<?php echo esc_attr( $this->prefix ) . 'curcy_list_area'; ?>">
             <?php
             $merchant = get_post_meta( get_the_ID(), '_rex_feed_merchant', true );
             $merchant = $merchant ?: get_post_meta( get_the_ID(), 'rex_feed_merchant', true );
@@ -76,7 +78,7 @@
             ?>
             <div class="<?php echo esc_attr( $this->prefix ) . 'is_google_content_api'; ?> pl-10" <?php echo $display;?>>
                 <label for="<?php echo esc_attr( $this->prefix ) . 'is_google_content_api'; ?>">
-					<?php esc_html_e( 'Send Products via Google Content API', 'rex-product-feed' ); ?>
+                    <?php esc_html_e( 'Send Products via Google Content API', 'rex-product-feed' ); ?>
                     <span class="rex_feed-tooltip">
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
 						<p><?php esc_html_e( 'Sync Products using Google Content API.', 'rex-product-feed' ); ?></p>
@@ -85,53 +87,53 @@
 
                 <div class="switch">
                     <div class="wpfm-switcher">
-						<?php
-						$saved_value = get_post_meta( get_the_ID(), '_rex_feed_is_google_content_api', true );
-						$saved_value = $saved_value ?: 'no';
-						$checked = 'yes' === $saved_value ? ' checked' : '';
-						?>
+                        <?php
+                        $saved_value = get_post_meta( get_the_ID(), '_rex_feed_is_google_content_api', true );
+                        $saved_value = $saved_value ?: 'no';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
+                        ?>
                         <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'is_google_content_api'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'is_google_content_api'?>" <?php echo esc_attr( $checked )?>>
                         <label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'is_google_content_api'?>"></label>
                     </div>
                 </div>
             </div>
 
-			<div class="<?php echo esc_attr( $this->prefix ) . 'country_list_content'; ?> pl-10">
-				<label for="<?php echo esc_attr( $this->prefix ) . 'feed_country_label'; ?>"><?php esc_html_e( 'Country', 'rex-product-feed' ); ?>
-					<span class="rex_feed-tooltip">
+            <div class="<?php echo esc_attr( $this->prefix ) . 'country_list_content'; ?> pl-10">
+                <label for="<?php echo esc_attr( $this->prefix ) . 'feed_country_label'; ?>"><?php esc_html_e( 'Country', 'rex-product-feed' ); ?>
+                    <span class="rex_feed-tooltip">
 						<?php require WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question; ?>
 						<p>
 							<?php esc_html_e( 'Select a country for the Shipping attribute value for Google/Facebook merchants.', 'rex-product-feed' ); ?><a href="<?php echo esc_url( 'https://rextheme.com/docs/product-feed-manager-documentation/?utm_source=plugin&utm_medium=shipping_link&utm_campaign=pfm_plugin#tax-shipping' ); ?>" target="_blank"><?php esc_html_e( 'Learn How', 'rex-product-feed' ); ?></a>
 						</p>
 					</span>
-				</label>
+                </label>
 
-				<select name="<?php echo esc_attr( $this->prefix ) . 'feed_country'; ?>" id="<?php echo esc_attr( $this->prefix ) . 'feed_country'; ?>" class="">
-					<?php
-					$saved_country = get_post_meta( get_the_ID(), '_' . esc_attr( $this->prefix ) . 'feed_country', true );
-					$saved_country = $saved_country ?: get_post_meta( get_the_ID(), esc_attr( $this->prefix ) . 'feed_country', true );
-					$wc_countries  = new WC_Countries();
+                <select name="<?php echo esc_attr( $this->prefix ) . 'feed_country'; ?>" id="<?php echo esc_attr( $this->prefix ) . 'feed_country'; ?>" class="">
+                    <?php
+                    $saved_country = get_post_meta( get_the_ID(), '_' . esc_attr( $this->prefix ) . 'feed_country', true );
+                    $saved_country = $saved_country ?: get_post_meta( get_the_ID(), esc_attr( $this->prefix ) . 'feed_country', true );
+                    $wc_countries  = new WC_Countries();
 
-					if( $saved_country ) {
-						$saved_country = explode( ':', $saved_country );
-						$saved_country = !empty( $saved_country[ 1 ] ) ? $saved_country[ 1 ] : $saved_country[ 0 ];
-					}
-					else {
-						$saved_country = $wc_countries->get_base_country();
-					}
+                    if( $saved_country ) {
+                        $saved_country = explode( ':', $saved_country );
+                        $saved_country = !empty( $saved_country[ 1 ] ) ? $saved_country[ 1 ] : $saved_country[ 0 ];
+                    }
+                    else {
+                        $saved_country = $wc_countries->get_base_country();
+                    }
 
-					$wc_countries = $wc_countries->get_countries();
+                    $wc_countries = $wc_countries->get_countries();
 
-					if ( is_array( $wc_countries ) && !empty( $wc_countries ) ) {
-						foreach ( $wc_countries as $value => $label ) {
-							$selected = $saved_country === $value ? ' selected' : '';
-							echo '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $selected ) . '>' . esc_attr( $label ) . '</option>';
-						}
-					}
-					?>
-				</select>
-			</div>
-		</div>
+                    if ( is_array( $wc_countries ) && !empty( $wc_countries ) ) {
+                        foreach ( $wc_countries as $value => $label ) {
+                            $selected = $saved_country === $value ? ' selected' : '';
+                            echo '<option value="' . esc_attr( $value ) . '" ' . esc_attr( $selected ) . '>' . esc_attr( $label ) . '</option>';
+                        }
+                    }
+                    ?>
+                </select>
+            </div>
+        </div>
 
 		<div class="<?php echo esc_attr( $this->prefix ) . 'include_out_of_stock'; ?> ">
 			<div class="<?php echo esc_attr( $this->prefix ) . 'include_out_of_stock_content'; ?> pl-10">
@@ -545,6 +547,51 @@
             <?php } ?>
 
 <!--            TranslatePress end here-->
+
+            <!--            CURCY start here -->
+            <?php
+            if ( wpfm_is_curcy_active() ) {
+                $currencies = array();
+                if ( class_exists( 'WOOMULTI_CURRENCY_F_Data' ) ) {
+                  $curcy_instance =   \WOOMULTI_CURRENCY_F_Data::get_ins();
+                    $currencies = $curcy_instance->get_currencies();
+                    $get_default_currency = $curcy_instance->get_default_currency();
+                }
+                $curcy_world_currency = get_woocommerce_currencies();
+
+                $currency_options = array();
+
+                if ( is_array( $currencies ) && !empty( $currencies ) ) {
+                    foreach ( $currencies as $key => $value ) {
+                            $currency_options[ $value ] = $value;
+                        }
+                    }
+                else {
+                    $currency_options = array( __('Please configure Curcy Currency Switcher!', 'rex-product-feed') );
+                }
+                ?>
+                <div class="<?php echo esc_attr( $this->prefix ) . 'curcy_currency';?>">
+                    <label for="<?php echo esc_attr( $this->prefix ) . 'curcy_currency';?>"><?php esc_html_e('CURCY Currency', 'rex-product-feed')?>
+                        <span class="rex_feed-tooltip">
+						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
+						<p><?php esc_html_e( 'This option will convert your product price to the selected currency.', 'rex-product-feed' ); ?></p>
+					</span>
+                    </label>
+                    <select name="<?php echo esc_html( $this->prefix ) . 'curcy_currency';?>" id="<?php echo esc_html( $this->prefix ) . 'curcy_currency';?>" class="">
+                        <?php
+                        $selected_price = get_post_meta( get_the_ID(), '_rex_feed_curcy_currency', true );
+                        $selected_price = $selected_price ?: get_post_meta( get_the_ID(), 'rex_feed_curcy_currency', true );
+                        foreach( $currency_options as $key => $value ) {
+                            $selected = $selected_price === $key ? ' selected' : '';
+                            echo '<option value="'. esc_attr( $key ) .'" '. esc_html( $selected ) .'>'. esc_attr( $value ) .'</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+
+            <?php } ?>
+
+            <!--            CURCY end here-->
 
             <!-- Multi-currency by WOOCS -->
             <?php

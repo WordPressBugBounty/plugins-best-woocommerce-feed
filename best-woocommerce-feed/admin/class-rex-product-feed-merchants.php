@@ -181,6 +181,11 @@ class Rex_Feed_Merchants {
 				'name'    => 'Bing Image',
 				'formats' => array( 'xml' ),
 			),
+			'bing_local_inventory'                      => array(
+				'free'    => true,
+				'name'    => 'Bing Local Products Inventory',
+				'formats' => array( 'text' ),
+			),
 			'kelkoo'                          => array(
 				'free'    => true,
 				'name'    => 'Kelkoo',

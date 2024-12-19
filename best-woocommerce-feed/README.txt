@@ -6,7 +6,7 @@ Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, 
 Requires at least: 5.0
 Tested up to:  6.6
 Requires PHP: 7.4
-Stable tag:  7.4.25
+Stable tag:  7.4.26
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -491,6 +491,19 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 
 == Changelog ==
+
+= 7.4.26 (2024-12-19) =
+* Added: Compatibility with `CURCY – Multi Currency for WooCommerce` plugin
+* Added: New output filter option `Strip Slashes`
+* Enhancement: Add target country and language for `Google Shopping` feed content API
+* Enhancement: Updated availability value compatible for `Google Shopping` feed template
+* Enhancement: Updated attributes for `Bing Local Products Inventory` feed template
+* Enhancement: Shipping and Tax (Google format) attributes support for `Pinterest` feed template
+* Enhancement: Updated attributes for `Wine Searcher` feed template
+* Enhancement: Updated attributes for `Price Grabber` feed template
+* Fixed: Fetch translated product URL for TranslatePress
+* Fixed: Add product variations for `Skroutz` feed template
+* Fixed: Add deprecated function compatibility for PHP 8.x
 
 = 7.4.25 (2024-12-13) =
 * Enhancement: Update pricing on setup wizard
@@ -1839,5 +1852,5 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 == Upgrade Notice ==
 
-= 7.4.22 =
+= 7.4.26 =
 🚀 Recommended Upgrade 🚀 For users on v7.2.x or older, it'll amp up your plugin experience with better product filtering and RTL support. Some tweaks may be needed in your current feed settings/filters, so give 'em a check after switching to this version for smooth sailing. 😎🔧

@@ -270,6 +270,13 @@ class Rex_Feed_Google_Shopping_Api {
 	 * @since 1.0.0
 	 */
 	public function get_product_stats_summery() {
+        $data = [
+	        'total'       => 0,
+	        'active'      => [ 'count' => 0, 'rate' => '0%' ],
+	        'expiring'    => [ 'count' => 0, 'rate' => '0%' ],
+	        'pending'     => [ 'count' => 0, 'rate' => '0%' ],
+	        'disapproved' => [ 'count' => 0, 'rate' => '0%' ],
+        ];
 		$merchant_id = $this->get_merchant_id();
 		if ( ! empty( $merchant_id ) && $this->validate_auth() ) {
 			$client           = $this->get_client();
@@ -286,23 +293,17 @@ class Rex_Feed_Google_Shopping_Api {
 				$disapproved = (int) $stats->getDisapproved();
 				$total       = ( $active + $expiring + $pending + $disapproved );
 
-				return [
-					'total'       => $total,
-					'active'      => [ 'count' => $active, 'rate' => ( $active * 100 ) / $total . '%' ],
-					'expiring'    => [ 'count' => $expiring, 'rate' => ( $expiring * 100 ) / $total . '%' ],
-					'pending'     => [ 'count' => $pending, 'rate' => ( $pending * 100 ) / $total . '%' ],
-					'disapproved' => [ 'count' => $disapproved, 'rate' => ( $disapproved * 100 ) / $total . '%' ],
-				];
+				if ( $total > 0 ) {
+					$data['total'] = $total;
+					foreach (['active', 'expiring', 'pending', 'disapproved'] as $status) {
+						$data[$status]['count'] = $$status;
+						$data[$status]['rate'] = ( $$status * 100 ) / $total . '%';
+					}
+				}
 			}
 		}
 
-		return [
-			'total'       => 0,
-			'active'      => 0,
-			'expiring'    => 0,
-			'pending'     => 0,
-			'disapproved' => 0,
-		];
+		return $data;
 	}
 
 	/**

@@ -47,6 +47,14 @@ abstract class Rex_Product_Feed_Abstract_Generator
      * @var Rex_Product_Feed_Abstract_Generator $aelia_currency
      */
     public $aelia_currency;
+
+
+    /**
+     *
+     * @var Rex_Product_Feed_Abstract_Generator $curcy_currency
+     */
+    public $curcy_currency;
+
     /**
      *
      * @var Rex_Product_Feed_Abstract_Generator $wmc_currency
@@ -421,6 +429,24 @@ abstract class Rex_Product_Feed_Abstract_Generator
 	 */
     public $translatepress_language = '';
 
+	/**
+	 * Google API Target Country
+	 *
+	 * @var string $google_api_target_country Target country for Google Content API.
+	 *
+	 * @since 7.4.25
+	 */
+	protected $google_api_target_country = '';
+
+	/**
+	 * Google API Target Language
+	 *
+	 * @var string $google_api_target_language Target language for Google Content API.
+	 *
+	 * @since 7.4.25
+	 */
+	protected $google_api_target_language = '';
+
     /**
      * Define the core functionality of the plugin.
      *
@@ -468,6 +494,7 @@ abstract class Rex_Product_Feed_Abstract_Generator
             $this->wpml_language           = !empty( $config[ 'wpml_language' ] ) ? $config[ 'wpml_language' ] : '';
             $this->wcml_currency           = !empty( $config[ 'wcml_currency' ] ) ? $config[ 'wcml_currency' ] : $wc_currency;
             $this->aelia_currency          = !empty( $config[ 'aelia_currency' ] ) ? $config[ 'aelia_currency' ] : $wc_currency;
+            $this->curcy_currency          = !empty( $config[ 'curcy_currency' ] ) ? $config[ 'curcy_currency' ] : $wc_currency;
             $this->wmc_currency            = !empty( $config[ 'wmc_currency' ] ) ? $config[ 'wmc_currency' ] : $wc_currency;
             $this->woocs_currency          = !empty( $config[ 'woocs_currency' ] ) ? $config[ 'woocs_currency' ] : $wc_currency;
             $this->analytics               = !empty( $config[ 'analytics' ] ) && ( 'yes' === $config[ 'analytics' ] || 'on' === $config[ 'analytics' ] );
@@ -813,6 +840,7 @@ abstract class Rex_Product_Feed_Abstract_Generator
 	    $include_zero_priced         = isset( $feed_configs[ 'rex_feed_include_zero_price_products' ] ) ? esc_attr( $feed_configs[ 'rex_feed_include_zero_price_products' ] ) : '';
 	    $this->feed_separator        = isset( $feed_configs[ 'rex_feed_separator' ] ) ? esc_attr( $feed_configs[ 'rex_feed_separator' ] ) : '';
 	    $this->aelia_currency        = isset( $feed_configs[ 'rex_feed_aelia_currency' ] ) ? esc_attr( $feed_configs[ 'rex_feed_aelia_currency' ] ) : 'USD';
+        $this->curcy_currency        = isset( $feed_configs[ 'rex_feed_curcy_currency' ] ) ? esc_attr( $feed_configs[ 'rex_feed_curcy_currency' ] ) : 'USD';
 	    $custom_filter_option        = isset( $feed_configs[ 'rex_feed_custom_filter_option_btn' ] ) ? esc_attr( $feed_configs[ 'rex_feed_custom_filter_option_btn' ] ) : 'removed';
 	    $this->feed_country          = isset( $feed_configs[ 'rex_feed_feed_country' ] ) ? esc_attr( $feed_configs[ 'rex_feed_feed_country' ] ) : '';
 	    $this->custom_wrapper        = isset( $feed_configs[ 'rex_feed_custom_wrapper' ] ) ? esc_attr( $feed_configs[ 'rex_feed_custom_wrapper' ] ) : '';
@@ -832,6 +860,8 @@ abstract class Rex_Product_Feed_Abstract_Generator
 	    $this->is_google_content_api = ! empty( $feed_configs[ 'rex_feed_is_google_content_api' ] ) && 'yes' === $feed_configs[ 'rex_feed_is_google_content_api' ] && 'google' === $this->merchant;
 	    $this->yandex_old_price      = 'include' === $this->yandex_old_price;
         $this->translatepress_language = ! empty( $feed_configs[ 'rex_feed_translate_press_language' ] ) ? esc_html( $feed_configs[ 'rex_feed_translate_press_language' ] ) : '';
+		$this->google_api_target_country = ! empty( $feed_configs[ 'rex_feed_google_target_country' ] ) ? esc_html( $feed_configs[ 'rex_feed_google_target_country' ] ) : '';
+		$this->google_api_target_language = ! empty( $feed_configs[ 'rex_feed_google_target_language' ] ) ? esc_html( $feed_configs[ 'rex_feed_google_target_language' ] ) : '';
 
         if ( isset( $feed_configs[ 'product_filter_condition' ] ) ) {
             $this->product_filter_condition = $feed_configs[ 'product_filter_condition' ];
@@ -1503,7 +1533,6 @@ abstract class Rex_Product_Feed_Abstract_Generator
             || $this->merchant === 'kleding'
             || $this->merchant === 'shopalike'
             || $this->merchant === 'ladenzeile'
-            || $this->merchant === 'winesearcher'
             || $this->merchant === 'whiskymarketplace'
         ) {
             $node = $feed->getElementsByTagName( "item" );
@@ -1517,6 +1546,13 @@ abstract class Rex_Product_Feed_Abstract_Generator
             if( $this->batch === $this->tbatch ) {
                 $this->item_wrapper       = '<offer>';
                 $this->feed_string_footer .= '</offers>';
+            }
+        }
+        elseif ( $this->merchant === 'winesearcher' ) {
+            $node = $feed->getElementsByTagName( "row" );
+            if( $this->batch === $this->tbatch ) {
+                $this->item_wrapper       = '<row>';
+                $this->feed_string_footer .= '</product-list></wine-searcher-datafeed>';
             }
         }
         elseif ( $this->merchant === 'emag' ) {

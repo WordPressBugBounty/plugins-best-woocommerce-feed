@@ -133,6 +133,7 @@ class Rex_Product_Feed_Actions {
 			'rex_feed_hotline_firm_id',
 			'rex_feed_hotline_firm_name',
 			'rex_feed_hotline_exchange_rate',
+            'rex_feed_curcy_currency'
 		];
 		$settings_toggle = [
 			'rex_feed_include_out_of_stock',
@@ -850,6 +851,33 @@ class Rex_Product_Feed_Actions {
     }
 
     /**
+     * Retrieves the converted product price using WooCommerce Multi-Currency (WMC).
+     *
+     * This method retrieves the converted product price if WMC (WooCommerce Multi-Currency) is active and the product has a fixed price set in the specified currency. If no fixed price is set, it calculates the converted price based on the currency exchange rate.
+     *
+     * @param string $product_price The original product price.
+     * @param WC_Product $product The WooCommerce product object.
+     * @param string $type The type of price being updated (e.g., regular price, sale price).
+     * @param object $feed_retriever_obj The feed retriever object.
+     * @return string The converted product price based on WMC settings.
+     *
+     * @since 7.4.24
+     */
+    public function get_converted_price_by_curcy( $product_price, $product, $type, $feed_retriever_obj ) {
+        if(wpfm_is_curcy_active()){
+            $curcy_instance = \WOOMULTI_CURRENCY_F_Data::get_ins();
+            $exchange_currency = $curcy_instance->get_list_currencies();
+
+            if ( isset( $exchange_currency[ $feed_retriever_obj->curcy_currency ] ) ) {
+
+                $product_price = wmc_get_price( $product_price, $feed_retriever_obj->curcy_currency );
+            }
+        }
+        return $product_price;
+    }
+
+
+    /**
      * Retrieves the converted product price using WooCommerce Currency Switcher (WOOCS).
      *
      * This method retrieves the converted product price if WOOCS is active. It converts the product price from the base currency to the target currency specified in the feed retriever object.
@@ -946,8 +974,19 @@ class Rex_Product_Feed_Actions {
 	 */
     public function add_translate_press_value( $value, $rule, $instance ) {
         if ( wpfm_is_translatePress_active() ) {
-            $language = $instance->feed->translatepress_language ?? 'en_US';
-            $value = trp_translate( $value, $language, false );
+            $trp_default_lang = rexfeed_get_trp_default_language();
+            $language = $instance->feed->translatepress_language ?? $trp_default_lang;
+            if ( $language !== $trp_default_lang ) {
+                $is_link = isset( $rule[ 'meta_key' ] ) && 'link' === $rule[ 'meta_key' ];
+                if ( !$is_link ) {
+	                $value = trp_translate( $value, $language, false );
+                } else {
+                    $slug = rexfeed_get_trp_url_slug( $language );
+                    if ( !empty( $slug ) ) {
+	                    $value = str_replace( home_url( '/' ), home_url( '/' ) . "$slug/", $value );
+                    }
+                }
+            }
         }
         return $value;
     }

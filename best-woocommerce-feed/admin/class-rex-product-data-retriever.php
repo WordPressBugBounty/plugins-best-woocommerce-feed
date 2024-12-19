@@ -96,6 +96,13 @@ class Rex_Product_Data_Retriever {
 	 */
     public $aelia_currency;
 
+    /**
+     * Curcy currency
+     *
+     * @var string
+     */
+    public $curcy_currency;
+
 	/**
 	 * Currency WC Multi-Currency
 	 *
@@ -197,6 +204,7 @@ class Rex_Product_Data_Retriever {
         $this->feed_rules_option  = $feed->feed_rules_option ?? false;
         $this->append_variation   = $feed->append_variation ?? false;
         $this->aelia_currency     = $feed->aelia_currency ?? '';
+        $this->curcy_currency     = $feed->curcy_currency ?? '';
         $this->wmc_currency       = $feed->wmc_currency ?? '';
         $this->wcml_currency      = $feed->wcml_currency ?? '';
         $this->woocs_currency     = $feed->woocs_currency ?? '';
@@ -1085,20 +1093,7 @@ class Rex_Product_Data_Retriever {
             $product_price = method_exists( $_product, $method ) ? $_product->$method() : 0;
         }
         elseif ( $this->product->is_type( 'variable' ) ) {
-            $default_attributes = rex_feed_get_default_variable_attributes( $this->product );
-
-            if ( !empty( $default_attributes ) ) {
-                $variation_id = rex_feed_find_matching_product_variation( $this->product, $default_attributes );
-                if ( !empty( $variation_id ) ) {
-                    $_variation_product = wc_get_product( $variation_id );
-                    $method             = "get{$type}";
-                    $product_price      = $_variation_product->$method();
-                }
-            }
-            else {
-                $method        = "get_variation{$type}";
-                $product_price = $this->product->$method();
-            }
+            $product_price = rexfeed_get_variable_parent_product_price( $this->product, $type );
         }
         elseif ( $this->product->is_type( 'bundle' ) ) {
             $product_price = $this->product->get_bundle_price();
@@ -1211,7 +1206,6 @@ class Rex_Product_Data_Retriever {
                 $product_price = '';
                 break;
         }
-
         /**
          * Filters the product price before it is returned.
          *
@@ -1732,7 +1726,11 @@ class Rex_Product_Data_Retriever {
 							preg_match( "~^(\d+)~", $map_value, $m );
 							if ( count( $m ) > 1 ) {
 								if ( $m[ 1 ] ) {
-									$attr_val = iconv("UTF-8", "ISO-8859-1", urldecode( $m[ 1 ] ));
+									if ( function_exists( 'iconv' ) ) {
+										$attr_val = iconv( "UTF-8", "ISO-8859-1", urldecode( $m[1] ) );
+									} elseif ( function_exists( 'wpfm_utf8_decode' ) ) {
+										$attr_val = wpfm_utf8_decode( urldecode( $m[1] ) );
+									}
 								} else {
 									$attr_val = $map_value;
 								}
@@ -2669,7 +2667,8 @@ class Rex_Product_Data_Retriever {
 			return '';
 		}
 		if ( $this->product->is_on_backorder() ) {
-			return apply_filters( 'wpfm_product_availability_backorder', 'on_backorder' );
+			$value = 'google' === $this->feed->merchant ? 'backorder' : 'on_backorder';
+			return apply_filters( 'wpfm_product_availability_backorder', $value );
 		} elseif ( $this->product->is_in_stock() ) {
 			return apply_filters( 'wpfm_product_availability', 'in_stock' );
 		} else {
@@ -2708,11 +2707,24 @@ class Rex_Product_Data_Retriever {
 
 		if ( !empty( $prefix ) ) {
 			$val = $val ? $prefix . $val : '';
+            if(wpfm_is_curcy_active()  && isset($this->curcy_currency)){
+                $val = $val ? $this->curcy_currency.' ' .$val : '';
+            }
+            return $val;
 		}
 
 		if ( !empty( $suffix ) ) {
-			$val = $val ? $val . $suffix : '';
+            if(wpfm_is_curcy_active()  && isset($this->curcy_currency)){
+                $val =  $val ? $val .' '. $this->curcy_currency : '';
+            }else{
+                $val = $val ? $val . $suffix : '';
+            }
+            return $val;
 		}
+
+        if(wpfm_is_curcy_active()  && isset($this->curcy_currency)  && str_contains($rule['attr'], 'price')){
+            return $val ? $val .' '. $this->curcy_currency : '';
+        }
 
 		return $val;
 	}
@@ -2795,6 +2807,8 @@ class Rex_Product_Data_Retriever {
 				return str_replace( ',', '/', str_replace( ', ', '/', $val ) );
 			case 'replace_decimal_with_hyphen':
 				return str_replace( '.', '-', str_replace( '. ', '-', $val ) );
+			case 'strip_slashes':
+				return stripslashes( $val );
 
 			default:
 				return $val;

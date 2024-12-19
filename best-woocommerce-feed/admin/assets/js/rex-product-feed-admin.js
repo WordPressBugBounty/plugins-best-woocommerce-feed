@@ -49,7 +49,7 @@
      */
 
     $(document).on("ready", function (event) {
-        if (rex_wpfm_ajax.current_screen === "rex_feed_edit") {
+        if ( 'rex_feed_edit' === rex_wpfm_ajax.current_screen ) {
             rex_feed_niceselect(event);
             rex_feed_ebay_seller_fields();
             rex_feed_load_config_table(event);
@@ -66,6 +66,10 @@
             rex_feed_settings_tab(event);
             rex_feed_process_rollback_button();
         }
+        const isChecked = $( '#rex_feed_is_google_content_api' ).is( ':checked' );
+        showGoogleMerchantContentApiContent( isChecked );
+        const merchant = $('select#rex_feed_merchant').children().find( 'option:selected' ).val();
+        handleGoogleMerchantApiContent( merchant );
         rex_feed_show_review_request(event);
         rex_feed_merchant_list_select2(event);
         default_category_mapping(event);
@@ -2954,14 +2958,30 @@
 
    $( '#rex_feed_merchant' ).on( 'change', function () {
        const merchant = $('select#rex_feed_merchant').children().find( 'option:selected' ).val();
-
+       handleGoogleMerchantApiContent( merchant );
+   });
+   const handleGoogleMerchantApiContent = ( merchant ) => {
        if ('google' === merchant) {
+           $( '#rex_feed_google_merchant' ).show();
            $('.rex_feed_is_google_content_api').show();
        } else {
+           $( '#rex_feed_google_merchant' ).hide();
            $('.rex_feed_is_google_content_api').hide();
        }
-   });
+   }
 
+    $( '#rex_feed_is_google_content_api' ).on( 'change', function () {
+        const isChecked = $( this ).is( ':checked' );
+        showGoogleMerchantContentApiContent( isChecked );
+    });
+   
+   const showGoogleMerchantContentApiContent = ( isChecked ) => {
+       if ( isChecked ) {
+           $( '.rex_feed_google_schedule_all__content' ).hide();
+       } else {
+           $( '.rex_feed_google_schedule_all__content' ).show();
+       }
+   }
 })(jQuery);
 
 /* When the user clicks on the button,

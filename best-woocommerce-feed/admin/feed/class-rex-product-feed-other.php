@@ -632,18 +632,6 @@ class Rex_Product_Feed_Other extends Rex_Product_Feed_Abstract_Generator {
             'wrapper'          => false,
             'datetime'         => false,
         ),
-        "skroutz"             => array(
-            'container'        => false,
-            'item_wrapper'     => 'product',
-            'items_wrapper'    => 'mywebstore',
-            'namespace'        => null,
-            'namespace_prefix' => '',
-            'stand_alone'      => false,
-            'version'          => '',
-            'wrapper_el'       => 'products',
-            'wrapper'          => true,
-            'datetime'         => false,
-        ),
         "trovaprezzi"         => array(
             'container'        => false,
             'item_wrapper'     => 'Offer',
@@ -692,16 +680,28 @@ class Rex_Product_Feed_Other extends Rex_Product_Feed_Abstract_Generator {
             'wrapper'          => false,
             'datetime'         => false,
         ),
+        "skroutz"             => array(
+	        'container'        => false,
+	        'item_wrapper'     => 'product',
+	        'items_wrapper'    => 'mywebstore',
+	        'namespace'        => null,
+	        'namespace_prefix' => '',
+	        'stand_alone'      => false,
+	        'version'          => '',
+	        'wrapper_el'       => 'products',
+	        'wrapper'          => true,
+	        'datetime'         => false,
+        ),
         "winesearcher"        => array(
             'container'        => false,
-            'item_wrapper'     => 'item',
-            'items_wrapper'    => 'items',
+            'item_wrapper'     => 'row',
+            'items_wrapper'    => 'wine-searcher-datafeed',
             'namespace'        => null,
             'namespace_prefix' => '',
             'stand_alone'      => false,
             'version'          => '',
-            'wrapper_el'       => '',
-            'wrapper'          => false,
+            'wrapper_el'       => 'product-list',
+            'wrapper'          => true,
             'datetime'         => false,
         ),
         "whiskymarketplace"   => array(
@@ -1035,7 +1035,7 @@ class Rex_Product_Feed_Other extends Rex_Product_Feed_Abstract_Generator {
                 if($this->variable_product && $this->is_out_of_stock( $product ) ) {
                     $variable_parent[] = $productId;
                     $variable_product = new WC_Product_Variable($productId);
-                    $this->add_to_feed( $variable_product, $product_meta_keys );
+                    $this->add_to_feed( $variable_product, $product_meta_keys, 'variable' );
                 }
 
                 if( $this->product_scope === 'product_cat' || $this->product_scope === 'product_tag' || $this->custom_filter_var_exclude ) {
@@ -1117,6 +1117,7 @@ class Rex_Product_Feed_Other extends Rex_Product_Feed_Abstract_Generator {
 
             foreach( $attributes as $key => $value ) {
                 $value = $this->get_value_for_kelkoo_group( $key, $value );
+				$key = 'xml' === $this->feed_format ? str_replace( ' ', '_', $key ) : $key;
                 if( $this->rex_feed_skip_row && 'xml' === $this->feed_format ) {
                     if( $value != '' ) {
                         $item->$key( $value ); // invoke $key as method of $item object.
@@ -1319,8 +1320,11 @@ class Rex_Product_Feed_Other extends Rex_Product_Feed_Abstract_Generator {
         else if( $this->merchant === 'joblift' || $this->merchant === 'webgains' ) {
             $this->feed = str_replace( '</feed>', '', $this->feed );
         }
-        else if( $this->merchant === 'kleding' || $this->merchant === 'winesearcher' ) {
+        else if( $this->merchant === 'kleding' ) {
             $this->feed = str_replace( '</items>', '', $this->feed );
+        }
+        else if( $this->merchant === 'winesearcher' ) {
+            $this->feed = str_replace( '</product-list></wine-searcher-datafeed>', '', $this->feed );
         }
         else if( $this->merchant === 'vivino' ) {
             $this->feed = str_replace( '</vivino-product-list>', '', $this->feed );

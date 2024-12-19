@@ -217,8 +217,11 @@ class Rex_Product_Feed_Data_Handle {
         if( !empty( $feed_data[ 'rex_feed_analytics_params_options' ] ) ) {
             $settings_data[ 'rex_feed_analytics_params_options' ] = $feed_data[ 'rex_feed_analytics_params_options' ];
         }
-        if( !empty( $feed_data[ 'rex_feed_aelia_currency' ] ) ) {
-            $settings_data[ 'rex_feed_aelia_currency' ] = $feed_data[ 'rex_feed_aelia_currency' ];
+        if( !empty( $feed_data[ 'rex_feed_curcy_currency' ] ) ) {
+            $settings_data[ 'rex_feed_curcy_currency' ] = $feed_data[ 'rex_feed_curcy_currency' ];
+        }
+        if( !empty( $feed_data[ 'rex_feed_curcy_currency' ] ) ) {
+            $settings_data[ 'rex_feed_curcy_currency' ] = $feed_data[ 'rex_feed_curcy_currency' ];
         }
         if( !empty( $feed_data[ 'rex_feed_wmc_currency' ] ) ) {
             $settings_data[ 'rex_feed_wmc_currency' ] = $feed_data[ 'rex_feed_wmc_currency' ];
@@ -340,8 +343,8 @@ class Rex_Product_Feed_Data_Handle {
             update_post_meta( $feed_id, '_rex_feed_analytics_params_options', 'no' );
         }
 
-        if( isset( $data[ 'rex_feed_aelia_currency' ] ) ) {
-            update_post_meta( $feed_id, '_rex_feed_aelia_currency', $data[ 'rex_feed_aelia_currency' ] );
+        if( isset( $data[ 'rex_feed_curcy_currency' ] ) ) {
+            update_post_meta( $feed_id, '_rex_feed_curcy_currency', $data[ 'rex_feed_curcy_currency' ] );
         }
         if( isset( $data[ 'rex_feed_wmc_currency' ] ) ) {
             update_post_meta( $feed_id, '_rex_feed_wmc_currency', $data[ 'rex_feed_wmc_currency' ] );

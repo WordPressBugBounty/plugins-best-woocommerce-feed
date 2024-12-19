@@ -345,8 +345,8 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator {
 			'condition'                 => 'setCondition',
 			'availability'              => 'setAvailability',
 			'availability_date'         => 'setAvailabilityDate',
-			'price'                     => function ( Product &$google_product, $value ) { Rex_Feed_Handle_Google_Product::set_price( $google_product, $value ); },
-			'sale_price'                => function ( Product &$google_product, $value ) { Rex_Feed_Handle_Google_Product::set_sale_price( $google_product, $value ); },
+			'price'                     => function ( Product &$google_product, $value ) { Rex_Feed_Handle_Google_Product::set_price( $google_product, (float)$value ); },
+			'sale_price'                => function ( Product &$google_product, $value ) { Rex_Feed_Handle_Google_Product::set_sale_price( $google_product, (float)$value ); },
 			'sale_price_effective_date' => 'setSalePriceEffectiveDate',
 			'cost_of_goods_sold'        => 'setCostOfGoodsSold',
 			'expiration_date'           => 'setExpirationDate',
@@ -410,14 +410,14 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator {
 				$method = $attribute_methods[ $key ];
 				if ( is_callable( $method ) ) {
 					$method( $google_product, $value, $product_type );
-				} else {
+				} else if ( method_exists( $google_product, $method ) ) {
 					$google_product->$method( $value );
 				}
 			}
 		}
 
-		$google_product->setTargetCountry( 'US' );
-		$google_product->setContentLanguage( 'en' );
+		$google_product->setTargetCountry( $this->google_api_target_country );
+		$google_product->setContentLanguage( $this->google_api_target_language );
 		$google_product->setChannel( 'online' );
 		$batch_entry = $this->set_google_product( $google_product );
 		$this->update_google_batch_entries( $batch_entry );

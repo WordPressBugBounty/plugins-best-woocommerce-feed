@@ -433,6 +433,7 @@ class Rex_Feed_Scheduler {
         $feed_format                 = $feed_format ?: 'xml';
         $wcml_currency               = get_post_meta( $feed_id, '_rex_feed_wcml_currency', true ) ?: get_post_meta( $feed_id, 'rex_feed_wcml_currency', true );
         $aelia_currency              = get_post_meta( $feed_id, '_rex_feed_aelia_currency', true ) ?: get_post_meta( $feed_id, 'rex_feed_aelia_currency', true );
+        $curcy_currency              = get_post_meta( $feed_id, '_rex_feed_curcy_currency', true ) ?: get_post_meta( $feed_id, 'rex_feed_curcy_currency', true );
         $wmc_currency                = get_post_meta( $feed_id, '_rex_feed_wmc_currency', true ) ?: get_post_meta( $feed_id, 'rex_feed_wmc_currency', true );
         $woocs_currency              = get_post_meta( $feed_id, '_rex_feed_woocs_currency', true );
         $skip_product                = get_post_meta( $feed_id, '_rex_feed_skip_product', true ) ?: get_post_meta( $feed_id, 'rex_feed_skip_product', true );
@@ -507,6 +508,7 @@ class Rex_Feed_Scheduler {
             'analytics_params'            => $analytics_params,
             'wcml_currency'               => $wcml_currency,
             'aelia_currency'              => $aelia_currency,
+            'curcy_currency'               => $curcy_currency,
             'wmc_currency'                => $wmc_currency,
             'woocs_currency'              => $woocs_currency,
             'skip_product'                => $skip_product,

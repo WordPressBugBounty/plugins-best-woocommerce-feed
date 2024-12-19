@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'rextheme/best-woocommerce-feed',
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
-        'reference' => '543ce730e7512a0085d249c7ecbb1d267315b045',
+        'pretty_version' => 'dev-develop',
+        'version' => 'dev-develop',
+        'reference' => '5fb4647b2d98ffefde0f7633988ca49aca26c14a',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'appsero/client' => array(
-            'pretty_version' => 'v1.4.0',
-            'version' => '1.4.0.0',
-            'reference' => '43289d79f1d55de687f667b17a2834b986cc7b6e',
+            'pretty_version' => 'v2.0.4',
+            'version' => '2.0.4.0',
+            'reference' => '12ff65b9770286d21edf314e7acfcd26fdde3315',
             'type' => 'library',
             'install_path' => __DIR__ . '/../appsero/client',
             'aliases' => array(),
@@ -29,9 +29,9 @@
             'dev_requirement' => false,
         ),
         'rextheme/best-woocommerce-feed' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => '543ce730e7512a0085d249c7ecbb1d267315b045',
+            'pretty_version' => 'dev-develop',
+            'version' => 'dev-develop',
+            'reference' => '5fb4647b2d98ffefde0f7633988ca49aca26c14a',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

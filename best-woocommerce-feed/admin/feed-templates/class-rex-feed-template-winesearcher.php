@@ -24,23 +24,24 @@ class Rex_Feed_Template_Winesearcher extends Rex_Feed_Abstract_Template {
 	 * @return void
 	 */
 	protected function init_atts() {
-		$this->attributes = array(
-			'Required Information' => array(
-				'name'          => 'name',
-				'description'   => 'description',
-				'vintage'       => 'vintage',
-				'unit-size'     => 'unit-size',
-				'price'         => 'price',
-				'url'           => 'url',
-				'min-order'     => 'min-order',
-				'tax'           => 'tax',
-				'offer-type'    => 'offer-type',
-				'delivery-time' => 'delivery-time',
-				'stock-level'   => 'stock-level',
-				// 'Deeplink' => 'Deeplink',
-				// 'WineName' => 'WineName',
-			),
-		);
+		$this->attributes = [
+			'Required Attributes' => [
+				'SKU'           => 'SKU',
+				'name'          => 'Name',
+				'description'   => 'Description',
+				'vintage'       => 'Vintage',
+				'unit-size'     => 'Unit Size',
+				'price'         => 'Price',
+				'stock'         => 'Stock',
+				'url'           => 'URL',
+				'min-order'     => 'Min Order',
+				'tax'           => 'Tax',
+				'offer-type'    => 'Offer Type',
+				'delivery-time' => 'Delivery Time',
+				'imageurl'      => 'Image URL',
+			],
+			'Optional Attributes' => [ 'LWIN' => 'LWIN Number' ]
+		];
 	}
 
 	/**
@@ -49,8 +50,18 @@ class Rex_Feed_Template_Winesearcher extends Rex_Feed_Abstract_Template {
 	 * @return void
 	 */
 	protected function init_default_template_mappings() {
-		$this->template_mappings = array(
-			array(
+		$this->template_mappings = [
+			[
+				'attr'     => 'SKU',
+				'type'     => 'meta',
+				'meta_key' => 'sku',
+				'st_value' => '',
+				'prefix'   => '',
+				'suffix'   => '',
+				'escape'   => 'default',
+				'limit'    => 0,
+			],
+			[
 				'attr'     => 'name',
 				'type'     => 'meta',
 				'meta_key' => 'title',
@@ -59,8 +70,8 @@ class Rex_Feed_Template_Winesearcher extends Rex_Feed_Abstract_Template {
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-			array(
+			],
+			[
 				'attr'     => 'description',
 				'type'     => 'meta',
 				'meta_key' => 'description',
@@ -69,8 +80,8 @@ class Rex_Feed_Template_Winesearcher extends Rex_Feed_Abstract_Template {
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-			array(
+			],
+			[
 				'attr'     => 'vintage',
 				'type'     => 'static',
 				'meta_key' => '',
@@ -79,8 +90,8 @@ class Rex_Feed_Template_Winesearcher extends Rex_Feed_Abstract_Template {
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-			array(
+			],
+			[
 				'attr'     => 'unit-size',
 				'type'     => 'static',
 				'meta_key' => '',
@@ -89,18 +100,28 @@ class Rex_Feed_Template_Winesearcher extends Rex_Feed_Abstract_Template {
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-			array(
-				'attr'     => 'Price',
+			],
+			[
+				'attr'     => 'price',
 				'type'     => 'meta',
 				'meta_key' => 'price',
+				'st_value' => '',
+				'prefix'   => '',
+				'suffix'   => ' ' . get_option( 'woocommerce_currency' ),
+				'escape'   => 'default',
+				'limit'    => 0,
+			],
+			[
+				'attr'     => 'stock',
+				'type'     => 'meta',
+				'meta_key' => 'availability',
 				'st_value' => '',
 				'prefix'   => '',
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-			array(
+			],
+			[
 				'attr'     => 'url',
 				'type'     => 'meta',
 				'meta_key' => 'link',
@@ -109,8 +130,8 @@ class Rex_Feed_Template_Winesearcher extends Rex_Feed_Abstract_Template {
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-			array(
+			],
+			[
 				'attr'     => 'min-order',
 				'type'     => 'static',
 				'meta_key' => '',
@@ -119,8 +140,8 @@ class Rex_Feed_Template_Winesearcher extends Rex_Feed_Abstract_Template {
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-			array(
+			],
+			[
 				'attr'     => 'tax',
 				'type'     => 'static',
 				'meta_key' => '',
@@ -129,8 +150,8 @@ class Rex_Feed_Template_Winesearcher extends Rex_Feed_Abstract_Template {
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-			array(
+			],
+			[
 				'attr'     => 'offer-type',
 				'type'     => 'static',
 				'meta_key' => '',
@@ -139,8 +160,8 @@ class Rex_Feed_Template_Winesearcher extends Rex_Feed_Abstract_Template {
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-			array(
+			],
+			[
 				'attr'     => 'delivery-time',
 				'type'     => 'static',
 				'meta_key' => '',
@@ -149,40 +170,18 @@ class Rex_Feed_Template_Winesearcher extends Rex_Feed_Abstract_Template {
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-			array(
-				'attr'     => 'stock-level',
-				'type'     => 'static',
-				'meta_key' => '',
+			],
+			[
+				'attr'     => 'imageurl',
+				'type'     => 'meta',
+				'meta_key' => 'featured_image',
 				'st_value' => '',
 				'prefix'   => '',
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-
-			// array(
-			// 'attr' => 'Deeplink',
-			// 'type' => 'meta',
-			// 'meta_key' => 'link',
-			// 'st_value' => '',
-			// 'prefix' => '',
-			// 'suffix' => '',
-			// 'escape' => 'cdata',
-			// 'limit' => 0,
-			// ) ,
-
-			// array(
-			// 'attr' => 'WineName',
-			// 'type' => 'meta',
-			// 'meta_key' => 'title',
-			// 'st_value' => '',
-			// 'prefix' => '',
-			// 'suffix' => '',
-			// 'escape' => 'default',
-			// 'limit' => 0,
-			// )
-		);
+			],
+		];
 	}
 }
 

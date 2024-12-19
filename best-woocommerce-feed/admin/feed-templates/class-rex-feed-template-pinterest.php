@@ -24,8 +24,8 @@ class Rex_Feed_Template_Pinterest extends Rex_Feed_Abstract_Template {
 	 * @return void
 	 */
 	protected function init_atts() {
-		$this->attributes = array(
-			'Basic Information'                   => array(
+		$this->attributes = [
+			'Basic Information' => [
 				'id'                       => 'Product Id [id]',
 				'title'                    => 'Product Title [title]',
 				'description'              => 'Product Description [description]',
@@ -45,9 +45,8 @@ class Rex_Feed_Template_Pinterest extends Rex_Feed_Abstract_Template {
 				'additional_image_link_9'  => 'Additional Image 9 [additional_image_link]',
 				'additional_image_link_10' => 'Additional Image 10 [additional_image_link]',
 				'condition'                => 'Condition [condition]',
-			),
-
-			'Availability & Price'                => array(
+			],
+			'Availability & Price' => [
 				'availability'              => 'Stock Status [availability]',
 				"availability_date"         => "Availability Date[availability_date]",
 				'price'                     => 'Regular Price [price]',
@@ -57,16 +56,14 @@ class Rex_Feed_Template_Pinterest extends Rex_Feed_Abstract_Template {
 				"expiration_date"           => "Expiration Date[expiration_date]",
 				"inventory"                 => "Facebook Inventory[inventory]",
 				"override"                  => "Facebook Override[override]",
-			),
-
-			'Unique Product Identifiers'          => array(
+			],
+			'Unique Product Identifiers' => [
 				'brand'             => 'Manufacturer [brand]',
 				'gtin'              => 'GTIN [gtin]',
 				'mpn'               => 'MPN [mpn]',
 				'identifier_exists' => 'Identifier Exist [identifier_exists]',
-			),
-
-			'Detailed Product Attributes'         => array(
+			],
+			'Detailed Product Attributes' => [
 				'item_group_id' => 'Item Group Id [item_group_id]',
 				'color'         => 'Color [color]',
 				'gender'        => 'Gender [gender]',
@@ -76,10 +73,10 @@ class Rex_Feed_Template_Pinterest extends Rex_Feed_Abstract_Template {
 				'size'          => 'Size of the item [size]',
 				'size_type'     => 'Size Type [size_type]',
 				'size_system'   => 'Size System [size_system]',
-			),
-
-			'Tax & Shipping'                      => array(
+			],
+			'Tax & Shipping' => [
 				'tax'              => 'Tax [tax]',
+				'shipping'         => 'Shipping [shipping]',
 				"tax_country"      => "Tax Country[tax_country]",
 				"tax_region"       => "Tax Region[tax_region]",
 				"tax_rate"         => "Tax Rate[tax_rate]",
@@ -94,56 +91,46 @@ class Rex_Feed_Template_Pinterest extends Rex_Feed_Abstract_Template {
 				'shipping_width'   => 'Shipping Width [shipping_width]',
 				'shipping_height'  => 'Shipping Height [shipping_height]',
 				'shipping_label'   => 'Shipping Label [shipping_label]',
-			),
-
-			'Product Combinations'                => array(
+			],
+			'Product Combinations' => [
 				'multipack' => 'Multipack [multipack]',
 				'is_bundle' => 'Is Bundle [is_bundle]',
-			),
-
-			'Adult Products'                      => array(
+			],
+			'Adult Products' => [
 				'adult' => 'Adult [adult]',
-			),
-
-			'AdWord Attributes'                   => array(
+			],
+			'AdWord Attributes' => [
 				'adwords_redirect' => 'Adwords Redirect [adwords_redirect]',
-			),
-
-			'Custom Label Attributes'             => array(
+			],
+			'Custom Label Attributes' => [
 				'custom_label_0' => 'Custom label 0 [custom_label_0]',
 				'custom_label_1' => 'Custom label 1 [custom_label_1]',
 				'custom_label_2' => 'Custom label 2 [custom_label_2]',
 				'custom_label_3' => 'Custom label 3 [custom_label_3]',
 				'custom_label_4' => 'Custom label 4 [custom_label_4]',
-			),
-
-			'Additional Attributes'               => array(
+			],
+			'Additional Attributes' => [
 				'excluded_destination' => 'Excluded Destination [excluded_destination]',
 				"included_destination" => "Included Destination[included_destination]",
 				'expiration_date'      => 'Expiration Date [expiration_date]',
-			),
-
-			'Unit Prices (EU Countries and Switzerland Only)' => array(
+			],
+			'Unit Prices (EU Countries and Switzerland Only)' => [
 				'unit_pricing_measure'      => 'Unit Pricing Measure [unit_pricing_measure]',
 				'unit_pricing_base_measure' => 'Unit Pricing Base Measure [unit_pricing_base_measure]',
-			),
-
-			'Energy Labels'                       => array(
+			],
+			'Energy Labels' => [
 				'energy_efficiency_class' => 'Energy Efficiency Class [energy_efficiency_class]',
-			),
-
-			'Loyalty Points (Japan Only)'         => array(
+			],
+			'Loyalty Points (Japan Only)' => [
 				'loyalty_points' => 'loyalty_points [loyalty_points]',
-			),
-
-			'Multiple Installments (Brazil Only)' => array(
+			],
+			'Multiple Installments (Brazil Only)' => [
 				'installment' => 'Installment [installment]',
-			),
-
-			'Merchant Promotions Attribute'       => array(
+			],
+			'Merchant Promotions Attribute' => [
 				'promotion_id' => 'Promotion Id [promotion_id]',
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -152,8 +139,8 @@ class Rex_Feed_Template_Pinterest extends Rex_Feed_Abstract_Template {
 	 * @return void
 	 */
 	protected function init_default_template_mappings() {
-		$this->template_mappings = array(
-			array(
+		$this->template_mappings = [
+			[
 				'attr'     => 'id',
 				'type'     => 'meta',
 				'meta_key' => 'id',
@@ -162,8 +149,8 @@ class Rex_Feed_Template_Pinterest extends Rex_Feed_Abstract_Template {
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-			array(
+			],
+			[
 				'attr'     => 'title',
 				'type'     => 'meta',
 				'meta_key' => 'title',
@@ -172,18 +159,18 @@ class Rex_Feed_Template_Pinterest extends Rex_Feed_Abstract_Template {
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-			array(
+			],
+			[
 				'attr'     => 'description',
 				'type'     => 'meta',
 				'meta_key' => 'description',
 				'st_value' => '',
 				'prefix'   => '',
 				'suffix'   => '',
-				'escape'   => array( 'remove_tab', 'strip_tags', 'remove_shortcodes' ),
+				'escape'   => [ 'remove_tab', 'strip_tags', 'remove_shortcodes' ],
 				'limit'    => 0,
-			),
-			array(
+			],
+			[
 				'attr'     => 'link',
 				'type'     => 'meta',
 				'meta_key' => 'link',
@@ -192,8 +179,8 @@ class Rex_Feed_Template_Pinterest extends Rex_Feed_Abstract_Template {
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-			array(
+			],
+			[
 				'attr'     => 'image_link',
 				'type'     => 'meta',
 				'meta_key' => 'featured_image',
@@ -202,8 +189,8 @@ class Rex_Feed_Template_Pinterest extends Rex_Feed_Abstract_Template {
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-			array(
+			],
+			[
 				'attr'     => 'price',
 				'type'     => 'meta',
 				'meta_key' => 'price',
@@ -212,8 +199,8 @@ class Rex_Feed_Template_Pinterest extends Rex_Feed_Abstract_Template {
 				'suffix'   => ' ' . get_option( 'woocommerce_currency' ),
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-			array(
+			],
+			[
 				'attr'     => 'availability',
 				'type'     => 'meta',
 				'meta_key' => 'availability_underscore',
@@ -222,7 +209,7 @@ class Rex_Feed_Template_Pinterest extends Rex_Feed_Abstract_Template {
 				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
-			),
-		);
+			],
+		];
 	}
 }
