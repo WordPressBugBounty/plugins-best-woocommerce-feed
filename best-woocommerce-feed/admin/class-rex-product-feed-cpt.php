@@ -167,8 +167,10 @@ class Rex_Product_CPT {
 				echo '<a class="button rex-feed-update-single-feed" data-feed-id="' . $post_id . '" ' . $disabled . '>' . __( 'Update', 'rex-product-feed' ) .  '</a> ';
 				break;
 			case 'view_feed':
-				$url = get_post_meta( $post_id, '_rex_feed_xml_file', true ) ?: get_post_meta( $post_id, 'rex_feed_xml_file', true );
-				$url = esc_url( $url );
+				$feed_status = get_post_status( $post_id );
+				$disabled    = 'draft' === $feed_status ? 'disabled="disabled" style="pointer-events: none;"' : '';
+				$url         = get_post_meta( $post_id, '_rex_feed_xml_file', true ) ?: get_post_meta( $post_id, 'rex_feed_xml_file', true );
+				$url         = esc_url( $url );
 				echo '<a target="_blank" class="button" href="' . esc_url( $url ) . '" ' . $disabled . '>' . __( 'View', 'rex-product-feed' ) . '</a> ';
 				echo '<a target="_blank" class="button" href="' . esc_url( $url ) . '" ' . $disabled . ' download>' . __( 'Download', 'rex-product-feed' ) . '</a>';
 				break;

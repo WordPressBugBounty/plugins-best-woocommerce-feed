@@ -340,12 +340,14 @@ class Rex_Product_Feed_Shipping {
 					else {
 						$class_rate = !empty( $shipping_rates[ 'no_class_cost' ] ) ? $shipping_rates[ 'no_class_cost' ] : 0;
 					}
-					$shipping_costs[] = !empty( $rate ) && is_numeric( $rate ) && is_numeric( $class_rate ) ? $rate + $class_rate : $class_rate;
+					$rate             = ! empty( $rate ) ? (float) str_replace( ',', '.', $rate ) : 0;
+					$class_rate       = ! empty( $class_rate ) ? (float) str_replace( ',', '.', $class_rate ) : 0;
+					$shipping_costs[] = $rate + $class_rate;
 				}
 			}
 		}
-
-		return !empty( $shipping_costs ) ? $min_cost ? min( $shipping_costs ) : max( $shipping_costs ) : '';
+		$cost = !empty( $shipping_costs ) ? $min_cost ? min( $shipping_costs ) : max( $shipping_costs ) : '';
+		return !empty( $cost ) || 0 === $cost ? wc_format_decimal( $cost, wc_get_price_decimals() ) : '';
 	}
 
     /**

@@ -6,7 +6,7 @@ Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, 
 Requires at least: 5.0
 Tested up to:  6.6
 Requires PHP: 7.4
-Stable tag:  7.4.26
+Stable tag:  7.4.27
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -491,6 +491,14 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 
 == Changelog ==
+
+= 7.4.27 (2025-01-03) =
+* Added: ShareASale Merchant Support
+* Added: Webmarchand Shopping Feed template
+* Added: Bestlist.nl Feed template
+* Added: Comapri Feed template
+* Added: Kogan Feed template
+* Enhancement: Update pricing on setup wizard
 
 = 7.4.26 (2024-12-19) =
 * Added: Compatibility with `CURCY – Multi Currency for WooCommerce` plugin

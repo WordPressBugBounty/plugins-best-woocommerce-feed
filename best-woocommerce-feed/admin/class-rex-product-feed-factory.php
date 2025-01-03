@@ -228,6 +228,15 @@ class Rex_Product_Feed_Factory {
 			'connexity',
 			'drm',
 			'bing_local_inventory',
+			'compari',
+			'bestlistnl',
+			'shopee',
+			'shareasale',
+			'kogan',
+			'catch',
+			'kogan',
+			'profit_share',
+			'webmarchand',
 		] );
 		self::$google_format = [
 			'google',

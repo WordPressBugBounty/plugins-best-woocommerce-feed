@@ -622,17 +622,22 @@ if ( ! function_exists( 'wpfm_get_abandoned_child' ) ) {
 			$product_info = Rex_Product_Feed_Ajax::get_product_number( array() );
 			$total_batch  = $product_info[ 'total_batch' ];
 			$per_batch    = get_option( 'rex-wpfm-product-per-batch', $per_batch );
+            $post_status  = [ 'draft' ];
+            if ( 'no' === get_option( 'wpfm_allow_private', 'no' ) ) {
+                $post_status[] = 'private';
+            }
 
             $query = 'SELECT child.ID FROM %1s AS child ';
             $query .= 'JOIN %1s AS parent ';
             $query .= 'ON child.post_parent = parent.ID ';
             $query .= 'WHERE child.post_type = %s ';
             $query .= 'AND parent.post_type = %s ';
-            $query .= 'AND parent.post_status = %s';
+            $query .= 'AND parent.post_status IN(';
+            $query .= implode( ', ', array_fill(0, count($post_status), '%s') ) . ')';
 
             global $wpdb;
-            $query = $wpdb->prepare( $query, $wpdb->posts, $wpdb->posts, 'product_variation', 'product', 'draft' );
-            $child_ids = $wpdb->get_col( $query );
+            $query = $wpdb->prepare( $query, $wpdb->posts, $wpdb->posts, 'product_variation', 'product', ...$post_status );
+			$child_ids = $wpdb->get_col( $query );
 		}
 
 		$args = array(

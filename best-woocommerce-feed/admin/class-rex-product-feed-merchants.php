@@ -984,7 +984,7 @@ class Rex_Feed_Merchants {
 			'shopee'                          => array(
 				'free'    => true,
 				'name'    => 'Shopee',
-				'formats' => array( 'csv' ),
+				'formats' => array( 'xml', 'csv' ),
 			),
 			'gulog_gratis'                    => array(
 				'free'    => true,
@@ -1045,6 +1045,41 @@ class Rex_Feed_Merchants {
 				'free'    => true,
 				'name'    => 'Rozetka',
 				'formats' => array( 'xml' ),
+			),
+            'shareasale'  => array(
+                'free'    => true,
+                'name'    => 'Shareasale',
+                'formats' => array( 'csv' ),
+            ),
+            'kogan'     => array(
+                'free'    => true,
+                'name'    => 'Kogan',
+                'formats' => array( 'xml' ),
+            ),
+            'catch'                         => array(
+                'free'    => true,
+                'name'    => 'Catch',
+                'formats' => array( 'xml', 'csv', 'text' ),
+            ),
+            'compari'                         => array(
+                'free'    => true,
+                'name'    => 'Compari',
+                'formats' => array( 'xml', 'csv', 'text' ),
+            ),
+			'bestlistnl'                         => array(
+				'free'    => true,
+				'name'    => 'Bestlist.nl',
+				'formats' => array( 'xml', 'csv' ),
+			),
+			'profit_share'                         => array(
+				'free'    => true,
+				'name'    => 'Profit Share',
+				'formats' => array( 'csv' ),
+			),
+			'webmarchand'                         => array(
+				'free'    => true,
+				'name'    => 'Webmarchand',
+				'formats' => array( 'xml', 'csv', 'tsv' ),
 			),
 		);
 

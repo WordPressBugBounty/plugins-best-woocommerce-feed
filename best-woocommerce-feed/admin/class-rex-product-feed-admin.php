@@ -477,6 +477,8 @@ class Rex_Product_Feed_Admin {
             10
         );
 
+	    add_submenu_page( 'edit.php?post_type=product-feed', __( 'Request a Feature', 'rex-product-feed' ), '<span id="rex-feed-support-submenu">' . __( 'Request a Feature', 'rex-product-feed' ) . '</span>', 'manage_woocommerce', esc_url( 'https://app.loopedin.io/product-feed-manager-for-woocommerce' ) );
+
 	    $this->setup_wizard_hook_suffix = add_submenu_page(
 		    '',
 		    esc_html__( 'Google Merchant Product Diagnostics', 'rex-product-feed' ),

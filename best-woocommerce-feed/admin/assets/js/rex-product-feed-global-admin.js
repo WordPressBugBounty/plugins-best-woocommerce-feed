@@ -249,7 +249,8 @@
 
     $(document).on( 'click', '.rex-feed-gmc-diagnostics-report-popup__close-btn', () => {
         $(".rex-feed-gmc-diagnostics-report-popup").fadeOut();
-    } )
+    } )  
+      
 })(jQuery);
 
 
