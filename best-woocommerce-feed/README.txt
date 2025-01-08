@@ -6,7 +6,7 @@ Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, 
 Requires at least: 5.0
 Tested up to:  6.6
 Requires PHP: 7.4
-Stable tag:  7.4.27
+Stable tag:  7.4.28
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -492,7 +492,10 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 == Changelog ==
 
-= 7.4.27 (2025-01-03) =
+= 7.4.28 (2025-01-07) =
+* Enhancement: Update pricing on setup wizard
+
+= 7.4.27 (2025-01-02) =
 * Added: ShareASale Merchant Support
 * Added: Webmarchand Shopping Feed template
 * Added: Bestlist.nl Feed template
