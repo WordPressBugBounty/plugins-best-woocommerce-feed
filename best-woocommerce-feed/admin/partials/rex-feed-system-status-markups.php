@@ -82,5 +82,5 @@ $system_status = Rex_Feed_System_Status::get_all_system_status();
 
 	</div>
 
-    <textarea name="" id="rex-feed-system-status-area" style="visibility: hidden; margin-top: 10px" cols="100" rows="30"><?php echo Rex_Feed_System_Status::get_system_status_text(); //phpcs:ignore?></textarea>
+    <textarea name="" id="rex-feed-system-status-area" style="display: none; margin-top: 10px" cols="100" rows="30"><?php echo Rex_Feed_System_Status::get_system_status_text(); //phpcs:ignore?></textarea>
 </div>

@@ -3,7 +3,7 @@
         'name' => 'rextheme/best-woocommerce-feed',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'da2e9b9f97dffef6096970de7525b90e0d1dcb4c',
+        'reference' => 'a4b61b102c4fc65a02200655c698656a2af37f4e',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -31,7 +31,7 @@
         'rextheme/best-woocommerce-feed' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'da2e9b9f97dffef6096970de7525b90e0d1dcb4c',
+            'reference' => 'a4b61b102c4fc65a02200655c698656a2af37f4e',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

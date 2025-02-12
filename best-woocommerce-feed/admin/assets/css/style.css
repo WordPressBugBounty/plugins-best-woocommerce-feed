@@ -2,11 +2,6 @@
 /*--------transition property-------*/
 /*--------transform property-------*/
 /*---------------------------*/
-body,
-html {
-  height: auto;
-}
-
 body.post-type-product-feed,
 body.product-feed_page_wpfm_dashboard,
 body.product-feed_page_merchant_settings,
@@ -1264,7 +1259,7 @@ a,
   font-size: 20px;
 }
 .wpfm-setup-wizard__container .setup-wizard__inner-container .setup-wizard__features-section-container .setup-wizard__pro-features-section-container .setup-wizard__pro-features-price .setup-wizard__discount-price-label::before {
-  content: "Save 20%";
+  content: "Save 15%";
   position: absolute;
   background: #00b4ff;
   border-radius: 16px 16px 16px 0;
@@ -2764,7 +2759,7 @@ a,
   font-size: 16px;
 }
 .rex-premium-feature__discount-price-label:before {
-  content: "Save 20%";
+  content: "Save 15%";
   position: absolute;
   background: #00b4ff;
   border-radius: 16px 16px 16px 0;
@@ -3344,6 +3339,10 @@ a,
 }
 .merchant-settings button.btn.rex-reset-btn i {
   transform: rotateY(180deg);
+}
+
+body.product-feed_page_wpfm_dashboard {
+  background: #E0E8F4 !important;
 }
 
 .product-feed_page_wpfm_dashboard div#wpcontent {
@@ -4150,6 +4149,10 @@ a,
 }
 .rex-onboarding .rex-system-status__button svg {
   margin-right: 10px;
+}
+.rex-onboarding .rex-system-status__button.error {
+  background-color: #fff;
+  color: #ff0000;
 }
 .rex-onboarding .rex-system-status__content {
   display: grid;
@@ -5044,6 +5047,16 @@ body.post-type-product-feed.shepherd-active .shepherd-button:hover {
   background-color: #eef4ff;
   border: 1px solid #b0cdff;
   color: #333333;
+}
+@media (max-width: 1500px) {
+  body.post-type-product-feed.shepherd-active .rex-feed-shepherd-container {
+    left: -50px !important;
+  }
+}
+@media (max-width: 1280px) {
+  body.post-type-product-feed.shepherd-active .rex-feed-shepherd-container {
+    left: -75px !important;
+  }
 }
 body.post-type-product-feed.shepherd-active .shepherd-element.shepherd-theme-arrows-plain-buttons.shepherd-element-attached-top.shepherd-element-attached-center .shepherd-content {
   margin-top: 20px;
@@ -6534,6 +6547,9 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
     grid-template-columns: 1fr 1fr 1fr;
     padding: 20px;
     grid-gap: 20px;
+  }
+  #rex_feed_config_heading #config-table thead tr th .table-action {
+    right: 76px;
   }
   #rex_feed_conf .rex_feed_config_div {
     grid-template-columns: auto;
@@ -8945,7 +8961,6 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
   font-family: "Roboto", sans-serif;
   font-style: normal;
   padding: 5px 24px 5px 14px;
-  background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23666%22%2F%3E%3C%2Fsvg%3E) no-repeat right 10px top 55%;
   box-shadow: 0 1px 1px rgba(19, 44, 88, 0.12);
   border-radius: 6px;
   text-overflow: ellipsis;

@@ -169,7 +169,7 @@
             },
             merchant_name_type: {
                 title: window?.rexOnboardingJs?.merchant_name_type?.title ?? 'Select Merchant And Feed Type',
-                desc: window?.rexOnboardingJs?.merchant_name_type?.desc ?? 'Here, you can change the merchant/marketplace and choose the file type when the product feed is generated.',
+                desc: window?.rexOnboardingJs?.merchant_name_type?.desc ?? 'Here, you can change the merchant/marketplace and choose the file type when the product feed is generated. Please select Feed Merchant to move forward.',
                 attach_element: '.post-type-product-feed #rex_feed_conf',
                 attach_element_on: 'top',
                 next_button: next_button,

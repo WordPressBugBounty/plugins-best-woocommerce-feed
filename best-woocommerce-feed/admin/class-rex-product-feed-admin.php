@@ -318,7 +318,7 @@ class Rex_Product_Feed_Admin {
                         ],
                         'merchant_name_type' => [
                             'title' => __( 'Select Merchant And Feed Type', 'rex-product-feed' ),
-                            'desc'  => __( 'Here, you can change the merchant/marketplace and choose the file type when the product feed is generated.', 'rex-product-feed' ),
+                            'desc'  => __( 'Here, you can change the merchant/marketplace and choose the file type when the product feed is generated. Please select Feed Merchant to move forward.', 'rex-product-feed' ),
                         ],
                         'config_table' => [
                             'title' => __( 'Feed Attributes & Product Data Mapping', 'rex-product-feed' ),

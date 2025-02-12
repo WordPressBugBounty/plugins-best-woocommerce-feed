@@ -2102,21 +2102,60 @@
         return feed_id;
     }
 
-    function rex_feed_copy_system_status(event) {
+    /**
+     * Copies system status to clipboard with visual feedback
+     * @param {Event} event - Click event object
+     * @returns {Promise<void>}
+     */
+    async function rex_feed_copy_system_status(event) {
         event.preventDefault();
 
-        let button = $("#rex-feed-system-status-copy-btn");
-        let status_area = $("#rex-feed-system-status-area");
+        const button = $("#rex-feed-system-status-copy-btn");
+        const status_area = $("#rex-feed-system-status-area");
+        
+        try {
+            // Show status area if hidden
+            status_area.css("display", "block");
+            
+            // Try modern Clipboard API first
+            if (navigator.clipboard && window.isSecureContext) {
+                const text = status_area.val() || status_area.text();
+              
+                await navigator.clipboard.writeText(text);
+            } else {
+                // Fallback for older browsers
+                status_area.select();
+                const success = document.execCommand("copy");
+                if (!success) {
+                    throw new Error("Copy command failed");
+                }
+            }
 
-        button.text("Copied!");
-        status_area.css("visibility", "visible");
-        status_area.select();
-        document.execCommand("copy");
+            // Visual feedback on success
+            button.text("Copied!");
+            button.addClass("success");
+            
+        } catch (err) {
+            // Error handling
+            console.error("Failed to copy text:", err);
+          
+            button.addClass("error");
+            button.text("Failed to Copy");
 
-        setTimeout(function () {
-            button.text("Copy Status");
-            status_area.css("visibility", "hidden");
-        }, 2000);
+            setTimeout(() => {
+                button.text("Copy System Status");
+                button.removeClass("success error");
+                status_area.css("display", "none");
+            },1000);
+            
+        } finally {
+            // Reset button and hide status area
+            setTimeout(() => {
+                button.text("Copy System Status");
+                button.removeClass("success error");
+                status_area.css("display", "none");
+            }, 1000);
+        }
     }
 
     /**

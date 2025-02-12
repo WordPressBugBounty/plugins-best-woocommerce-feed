@@ -654,7 +654,7 @@ if ( $is_premium_activated ) {
 				foreach ( $wpfm_logs as $key => $value ) {
 					echo '<option value="' . esc_attr( $value ) . '">' . esc_html( $value ) . '</option>';
 				}
-				echo '<select>';
+				echo '</select>';
 				echo '<button type="submit">' . esc_html__( 'View log', 'rex-product-feed' ) . '</button>';
 				echo '</form>';
 

@@ -876,6 +876,8 @@ class Rex_Product_Data_Retriever {
 					$author_id = get_post_field( 'post_author', $this->product->get_id() );
 				}
 				return get_author_posts_url( $author_id );
+            case 'product_brand':
+                return $this->get_pfm_woocommerce_product_brand($this->product);
 
 			default:
 				return '';
@@ -3153,4 +3155,58 @@ class Rex_Product_Data_Retriever {
         }
         return $brnd;
     }
+
+    /**
+     * Retrieves the WooCommerce product brand for a given product.
+     *
+     * This function checks if the product is a variation or grouped product and retrieves the brand names accordingly.
+     * If the product is a grouped product, it retrieves the brand names for all child products.
+     *
+     * @param WC_Product|int $product The product object or product ID.
+     * @return string The concatenated brand names.
+     * @since 7.4.29
+     */
+    protected function get_pfm_woocommerce_product_brand($product) {
+        if (!$product) {
+            return '';
+        }
+
+        if (!is_a($product, 'WC_Product')) {
+            $product = wc_get_product($product);
+        }
+
+        $product_id = $product->get_id();
+
+        if ($product->is_type('variation')) {
+            $product_id = $product->get_parent_id();
+        }
+
+        $brand_names = [];
+
+        if ($product->is_type('grouped')) {
+            $child_ids = $product->get_children();
+
+            $grouped_brands = wp_get_post_terms($product_id, 'product_brand', array('fields' => 'names'));
+
+            if (!empty($grouped_brands)) {
+                $brand_names = array_merge($brand_names, $grouped_brands);
+            }
+
+            foreach ($child_ids as $child_id) {
+
+                $child_brands = wp_get_post_terms($child_id, 'product_brand', array('fields' => 'names'));
+
+                if (!empty($child_brands)) {
+                    $brand_names = array_merge($brand_names, $child_brands);
+                }
+            }
+        } else {
+            $brand_names = wp_get_post_terms($product_id, 'product_brand', array('fields' => 'names'));
+        }
+
+        $brand_names = array_unique($brand_names);
+        
+        return !empty($brand_names) ? implode(', ', $brand_names) : '';
+    }
+
 }
