@@ -46,7 +46,7 @@ class Rex_Feed_Sales_Notification_Bar
             <div class="wpfm-promo-banner__container">
                 <h2 class="wpfm-promo-banner__title" id="wpfm-promo-banner-title">
                     <a href="<?php echo esc_url($btn_link); ?>" target ="_blank" class="wpfm-promo-banner__link" aria-label="Get Special Discount">
-                        <?php echo esc_html__('Get ', 'rex-product-feed'); ?><strong class="wpfm-promo-banner__discount"><?php echo esc_html__(' 15% ', 'rex-product-feed'); ?></strong><?php echo esc_html__(' Discount On ', 'rex-product-feed'); ?><strong class="wpfm-promo-banner__discount"><?php echo esc_html('Product Feed Manager for WooCommerce Pro' ); ?></strong>
+                        <?php echo esc_html__('Get ', 'rex-product-feed'); ?><strong class="wpfm-promo-banner__discount"><?php echo esc_html__(' 25% ', 'rex-product-feed'); ?></strong><?php echo esc_html__(' Discount On ', 'rex-product-feed'); ?><strong class="wpfm-promo-banner__discount"><?php echo esc_html('Product Feed Manager for WooCommerce Pro' ); ?></strong>
                         <span class="wpfm-promo-banner__icon" aria-hidden="true">
                             <svg class="wpfm-promo-banner__svg" xmlns="http://www.w3.org/2000/svg" width="12"
                                  height="12" viewBox="0 0 12 12" fill="none">

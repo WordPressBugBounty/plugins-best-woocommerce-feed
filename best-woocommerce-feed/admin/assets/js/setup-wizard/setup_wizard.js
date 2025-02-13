@@ -410,7 +410,7 @@
                 </div>
 
                   <div class="setup-wizard__pro-features-price">
-                      <p class="setup-wizard__discount-price-label">Starting at <span style="font-weight:600; color:#216DF0;">$67.99</span>/year</p>
+                      <p class="setup-wizard__discount-price-label">Starting at <span style="font-weight:600; color:#216DF0;">$59.99</span>/year</p>
                       <p>Normally $79.99/year</p>
                   </div>
 
