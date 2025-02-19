@@ -1081,6 +1081,21 @@ class Rex_Feed_Merchants {
 				'name'    => 'Webmarchand',
 				'formats' => array( 'xml', 'csv', 'tsv' ),
 			),
+//            'google_css_center'                         => array(
+//                'free'    => true,
+//                'name'    => 'Google CSS Center',
+//                'formats' => array( 'xml'),
+//            ),
+            'temu_seller_center'                         => array(
+                'free'    => true,
+                'name'    => 'Temu Seller Center',
+                'formats' => array( 'xml', 'csv'),
+            ),
+            'mediamarkt'                         => array(
+                'free'    => true,
+                'name'    => 'MediaMarkt',
+                'formats' => array( 'xml', 'csv'),
+            ),
 		);
 
 		$merchants[ 'popular' ]        = $popular;

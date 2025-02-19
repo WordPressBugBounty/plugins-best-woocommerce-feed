@@ -7023,6 +7023,10 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
   display: block;
 }
 
+#rex_feed_product_settings .rex-contnet-setting-content-area .rex-feed-custom-time-field-area ul {
+  display: block;
+}
+
 .rex-contnet-filter__header,
 .rex-contnet-setting__header {
   position: relative;

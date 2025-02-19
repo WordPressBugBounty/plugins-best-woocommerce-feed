@@ -25,6 +25,7 @@
                 </span>
 			</label>
 
+			<div class="rex-feed-custom-time-field-area"></div>
 			<ul id="<?php echo esc_html( $this->prefix ) . 'schedule';?>">
 				<?php
 				$index = 1;

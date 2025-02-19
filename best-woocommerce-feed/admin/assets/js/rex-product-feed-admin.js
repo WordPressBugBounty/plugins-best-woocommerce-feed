@@ -385,6 +385,17 @@
     // New changes messages ENDS
 
     $(document).on("click", "#rex-feed-settings-btn", function () {
+
+        $("html").css({
+            "overflow": "hidden", // Hide main scroll
+            "height": "100%" 
+        });
+
+    
+        $("body").css({
+            "overflow": "auto" // Keep background scrolling
+        });
+
         $(".post-type-product-feed #wpcontent .clear").remove();
         $(".post-type-product-feed #wpcontent").append('<div id="body-overlay"></div>');
         $(".post-type-product-feed #wpcontent").append('<div class="clear"></div>');
@@ -402,6 +413,16 @@
     });
     
     $(document).on("click", "#rex-pr-filter-btn", function () {
+        
+        $("html").css({
+            "overflow": "hidden", // Hide main scroll
+            "height": "100%" 
+        });
+    
+        $("body").css({
+            "overflow": "auto" // Keep background scrolling
+        });
+
         $(".post-type-product-feed #wpcontent .clear").remove();
         $(".post-type-product-feed #wpcontent").append('<div id="body-overlay"></div>');
         $(".post-type-product-feed #wpcontent").append('<div class="clear"></div>');
@@ -1846,11 +1867,18 @@
     function rex_feed_manage_custom_cron_schedule_fields() {
         let selected_cron = $('input[name="rex_feed_schedule"]:checked').val();
 
-        if (selected_cron === "custom") {
-            $(".rex_feed_custom_time_fields").slideDown().children("select").select2();
-        } else {
-            $(".rex_feed_custom_time_fields").slideUp();
+        if ($('#rex_feed_custom_time').length) {
+            $('#rex_feed_custom_time').select2({
+                dropdownParent: $('.rex-feed-custom-time-field-area')
+            });
         }
+
+        if (selected_cron === "custom") {
+            $(".rex_feed_custom_time_fields").show();
+        } else {
+            $(".rex_feed_custom_time_fields").hide();
+        }
+        
 
         if ("no" === selected_cron) {
             $("input#rex_feed_update_on_product_change").prop("disabled", true);

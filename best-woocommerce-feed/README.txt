@@ -6,7 +6,7 @@ Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, 
 Requires at least: 5.0
 Tested up to:  6.6
 Requires PHP: 7.4
-Stable tag:  7.4.30
+Stable tag:  7.4.31
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -491,6 +491,11 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 
 == Changelog ==
+
+= 7.4.31 (2025-02-19) =
+* Added: MediaMarkt Feed template
+* Added: Temu Feed template
+* Fixed: Auto Update Bypasses TranslatePress Language Settings in Feed Generation
 
 = 7.4.30 (2025-02-13) =
 * Enhancement: Update pricing on the setup wizard.

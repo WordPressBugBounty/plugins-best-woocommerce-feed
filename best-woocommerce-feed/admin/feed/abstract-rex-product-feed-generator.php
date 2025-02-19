@@ -512,7 +512,7 @@ abstract class Rex_Product_Feed_Abstract_Generator
             $this->hotline_firm_name       = !empty( $config[ 'hotline_firm_name' ] ) ? $config[ 'hotline_firm_name' ] : '';
             $this->hotline_exch_rate       = !empty( $config[ 'hotline_exch_rate' ] ) ? $config[ 'hotline_exch_rate' ] : '';
             $this->is_google_content_api   = !empty( $config[ 'is_google_content_api' ] ) ? $config[ 'is_google_content_api' ] : false;
-	        $this->translatepress_language = !empty( $translatepress_language[ 'translatepress_language' ] ) ? $translatepress_language[ 'translatepress_language' ] : '';
+	        $this->translatepress_language = !empty( $config[ 'translatepress_language' ] ) ? $config[ 'translatepress_language' ] : '';
 	        $this->link                    = esc_url( home_url( '/' ) );
 
             if ( isset( $config[ 'custom_filter_option' ] ) && 'added' === $config[ 'custom_filter_option' ] ) {

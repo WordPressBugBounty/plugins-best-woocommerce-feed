@@ -237,6 +237,7 @@ class Rex_Product_Feed_Factory {
 			'kogan',
 			'profit_share',
 			'webmarchand',
+            'mediamarkt',
 		] );
 		self::$google_format = [
 			'google',
@@ -261,6 +262,8 @@ class Rex_Product_Feed_Factory {
 			'snapchat',
 			'twitter',
 			'bing',
+            'google_css_center',
+            'temu_seller_center',
 		];
 		self::$bestprice_format = [ 'Bestprice' ];
 		self::$mirakl_format = [ 'mirakl' ];

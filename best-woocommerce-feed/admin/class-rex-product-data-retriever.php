@@ -182,6 +182,12 @@ class Rex_Product_Data_Retriever {
      */
     public $woocs_currency = '';
 
+    /**
+     * @var string TranslatePress language.
+     * @since 7.4.30
+     */
+    public $translatepress_language = '';
+
 	/**
 	 * Initialize the class and set its properties
 	 * Rex_Product_Data_Retriever constructor
@@ -212,6 +218,7 @@ class Rex_Product_Data_Retriever {
 		$this->feed_format        = $feed->get_feed_format();
 		$this->feed_country       = $feed->get_shipping();
 		$this->feed_zip_codes     = $feed->get_zip_code();
+        $this->translatepress_language = $feed->translatepress_language ?? '';
 
 		$log = wc_get_logger();
 		if ( $this->is_logging_enabled ) {
