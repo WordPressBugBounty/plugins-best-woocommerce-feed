@@ -7500,6 +7500,45 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
   color: #333333;
 }
 
+#rex-feed-settings-save-changes,
+#rex-feed-product-filter-save-changes {
+  padding: 20px 30px 0px;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+#rex-feed-settings-save-changes button,
+#rex-feed-product-filter-save-changes button {
+  display: block;
+  padding: 16px 16px 16px 17px;
+  height: 44px;
+  cursor: pointer;
+  position: relative;
+  font-family: "Roboto";
+  font-style: normal;
+  font-size: 15px;
+  font-weight: 400;
+  border-radius: 10px;
+  border: none;
+  line-height: 10px;
+  background: #216DF0;
+  color: #fff;
+  letter-spacing: 0.2px;
+  transition: all 0.5s ease-in-out;
+}
+#rex-feed-settings-save-changes button:hover,
+#rex-feed-product-filter-save-changes button:hover {
+  background: #FFFFFF;
+  box-shadow: 0px 1px 1px rgba(19, 44, 88, 0.12);
+  border-radius: 10px;
+  color: #3c3c3c;
+  cursor: pointer;
+}
+
+#rex-feed-settings-save-changes {
+  padding: 0px;
+}
+
 #rex-feed-config-rules,
 #rex-feed-config-filter {
   padding: 30px 30px 20px;

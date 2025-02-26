@@ -4,9 +4,9 @@ Contributors: rextheme, coderexltd, coderexco
 Donate link: https://rextheme.com/best-WooCommerce-product-feed/
 Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, product feed, google feed, google merchant, product feed, google shopping feed, facebook feed, facebook product feed, woocommerce product feed manager, XML feed, google local products inventory, Instagram Feed, eBay MIP, woocommerce xml feed, CSV feed, marktplaats, feed generator wordpress, produktfeed, bing shopping, yml, YML for Yandex Market, woocommerce google product feed, facebook pixel, pinterest feed, tiktok feed, Google Remarketing Pixel, twitter ads, woocommerce google shopping, Instagram product feed
 Requires at least: 5.0
-Tested up to:  6.6
+Tested up to:  6.7.1
 Requires PHP: 7.4
-Stable tag:  7.4.31
+Stable tag:  7.4.32
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,7 +37,7 @@ Use our pre-defined merchant templates to generate flawless feeds for popular me
 -  **<a target="_blank" href="https://rextheme.com/best-woocommerce-product-feed/online-merchants/?utm_source=PFM-repo-cta&utm_medium=PFM-repo&utm_campaign=repo_to_merchant">And 180+ More!</a>**
 
 
-<h4><a href="https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=repo-CTA&utm_medium=PFM-repo&utm_campaign=PFM-repo-to-pricing" target="_blank">🔥 Get Product Feed Manager for WooCommerce - Pro at a 25% Discount Today! 🔥</a> </h4>
+<h4><a href="https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=repo-CTA&utm_medium=PFM-repo&utm_campaign=PFM-repo-to-pricing" target="_blank">🔥 Get Product Feed Manager for WooCommerce - Pro at a 15% Discount Today! 🔥</a> </h4>
 
 
 == 🌟 Why Use Product Feed Manager for WooCommerce? 🌟 ==
@@ -67,7 +67,7 @@ Use features such as **Category mapping, Custom fields, Product filters, Google 
 
 Product Feed Manager for WooCommerce is considered the easiest and the most effective Product Feed Management plugin to generate WooCommerce Google Shopping Feed and facebook product feed.
 
-You will get everything you need that is required by Google merchant feed (Google Shopping Feed) and Facebook Catalog Feed including:
+You will get everything you need that is required by Google merchant feed (Google Shopping Feed) and Facebook Feed including:
 
 - Custom Fields for Unique Identifiers
 - Advanced Category Mapping
@@ -492,23 +492,31 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 == Changelog ==
 
+= 7.4.32 (2025-02-26) =
+* Improvement: Added "Save Changes" button to Settings modal
+* Improvement: Added "Save Changes" button to Product Filter modal
+* Fix: Background scrolling issue in the feed settings drawer
+* Enhancement: Update pricing on the setup wizard
+
+
 = 7.4.31 (2025-02-19) =
 * Added: MediaMarkt Feed template
 * Added: Temu Feed template
 * Fixed: Auto Update Bypasses TranslatePress Language Settings in Feed Generation
+* Fixed: Guided tour button issue
 
 = 7.4.30 (2025-02-13) =
-* Enhancement: Update pricing on the setup wizard.
+* Enhancement: Update pricing on the setup wizard
 
 = 7.4.29 (2025-02-12) =
-* Enhancement: Update pricing on the setup wizard.
-* Fixed: Fix WooCommerce brand support issue.
-* Fixed: Dropdown icon issue in the feed settings drawer.
-* Fixed: Log tab settings page UI issue.
-* Fixed: Incorrect <select> tag parsing issue.
-* Fixed: System status page design issue.
-* Added: ProfitShare Merchant support.
-* Fixed: Hide view and download buttons for draft feeds.
+* Enhancement: Update pricing on the setup wizard
+* Fixed: Fix WooCommerce brand support issue
+* Fixed: Dropdown icon issue in the feed settings drawer
+* Fixed: Log tab settings page UI issue
+* Fixed: Incorrect <select> tag parsing issue
+* Fixed: System status page design issue
+* Added: ProfitShare Merchant support
+* Fixed: Hide view and download buttons for draft feeds
 
 = 7.4.28 (2025-01-07) =
 * Enhancement: Update pricing on setup wizard

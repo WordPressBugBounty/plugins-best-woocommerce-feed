@@ -242,6 +242,8 @@ class Rex_Product_Metabox
         if ( wpfm_pro_compatibility() ) {
             do_action( 'wpfm_product_filter_fields', $this->prefix );
         }
+
+        include_once plugin_dir_path( __FILE__ ) . 'partials/rex-product-feed-save-changes.php';
     }
 
 

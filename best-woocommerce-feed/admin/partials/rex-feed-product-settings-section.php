@@ -520,7 +520,7 @@
 
 			<?php } ?>
 
-<!--            TranslatePress start here -->
+	         <!-- TranslatePress start here -->
             <?php
             if ( wpfm_is_translatePress_active() ) {
                 $translatePress_languages = trp_get_languages();
@@ -547,9 +547,9 @@
 
             <?php } ?>
 
-<!--            TranslatePress end here-->
+			<!-- TranslatePress end here-->
 
-            <!--            CURCY start here -->
+            <!-- CURCY start here -->
             <?php
             if ( wpfm_is_curcy_active() ) {
                 $currencies = array();
@@ -592,7 +592,7 @@
 
             <?php } ?>
 
-            <!--            CURCY end here-->
+            <!-- CURCY end here-->
 
             <!-- Multi-currency by WOOCS -->
             <?php
@@ -732,6 +732,13 @@
 				echo '</li>';
 				?>
 			</ul>
+		</div>
+
+		<div id="rex-feed-settings-save-changes" role="dialog" aria-labelledby="rex-feed-save-title">
+			<button id="rex_feed_settings_modal_close_btn" 
+				aria-label="<?php esc_attr_e('Save Changes', 'rex-product-feed'); ?>">
+				<?php echo __('Save Changes', 'rex-product-feed'); ?>
+			</button>
 		</div>
 	</div>
 </div>
