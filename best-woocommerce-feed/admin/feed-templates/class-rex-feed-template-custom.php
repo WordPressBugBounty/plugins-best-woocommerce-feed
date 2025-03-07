@@ -133,6 +133,12 @@ class Rex_Feed_Template_Custom extends Rex_Feed_Abstract_Template {
 				'promotion_id' => 'Promotion Id [promotion_id]',
 			),
 		);
+
+        for ( $i = 1; $i <= 10; $i++ ) {
+            $this->attributes[ 'Params [param]' ][ "param_value_$i" ] = "Parameter Value {$i}";
+            $this->attributes[ 'Params [param]' ][ "param_name_$i" ] = "Parameter Name {$i}";
+        }
+
 	}
 
 	/**

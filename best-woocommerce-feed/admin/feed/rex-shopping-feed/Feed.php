@@ -101,6 +101,8 @@ class Feed
 
     protected $stand_alone = false;
 
+    protected $paramNode = null;
+
     /**
      * Feed constructor
      */
@@ -236,43 +238,63 @@ class Feed
     {
         foreach ($this->items as $item) {
             /** @var SimpleXMLElement $feedItemNode */
-            if ( $this->channelName && !empty($this->channelName) ) {
+            if ($this->channelName && !empty($this->channelName)) {
                 $feedItemNode = $this->feed->{$this->channelName}->addChild($this->itemlName);
-            }
-            else {
+            } else {
                 $feedItemNode = $this->feed->addChild($this->itemlName);
             }
+
+            $paramNodes = []; // Temporary array to store param name-value pairs
 
             foreach ($item->nodes() as $itemNode) {
                 if (is_array($itemNode)) {
                     foreach ($itemNode as $node) {
                         $feedItemNode->addChild(str_replace(' ', '_', $node->get('name')), $node->get('value'), $node->get('_namespace'));
                     }
-                }
-                else {
+                } elseif (str_starts_with($itemNode->get('name'), 'param_value_')) {
+                    $paramIndex = str_replace('param_value_', '', $itemNode->get('name'));
+                    if (!empty($itemNode->get('value'))) {
+                        $paramNodes[$paramIndex]['value'] = $itemNode->get('value');
+                    }
+                } elseif (str_starts_with($itemNode->get('name'), 'param_name_')) {
+                    $paramIndex = str_replace('param_name_', '', $itemNode->get('name'));
+                    if (!empty($itemNode->get('value'))) {
+                        $paramNodes[$paramIndex]['name'] = $itemNode->get('value');
+                    }
+                } else {
                     // For Skroutz feed template Variation attributes.
-                    if( 'variations' === $itemNode->get( 'name' ) ) {
-                        $variations = $itemNode->get( 'value' );
-                        if( is_array( $variations ) && !empty( $variations ) ) {
-                            $variationsItemNode = $feedItemNode->addChild( 'variations' );
-                            foreach( $variations as $attributes ) {
-                                $variationItemNode = $variationsItemNode->addChild( 'variation' );
-                                foreach( $attributes as $key => $value ) {
-                                    if( 'id' === $key ) {
+                    if ('variations' === $itemNode->get('name')) {
+                        $variations = $itemNode->get('value');
+                        if (is_array($variations) && !empty($variations)) {
+                            $variationsItemNode = $feedItemNode->addChild('variations');
+                            foreach ($variations as $attributes) {
+                                $variationItemNode = $variationsItemNode->addChild('variation');
+                                foreach ($attributes as $key => $value) {
+                                    if ('id' === $key) {
                                         $key = 'variationid';
                                     }
-                                    $variationItemNode->addChild( $key, htmlspecialchars( $value ) );
+                                    $variationItemNode->addChild($key, htmlspecialchars($value));
                                 }
                             }
                         }
+                    } else {
+                        $feedItemNode->addChild($itemNode->get('name'), htmlspecialchars($itemNode->get('value')), $itemNode->get('_namespace'));
                     }
-                    else {
-                        $feedItemNode->addChild( $itemNode->get( 'name' ), htmlspecialchars( $itemNode->get( 'value' ) ), $itemNode->get('_namespace') );
+                }
+            }
+
+            // Only process paramNodes if it contains data
+            if (!empty($paramNodes)) {
+                foreach ($paramNodes as $param) {
+                    if (isset($param['name']) && isset($param['value'])) {
+                        $paramNode = $feedItemNode->addChild('param', htmlspecialchars($param['value']));
+                        $paramNode->addAttribute('name', htmlspecialchars($param['name']));
                     }
                 }
             }
         }
     }
+
 
 
     /**

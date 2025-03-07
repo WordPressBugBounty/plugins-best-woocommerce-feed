@@ -4,9 +4,9 @@ Contributors: rextheme, coderexltd, coderexco
 Donate link: https://rextheme.com/best-WooCommerce-product-feed/
 Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, product feed, google feed, google merchant, product feed, google shopping feed, facebook feed, facebook product feed, woocommerce product feed manager, XML feed, google local products inventory, Instagram Feed, eBay MIP, woocommerce xml feed, CSV feed, marktplaats, feed generator wordpress, produktfeed, bing shopping, yml, YML for Yandex Market, woocommerce google product feed, facebook pixel, pinterest feed, tiktok feed, Google Remarketing Pixel, twitter ads, woocommerce google shopping, Instagram product feed
 Requires at least: 5.0
-Tested up to:  6.7.1
+Tested up to:  6.7.2
 Requires PHP: 7.4
-Stable tag:  7.4.32
+Stable tag:  7.4.33
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -491,6 +491,9 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 
 == Changelog ==
+
+= 7.4.33 (2025-03-07) =
+* Enhancement: Custom feeds now support  Attributes
 
 = 7.4.32 (2025-02-26) =
 * Improvement: Added "Save Changes" button to Settings modal

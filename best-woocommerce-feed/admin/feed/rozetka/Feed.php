@@ -257,43 +257,55 @@ class Feed
 	/**
 	 * Adds items to feed
 	 */
-	private function addItemsToFeed()
-	{
+    private function addItemsToFeed()
+    {
         $feedItemNodes = $this->shop->addChild('offers');
-		foreach ($this->items as $item) {
-			/** @var SimpleXMLElement $feedItemNode */
+
+        foreach ($this->items as $item) {
+            /** @var SimpleXMLElement $feedItemNode */
             $feedItemNode = $feedItemNodes->addChild($this->itemlName);
 
-			foreach ($item->nodes() as $itemNode) {
-				if ( is_array( $itemNode ) ) {
-					foreach ($itemNode as $node) {
-						$feedItemNode->addChild(str_replace(' ', '_', $node->get('name')), $node->get('value'), $node->get('_namespace'));
-					}
-				}
-				else {
-                    if( $itemNode->get( 'name' ) === 'id' ) {
-                        $feedItemNode->addAttribute( $itemNode->get( 'name' ), $itemNode->get( 'value' ) );
+            $paramNodes = []; // Temporary storage for param name-value pairs
+
+            foreach ($item->nodes() as $itemNode) {
+                if (is_array($itemNode)) {
+                    foreach ($itemNode as $node) {
+                        $feedItemNode->addChild(str_replace(' ', '_', $node->get('name')), $node->get('value'), $node->get('_namespace'));
                     }
-                    elseif( $itemNode->get( 'name' ) === 'available' ) {
-                        $feedItemNode->addAttribute( $itemNode->get( 'name' ), $itemNode->get( 'value' ) );
-                    }
-                    elseif( stristr( $itemNode->get( 'name' ), 'param_value_' ) ) {
-                        if ( !empty( $itemNode->get( 'value' ) ) ) {
-                            $this->paramNode = $feedItemNode->addChild( 'param', $itemNode->get( 'value' ) );
+                } else {
+                    $nodeName = $itemNode->get('name');
+                    $nodeValue = $itemNode->get('value');
+
+                    if ($nodeName === 'id' || $nodeName === 'available') {
+                        $feedItemNode->addAttribute($nodeName, $nodeValue);
+                    } elseif (str_starts_with($nodeName, 'param_value_')) {
+                        $paramIndex = str_replace('param_value_', '', $nodeName);
+                        if (!empty($nodeValue)) {
+                            $paramNodes[$paramIndex]['value'] = $nodeValue;
                         }
-                    }
-                    elseif( stristr( $itemNode->get( 'name' ), 'param_name_' ) ) {
-                        if ( !empty( $this->paramNode ) && method_exists( $this->paramNode, 'addAttribute' ) ) {
-                            $this->paramNode->addAttribute( 'name', $itemNode->get( 'value' ) );
+                    } elseif (str_starts_with($nodeName, 'param_name_')) {
+                        $paramIndex = str_replace('param_name_', '', $nodeName);
+                        if (!empty($nodeValue)) {
+                            $paramNodes[$paramIndex]['name'] = $nodeValue;
                         }
+                    } else {
+                        $itemNode->attachNodeTo($feedItemNode);
                     }
-                    else {
-                        $itemNode->attachNodeTo( $feedItemNode );
+                }
+            }
+
+            // Only process paramNodes if it contains data
+            if (!empty($paramNodes)) {
+                foreach ($paramNodes as $param) {
+                    if (isset($param['name']) && isset($param['value'])) {
+                        $paramNode = $feedItemNode->addChild('param', htmlspecialchars($param['value']));
+                        $paramNode->addAttribute('name', htmlspecialchars($param['name']));
                     }
-				}
-			}
-		}
-	}
+                }
+            }
+        }
+    }
+
 
 
 	/**
