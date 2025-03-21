@@ -2504,7 +2504,7 @@ a,
 .rex-licenes .rex-licenes__general-area .rex-licenes__general-wrap-area .rex-licenes__top-area .rex-licenes__licensekey-area .rex-licenes__input-wrap-area .rex-licenes__input-block-area .rex-licenes__btn-field .button-secondary {
   font-size: 15px;
   font-weight: 500;
-  color: #787890;
+  color: #fff;
   display: inline-block;
   border: 1px solid #216df0;
   height: 45px;
@@ -2513,7 +2513,7 @@ a,
   text-align: center;
   border-radius: 5px;
   text-transform: capitalize;
-  background-color: transparent;
+  background-color: #216df0;
   transition: all 0.3s ease;
 }
 .rex-licenes .rex-licenes__general-area .rex-licenes__general-wrap-area .rex-licenes__top-area .rex-licenes__licensekey-area .rex-licenes__input-wrap-area .rex-licenes__input-block-area .rex-licenes__btn-field .button-secondary:hover {
