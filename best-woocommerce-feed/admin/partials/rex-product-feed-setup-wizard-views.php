@@ -48,6 +48,25 @@
 wp_enqueue_media(); // add media
 wp_print_scripts(); // window.wp
 do_action( 'admin_footer' );
+
+    $current_date = date('Y-m-d');
+    $start_date = '2025-03-24';
+    $end_date = '2025-04-07';
+    $discount_percentage = '';
+    $discount_price = '';
+    if ($current_date >= $start_date && $current_date <= $end_date) {
+        $discount_percentage = "Save 20%";
+        $discount_price = "$63.99";
+    } else {
+        $discount_percentage = "Save 15%";
+        $discount_price = "$67.99";
+    }
+
+    $setup_wizard_price = array(
+        'discount_price'        => $discount_price,
+        'discount_percentage_text' => $discount_percentage
+    );
+
 $data = array(
     'stepOne' => array(
         'step_text'           => __( "Welcome", "rex-product-feed" ),
@@ -225,6 +244,7 @@ $pro_merchant      = $all_merchants[ 'pro_merchants' ] ?? [];
 $free_merchant     = $all_merchants[ 'free_merchants' ] ?? [];
 $merged_merchants  = array_merge( $popular_merchant, $pro_merchant, $free_merchant );
 ?>
+
 <script type="text/javascript">
     const rex_wpfm_wizard_translate_string = <?php echo wp_json_encode( $data ); ?>;
     const logoUrl = <?php echo json_encode( esc_url( WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/pfm.webp' ) ); ?>;
@@ -235,8 +255,15 @@ $merged_merchants  = array_merge( $popular_merchant, $pro_merchant, $free_mercha
     const necessary_plugins = <?php echo json_encode( $necessary_plugins ); ?>;
     const popular_merchants = <?php echo json_encode( $popular_merchants ); ?>;
     const all_merchants = <?php echo json_encode( $merged_merchants ); ?>;
+    const discount_information = <?php echo wp_json_encode($setup_wizard_price)?>;
 </script>
 <script src="<?php echo WPFM_PLUGIN_ASSETS_FOLDER . 'js/setup-wizard/setup_wizard.js'; ?>'">
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var discountLabel = document.querySelector(".setup-wizard__discount-price-label");
+        if (discountLabel) discountLabel.style.setProperty("--discount-content", `"${discountLabel.getAttribute('data-discount') || ""}"`);
+    });
 </script>
 </body>
 

@@ -10,7 +10,7 @@
     let merchantName = '';
     let ytVideosLink = yt_video;
     let isToggleButtonChecked = true;
-
+    let discountPrice = discount_information;
 
 
     const prevToggle = () => {
@@ -409,8 +409,10 @@
 
                 </div>
 
+
+                
                   <div class="setup-wizard__pro-features-price">
-                      <p class="setup-wizard__discount-price-label">Starting at <span style="font-weight:600; color:#216DF0;">$67.99</span>/year</p>
+                      <p class="setup-wizard__discount-price-label" data-discount="${discountPrice?.discount_percentage_text}">Starting at <span style="font-weight:600; color:#216DF0;">${discountPrice?.discount_price}</span>/year</p>
                       <p>Normally $79.99/year</p>
                   </div>
 
@@ -824,4 +826,5 @@
             requiredTag.text('Required');
         }
     }
+
 })(jQuery);

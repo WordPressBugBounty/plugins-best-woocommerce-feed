@@ -1259,7 +1259,7 @@ a,
   font-size: 20px;
 }
 .wpfm-setup-wizard__container .setup-wizard__inner-container .setup-wizard__features-section-container .setup-wizard__pro-features-section-container .setup-wizard__pro-features-price .setup-wizard__discount-price-label::before {
-  content: "Save 15%";
+  content: var(--discount-content, "Save 15%");
   position: absolute;
   background: #00b4ff;
   border-radius: 16px 16px 16px 0;
@@ -2504,7 +2504,7 @@ a,
 .rex-licenes .rex-licenes__general-area .rex-licenes__general-wrap-area .rex-licenes__top-area .rex-licenes__licensekey-area .rex-licenes__input-wrap-area .rex-licenes__input-block-area .rex-licenes__btn-field .button-secondary {
   font-size: 15px;
   font-weight: 500;
-  color: #fff;
+  color: #ffffff;
   display: inline-block;
   border: 1px solid #216df0;
   height: 45px;
@@ -2759,7 +2759,7 @@ a,
   font-size: 16px;
 }
 .rex-premium-feature__discount-price-label:before {
-  content: "Save 15%";
+  content: var(--discount-content-value, "Save 15%");
   position: absolute;
   background: #00b4ff;
   border-radius: 16px 16px 16px 0;

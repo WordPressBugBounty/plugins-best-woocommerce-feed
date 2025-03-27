@@ -56,11 +56,22 @@
 
                     <?php
                         $price = '$79.99'; // This could be dynamic
-                        $price_discount = '$67.99'; // This could be dynamic
+                        $current_date = date('Y-m-d');
+                        $start_date = '2025-03-24';
+                        $end_date = '2025-04-07';
+                        $discount_percentage = '';
+                        $discount_price = '';
+                        if ($current_date >= $start_date && $current_date <= $end_date) {
+                            $discount_percentage = "Save 20%";
+                            $discount_price = "$63.99";
+                        } else {
+                            $discount_percentage = "Save 15%";
+                            $discount_price = "$67.99";
+                        }
                     ?>
 
                     <div class="rex-premium-feature__discount-price">
-                        <p class="rex-premium-feature__discount-price-label"><?php printf( esc_html__('Starting at %s/year', 'rex-product-feed'), '<span style= "font-weight:600; color:#0F2F72;">' . esc_html( $price_discount ) . '</span>' ); ?></p>
+                        <p class="rex-premium-feature__discount-price-label" data-discount="<?php echo $discount_percentage; ?>"><?php printf( esc_html__('Starting at %s/year', 'rex-product-feed'), '<span style= "font-weight:600; color:#0F2F72;">' . esc_html( $discount_price ) . '</span>' ); ?></p>
                         <p><?php printf( esc_html__('Normally %s/year', 'rex-product-feed'), esc_html( $price ) ); ?></p>
                     </div>
 
@@ -76,3 +87,11 @@
     </div>
 </section>
 <!-- `rex-premium-feature` block  end -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let discountLabel = document.querySelector(".rex-premium-feature__discount-price-label");
+        if (discountLabel) {
+            discountLabel.style.setProperty("--discount-content-value", `"${discountLabel.getAttribute('data-discount')}"`);
+        }
+    });
+</script>

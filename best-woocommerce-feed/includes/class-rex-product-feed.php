@@ -163,9 +163,9 @@ class Rex_Product_Feed {
 	    $scheduler              = new Rex_Feed_Scheduler();
 
         $special_banner = new Rex_Feed_Special_Occasion_Banner(
-            'christmas_deal_2024',
-		   	'2024-12-20 00:00:00',
-		   	'2025-01-05 23:59:59'
+            'eid_ul_fitr_2025',
+		   	'2025-03-24 00:00:00',
+		   	'2025-04-07 23:59:59'
         ); // Date format: YYYY-MM-DD HH:MM:SS
 
         if ( !defined( 'REX_PRODUCT_FEED_PRO_VERSION' ) && 'no' === get_option( 'rexfeed_hide_sales_notification_bar', 'no' ) ) {
