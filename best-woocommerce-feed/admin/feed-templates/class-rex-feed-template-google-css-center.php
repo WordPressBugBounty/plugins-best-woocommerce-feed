@@ -46,6 +46,7 @@ class Rex_Feed_Template_Google_css_center extends Rex_Feed_Abstract_Template {
 				'additional_image_link_9'  => 'Additional Image 9 [additional_image_link]',
 				'additional_image_link_10' => 'Additional Image 10 [additional_image_link]',
 				'condition'                => 'Condition [condition]',
+                'number_of_offers'         => 'Number of Offers [number_of_offers]',
 			),
 
 			'Availability & Price'                  => array(
@@ -286,6 +287,16 @@ class Rex_Feed_Template_Google_css_center extends Rex_Feed_Abstract_Template {
 				'escape'   => 'default',
 				'limit'    => 0,
 			),
+            array(
+                'attr'     => 'number_of_offers',
+                'type'     => 'static',
+                'meta_key' => '',
+                'st_value' => '1',
+                'prefix'   => '',
+                'suffix'   => '',
+                'escape'   => 'default',
+                'limit'    => 0,
+            ),
 		);
 	}
 }

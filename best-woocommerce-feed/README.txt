@@ -6,7 +6,7 @@ Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, 
 Requires at least: 5.0
 Tested up to:  6.7.2
 Requires PHP: 7.4
-Stable tag:  7.4.35
+Stable tag:  7.4.36
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,7 +37,7 @@ Use our pre-defined merchant templates to generate flawless feeds for popular me
 -  **<a target="_blank" href="https://rextheme.com/best-woocommerce-product-feed/online-merchants/?utm_source=PFM-repo-cta&utm_medium=PFM-repo&utm_campaign=repo_to_merchant">And 180+ More!</a>**
 
 
-<h4><a href="https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=repo-CTA&utm_medium=PFM-repo&utm_campaign=eid-ul-fitr-2025" target="_blank">🔥 Get Product Feed Manager for WooCommerce - Pro at a 20% Discount Today! 🔥</a> </h4>
+<h4><a href="https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=repo-CTA&utm_medium=PFM-repo&utm_campaign=PFM-repo-to-pricing" target="_blank">🔥 Get Product Feed Manager for WooCommerce - Pro at a 15% Discount Today! 🔥</a> </h4>
 
 
 == 🌟 Why Use Product Feed Manager for WooCommerce? 🌟 ==
@@ -491,6 +491,9 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 
 == Changelog ==
+
+= 7.4.36 (2025-04-08) =
+*Added: Google CSS Center Feed template
 
 = 7.4.35 (2025-03-27) =
 * Enhancement: Update pricing on the setup wizard
