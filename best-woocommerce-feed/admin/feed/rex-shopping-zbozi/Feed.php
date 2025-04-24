@@ -42,7 +42,7 @@ class Feed
         'CONDITION_DESC',
         'WARRANTY',
         'PRODUCTNO',
-        'item_group_id'
+        'item_group_id',
     );
 
     /**
@@ -136,6 +136,8 @@ class Feed
 
 
     protected $stand_alone = false;
+
+    public $delivery = '';
 
     /**
      * Feed constructor
@@ -273,7 +275,6 @@ class Feed
     private function addItemsToFeed()
     {
         $s_nodes = array('PARAM');
-        
         foreach ($this->items as $item) {
             /** @var SimpleXMLElement $feedItemNode */
             if ( $this->channelName && !empty($this->channelName) ) {
@@ -283,13 +284,19 @@ class Feed
             }
 
             foreach ($item->nodes() as $itemNode) {
-                if ( ! in_array($itemNode->get('name'), self::$keys ) ) {
+                if ( ! in_array($itemNode->get('name'), self::$keys ) && !stristr( $itemNode->get( 'name' ), 'Delivery_' )) {
                     $value = $itemNode->get('value');
                     $param = $feedItemNode->addChild('PARAM');
                     $param->addChild('PARAM_NAME', $itemNode->get('name'));
                     $param->addChild('VAL', $value);
-                }
-                elseif($itemNode->get('name') != 'item_group_id' && $itemNode->get('name') != 'PARAM') {
+                } elseif ( stristr( $itemNode->get( 'name' ), 'Delivery_id_' ) ) {
+                    $this->delivery = $feedItemNode->addChild( 'DELIVERY' );
+                    $this->delivery->addChild( 'DELIVERY_ID', $itemNode->get( 'value' ) );
+                } elseif ( stristr( $itemNode->get( 'name' ), 'Delivery_price_' ) && !stristr( $itemNode->get( 'name' ), 'Delivery_price_cod_' ) ) {
+                    $this->delivery->addChild( 'DELIVERY_PRICE', $itemNode->get( 'value' ) );
+                } elseif ( stristr( $itemNode->get( 'name' ), 'Delivery_price_cod_' ) ) {
+                    $this->delivery->addChild( 'DELIVERY_PRICE_COD', $itemNode->get( 'value' ) );
+                } elseif($itemNode->get('name') != 'item_group_id' && $itemNode->get('name') != 'PARAM') {
                     if (is_array($itemNode)) {
                         foreach ($itemNode as $node) {
                             $feedItemNode->addChild(str_replace(' ', '_', $node->get('name')), $node->get('value'), $node->get('_namespace'));

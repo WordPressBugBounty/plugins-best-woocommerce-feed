@@ -161,7 +161,6 @@ class Rex_Product_Feed_Zbozi extends Rex_Product_Feed_Abstract_Generator
     private function add_to_feed( $product, $meta_keys, $product_type = '' ) {
         $attributes = $this->get_product_data( $product, $meta_keys );
         $attributes = $this->process_attributes_for_param( $attributes );
-
         if( ( $this->rex_feed_skip_product && empty( array_keys($attributes, '') ) ) || !$this->rex_feed_skip_product ) {
             $item = RexShopping::createItem();
             if ( $product_type === 'variation' ) {

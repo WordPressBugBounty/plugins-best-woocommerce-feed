@@ -162,6 +162,7 @@ class Rex_Feed_Attributes {
 			'current_page'                   => 'Current Page',
 			'author_name'                    => 'Author Name',
 			'author_url'                     => 'Author URL',
+            'delivery'                       => 'Delivery Information',
 		];
 	}
 

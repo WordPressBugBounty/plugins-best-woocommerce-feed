@@ -6,7 +6,7 @@ Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, 
 Requires at least: 5.0
 Tested up to:  6.7.2
 Requires PHP: 7.4
-Stable tag:  7.4.36
+Stable tag:  7.4.37
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -492,8 +492,12 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 == Changelog ==
 
+= 7.4.37 (2025-04-24) =
+* Added: TranslatePress slug translation support
+* Enhancement: Delivery attribute support for Zbozi feed
+
 = 7.4.36 (2025-04-08) =
-*Added: Google CSS Center Feed template
+* Added: Google CSS Center Feed template
 
 = 7.4.35 (2025-03-27) =
 * Enhancement: Update pricing on the setup wizard
@@ -505,8 +509,8 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 * Enhancement: Custom feeds now support  Attributes
 
 = 7.4.32 (2025-02-26) =
-* Improvement: Added "Save Changes" button to Settings modal
-* Improvement: Added "Save Changes" button to Product Filter modal
+* Enhancement: Added "Save Changes" button to Settings modal
+* Enhancement: Added "Save Changes" button to Product Filter modal
 * Fix: Background scrolling issue in the feed settings drawer
 * Enhancement: Update pricing on the setup wizard
 

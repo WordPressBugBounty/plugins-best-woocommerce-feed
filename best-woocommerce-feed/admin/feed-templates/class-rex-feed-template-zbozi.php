@@ -66,6 +66,21 @@ class Rex_Feed_Template_Zbozi extends Rex_Feed_Abstract_Template {
 				'RELEASE_DATE'   => 'Sale Date',
 			),
 
+            'Delivery Attributes'    => [
+                'Delivery_id_1'        => 'Delivery ID 1',
+                'Delivery_price_1'     => 'Delivery Price 1',
+                'Delivery_price_cod_1' => 'Delivery Price COD 1',
+                'Delivery_id_2'        => 'Delivery ID 2',
+                'Delivery_price_2'     => 'Delivery Price 2',
+                'Delivery_price_cod_2' => 'Delivery Price COD 2',
+                'Delivery_id_3'        => 'Delivery ID 3',
+                'Delivery_price_3'     => 'Delivery Price 3',
+                'Delivery_price_cod_3' => 'Delivery Price COD 3',
+                'Delivery_id_4'        => 'Delivery ID 4',
+                'Delivery_price_4'     => 'Delivery Price 4',
+                'Delivery_price_cod_4' => 'Delivery Price COD 4'
+            ]
+
 		);
 	}
 

@@ -976,18 +976,71 @@ class Rex_Product_Feed_Actions {
         if ( wpfm_is_translatePress_active() ) {
             $trp_default_lang = rexfeed_get_trp_default_language();
             $language = $instance->feed->translatepress_language ?? $trp_default_lang;
+
             if ( $language !== $trp_default_lang ) {
-                $is_link = isset( $rule[ 'meta_key' ] ) && 'link' === $rule[ 'meta_key' ];
+                $is_link = isset( $rule['meta_key'] ) && 'link' === $rule['meta_key'];
+
                 if ( !$is_link ) {
-	                $value = trp_translate( $value, $language, false );
+                    $value = trp_translate( $value, $language, false );
                 } else {
                     $slug = rexfeed_get_trp_url_slug( $language );
+
                     if ( !empty( $slug ) ) {
-	                    $value = str_replace( home_url( '/' ), home_url( '/' ) . "$slug/", $value );
+                        if ( is_plugin_active('translatepress-personal/index.php') ) {
+                            $parsed_url = parse_url( $value );
+                            if ( isset( $parsed_url['path'] ) ) {
+                                $path_parts = explode( '/', trim( $parsed_url['path'], '/' ) );
+                                $translated_path_parts = [];
+
+                                foreach ( $path_parts as $index => $part ) {
+                                    $translated_path_parts[] = $this->rexfeed_get_translated_slug( $part, $language );
+                                }
+
+                                $translated_path = implode( '/', $translated_path_parts );
+                                $value = trailingslashit( home_url() ) . untrailingslashit( $slug ) . '/' . untrailingslashit( $translated_path ) . '/';
+                                $value = urldecode( $value );
+                            }
+                        } else {
+                            $value = str_replace( home_url( '/' ), home_url( '/' ) . "$slug/", $value );
+                        }
                     }
                 }
             }
         }
         return $value;
     }
+
+    /**
+     * Retrieves the default language set in TranslatePress.
+     *
+     * @return string The default language.
+     *
+     * @since 7.4.34
+     */
+    public function rexfeed_get_translated_slug( $slug, $language ) {
+        global $wpdb;
+
+        // Get the original slug ID from wp_trp_slug_originals table
+        $original_slug = $wpdb->get_var( $wpdb->prepare( "
+        SELECT id FROM {$wpdb->prefix}trp_slug_originals
+        WHERE original = %s
+        LIMIT 1
+    ", $slug ) );
+
+        // If an original slug ID is found, get the translated slug from wp_trp_slug_translations table
+        if ( $original_slug ) {
+            $translated_slug = $wpdb->get_var( $wpdb->prepare( "
+            SELECT translated FROM {$wpdb->prefix}trp_slug_translations
+            WHERE original_id = %d AND language = %s
+            LIMIT 1
+        ", $original_slug, $language ) );
+
+            // Return translated slug if found, otherwise return the original slug
+            return $translated_slug ? $translated_slug : $slug;
+        }
+
+        // If no original slug ID is found, return the original slug
+        return $slug;
+    }
+
 }
