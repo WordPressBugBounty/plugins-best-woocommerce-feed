@@ -132,7 +132,7 @@ class Rex_Feed_Attributes {
 			'product_cats_path'              => 'Product Categories Path (with separator ">")',
 			'product_cats_path_pipe'         => 'Product Categories Path (with separator "|")',
 			'product_subcategory'            => 'Product Sub Categories Path (with separator ">")',
-            'product_brand'                  => 'Product Brand (Woocommerce Brand)',
+            'woo_product_brand'              => 'Product Brand (Woocommerce Brand)',
 			'link'                           => 'Product URL',
 			'checkout_link'                  => 'Product Checkout URL',
 			'cart_link'                      => 'Product Cart URL',

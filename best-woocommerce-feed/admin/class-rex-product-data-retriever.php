@@ -883,7 +883,7 @@ class Rex_Product_Data_Retriever {
 					$author_id = get_post_field( 'post_author', $this->product->get_id() );
 				}
 				return get_author_posts_url( $author_id );
-            case 'product_brand':
+            case 'woo_product_brand':
                 return $this->get_pfm_woocommerce_product_brand($this->product);
 
 			default:
@@ -2228,24 +2228,32 @@ class Rex_Product_Data_Retriever {
 	 *
 	 * @since    1.0.0
 	 */
-	protected function set_additional_images() {
-		$_product = $this->product;
-		if ( $this->product->is_type( 'variation' ) ) {
-			$_product = wc_get_product( $this->product->get_parent_id() );
-		}
+    protected function set_additional_images() {
+        $_product = $this->product;
 
-		$img_ids = $_product->get_gallery_image_ids();
+        // If variation, get parent product
+        if ( $_product && $_product->is_type( 'variation' ) ) {
+            $_product = wc_get_product( $_product->get_parent_id() );
+        }
 
-		$images = array();
-		if ( !empty( $img_ids ) ) {
-			foreach ( $img_ids as $key => $img_id ) {
-				$img_key            = 'image_' . ( $key + 1 );
-				$images[ $img_key ] = wp_get_attachment_url( $img_id );
-			}
-			// set images to the property
-			$this->additional_images = $images;
-		}
-	}
+        // Validate $_product before proceeding
+        if ( ! $_product || ! is_a( $_product, 'WC_Product' ) ) {
+            return; // Exit early if product is not valid
+        }
+
+        $img_ids = $_product->get_gallery_image_ids();
+
+        $images  = array();
+
+        if ( ! empty( $img_ids ) ) {
+            foreach ( $img_ids as $key => $img_id ) {
+                $img_key            = 'image_' . ( $key + 1 );
+                $images[ $img_key ] = wp_get_attachment_url( $img_id );
+            }
+            $this->additional_images = $images;
+        }
+    }
+
 
 	/**
 	 * Helper to check if a attribute is a Primary Attribute.
