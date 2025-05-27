@@ -324,14 +324,14 @@ class Rex_Product_Feed_Actions {
                             <a href="<?php echo esc_url( admin_url( 'admin.php?page=wpfm_dashboard' ) ); ?>" target="_blank">
                                 <?php esc_html_e( 'Clear Batch', 'rex-product-feed' ); ?>
                             </a>
-                            <?php esc_html_e( 'and Regenerate', 'rex-product-feed' ); ?> -
-                            <a href="<?php echo esc_url( 'https://rextheme.com/docs/wpfm-troubleshooting-for-common-issues/?utm_source=plugin&utm_medium=troubleshoot_button&utm_campaign=pfm_plugin' ); ?>" target="_blank">
-                                <?php esc_html_e( 'View Doc', 'rex-product-feed' ); ?>
-                            </a>
+                            <?php esc_html_e( 'and Regenerate.', 'rex-product-feed' ); ?>
 						</li>
 						<li>
-                            <?php esc_html_e( 'Use Strip Tags For Description', 'rex-product-feed' ); ?> -
-                            <a href="<?php echo esc_url( 'https://rextheme.com/docs/wpfm-troubleshooting-for-common-issues/?utm_source=plugin&utm_medium=troubleshoot_button&utm_campaign=pfm_plugin' ); ?>" target="_blank">
+                            <?php esc_html_e( 'Use Strip Tags For Description.', 'rex-product-feed' ); ?>
+                        </li>
+                        <li>
+                            <?php esc_html_e( 'Checkout this troubleshoot doc ', 'rex-product-feed' ); ?> -
+                            <a href="<?php echo esc_url( 'https://rextheme.com/docs/troubleshooting-common-issues-feed-error/' ); ?>" target="_blank">
                                 <?php esc_html_e( 'View Doc', 'rex-product-feed' ); ?>
                             </a>
                         </li>
@@ -343,7 +343,7 @@ class Rex_Product_Feed_Actions {
                     </p>
 					<p>
 						<?php
-						esc_html_e( 'Attach your temporary feed link, and screenshots of your feed attributes, feed settings, and the feed filter section in the email.', 'rex-product-feed' );
+						esc_html_e( 'Make sure to attach your temporary feed link, and screenshots of your feed attributes, feed settings, and the feed filter section in the email.', 'rex-product-feed' );
 						?>
 					</p>
 					<p>

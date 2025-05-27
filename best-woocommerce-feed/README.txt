@@ -6,7 +6,7 @@ Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, 
 Requires at least: 5.0
 Tested up to:  6.8
 Requires PHP: 7.4
-Stable tag:  7.4.38
+Stable tag:  7.4.39
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -491,6 +491,10 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 
 == Changelog ==
+
+= 7.4.39 (2025-05-27) =
+* Enhancement:  Certification attribute support For Google shopping feed
+* Enhancement:  Doc Link add to the error message for feed error
 
 = 7.4.38 (2025-04-30) =
 * Fix: Issue with brand attribute mapping

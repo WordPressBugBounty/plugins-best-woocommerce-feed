@@ -140,11 +140,11 @@ class Rex_Feed_Special_Occasion_Banner {
                             <div class="rex-notification-counter__content">
 
                                 <figure class="rex-notification-counter__figure-logo">
-                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/eid-mubarak.webp'; ?>" alt="<?php esc_attr_e('Eid mubarak special offer logo', 'rex-product-feed'); ?>" class="rex-notification-counter__img">
+                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/wordpress-anniversary.webp'; ?>" alt="<?php esc_attr_e('WordPress anniversary offer logo', 'rex-product-feed'); ?>" class="rex-notification-counter__img">
                                 </figure>
 
                                 <figure class="rex-notification-counter__biggest-sale">
-                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/eid-ul-fitr-twenty.webp'; ?>" alt="<?php esc_attr_e('Biggest sale of the year!', 'rex-product-feed'); ?>" class="rex-notification-counter__img">
+                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/wordpress-annniversary-twenty-two-percent-discount.webp'; ?>" alt="<?php esc_attr_e('Biggest sale of the year!', 'rex-product-feed'); ?>" class="rex-notification-counter__img">
                                 </figure>
 
                                 <figure class="rex-notification-counter__figure-percentage">
@@ -171,7 +171,7 @@ class Rex_Feed_Special_Occasion_Banner {
 
                                 <div class="rex-notification-counter__btn-area">
                                     <a 
-                                        href="<?php echo esc_url( 'https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=plugin-notification-bar-CTA&utm_medium=free-plugin-notification-bar&utm_campaign=eid-ul-fitr-sale2025'); ?>"
+                                        href="<?php echo esc_url( 'https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=website&utm_medium=plugin-ban-pfm&utm_campaign=wpanniv25'); ?>"
                                         class="rex-notification-counter__btn"
                                         target="_blank"
                                     >
@@ -312,7 +312,7 @@ class Rex_Feed_Special_Occasion_Banner {
                 background-color: #00B4FF;
                 width: calc(100% - 20px);
                 margin: 50px 0 20px;
-                background-image: url(<?php echo "{$plugin_dir_url}assets/icon/banner-images/eid-mubarak-bg.webp"; ?>);
+                background-image: url(<?php echo "{$plugin_dir_url}assets/icon/banner-images/wordpress-anniversary-banner-bg.webp"; ?>);
                 background-position: center;
                 background-repeat: no-repeat;
                 background-size: cover;
@@ -349,10 +349,10 @@ class Rex_Feed_Special_Occasion_Banner {
                 gap: 20px;
             }
             .pfm-banner .rex-notification-counter__biggest-sale {
-                max-width: 210px;
+                max-width: 180px;
             }
             .pfm-banner .rex-notification-counter__figure-logo {
-                max-width: 226px;
+                max-width: 220px;
             }
             .pfm-banner .rex-notification-counter__figure-percentage {
                 max-width: 108px;
@@ -535,23 +535,12 @@ class Rex_Feed_Special_Occasion_Banner {
                     max-width: 1170px;
                 }
 
-                .pfm-banner .rex-notification-counter__figure-logo {
-                    max-width: 200px;
-                }
-                .pfm-banner .rex-notification-counter__figure-percentage {
-                    max-width: 90px;
-                }
-
                 .pfm-banner .rex-notification-counter__btn {
                     font-size: 16px;
                 }
 
                 .pfm-banner .rex-notification-counter__stroke-font {
                     font-size: 22px;
-                }
-
-                .pfm-banner .rex-notification-counter__biggest-sale {
-                    max-width: 190px;
                 }
 
             }
@@ -565,9 +554,6 @@ class Rex_Feed_Special_Occasion_Banner {
                     max-width: 1140px;
                 }
                 .pfm-banner .rex-notification-counter__biggest-sale {
-                    max-width: 170px;
-                }
-                .pfm-banner .rex-notification-counter__figure-logo {
                     max-width: 160px;
                 }
                 .pfm-banner .rex-notification-counter__figure-percentage {

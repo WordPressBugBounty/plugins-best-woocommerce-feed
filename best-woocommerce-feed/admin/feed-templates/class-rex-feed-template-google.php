@@ -138,7 +138,25 @@ class Rex_Feed_Template_Google extends Rex_Feed_Abstract_Template {
 
 			'Merchant Promotions Attribute'       => array(
 				'promotion_id' => 'Promotion Id [promotion_id]',
-			)
+			),
+
+			'Certificate Attributes'    => [
+                'certification_authority_1'        => 'Certification Authority 1',
+                'certification_name_1'     => 'Certification Name 1',
+                'certification_code_1' => 'Certification Code 1',
+                'certification_authority_2'        => 'Certification Authority 2',
+                'certification_name_2'     => 'Certification Name 2',
+                'certification_code_2' => 'Certification Code 2',
+                'certification_authority_3'        => 'Certification Authority 3',
+                'certification_name_3'     => 'Certification Name 3',
+                'certification_code_3' => 'Certification Code 3',
+                'certification_authority_4'        => 'Certification Authority 4',
+                'certification_name_4'     => 'Certification Name 4',
+                'certification_code_4' => 'Certification Code 4',
+                'certification_authority_5'        => 'Certification Authority 5',
+                'certification_name_5'     => 'Certification Name 5',
+                'certification_code_5' => 'Certification Code 5',
+            ]
 		);
 
         for ( $i = 1; $i <= 10; $i++ ) {
