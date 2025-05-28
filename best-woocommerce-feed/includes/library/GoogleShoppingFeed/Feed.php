@@ -202,12 +202,12 @@ class Feed
                 }
                 elseif( stristr( $itemNode->get( 'name' ), 'product_highlight_' ) ) {
                     $feedItemNode->addChild( 'product_highlight', $itemNode->get( 'value' ), $itemNode->get('_namespace') );
-                }elseif ( stristr( $itemNode->get( 'name' ), 'Certificate_authority_' ) ) {
+                }elseif ( stristr( $itemNode->get( 'name' ), 'certification_authority_' ) ) {
                     $this->certification = $feedItemNode->addChild( 'certification', '', $itemNode->get('_namespace')  );
                     $this->certification->addChild( 'certification_authority', $itemNode->get( 'value' ), $itemNode->get('_namespace')  );
-                } elseif ( stristr( $itemNode->get( 'name' ), 'Certificate_name_' ) ) {
+                } elseif ( stristr( $itemNode->get( 'name' ), 'certification_name_' ) ) {
                     $this->certification->addChild( 'certification_name', $itemNode->get( 'value' ), $itemNode->get('_namespace')  );
-                } elseif ( stristr( $itemNode->get( 'name' ), 'Certificate_code_' ) ) {
+                } elseif ( stristr( $itemNode->get( 'name' ), 'certification_code_' ) ) {
                     $this->certification->addChild( 'certification_code', $itemNode->get( 'value' ), $itemNode->get('_namespace')  );
                 }
                 else {

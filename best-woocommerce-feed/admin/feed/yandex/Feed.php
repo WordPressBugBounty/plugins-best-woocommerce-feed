@@ -118,7 +118,7 @@ class Feed
         $this->channelName = $wrapperel;
         $this->itemlName   = $itemlName;
         $this->rss         = $rss;
-        $date = "date='" . date("Y-m-d h:i")."'";
+        $date = "date='" . date("Y-m-d\TH:i:sP") . "'";
         $this->feed = new SimpleXMLElement("<$rss $date ></$rss>");
 
     }

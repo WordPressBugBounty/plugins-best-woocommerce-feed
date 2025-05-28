@@ -120,154 +120,158 @@ class Rex_Feed_Special_Occasion_Banner {
 	 * @since 7.3.18
 	 */
 	public function display_banner() {
-		$screen          = get_current_screen();
-		$allowed_screens = [ 'dashboard', 'plugins', 'product-feed' ];
-        $time_remaining  = $this->end_date - current_time( 'timestamp' );
+        if ( ! defined( 'REX_SPECIAL_OCCASION_BANNER_SHOWN' ) ) {
+            define( 'REX_SPECIAL_OCCASION_BANNER_SHOWN', true );
+            $screen          = get_current_screen();
+            $allowed_screens = [ 'dashboard', 'plugins', 'product-feed' ];
+            $time_remaining  = $this->end_date - current_time( 'timestamp' );
 
-        $countdown = $this->rex_get_halloween_countdown();
+            $countdown = $this->rex_get_halloween_countdown();
 
-		if ( in_array( $screen->base, $allowed_screens ) || in_array( $screen->parent_base, $allowed_screens ) || in_array( $screen->post_type, $allowed_screens ) || in_array( $screen->parent_file, $allowed_screens ) ) {
-        echo '<input type="hidden" id="rexfeed_special_occasion" name="rexfeed_special_occasion" value="'.$this->occasion.'">';
-        ?>
+            if ( in_array( $screen->base, $allowed_screens ) || in_array( $screen->parent_base, $allowed_screens ) || in_array( $screen->post_type, $allowed_screens ) || in_array( $screen->parent_file, $allowed_screens ) ) {
+                echo '<input type="hidden" id="rexfeed_special_occasion" name="rexfeed_special_occasion" value="'.$this->occasion.'">';
+                ?>
 
 
-            <!-- Name: Eid mubarak Notification Banner -->
+                <!-- Name: Eid mubarak Notification Banner -->
 
-            <div class="rex-feed-tb__notification pfm-banner" id="rexfeed_deal_notification">
-                <div class="banner-overflow">
-                    <div class="rex-notification-counter">
-                        <div class="rex-notification-counter__container">
-                            <div class="rex-notification-counter__content">
+                <div class="rex-feed-tb__notification pfm-banner" id="rexfeed_deal_notification">
+                    <div class="banner-overflow">
+                        <div class="rex-notification-counter">
+                            <div class="rex-notification-counter__container">
+                                <div class="rex-notification-counter__content">
 
-                                <figure class="rex-notification-counter__figure-logo">
-                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/wordpress-anniversary.webp'; ?>" alt="<?php esc_attr_e('WordPress anniversary offer logo', 'rex-product-feed'); ?>" class="rex-notification-counter__img">
-                                </figure>
+                                    <figure class="rex-notification-counter__figure-logo">
+                                        <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/wordpress-anniversary.webp'; ?>" alt="<?php esc_attr_e('WordPress anniversary offer logo', 'rex-product-feed'); ?>" class="rex-notification-counter__img">
+                                    </figure>
 
-                                <figure class="rex-notification-counter__biggest-sale">
-                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/wordpress-annniversary-twenty-two-percent-discount.webp'; ?>" alt="<?php esc_attr_e('Biggest sale of the year!', 'rex-product-feed'); ?>" class="rex-notification-counter__img">
-                                </figure>
+                                    <figure class="rex-notification-counter__biggest-sale">
+                                        <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/wordpress-annniversary-twenty-two-percent-discount.webp'; ?>" alt="<?php esc_attr_e('Biggest sale of the year!', 'rex-product-feed'); ?>" class="rex-notification-counter__img">
+                                    </figure>
 
-                                <figure class="rex-notification-counter__figure-percentage">
-                                    <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/pfm-logo.webp'; ?>" alt="<?php esc_attr_e('christmas special discount', 'rex-product-feed'); ?>" class="rex-notification-counter__img">
-                                </figure>
+                                    <figure class="rex-notification-counter__figure-percentage">
+                                        <img src="<?php echo plugin_dir_url( __FILE__ ) .'./assets/icon/banner-images/pfm-logo.webp'; ?>" alt="<?php esc_attr_e('christmas special discount', 'rex-product-feed'); ?>" class="rex-notification-counter__img">
+                                    </figure>
 
-                                <div id="rex-halloween-countdown" class="rex-notification-counter__countdown" aria-live="polite">
+                                    <div id="rex-halloween-countdown" class="rex-notification-counter__countdown" aria-live="polite">
                                     <span class="screen-reader-text">
                                         <?php esc_html_e('Offer Countdown', 'rex-product-feed'); ?>
                                     </span>
-                                    <ul class="rex-notification-counter__list">
-                                        <?php foreach (['days', 'hours', 'mins', 'secs'] as $unit): ?>
-                                            <li class="rex-notification-counter__item">
+                                        <ul class="rex-notification-counter__list">
+                                            <?php foreach (['days', 'hours', 'mins', 'secs'] as $unit): ?>
+                                                <li class="rex-notification-counter__item">
                                                 <span id="rex-feed-halloween-<?php echo esc_attr($unit); ?>" class="rex-notification-counter__time">
                                                     <?php echo esc_html($countdown[$unit]); ?>
                                                 </span>
-                                                <span class="rex-notification-counter__label">
+                                                    <span class="rex-notification-counter__label">
                                                     <?php echo esc_html($unit); ?>
                                                 </span>
-                                            </li>
-                                        <?php endforeach; ?>
-                                    </ul>
-                                </div>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </div>
 
-                                <div class="rex-notification-counter__btn-area">
-                                    <a 
-                                        href="<?php echo esc_url( 'https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=website&utm_medium=plugin-ban-pfm&utm_campaign=wpanniv25'); ?>"
-                                        class="rex-notification-counter__btn"
-                                        target="_blank"
-                                    >
+                                    <div class="rex-notification-counter__btn-area">
+                                        <a
+                                                href="<?php echo esc_url( 'https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=website&utm_medium=plugin-ban-pfm&utm_campaign=wpanniv25'); ?>"
+                                                class="rex-notification-counter__btn"
+                                                target="_blank"
+                                        >
 
 
                                         <span class="screen-reader-text">
                                             <?php esc_html_e('Click to view eid ul fitr sale products', 'rex-product-feed'); ?>
                                         </span>
 
-                                        <?php esc_html_e('Get The Deal Now', 'rex-product-feed'); ?> 
-                                        <!-- <strong class="rex-notification-counter__stroke-font">30%</strong>  -->
-                                        <?php //esc_html_e('OFF', 'rex-product-feed'); ?>
-                                    </a>
-                                </div>
+                                            <?php esc_html_e('Get The Deal Now', 'rex-product-feed'); ?>
+                                            <!-- <strong class="rex-notification-counter__stroke-font">30%</strong>  -->
+                                            <?php //esc_html_e('OFF', 'rex-product-feed'); ?>
+                                        </a>
+                                    </div>
 
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <div class="rex-feed-tb__cross-top" id="rexfeed_deal_close_btn">
+                        <svg width="12" height="13" fill="none" viewBox="0 0 12 13" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke="#7A8B9A" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 1.97L1 11.96m0-9.99l10 9.99" />
+                        </svg>
+                    </div>
                 </div>
-            
-                <div class="rex-feed-tb__cross-top" id="rexfeed_deal_close_btn">
-                    <svg width="12" height="13" fill="none" viewBox="0 0 12 13" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke="#7A8B9A" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 1.97L1 11.96m0-9.99l10 9.99" />
-                    </svg>
-                </div>
-            </div>
-            <!-- .rex-feed-tb-notification end -->
+                <!-- .rex-feed-tb-notification end -->
 
-            <script>
-                rexfeed_deal_countdown_handler();
-                /**
-                * Handles count down on deal notice
-                *
-                * @since 7.3.18
-                */
-                function rexfeed_deal_countdown_handler() {
-                    // Pass the calculated time remaining to JavaScript
-                    let timeRemaining = <?php echo $time_remaining; ?>;
+                <script>
+                    rexfeed_deal_countdown_handler();
+                    /**
+                     * Handles count down on deal notice
+                     *
+                     * @since 7.3.18
+                     */
+                    function rexfeed_deal_countdown_handler() {
+                        // Pass the calculated time remaining to JavaScript
+                        let timeRemaining = <?php echo $time_remaining; ?>;
 
-                    // Update the countdown every second
-                    setInterval(function() {
-                        const daysElement = document.getElementById('rex-feed-halloween-days');
-                        const hoursElement = document.getElementById('rex-feed-halloween-hours');
-                        const minutesElement = document.getElementById('rex-feed-halloween-mins');
-                        const secondsElement = document.getElementById('rex-feed-halloween-secs');
+                        // Update the countdown every second
+                        setInterval(function() {
+                            const daysElement = document.getElementById('rex-feed-halloween-days');
+                            const hoursElement = document.getElementById('rex-feed-halloween-hours');
+                            const minutesElement = document.getElementById('rex-feed-halloween-mins');
+                            const secondsElement = document.getElementById('rex-feed-halloween-secs');
 
-                        timeRemaining--;
+                            timeRemaining--;
 
-                        if (daysElement && hoursElement && minutesElement && secondsElement) {
-                            // Decrease the remaining time
+                            if (daysElement && hoursElement && minutesElement && secondsElement) {
+                                // Decrease the remaining time
 
-                            // Calculate new days, hours, minutes, and seconds
-                            let days = Math.floor(timeRemaining / (60 * 60 * 24)).toString().padStart(2, '0');
-                            let hours = Math.floor((timeRemaining % (60 * 60 * 24)) / (60 * 60)).toString().padStart(2, '0');
-                            let minutes = Math.floor((timeRemaining % (60 * 60)) / 60).toString().padStart(2, '0');
-                            let seconds = (timeRemaining % 60).toString().padStart(2, '0');
+                                // Calculate new days, hours, minutes, and seconds
+                                let days = Math.floor(timeRemaining / (60 * 60 * 24)).toString().padStart(2, '0');
+                                let hours = Math.floor((timeRemaining % (60 * 60 * 24)) / (60 * 60)).toString().padStart(2, '0');
+                                let minutes = Math.floor((timeRemaining % (60 * 60)) / 60).toString().padStart(2, '0');
+                                let seconds = (timeRemaining % 60).toString().padStart(2, '0');
 
-                            // Update the HTML
-                            daysElement.textContent = days;
-                            hoursElement.textContent = hours;
-                            minutesElement.textContent = minutes;
-                            secondsElement.textContent = seconds;
+                                // Update the HTML
+                                daysElement.textContent = days;
+                                hoursElement.textContent = hours;
+                                minutesElement.textContent = minutes;
+                                secondsElement.textContent = seconds;
 
-                        }
+                            }
 
-                        // Check if the countdown has ended
-                        if (timeRemaining <= 0) {
-                            rexfeed_hide_deal_notice();
-                        }
-                    }, 1000); // Update every second
-                }
+                            // Check if the countdown has ended
+                            if (timeRemaining <= 0) {
+                                rexfeed_hide_deal_notice();
+                            }
+                        }, 1000); // Update every second
+                    }
 
-                document.getElementById('rexfeed_deal_close_btn').addEventListener('click', rexfeed_hide_deal_notice);
+                    document.getElementById('rexfeed_deal_close_btn').addEventListener('click', rexfeed_hide_deal_notice);
 
-                /**
-                * Hide deal notice and save parameter to keep it hidden for future
-                *
-                * @since 7.3.2
-                */
-                function rexfeed_hide_deal_notice() {
-                    document.getElementById('rexfeed_deal_notification').style.display = 'none';
+                    /**
+                     * Hide deal notice and save parameter to keep it hidden for future
+                     *
+                     * @since 7.3.2
+                     */
+                    function rexfeed_hide_deal_notice() {
+                        document.getElementById('rexfeed_deal_notification').style.display = 'none';
 
-                    jQuery.ajax({
-                        type: "POST",
-                        url: rex_wpfm_ajax?.ajax_url,
-                        data: {
-                            action: "rexfeed_hide_deal_notice",
-                            nonce : rex_wpfm_ajax.ajax_nonce,
-                            occasion: document.getElementById('rexfeed_special_occasion')?.value
-                        },
-                    });
-                }
-            </script>
+                        jQuery.ajax({
+                            type: "POST",
+                            url: rex_wpfm_ajax?.ajax_url,
+                            data: {
+                                action: "rexfeed_hide_deal_notice",
+                                nonce : rex_wpfm_ajax.ajax_nonce,
+                                occasion: document.getElementById('rexfeed_special_occasion')?.value
+                            },
+                        });
+                    }
+                </script>
 
-            <?php
-		}
+                <?php
+            }
+        }
+
 	}
 
     /**
