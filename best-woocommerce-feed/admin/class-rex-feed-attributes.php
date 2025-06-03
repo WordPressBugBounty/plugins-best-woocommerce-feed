@@ -120,51 +120,81 @@ class Rex_Feed_Attributes {
 	 *
 	 * @return string[]
 	 */
-	public static function get_primary_attributes() {
-		return [
-			'id'                             => 'Product Id',
-			'title'                          => 'Product Title',
-			'description'                    => 'Product Description',
-			'parent_desc'                    => 'Product Description [Parent]',
-			'short_description'              => 'Product Short Description',
-			'product_cat_ids'                => 'Product Category ID(s)',
-			'product_cats'                   => 'Product Categories',
-			'product_cats_path'              => 'Product Categories Path (with separator ">")',
-			'product_cats_path_pipe'         => 'Product Categories Path (with separator "|")',
-			'product_subcategory'            => 'Product Sub Categories Path (with separator ">")',
+
+    public static function get_primary_attributes() {
+        $attributes = [
+            'id'                             => 'Product Id',
+            'title'                          => 'Product Title',
+            'description'                    => 'Product Description',
+            'parent_desc'                    => 'Product Description [Parent]',
+            'short_description'              => 'Product Short Description',
+            'product_cat_ids'                => 'Product Category ID(s)',
+            'product_cats'                   => 'Product Categories',
+            'product_cats_path'              => 'Product Categories Path (with separator ">")',
+            'product_cats_path_pipe'         => 'Product Categories Path (with separator "|")',
+            'product_subcategory'            => 'Product Sub Categories Path (with separator ">")',
             'woo_product_brand'              => 'Product Brand (Woocommerce Brand)',
-			'link'                           => 'Product URL',
-			'checkout_link'                  => 'Product Checkout URL',
-			'cart_link'                      => 'Product Cart URL',
-			'parent_url'                     => 'Parent Product URL',
-			'review_url'                     => 'Product Review URL',
-			'condition'                      => 'Condition',
-			'item_group_id'                  => 'Parent ID (Group ID)',
-			'sku'                            => 'SKU',
-			'parent_sku'                     => 'Parent SKU',
-			'availability'                   => 'Availability',
-			'availability_underscore'        => 'Availability (Without Underscore)',
-			'availability_backorder_instock' => 'Availability (Backorder = in stock)',
-			'availability_backorder'         => 'Availability (Backorder = backorder)',
-			'availability_zero_three'        => 'Availability (0/3)',
-			'availability_zero_one'          => 'Availability (0/1)',
-			'quantity'                       => 'Quantity',
-			'weight'                         => 'Weight',
-			'width'                          => 'Width',
-			'height'                         => 'Height',
-			'length'                         => 'Length',
-			'rating_total'                   => 'Total Rating',
-			'rating_average'                 => 'Average Rating',
-			'product_tags'                   => 'Tags',
-			'identifier_exists'              => 'Identifier Exists Calculator',
-			'in_stock'                       => 'In Stock (Y/N)',
-			'promotion_id'                   => 'Promotion ID',
-			'current_page'                   => 'Current Page',
-			'author_name'                    => 'Author Name',
-			'author_url'                     => 'Author URL',
+            'link'                           => 'Product URL',
+            'checkout_link'                  => 'Product Checkout URL',
+            'cart_link'                      => 'Product Cart URL',
+            'parent_url'                     => 'Parent Product URL',
+            'review_url'                     => 'Product Review URL',
+            'condition'                      => 'Condition',
+            'item_group_id'                  => 'Parent ID (Group ID)',
+            'sku'                            => 'SKU',
+            'parent_sku'                     => 'Parent SKU',
+            'availability'                   => 'Availability',
+            'availability_underscore'        => 'Availability (Without Underscore)',
+            'availability_backorder_instock' => 'Availability (Backorder = in stock)',
+            'availability_backorder'         => 'Availability (Backorder = backorder)',
+            'availability_zero_three'        => 'Availability (0/3)',
+            'availability_zero_one'          => 'Availability (0/1)',
+            'quantity'                       => 'Quantity',
+            'weight'                         => 'Weight',
+            'width'                          => 'Width',
+            'height'                         => 'Height',
+            'length'                         => 'Length',
+            'rating_total'                   => 'Total Rating',
+            'rating_average'                 => 'Average Rating',
+            'product_tags'                   => 'Tags',
+            'identifier_exists'              => 'Identifier Exists Calculator',
+            'in_stock'                       => 'In Stock (Y/N)',
+            'promotion_id'                   => 'Promotion ID',
+            'current_page'                   => 'Current Page',
+            'author_name'                    => 'Author Name',
+            'author_url'                     => 'Author URL',
             'delivery'                       => 'Delivery Information',
-		];
-	}
+            'product_type'                   => 'Product Type',
+            'is_featured'                    => 'Is Featured',
+            'visibility_in_catalog'          => 'Visibility In Catalog',
+            'is_published'                   => 'Is Published',
+            'low_stock_amount'               => 'Low Stock Amount',
+            'backorders_allowed'             => 'Backorders Allowed',
+            'sold_individually'              => 'Sold Individually',
+            'upsells'                        => 'Upsells',
+            'cross_sells'                    => 'Cross Sells',
+            'external_url'                   => 'External URL',
+            'position'                       => 'Position',
+            'allow_customer_reviews'         => 'Allow Customer Reviews',
+            'purchase_note'                  => 'Purchase Note',
+            'item_parent_skus'                 => 'Item Parent SKUs',
+            'group_item_skus'                => 'Group Item SKUs',
+        ];
+
+        // Add attributes dynamically
+        for ($i = 1; $i <= 10; $i++) {
+            $attributes["attribute_{$i}_name"] = "Attribute {$i} Name";
+            $attributes["attribute_{$i}_value"] = "Attribute {$i} Value(s)";
+            $attributes["attribute_{$i}_global"] = "Attribute {$i} Global";
+            $attributes["attribute_{$i}_visible"] = "Attribute {$i} Visible";
+
+            $attributes["download_{$i}_id"] = "Download {$i} ID";
+            $attributes["download_{$i}_name"] = "Download {$i} Name";
+            $attributes["download_{$i}_url"] = "Download {$i} URL";
+        }
+
+        return $attributes;
+    }
 
 	/**
 	 * Gets price attributes

@@ -62,15 +62,17 @@ class Rex_Feed_Template_Custom extends Rex_Feed_Abstract_Template {
 			),
 
 			'Detailed Product Attributes'         => array(
-				'item_group_id' => 'Item Group Id [item_group_id]',
-				'color'         => 'Color [color]',
-				'gender'        => 'Gender [gender]',
-				'age_group'     => 'Age Group [age_group]',
-				'material'      => 'Material [material]',
-				'pattern'       => 'Pattern [pattern]',
-				'size'          => 'Size of the item [size]',
-				'size_type'     => 'Size Type [size_type]',
-				'size_system'   => 'Size System [size_system]',
+				'item_group_id'     => 'Item Group Id [item_group_id]',
+				'color'             => 'Color [color]',
+				'gender'            => 'Gender [gender]',
+				'age_group'         => 'Age Group [age_group]',
+				'material'          => 'Material [material]',
+				'pattern'           => 'Pattern [pattern]',
+				'size'              => 'Size of the item [size]',
+				'size_type'         => 'Size Type [size_type]',
+				'size_system'       => 'Size System [size_system]',
+                'item_parent_id'    => 'Item Parent Id [item_parent_id]',
+                'group_item_skus'   => 'Group Item Skus [group_item_skus]',
 			),
 
 			'Tax & Shipping'                      => array(

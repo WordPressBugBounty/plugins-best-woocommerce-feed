@@ -1080,7 +1080,8 @@ class Rex_Product_Feed_Other extends Rex_Product_Feed_Abstract_Generator {
                 }
             }
             if ( $product->is_type( 'variable' ) && $product->has_child() ) {
-                if($this->variable_product && $this->is_out_of_stock( $product ) ) {
+                $add_parent_product = apply_filters('wpfm_add_parent_product_for_pfm_helper_tool', false);
+                if(($this->variable_product && $this->is_out_of_stock( $product )) || $add_parent_product) {
                     $variable_parent[] = $productId;
                     $variable_product = new WC_Product_Variable($productId);
                     $this->add_to_feed( $variable_product, $product_meta_keys, 'variable' );

@@ -95,8 +95,8 @@ if ( $is_premium_activated ) {
                 <div class="feed-settings">
                     <div class="single-merchant product-batch">
                         <div class="">
-                            <span class="title"><?php echo sprintf( esc_html__( 'Products per batch', 'rex-product-feed' ), esc_html( WPFM_FREE_MAX_PRODUCT_LIMIT ) );?></span>
-                            <p><?php echo esc_html__( 'Free users cannot generate more than %d products. For free users it will run only 1 batch', 'rex-product-feed' ); ?></p>
+                            <span class="title"><?php echo sprintf( esc_html__( 'Products per batch', 'rex-product-feed' ));?></span>
+                            <p><?php echo sprintf( esc_html__( 'Free users cannot generate more than %d products. For free users it will run only 1 batch', 'rex-product-feed' ), esc_html( WPFM_FREE_MAX_PRODUCT_LIMIT ) ); ?></p>
                         </div>
 
                         <div class="switch">

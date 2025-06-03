@@ -845,7 +845,8 @@ class Rex_Product_Data_Retriever {
 			case 'length':
 				return $this->product->get_length();
 
-			case 'type':
+            case 'product_type':
+            case 'type':
 				return $this->product->get_type();
 
 			case 'in_stock':
@@ -883,10 +884,242 @@ class Rex_Product_Data_Retriever {
 					$author_id = get_post_field( 'post_author', $this->product->get_id() );
 				}
 				return get_author_posts_url( $author_id );
+
             case 'woo_product_brand':
+
                 return $this->get_pfm_woocommerce_product_brand($this->product);
 
-			default:
+            case 'is_featured':
+                return $this->product->is_featured();
+
+            case 'visibility_in_catalog':
+                return $this->product->get_catalog_visibility();
+
+            case 'is_published':
+                return apply_filters('wpfm_is_published', $this->product->get_status(), $this->product);
+
+            case 'low_stock_amount':
+                return $this->product->get_low_stock_amount();
+
+            case 'backorders_allowed':
+                return apply_filters( 'wpfm_backorders_allowed', $this->product->backorders_allowed(), $this->product );
+
+            case 'sold_individually':
+                return $this->product->is_sold_individually() ? '1' : '0' ;
+
+            case 'upsells':
+                return !empty($this->product->get_upsell_ids()) ? $this->product->get_upsell_ids() : '';
+
+            case 'cross_sells':
+                return !empty($this->product->get_cross_sell_ids()) ? $this->product->get_cross_sell_ids() : '';
+
+            case 'external_url':
+                return $this->product->is_type('external') ? $this->product->get_product_url() : '';
+
+            case 'position':
+                return $this->product->get_menu_order();
+
+            case 'allow_customer_reviews':
+                return apply_filters( 'wpfm_allow_customer_reviews', $this->product->get_reviews_allowed(), $this->product );
+
+            case 'purchase_note':
+                return $this->product->get_purchase_note();
+
+            case 'attribute_1_name':
+                return $this->get_attribute_details(1, 'name');
+
+            case 'attribute_1_value':
+                return $this->get_attribute_details(1, 'values');
+
+            case 'attribute_1_visible':
+                return $this->get_attribute_details(1, 'visible');
+
+            case 'attribute_1_global':
+                return $this->get_attribute_details(1, 'global');
+
+            case 'attribute_2_name':
+                return $this->get_attribute_details(2, 'name');
+
+            case 'attribute_2_value':
+                return $this->get_attribute_details(2, 'values');
+
+            case 'attribute_2_visible':
+                return $this->get_attribute_details(2, 'visible');
+
+            case 'attribute_2_global':
+                return $this->get_attribute_details(2, 'global');
+
+            case 'attribute_3_name':
+                return $this->get_attribute_details(3, 'name');
+
+            case 'attribute_3_value':
+                return $this->get_attribute_details(3, 'values');
+
+            case 'attribute_3_visible':
+                return $this->get_attribute_details(3, 'visible');
+
+            case 'attribute_3_global':
+                return $this->get_attribute_details(3, 'global');
+
+            case 'attribute_4_name':
+                return $this->get_attribute_details(4, 'name');
+
+            case 'attribute_4_value':
+                return $this->get_attribute_details(4, 'values');
+
+            case 'attribute_4_visible':
+                return $this->get_attribute_details(4, 'visible');
+
+            case 'attribute_4_global':
+                return $this->get_attribute_details(4, 'global');
+
+            case 'attribute_5_name':
+                return $this->get_attribute_details(5, 'name');
+
+            case 'attribute_5_value':
+                return $this->get_attribute_details(5, 'values');
+
+            case 'attribute_5_visible':
+                return $this->get_attribute_details(5, 'visible');
+
+            case 'attribute_5_global':
+                return $this->get_attribute_details(5, 'global');
+
+            case 'attribute_6_name':
+                return $this->get_attribute_details(6, 'name');
+
+            case 'attribute_6_value':
+                return $this->get_attribute_details(6, 'values');
+
+            case 'attribute_6_visible':
+                return $this->get_attribute_details(6, 'visible');
+
+            case 'attribute_6_global':
+                return $this->get_attribute_details(6, 'global');
+
+            case 'attribute_7_name':
+                return $this->get_attribute_details(7, 'name');
+
+            case 'attribute_7_value':
+                return $this->get_attribute_details(7, 'values');
+
+            case 'attribute_7_visible':
+                return $this->get_attribute_details(7, 'visible');
+
+            case 'attribute_7_global':
+                return $this->get_attribute_details(7, 'global');
+
+            case 'attribute_8_name':
+                return $this->get_attribute_details(8, 'name');
+
+            case 'attribute_8_value':
+                return $this->get_attribute_details(8, 'values');
+
+            case 'attribute_8_visible':
+                return $this->get_attribute_details(8, 'visible');
+
+            case 'attribute_8_global':
+                return $this->get_attribute_details(8, 'global');
+
+            case 'attribute_9_name':
+                return $this->get_attribute_details(9, 'name');
+
+            case 'attribute_9_value':
+                return $this->get_attribute_details(9, 'values');
+
+            case 'attribute_9_visible':
+                return $this->get_attribute_details(9, 'visible');
+
+            case 'attribute_9_global':
+                return $this->get_attribute_details(9, 'global');
+
+            case 'attribute_10_name':
+                return $this->get_attribute_details(10, 'name');
+
+            case 'attribute_10_value':
+                return $this->get_attribute_details(10, 'values');
+
+            case 'attribute_10_visible':
+                return $this->get_attribute_details(10, 'visible');
+
+            case 'attribute_10_global':
+                return $this->get_attribute_details(10, 'global');
+
+            case 'download_1_id':
+                return $this->get_download_details(1, 'id');
+            case 'download_1_name':
+                return $this->get_download_details(1, 'name');
+            case 'download_1_url':
+                return $this->get_download_details(1, 'url');
+
+            case 'download_2_id':
+                return $this->get_download_details(2, 'id');
+            case 'download_2_name':
+                return $this->get_download_details(2, 'name');
+            case 'download_2_url':
+                return $this->get_download_details(2, 'url');
+
+            case 'download_3_id':
+                return $this->get_download_details(3, 'id');
+            case 'download_3_name':
+                return $this->get_download_details(3, 'name');
+            case 'download_3_url':
+                return $this->get_download_details(3, 'url');
+
+            case 'download_4_id':
+                return $this->get_download_details(4, 'id');
+            case 'download_4_name':
+                return $this->get_download_details(4, 'name');
+            case 'download_4_url':
+                return $this->get_download_details(4, 'url');
+
+            case 'download_5_id':
+                return $this->get_download_details(5, 'id');
+            case 'download_5_name':
+                return $this->get_download_details(5, 'name');
+            case 'download_5_url':
+                return $this->get_download_details(5, 'url');
+
+            case 'download_6_id':
+                return $this->get_download_details(6, 'id');
+            case 'download_6_name':
+                return $this->get_download_details(6, 'name');
+            case 'download_6_url':
+                return $this->get_download_details(6, 'url');
+
+            case 'download_7_id':
+                return $this->get_download_details(7, 'id');
+            case 'download_7_name':
+                return $this->get_download_details(7, 'name');
+            case 'download_7_url':
+                return $this->get_download_details(7, 'url');
+
+            case 'download_8_id':
+                return $this->get_download_details(8, 'id');
+            case 'download_8_name':
+                return $this->get_download_details(8, 'name');
+            case 'download_8_url':
+                return $this->get_download_details(8, 'url');
+
+            case 'download_9_id':
+                return $this->get_download_details(9, 'id');
+            case 'download_9_name':
+                return $this->get_download_details(9, 'name');
+            case 'download_9_url':
+                return $this->get_download_details(9, 'url');
+
+            case 'download_10_id':
+                return $this->get_download_details(10, 'id');
+            case 'download_10_name':
+                return $this->get_download_details(10, 'name');
+            case 'download_10_url':
+                return $this->get_download_details(10, 'url');
+            case 'item_parent_skus':
+                return $this->pfm_get_id_or_sku($this->product);
+            case 'group_item_skus':
+                return $this->pfm_get_group_item_skus();
+
+            default:
 				return '';
 		}
 
@@ -2699,16 +2932,15 @@ class Rex_Product_Data_Retriever {
 	 *
 	 * @return string
 	 */
-	protected function get_stock() {
-		if ( !$this->product ) {
-			return '';
-		}
-		if ( $this->product->is_in_stock() ) {
-			return 'Y';
-		} else {
-			return 'N';
-		}
-	}
+    protected function get_stock() {
+        if ( !$this->product ) {
+            return '';
+        }
+
+        $stock_status = $this->product->is_in_stock() ? 'Y' : 'N';
+
+        return apply_filters( 'wpfm_custom_get_stock', $stock_status, $this->product );
+    }
 
 	/**
 	 * Add necessary prefix/suffix to a value.
@@ -3222,6 +3454,190 @@ class Rex_Product_Data_Retriever {
         $brand_names = array_unique($brand_names);
         
         return !empty($brand_names) ? implode(', ', $brand_names) : '';
+    }
+
+    /**
+     * Retrieves the WooCommerce product brand for a given product.
+     *
+     * This function checks if the product is a variation or grouped product and retrieves the brand names accordingly.
+     * If the product is a grouped product, it retrieves the brand names for all child products.
+     *
+     * @param WC_Product|int $product The product object or product ID.
+     * @return string The concatenated brand names.
+     * @since 7.4.34
+     */
+    protected function get_attribute_details($index, $type) {
+        // Validate the product object
+        if (!$this->product instanceof WC_Product) {
+            return apply_filters("wpfm_attribute_{$index}_{$type}", '', null);
+        }
+
+        // Determine the product to fetch attributes from
+        $target_product = $this->product;
+        if ($this->product->is_type('variation')) {
+            $parent_id = $this->product->get_parent_id();
+            $parent_product = wc_get_product($parent_id);
+            if ($parent_product && $parent_product->is_type('variable')) {
+                $target_product = $parent_product; // Use parent for variations to get all values
+            } else {
+                return apply_filters("wpfm_attribute_{$index}_{$type}", '', $this->product);
+            }
+        }
+
+        // Fetch attributes from the target product
+        $attributes = $target_product->get_attributes();
+        // For variations, we no longer need to construct attributes since we're using the parent's attributes
+        $attribute_keys = array_keys($attributes);
+        if (!isset($attribute_keys[$index - 1])) {
+            return apply_filters("wpfm_attribute_{$index}_{$type}", '', $this->product);
+        }
+
+        $attribute_key = $attribute_keys[$index - 1];
+        $attribute = $attributes[$attribute_key];
+
+        if (!$attribute instanceof WC_Product_Attribute) {
+            return apply_filters("wpfm_attribute_{$index}_{$type}", '', $this->product);
+        }
+
+        $value = '';
+
+        switch ($type) {
+            case 'name':
+                // Get proper attribute label
+                $value = wc_attribute_label($attribute->get_name(), $target_product);
+                break;
+
+            case 'values':
+                $options = $attribute->get_options();
+                
+                if ($attribute->is_taxonomy()) {
+                    $taxonomy = $attribute->get_name();
+
+                    if ($this->product->is_type('variation')) {
+                        $variation_attributes = $this->product->get_variation_attributes();
+                        $attribute_name = str_replace('pa_', '', $taxonomy);
+
+                        if (isset($variation_attributes['attribute_pa_' . $attribute_name])) {
+                            $term = get_term_by('slug', $variation_attributes['attribute_pa_' . $attribute_name], $taxonomy);
+                            if ($term && !is_wp_error($term)) {
+                                $value = $term->name;
+                                break;
+                            }
+                        }
+                    }
+
+                    $options = array_map(function($term_slug_or_id) use ($taxonomy) {
+                        $term = is_numeric($term_slug_or_id)
+                            ? get_term_by('id', $term_slug_or_id, $taxonomy)
+                            : get_term_by('slug', $term_slug_or_id, $taxonomy);
+
+                        return ($term && !is_wp_error($term)) ? $term->name : $term_slug_or_id;
+                    }, $options);
+                }
+
+                $value = implode(', ', $options);
+                break;
+
+            case 'visible':
+                $value = $attribute->get_visible() ? 'yes' : 'no';
+                break;
+
+            case 'global':
+                $value = $attribute->is_taxonomy() ? 'yes' : 'no';
+                break;
+        }
+
+        return apply_filters("wpfm_attribute_{$index}_{$type}", $value, $this->product);
+    }
+
+    /**
+     * Retrieves the download details for a given product.
+     *
+     * @param int $index The index of the download.
+     * @param string $type The type of download data to retrieve.
+     * @return mixed The requested download data.
+     * @since 7.4.34
+     */
+    protected function get_download_details($index, $type) {
+        $downloads = $this->product->get_downloads(); // Get all downloads
+
+        // Convert downloads to indexed array
+        $download_keys = array_keys($downloads);
+        if (!isset($download_keys[$index - 1])) {
+            return ''; // Return empty string if no download exists for the given index
+        }
+
+        $download = $downloads[$download_keys[$index - 1]]; // Get the specific download
+
+        if (!$download instanceof WC_Product_Download) {
+            return '';
+        }
+
+        // Get requested download data
+        switch ($type) {
+            case 'id':
+                return $download->get_id();
+            case 'name':
+                return $download->get_name();
+            case 'url':
+                return $download->get_file();
+        }
+
+        return '';
+    }
+
+    /**
+     * Retrieves the SKUs of child products for a grouped product.
+     *
+     * @return string Comma-separated SKUs of child products.
+     * @since 7.4.37
+     */
+    protected function pfm_get_group_item_skus() {
+        // Check if the product is a grouped product
+        if (!$this->product->is_type('grouped')) {
+            return '';
+        }
+
+        // Get the child product IDs
+        $children = $this->product->get_children();
+        if (empty($children)) {
+            return '';
+        }
+
+        // Get SKUs of child products
+        $child_skus = [];
+        foreach ($children as $child_id) {
+            $child_product = wc_get_product($child_id);
+            if ($child_product && $child_product->get_sku()) {
+                $child_skus[] = $child_product->get_sku();
+            }
+        }
+
+        // Return comma-separated SKUs
+        return implode(',', $child_skus);
+    }
+
+    /**
+     * Retrieves the ID or SKU of a product.
+     *
+     * @param WC_Product $product The product object.
+     * @return string|null The ID or SKU of the product, or null if not applicable.
+     * @since 7.4.37
+     */
+    protected function pfm_get_id_or_sku(WC_Product $product) {
+        // Only apply to variation products
+        if ($product->is_type('variation')) {
+            $parent_id = $product->get_parent_id();
+            if ($parent_id) {
+                $parent_product = wc_get_product($parent_id);
+                if ($parent_product && $parent_product->get_sku()) {
+                    return $parent_product->get_sku();
+                } else {
+                    return 'id:'.$parent_id;
+                }
+            }
+        }
+        return null;
     }
 
 }

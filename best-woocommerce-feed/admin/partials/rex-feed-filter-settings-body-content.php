@@ -10,7 +10,7 @@
  */
 
 $troubleshoot_url  = 'https://rextheme.com/docs/wpfm-troubleshooting-for-common-issues/?utm_source=plugin&utm_medium=troubleshoot_button&utm_campaign=pfm_plugin';
-$documentation_url = 'https://rextheme.com/docs/product-feed-manager-documentation/?utm_source=plugin&utm_medium=documentation_button&utm_campaign=pfm_plugin';
+$documentation_url = 'https://rextheme.com/docs-category/product-feed-manager/';
 ?>
 
 <div class="rex-feed-cofig-settings">
