@@ -216,14 +216,22 @@ class Rex_Product_CPT {
 
 				echo '<div><strong>' . esc_html__( 'Last Updated: ', 'rex-product-feed' ) . '</strong><span style="text-decoration: dotted underline;" title="' . esc_attr( $formatted_time ) . '">' . esc_html( $formatted_time ) . '</span></div></br>';
 
-				$next_update = '';
-				if ( 'hourly' === $schedule ) {
-					$next_update = gmdate( $format, strtotime( '+1 hours', strtotime( $last_updated ) ) );
-				}elseif ( 'daily' === $schedule || 'custom' === $schedule ) {
-					$next_update = gmdate( $format, strtotime( '+1 days', strtotime( $last_updated ) ) );
-				}elseif ( 'weekly' === $schedule ) {
-					$next_update = gmdate( $format, strtotime( '+ 7 days', strtotime( $last_updated ) ) );
-				}
+                $next_update = '';
+                if ( 'hourly' === $schedule ) {
+                    $next_update = gmdate( $format, strtotime( '+1 hours', strtotime( $last_updated ) ) );
+                } elseif ( 'daily' === $schedule ) {
+                    $next_update = gmdate( $format, strtotime( '+1 days', strtotime( $last_updated ) ) );
+                } elseif ( 'weekly' === $schedule ) {
+                    $next_update = gmdate( $format, strtotime( '+7 days', strtotime( $last_updated ) ) );
+                } elseif ( 'custom' === $schedule ) {
+                    $custom_time = get_post_meta( $post_id, '_rex_feed_custom_time', true ) ?: get_post_meta( $post_id, 'rex_feed_custom_time', true );
+                    $custom_time = $custom_time ? $custom_time . ':00' : '00:00:00';
+                    $next_date = gmdate( 'Y-m-d', strtotime( '+1 day', strtotime( $last_updated ) ) );
+                    $next_schedule_time = $next_date . ' ' . $custom_time;
+                    $format = get_option( 'time_format', 'g:i a' ) . ', F j, Y';
+                    $next_update = gmdate( $format, strtotime( $next_schedule_time ) );
+                }
+
 				if ( 'no' !== $schedule ) {
 					echo '<div><strong>' . esc_html__( 'Next Schedule: ', 'rex-product-feed' ) . '</strong><span style="text-decoration: dotted underline;" title="' . esc_attr( $next_update ) . '">' . esc_html( $next_update ) . '</span></div>';
 				}

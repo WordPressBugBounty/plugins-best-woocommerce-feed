@@ -24,11 +24,12 @@ class Rex_Feed_Scheduler {
      * @since 7.3.0
      */
     private function deregister_wp_cron_schedules() {
-        if( wp_next_scheduled( 'rex_feed_schedule_update' ) || wp_next_scheduled( 'rex_feed_daily_update' ) || wp_next_scheduled( 'rex_feed_weekly_update' ) ) {
+        if( wp_next_scheduled( 'rex_feed_schedule_update' ) || wp_next_scheduled( 'rex_feed_daily_update' ) ||  wp_next_scheduled( 'rex_feed_weekly_update' ) ||  wp_next_scheduled( 'rex_feed_custom_update' )) {
             $this->remove_processing_feeds_queue();
             wp_clear_scheduled_hook( 'rex_feed_schedule_update' );
             wp_clear_scheduled_hook( 'rex_feed_daily_update' );
             wp_clear_scheduled_hook( 'rex_feed_weekly_update' );
+            wp_clear_scheduled_hook( 'rex_feed_custom_update' );
         }
     }
 
@@ -130,6 +131,27 @@ class Rex_Feed_Scheduler {
 					WEEKLY_SCHEDULE_HOOK, [], 'wpfm'
                 );
             }
+
+            $custom_schedule = as_has_scheduled_action( CUSTOM_SCHEDULE_HOOK, null, 'wpfm' );
+
+            if( !$custom_schedule ) {
+                $now = new DateTime( 'now', wp_timezone() );
+
+                $now->modify( '+1 hour' );
+                $now->setTime( (int) $now->format('H'), 0, 0 );
+                $next_full_hour = $now->getTimestamp();
+                as_schedule_recurring_action(
+                    $next_full_hour,
+                    /**
+                     * Apply a filter to set the interval for the custom cron job in seconds.
+                     *
+                     * @param int $interval The interval in seconds for the custom cron job.
+                     * @return int The modified interval in seconds.
+                     */
+                    apply_filters( 'rexfeed_custom_cron_interval', 3600 ),
+                    CUSTOM_SCHEDULE_HOOK, [], 'wpfm'
+                );
+            }
         }
     }
 
@@ -170,6 +192,20 @@ class Rex_Feed_Scheduler {
     public function weekly_cron_handler() {
         $feed_ids = $this->get_feeds( 'weekly' );
 
+        if( !is_wp_error( $feed_ids ) && is_array( $feed_ids ) && !empty( $feed_ids ) ) {
+            $this->schedule_merchant_single_batch_object( $feed_ids );
+        }
+    }
+
+    /**
+     * Callback function to Custom Cron Schedule Hook
+     *
+     * @return void
+     * @since 7.4.41
+     */
+    public function custom_cron_handler() {
+        $feed_ids = $this->get_feeds( 'custom' );
+        error_log(print_r($feed_ids, 1));
         if( !is_wp_error( $feed_ids ) && is_array( $feed_ids ) && !empty( $feed_ids ) ) {
             $this->schedule_merchant_single_batch_object( $feed_ids );
         }
@@ -290,7 +326,7 @@ class Rex_Feed_Scheduler {
                             $is_custom_executable = 'custom' === $schedule && '' !== $schedule_time && $schedule_time == $now_time;
                         }
 
-                        if( $update_single || $is_custom_executable || in_array( $schedule, [ 'hourly', 'daily', 'weekly' ] ) ) {
+                        if( $update_single || $is_custom_executable || in_array( $schedule, [ 'hourly', 'daily', 'weekly', 'custom' ] ) ) {
                             $offset = 0;
                             for( $current_batch = 1; $current_batch <= $total_batches; $current_batch++ ) {
                                 $data         = [];
@@ -355,10 +391,10 @@ class Rex_Feed_Scheduler {
             'relation' => 'AND'
         ];
 
-        if( 'hourly' === $schedule && !empty( $meta_queries[ 0 ] ) ) {
+        if( 'custom' === $schedule && !empty( $meta_queries[ 0 ] ) ) {
             $timezone = new DateTimeZone( wp_timezone_string() );
-            $now_time = wp_date( "G", null, $timezone );
-
+            $now_time = wp_date( "H", null, $timezone );
+            error_log('Current Time: ' . $now_time);
             $meta_queries[ 0 ][] = [
                 [
                     [

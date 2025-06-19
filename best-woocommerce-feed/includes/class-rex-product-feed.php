@@ -218,6 +218,7 @@ class Rex_Product_Feed {
         $this->loader->add_action( WC_SINGLE_SCHEDULER, $scheduler, 'update_wc_abandoned_child_list' );
         $this->loader->add_action( WEEKLY_SCHEDULE_HOOK, $scheduler, 'weekly_cron_handler' );
         $this->loader->add_action( SINGLE_SCHEDULE_HOOK, $scheduler, 'regenerate_feed_batch' );
+        $this->loader->add_action( CUSTOM_SCHEDULE_HOOK, $scheduler, 'custom_cron_handler' );
 
 	    $this->loader->add_action( 'woocommerce_update_non_option_setting', $plugin_admin, 'delete_shipping_transient', 99 );
 

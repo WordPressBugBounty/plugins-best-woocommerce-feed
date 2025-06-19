@@ -2959,7 +2959,7 @@ class Rex_Product_Data_Retriever {
             if(wpfm_is_curcy_active()  && isset($this->curcy_currency)){
                 $val = $val ? $this->curcy_currency.' ' .$val : '';
             }
-            return $val;
+            //return $val;
 		}
 
 		if ( !empty( $suffix ) ) {
@@ -2968,11 +2968,12 @@ class Rex_Product_Data_Retriever {
             }else{
                 $val = $val ? $val . $suffix : '';
             }
-            return $val;
+            //return $val;
 		}
 
         if(wpfm_is_curcy_active()  && isset($this->curcy_currency)  && str_contains($rule['attr'], 'price')){
-            return $val ? $val .' '. $this->curcy_currency : '';
+            //return $val ? $val .' '. $this->curcy_currency : '';
+            $val = $val ? $val .' '. $this->curcy_currency : '';
         }
 
 		return $val;
