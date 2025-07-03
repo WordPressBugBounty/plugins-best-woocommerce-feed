@@ -163,9 +163,9 @@ class Rex_Product_Feed {
 	    $scheduler              = new Rex_Feed_Scheduler();
 
         $special_banner = new Rex_Feed_Special_Occasion_Banner(
-            'eid_ul_adha_deal_2025',
-		   	'2025-06-04 00:00:00',
-		   	'2025-06-15 23:59:59'
+            '4th_of_july_deal_2025',
+		   	'2025-07-01 00:00:00',
+		   	'2025-07-14 23:59:59'
         ); // Date format: YYYY-MM-DD HH:MM:SS
         if ( !defined( 'REX_PRODUCT_FEED_PRO_VERSION' ) && 'no' === get_option( 'rexfeed_hide_sales_notification_bar', 'no' ) ) {
             new Rex_Feed_Sales_Notification_Bar();

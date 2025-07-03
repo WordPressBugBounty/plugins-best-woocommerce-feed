@@ -11,7 +11,7 @@
     let ytVideosLink = yt_video;
     let isToggleButtonChecked = true;
     let discountPrice = discount_information;
-
+    let adminUrl = admin_url;
 
     const prevToggle = () => {
         wizard.previousStep();
@@ -76,10 +76,10 @@
 
                   <!-- setup wizard buttons -->
                   <div class="setup-wizard__main-buttons">
-                      <a href="#" class="setup-wizard__button-left lets-create-first-feed">
+                      <a href="${adminUrl}post-new.php?post_type=product-feed&tour_guide=1" class="setup-wizard__button-left lets-create-first-feed">
                         ${stepOne?.button_text[0]} 
                       </a>
-                      <a href="https://rextheme.com/docs/product-feed-manager-documentation/" target="_blank" class="setup-wizard__button-right">
+                      <a href="https://rextheme.com/docs/woocommerce-product-feed/" target="_blank" class="setup-wizard__button-right">
                         ${stepOne?.button_text[1]} 
                       </a>
                   </div>
@@ -430,7 +430,7 @@
 
             <!-- setup wizard buttons -->
             <section class="setup-wizard__footer-buttons">
-              <a href="#" class="setup-wizard__button-left lets-create-first-feed">
+              <a href="${adminUrl}post-new.php?post_type=product-feed&tour_guide=1" class="setup-wizard__button-left lets-create-first-feed">
                 Let’s create your first feed
               </a>
               <a href="#" class="setup-wizard__button-right next-step-button"> Next </a>
@@ -500,7 +500,7 @@
 
                   <!-- setup wizard buttons -->
                   <section class="setup-wizard__footer-buttons">
-                    <a href="#" class="setup-wizard__button-left lets-create-first-feed">
+                    <a href="${adminUrl}post-new.php?post_type=product-feed&tour_guide=1" class="setup-wizard__button-left lets-create-first-feed">
                       Let’s create your first feed
                     </a>
                     <a href="#" class="setup-wizard__button-right next-step-button">  Next </a>
@@ -651,7 +651,7 @@
 
                   <!-- setup wizard buttons -->
                   <section class="setup-wizard__footer-buttons">
-                    <a href="#" class="setup-wizard__button-left lets-create-first-feed last-step" target="_self">
+                    <a href="${adminUrl}post-new.php?post_type=product-feed&tour_guide=1" class="setup-wizard__button-left lets-create-first-feed last-step" target="_self">
                       ${stepThree?.button_text[0]}
                     </a>
                     <a href="https://rextheme.com/best-woocommerce-product-feed/pricing/" target="_blank" class="setup-wizard__button-right" id="upgrade-to-pro">
@@ -709,10 +709,10 @@
             createContact()
         }
 
-        if(merchantName) {
-            window.location = `post-new.php?post_type=product-feed&tour_guide=1&rex_feed_merchant=${merchantName}`;
-        }else{
-            window.location = "/wp-admin/post-new.php?post_type=product-feed&tour_guide=1";
+        if (merchantName) {
+            window.location = `${adminUrl}post-new.php?post_type=product-feed&tour_guide=1&rex_feed_merchant=${merchantName}`;
+        } else {
+            window.location = `${adminUrl}post-new.php?post_type=product-feed&tour_guide=1`;
         }
     });
 
@@ -790,7 +790,7 @@
     });
 
     $(document).on('click', '.setup-wizard__done-buttons-progress', function(){
-        window.location = 'post-new.php?post_type=product-feed&tour_guide=1&rex_feed_merchant=' + merchantName;
+        window.location = adminUrl + 'post-new.php?post_type=product-feed&tour_guide=1&rex_feed_merchant=' + merchantName;
     });
 
     function displayMerchants() {

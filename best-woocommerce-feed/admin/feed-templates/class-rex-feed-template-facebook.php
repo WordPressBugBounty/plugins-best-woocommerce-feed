@@ -104,6 +104,13 @@ class Rex_Feed_Template_Facebook extends Rex_Feed_Abstract_Template {
 			),
 
 		);
+
+        $video_attributes = array();
+        for ($i = 0; $i < 20; $i++) {
+            $video_attributes["video[{$i}].url"] = "Video " . ($i + 1) . " URL [video[{$i}].url]";
+        }
+        $this->attributes['Video Attributes'] = $video_attributes;
+
 	}
 
 	/**

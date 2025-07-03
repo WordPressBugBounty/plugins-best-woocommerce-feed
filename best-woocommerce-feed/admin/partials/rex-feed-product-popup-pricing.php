@@ -57,13 +57,13 @@
                     <?php
                         $price = '$79.99'; // This could be dynamic
                         $current_date = date('Y-m-d H:i:s');
-                        $start_date = '2025-06-04 00:00:00';
-                        $end_date = '2025-06-15 23:59:59';
+                        $start_date = '2025-07-04 00:00:00';
+                        $end_date = '2025-07-14 23:59:59';
                         $discount_percentage = '';
                         $discount_price = '';
                         if ($current_date >= $start_date && $current_date <= $end_date) {
-                            $discount_percentage = "Save 20%";
-                            $discount_price = "$63.99";
+                            $discount_percentage = "Save 25%";
+                            $discount_price = "$59.99";
                         }  else {
                             $discount_percentage = "Save 15%";
                             $discount_price = "$67.99";

@@ -6,7 +6,7 @@ Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, 
 Requires at least: 5.0
 Tested up to:  6.8.1
 Requires PHP: 7.4
-Stable tag:  7.4.42
+Stable tag:  7.4.43
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -491,6 +491,12 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 
 == Changelog ==
+
+= 7.4.43 (2025-07-03) =
+* Enhancement: Update discount pricing on the setup wizard and CRO
+* Fix: "Check the guide" button in setup wizard now links to the correct documentation page
+* Fix: "Let’s create your first feed" button now opens the correct feed creation page when opened in a new tab
+* Enhancement: Support for Facebook’s video[0].url to video[19].url attributes in feeds
 
 = 7.4.42 (2025-06-19) =
 * Fix: Custom schedule feed auto update issue

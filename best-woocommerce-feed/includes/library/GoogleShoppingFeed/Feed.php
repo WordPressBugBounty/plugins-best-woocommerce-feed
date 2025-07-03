@@ -209,8 +209,7 @@ class Feed
                     $this->certification->addChild( 'certification_name', $itemNode->get( 'value' ), $itemNode->get('_namespace')  );
                 } elseif ( stristr( $itemNode->get( 'name' ), 'certification_code_' ) ) {
                     $this->certification->addChild( 'certification_code', $itemNode->get( 'value' ), $itemNode->get('_namespace')  );
-                }
-                else {
+                } else {
                     $itemNode->attachNodeTo($feedItemNode);
                 }
             }

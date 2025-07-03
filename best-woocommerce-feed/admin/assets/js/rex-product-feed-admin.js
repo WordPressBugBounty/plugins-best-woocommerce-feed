@@ -3027,6 +3027,71 @@
        const merchant = $('select#rex_feed_merchant').children().find( 'option:selected' ).val();
        handleGoogleMerchantApiContent( merchant );
    });
+
+    $(document).on("change", "#rex_feed_merchant", function () {
+        let feed_merchant = $(this).find(":selected").val();
+        if (feed_merchant === "facebook") {
+            $("#rex_feed_feed_format").val("csv").trigger("change");
+        }
+
+    });
+
+    $(document).on('change', 'select', function(e) {
+         let selectInputValue = $(this).val();
+        const urlPattern = /^video\[\d+\]\.url$/;
+        if (urlPattern.test(selectInputValue)) {
+            const $formatSelect = $('#rex_feed_feed_format');
+            if ($formatSelect.length) {
+                const selectedValue = $formatSelect.select2('val') || $formatSelect.val();
+                if (selectedValue !== 'csv') {
+                    alert('You have added video field that is only suported for CSV. Please select CSV type feed!');
+                    $("#rex_feed_feed_format").val("csv").trigger("change");
+                    const $select2Container = $formatSelect.next('.select2-container');
+                    const $scrollTarget = $select2Container.length > 0 ? $select2Container : $formatSelect;
+
+                    $('html, body').animate({
+                        scrollTop: $scrollTarget.offset().top - 100
+                    }, 600);
+
+                    // Optional: Open Select2 dropdown to draw attention
+                    $formatSelect.select2('open');
+                    setTimeout(function() {
+                        $formatSelect.select2('close');
+                    }, 2000);
+                }
+            }
+        }
+
+        if (selectInputValue === 'xml') {
+            let selectedMarchent = $('#rex_feed_merchant').val();
+            if ((selectedMarchent === 'facebook' && hasVideoUrlSpan()) ||  $('optgroup[label="Video Attributes"] option:selected').length > 0 ) {
+                alert('You have added video field that is only supported for CSV. Please select CSV type feed!');
+                $("#rex_feed_feed_format").val("csv").trigger("change");
+                const $formatSelect = $('#rex_feed_format'); // Make sure this references your actual format select element
+                const $select2Container = $formatSelect.next('.select2-container');
+                const $scrollTarget = $select2Container.length > 0 ? $select2Container : $formatSelect;
+
+                $('html, body').animate({
+                    scrollTop: $scrollTarget.offset().top - 100
+                }, 600);
+
+                // Optional: Open Select2 dropdown to draw attention
+                $formatSelect.select2('open');
+                setTimeout(function () {
+                    $formatSelect.select2('close');
+                }, 2000);
+            }
+        }
+
+        function hasVideoUrlSpan() {
+            return $('.attributes-wrapper span').filter(function () {
+                const title = $(this).attr('title');
+                return /^Video \d+ URL \[video\[\d+\]\.url\]$/.test(title);
+            }).length > 0;
+        }
+
+    });
+
    const handleGoogleMerchantApiContent = ( merchant ) => {
        if ('google' === merchant) {
            $( '#rex_feed_google_merchant' ).show();
@@ -3225,7 +3290,7 @@ document.addEventListener("DOMContentLoaded", () => {
         toggleContentVisibility();
     }
 
-    
+
     
 
 });
