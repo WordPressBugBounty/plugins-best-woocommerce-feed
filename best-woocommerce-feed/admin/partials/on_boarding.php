@@ -664,82 +664,76 @@ if ( $is_premium_activated ) {
 				echo '</div>';
 				?>
 			</div>
+            <?php if ( !$is_premium_activated ) : ?>
+                <div id="tab5" class="tab-content">
+                    <h3 class="free-vs-pro-title"><?php echo esc_html__( 'Free Vs. Pro Features', 'rex-product-feed' ); ?></h3>
+                    <div class="wpfm-compare">
+                        <?php
+                            $pro_url = add_query_arg('wpfm-dashboard', '1', 'https://rextheme.com/best-woocommerce-product-feed/pricing/');
 
-			<div id="tab5" class="tab-content">
+                            $features = [
+                                __('Products per batch', 'rex-product-feed'),
+                                __('Allow Private Products', 'rex-product-feed'),
+                                __('Facebook Pixel', 'rex-product-feed'),
+                                __('Update WooCommerce variation child list that has no parent assigned', 'rex-product-feed'),
+                                __('Feeds for Unlimited Products', 'rex-product-feed'),
+                                __('Feed Rules', 'rex-product-feed'),
+                                __('Custom daily time for feed auto update', 'rex-product-feed'),
+                                __('Combined Attributes', 'rex-product-feed'),
+                                __('Unique Product Identifiers (Brand, GTIN, MPN, UPC, EAN, JAN, ISBN, ITF14, Offer price, Offer effective date, Additional info)', 'rex-product-feed'),
+                                __('Add Detailed Product Attributes', 'rex-product-feed'),
+                                __('Exclude TAX from structured data prices', 'rex-product-feed'),
+                                __('Fix WooCommerce (JSON-LD) structured data bug', 'rex-product-feed'),
+                                __('Google Dynamic Remarketing Pixel', 'rex-product-feed'),
+                                __('TikTok Pixel', 'rex-product-feed'),
+                                __('Get email notification if feed is not generated properly', 'rex-product-feed'),
+                                __('Google Product Review Feed Template', 'rex-product-feed'),
+                                __('eBay MIP Feed Template', 'rex-product-feed'),
+                                __('LeGuide.com Feed Template', 'rex-product-feed'),
+                                __('Google Remarketing (DRM) Feed Template', 'rex-product-feed')
+                            ];
 
-				<?php if ( !$is_premium_activated ) : ?>
+                            $free_icons = array_fill(0, count($features), 'cross-list');
+                            $free_icons[0] = 'check';
+                            $free_icons[1] = 'check';
+                            $free_icons[2] = 'check';
+                            $free_icons[3] = 'check';
 
-					<h3 class="free-vs-pro-title"><?php echo esc_html__( 'Free Vs. Pro Features', 'rex-product-feed' ); ?></h3>
-				
-					<div class="wpfm-compare">
-						<?php
-							$pro_url = add_query_arg('wpfm-dashboard', '1', 'https://rextheme.com/best-woocommerce-product-feed/pricing/');
-							
-							$features = [
-								__('Products per batch', 'rex-product-feed'),
-								__('Allow Private Products', 'rex-product-feed'),
-								__('Facebook Pixel', 'rex-product-feed'),
-								__('Update WooCommerce variation child list that has no parent assigned', 'rex-product-feed'),
-								__('Feeds for Unlimited Products', 'rex-product-feed'),
-								__('Feed Rules', 'rex-product-feed'),
-								__('Custom daily time for feed auto update', 'rex-product-feed'),
-								__('Combined Attributes', 'rex-product-feed'),
-								__('Unique Product Identifiers (Brand, GTIN, MPN, UPC, EAN, JAN, ISBN, ITF14, Offer price, Offer effective date, Additional info)', 'rex-product-feed'),
-								__('Add Detailed Product Attributes', 'rex-product-feed'),
-								__('Exclude TAX from structured data prices', 'rex-product-feed'),
-								__('Fix WooCommerce (JSON-LD) structured data bug', 'rex-product-feed'),
-								__('Google Dynamic Remarketing Pixel', 'rex-product-feed'),
-								__('TikTok Pixel', 'rex-product-feed'),
-								__('Get email notification if feed is not generated properly', 'rex-product-feed'),
-								__('Google Product Review Feed Template', 'rex-product-feed'),
-								__('eBay MIP Feed Template', 'rex-product-feed'),
-								__('LeGuide.com Feed Template', 'rex-product-feed'),
-								__('Google Remarketing (DRM) Feed Template', 'rex-product-feed')
-							];
+                            echo '<div class="wpfm-compare__table">';
+                                echo '<div class="wpfm-compare__table-wrapper">';
 
-							$free_icons = array_fill(0, count($features), 'cross-list');
-							$free_icons[0] = 'check';
-							$free_icons[1] = 'check';
-							$free_icons[2] = 'check';
-							$free_icons[3] = 'check';
+                                    echo '<ul class="wpfm-compare__header">';
+                                    echo '<li class="wpfm-compare__col wpfm-compare__col--feature">' . __('Features Name', 'wpfm') . '</li>';
+                                    echo '<li class="wpfm-compare__col wpfm-compare__col--free">' . __('Free', 'wpfm') . '</li>';
+                                    echo '<li class="wpfm-compare__col wpfm-compare__col--pro">' . __('Pro', 'wpfm') . '</li>';
+                                    echo '</ul>';
 
-							echo '<div class="wpfm-compare__table">';
-								echo '<div class="wpfm-compare__table-wrapper">';
+                                    echo '<div class="wpfm-compare__body">';
 
-									echo '<ul class="wpfm-compare__header">';
-									echo '<li class="wpfm-compare__col wpfm-compare__col--feature">' . __('Features Name', 'wpfm') . '</li>';
-									echo '<li class="wpfm-compare__col wpfm-compare__col--free">' . __('Free', 'wpfm') . '</li>';
-									echo '<li class="wpfm-compare__col wpfm-compare__col--pro">' . __('Pro', 'wpfm') . '</li>';
-									echo '</ul>';
+                                        foreach ($features as $index => $feature) {
+                                            echo '<ul class="wpfm-compare__feature">';
+                                                echo '<li class="wpfm-compare__col wpfm-compare__col--feature"><p>' . $feature . '</p></li>';
+                                                echo '<li class="wpfm-compare__col wpfm-compare__col--free"><span class="wpfm-compare__icon wpfm-compare__icon--' . $free_icons[$index] . '"><img loading="lazy" src="' . WPFM_PLUGIN_DIR_URL . 'admin/assets/icon/icon-svg/' . $free_icons[$index] . '.svg" alt="' . $free_icons[$index] . '"></span></li>';
+                                                echo '<li class="wpfm-compare__col wpfm-compare__col--pro"><span class="wpfm-compare__icon wpfm-compare__icon--check"><img loading="lazy" src="' . WPFM_PLUGIN_DIR_URL . 'admin/assets/icon/icon-svg/check.svg" alt="check-mark"></span></li>';
+                                            echo '</ul>';
+                                        }
 
-									echo '<div class="wpfm-compare__body">';
+                                    echo '</div>';
 
-										foreach ($features as $index => $feature) {
-											echo '<ul class="wpfm-compare__feature">';
-												echo '<li class="wpfm-compare__col wpfm-compare__col--feature"><p>' . $feature . '</p></li>';
-												echo '<li class="wpfm-compare__col wpfm-compare__col--free"><span class="wpfm-compare__icon wpfm-compare__icon--' . $free_icons[$index] . '"><img loading="lazy" src="' . WPFM_PLUGIN_DIR_URL . 'admin/assets/icon/icon-svg/' . $free_icons[$index] . '.svg" alt="' . $free_icons[$index] . '"></span></li>';
-												echo '<li class="wpfm-compare__col wpfm-compare__col--pro"><span class="wpfm-compare__icon wpfm-compare__icon--check"><img loading="lazy" src="' . WPFM_PLUGIN_DIR_URL . 'admin/assets/icon/icon-svg/check.svg" alt="check-mark"></span></li>';
-											echo '</ul>';
-										}
+                                echo '</div>';
 
-									echo '</div>';
-
-								echo '</div>';
-
-								echo '<div class="wpfm-compare__footer">';
-									echo '<div class="wpfm-compare__footer-btn">';
-										echo '<a class="wpfm-compare__btn wpfm-compare__btn--pro" href="' . esc_url($pro_url) . '" title="' . esc_attr__('Upgrade to Pro', 'wpfm') . '" target="_blank">';
-											echo esc_html__('Upgrade to Pro', 'wpfm');
-										echo '</a>';
-									echo '</div>';
-								echo '</div>';
-							echo '</div>';
-						?>
-					</div>
-					
-				<?php endif; ?>
-
-			</div>
+                                echo '<div class="wpfm-compare__footer">';
+                                    echo '<div class="wpfm-compare__footer-btn">';
+                                        echo '<a class="wpfm-compare__btn wpfm-compare__btn--pro" href="' . esc_url($pro_url) . '" title="' . esc_attr__('Upgrade to Pro', 'wpfm') . '" target="_blank">';
+                                            echo esc_html__('Upgrade to Pro', 'wpfm');
+                                        echo '</a>';
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</div>';
+                        ?>
+                    </div>
+                </div>
+            <?php endif; ?>
 
 		</div>
 

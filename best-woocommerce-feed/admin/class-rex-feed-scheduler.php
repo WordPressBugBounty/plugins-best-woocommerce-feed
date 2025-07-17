@@ -132,26 +132,29 @@ class Rex_Feed_Scheduler {
                 );
             }
 
-            $custom_schedule = as_has_scheduled_action( CUSTOM_SCHEDULE_HOOK, null, 'wpfm' );
+            if(apply_filters( 'wpfm_is_premium_activate', false )){
+                $custom_schedule = as_has_scheduled_action( CUSTOM_SCHEDULE_HOOK, null, 'wpfm' );
 
-            if( !$custom_schedule ) {
-                $now = new DateTime( 'now', wp_timezone() );
+                if( !$custom_schedule) {
+                    $now = new DateTime( 'now', wp_timezone() );
 
-                $now->modify( '+1 hour' );
-                $now->setTime( (int) $now->format('H'), 0, 0 );
-                $next_full_hour = $now->getTimestamp();
-                as_schedule_recurring_action(
-                    $next_full_hour,
-                    /**
-                     * Apply a filter to set the interval for the custom cron job in seconds.
-                     *
-                     * @param int $interval The interval in seconds for the custom cron job.
-                     * @return int The modified interval in seconds.
-                     */
-                    apply_filters( 'rexfeed_custom_cron_interval', 3600 ),
-                    CUSTOM_SCHEDULE_HOOK, [], 'wpfm'
-                );
+                    $now->modify( '+1 hour' );
+                    $now->setTime( (int) $now->format('H'), 0, 0 );
+                    $next_full_hour = $now->getTimestamp();
+                    as_schedule_recurring_action(
+                        $next_full_hour,
+                        /**
+                         * Apply a filter to set the interval for the custom cron job in seconds.
+                         *
+                         * @param int $interval The interval in seconds for the custom cron job.
+                         * @return int The modified interval in seconds.
+                         */
+                        apply_filters( 'rexfeed_custom_cron_interval', 3600 ),
+                        CUSTOM_SCHEDULE_HOOK, [], 'wpfm'
+                    );
+                }
             }
+
         }
     }
 
@@ -205,7 +208,6 @@ class Rex_Feed_Scheduler {
      */
     public function custom_cron_handler() {
         $feed_ids = $this->get_feeds( 'custom' );
-        error_log(print_r($feed_ids, 1));
         if( !is_wp_error( $feed_ids ) && is_array( $feed_ids ) && !empty( $feed_ids ) ) {
             $this->schedule_merchant_single_batch_object( $feed_ids );
         }
@@ -366,7 +368,9 @@ class Rex_Feed_Scheduler {
         $status = [ 'canceled', 'completed' ];
 
         $meta_queries = [
+            'relation' => 'AND',
             [
+                'relation' => 'OR',
                 [
                     'key'   => '_rex_feed_schedule',
                     'value' => $schedule,
@@ -375,9 +379,9 @@ class Rex_Feed_Scheduler {
                     'key'   => 'rex_feed_schedule',
                     'value' => $schedule,
                 ],
-                'relation' => 'OR'
             ],
             [
+                'relation' => 'OR',
                 [
                     'key'   => '_rex_feed_status',
                     'value' => $status,
@@ -386,17 +390,18 @@ class Rex_Feed_Scheduler {
                     'key'   => 'rex_feed_status',
                     'value' => $status,
                 ],
-                'relation' => 'OR'
             ],
-            'relation' => 'AND'
         ];
 
-        if( 'custom' === $schedule && !empty( $meta_queries[ 0 ] ) ) {
+        // Add custom time filter only if schedule is 'custom'
+        if ( 'custom' === $schedule ) {
             $timezone = new DateTimeZone( wp_timezone_string() );
-            $now_time = wp_date( "H", null, $timezone );
-            error_log('Current Time: ' . $now_time);
-            $meta_queries[ 0 ][] = [
+            $now_time = wp_date( "H", null, $timezone ); // returns hour in 24-hour format
+
+            $meta_queries[] = [
+                'relation' => 'AND',
                 [
+                    'relation' => 'OR',
                     [
                         'key'   => '_rex_feed_schedule',
                         'value' => 'custom',
@@ -405,15 +410,13 @@ class Rex_Feed_Scheduler {
                         'key'   => 'rex_feed_schedule',
                         'value' => 'custom',
                     ],
-                    'relation' => 'OR'
                 ],
                 [
-                    [
-                        'key'   => '_rex_feed_custom_time',
-                        'value' => $now_time,
-                    ],
+                    'key'     => '_rex_feed_custom_time',
+                    'value'   => $now_time,
+                    'compare' => '=',
+                    'type'    => 'CHAR',
                 ],
-                'relation' => 'AND'
             ];
         }
 
@@ -421,7 +424,7 @@ class Rex_Feed_Scheduler {
             'fields'           => 'ids',
             'post_type'        => 'product-feed',
             'post_status'      => 'publish',
-            'orderby'          => 'id',
+            'orderby'          => 'ID',
             'order'            => 'ASC',
             'meta_query'       => $meta_queries,
             'suppress_filters' => true,
@@ -430,6 +433,7 @@ class Rex_Feed_Scheduler {
         $result = new WP_Query( $args );
         return $result->get_posts();
     }
+
 
     /**
      * Generate the feed generation payload

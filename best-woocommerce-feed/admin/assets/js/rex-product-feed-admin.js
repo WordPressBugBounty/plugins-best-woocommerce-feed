@@ -1532,7 +1532,10 @@
     
         // Check if there's a stored tab ID in localStorage
         var savedTab = localStorage.getItem("currentTab");
-        
+        if('tab5' === savedTab && $('#tab5').length === 0){
+            localStorage.setItem('currentTab', 'tab1');
+            savedTab = 'tab1';
+        }
         if ($(this).length > 0) {
             var tab_id = $(this).attr("data-tab");
             
@@ -1633,7 +1636,7 @@
     function enable_fb_pixel(event) {
         event.preventDefault();
         var payload = {};
-        if ($(this).is(":checked")) {
+        if ($('#wpfm_fb_pixel').is(":checked")) {
             payload = {
                 wpfm_fb_pixel_enabled: "yes",
             };
@@ -1687,18 +1690,23 @@
     function save_fb_pixel_id(e) {
         e.preventDefault();
         var $form = $(this);
-        $form.find("button.save-fb-pixel span").hide();
-        $form.find("button.save-fb-pixel i").show();
         var value = $form.find("#wpfm_fb_pixel").val();
+        if(!value){
+            alert("Please enter a valid Facebook Pixel ID.");
+            $('.wpfm-fb-pixel-field').show();
+            return;
+        }
+        // $form.find("button.save-fb-pixel span").hide();
+        $form.find("button.save-fb-pixel i").show();
         wpAjaxHelperRequest("rexfeed-save-fb-pixel-value", value)
             .success(function (response) {
                 $form.find("button.save-fb-pixel i").hide();
-                $form.find("button.save-fb-pixel span").show();
+                $('.wpfm-fb-pixel-field').show();
                 console.log("woohoo!");
             })
             .error(function (response) {
                 $form.find("button.save-fb-pixel i").hide();
-                $form.find("button.save-fb-pixel span").show();
+                $('.wpfm-fb-pixel-field').show();
                 console.log("uh, oh!");
             });
     }
@@ -1709,18 +1717,23 @@
     function save_tiktok_pixel_id(e) {
         e.preventDefault();
         var $form = $(this);
-        $form.find("button.save-tiktok-pixel span").hide();
-        $form.find("button.save-tiktok-pixel i").show();
+
         var value = $form.find("#wpfm_tiktok_pixel").val();
+        if(!value){
+            alert("Please enter a valid Tiktok Pixel ID.");
+            $('.wpfm-tiktok-pixel-field').show();
+            return;
+        }
+        $form.find("button.save-tiktok-pixel i").show();
         wpAjaxHelperRequest("rexfeed-save-tiktok-pixel-value", value)
             .success(function (response) {
                 $form.find("button.save-tiktok-pixel i").hide();
-                $form.find("button.save-tiktok-pixel span").show();
+                $('.wpfm-tiktok-pixel-field').show();
                 console.log("woohoo!");
             })
             .error(function (response) {
                 $form.find("button.save-tiktok-pixel i").hide();
-                $form.find("button.save-tiktok-pixel span").show();
+                $('.wpfm-tiktok-pixel-field').show();
                 console.log("uh, oh!");
             });
     }

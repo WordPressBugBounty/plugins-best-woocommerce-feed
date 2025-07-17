@@ -171,7 +171,10 @@ class Rex_Product_CPT {
 				$disabled    = 'draft' === $feed_status ? 'disabled="disabled" style="pointer-events: none;"' : '';
 				$url         = get_post_meta( $post_id, '_rex_feed_xml_file', true ) ?: get_post_meta( $post_id, 'rex_feed_xml_file', true );
 				$url         = esc_url( $url );
-				echo '<a target="_blank" class="button" href="' . esc_url( $url ) . '" ' . $disabled . '>' . __( 'View', 'rex-product-feed' ) . '</a> ';
+                $is_csv_feed = strpos( $url , '.csv' ) !== false;
+                if ( !$is_csv_feed ) {
+                    echo '<a target="_blank" class="button" href="' . esc_url( $url ) . '" ' . $disabled . '>' . __( 'View', 'rex-product-feed' ) . '</a> ';
+                }
 				echo '<a target="_blank" class="button" href="' . esc_url( $url ) . '" ' . $disabled . ' download>' . __( 'Download', 'rex-product-feed' ) . '</a>';
 				break;
 			case 'total_products':
@@ -226,10 +229,14 @@ class Rex_Product_CPT {
                 } elseif ( 'custom' === $schedule ) {
                     $custom_time = get_post_meta( $post_id, '_rex_feed_custom_time', true ) ?: get_post_meta( $post_id, 'rex_feed_custom_time', true );
                     $custom_time = $custom_time ? $custom_time . ':00' : '00:00:00';
-                    $next_date = gmdate( 'Y-m-d', strtotime( '+1 day', strtotime( $last_updated ) ) );
-                    $next_schedule_time = $next_date . ' ' . $custom_time;
-                    $format = get_option( 'time_format', 'g:i a' ) . ', F j, Y';
-                    $next_update = gmdate( $format, strtotime( $next_schedule_time ) );
+                    $current_time = current_time('timestamp');
+                    $today_date = date('Y-m-d', $current_time);
+                    $schedule_timestamp = strtotime($today_date . ' ' . $custom_time);
+                    if ( $schedule_timestamp <= $current_time ) {
+                        $schedule_timestamp = strtotime('+1 day', strtotime($today_date . ' ' . $custom_time));
+                    }
+                    $format = get_option('time_format', 'g:i a') . ', F j, Y';
+                    $next_update = date($format, $schedule_timestamp);
                 }
 
 				if ( 'no' !== $schedule ) {

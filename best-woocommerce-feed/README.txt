@@ -6,7 +6,7 @@ Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, 
 Requires at least: 5.0
 Tested up to:  6.8.1
 Requires PHP: 7.4
-Stable tag:  7.4.43
+Stable tag:  7.4.44
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -491,6 +491,14 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 
 == Changelog ==
+
+= 7.4.44 (2025-07-17) =
+* Enhancement: Hide view feed button for csv type feeds
+* Fix: System status message after plugin rollback
+* Enhancement: Added validation to require Facebook Pixel ID before saving
+* Fix: Removed empty box from Settings page after installing PFM Pro
+* Fix: Removed creation of unused default schedule hooks
+* Fix: Fixed incorrect “Next Schedule” time display
 
 = 7.4.43 (2025-07-03) =
 * Enhancement: Update discount pricing on the setup wizard and CRO

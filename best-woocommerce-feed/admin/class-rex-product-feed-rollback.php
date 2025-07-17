@@ -216,6 +216,7 @@ class Rex_Feed_Rollback {
 	 * @since 7.2.5
 	 */
 	public function run() {
+        delete_transient( '_wpfm_cache_system_status' );
 		$this->apply_package();
 		$this->upgrade();
 	}
