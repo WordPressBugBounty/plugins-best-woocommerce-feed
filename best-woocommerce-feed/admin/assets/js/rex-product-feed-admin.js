@@ -3127,6 +3127,38 @@
            $( '.rex_feed_google_schedule_all__content' ).show();
        }
    }
+
+
+    $(document).ready(function($) {
+        $(document).on('change', '.rex-feed-config-filter .rex-feed-custom-filter .flex-row select', function(e) {
+            e.preventDefault();
+            applySelectBehavior($(this));
+        });
+        $(document).on('click', '.rex-feed-config-filter .rex-feed-custom-filter .accordion span', function(e) {
+            e.preventDefault();
+            $('.rex-feed-config-filter .rex-feed-custom-filter .flex-row select').each(function() {
+                if ($(this).attr('name') && $(this).attr('name').indexOf('condition') !== -1) {
+                    let selectedValue = $(this).val();
+                    if (selectedValue === 'is_empty' || selectedValue === 'is_not_empty') {
+                        $(this).parent().parent().children(':nth-child(3)').children('input').val('');
+                        $(this).parent().parent().children(':nth-child(3)').children('input').attr('readonly', true);
+                    }
+                }
+            });
+        });
+    });
+
+    function applySelectBehavior($select) {
+        let selectedValue = $select.val();
+        let $input = $select.parent().parent().children(':nth-child(3)').children('input');
+        if (selectedValue === 'is_empty' || selectedValue === 'is_not_empty') {
+            $input.val('');
+            $input.attr('readonly', true);
+        } else {
+            $input.removeAttr('readonly');
+        }
+    }
+
 })(jQuery);
 
 /* When the user clicks on the button,
@@ -3189,6 +3221,8 @@ function setupDropdownArea(dropdownToggle) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+
+    
     //   You can get different selectors (class, id, tags...)
     const button = document.querySelector(".dropdown-toggle");
     const dropdown = document.querySelector(".dropdown-menu");
@@ -3223,10 +3257,28 @@ document.addEventListener("DOMContentLoaded", () => {
                 close();
             }
         });
+
+        const newAttr = document.getElementById("rex-new-attr");
+        const newCustomAttr = document.getElementById("rex-new-custom-attr");
+        
+        if (newAttr) {
+          newAttr.addEventListener("click", () => {
+            close(); // close the dropdown
+          });
+        }
+        
+        if (newCustomAttr) {
+          newCustomAttr.addEventListener("click", () => {
+            close(); // close the dropdown
+          });
+        }
+
+
+
     }
 
 
-
+    
  
     const productList = document.getElementById("rex-settings__merchant-lists");
 

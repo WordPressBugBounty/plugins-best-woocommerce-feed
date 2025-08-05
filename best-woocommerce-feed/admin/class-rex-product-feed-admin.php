@@ -445,6 +445,7 @@ class Rex_Product_Feed_Admin {
         );
         $is_premium                                = apply_filters( 'wpfm_is_premium_activate', false );
         add_submenu_page( 'edit.php?post_type=product-feed', __( 'Support', 'rex-product-feed' ), '<span id="rex-feed-support-submenu">' . __( 'Support', 'rex-product-feed' ) . '</span>', 'manage_woocommerce', esc_url( 'https://wordpress.org/support/plugin/best-woocommerce-feed/#new-topic-0' ) );
+        add_submenu_page( 'edit.php?post_type=product-feed', __( 'Documentation', 'rex-product-feed' ), '<span id="rex-feed-documentation-submenu">' . __( 'Documentation', 'rex-product-feed' ) . '</span>', 'manage_woocommerce', esc_url( 'https://rextheme.com/docs-category/product-feed-manager/' ) );
 
         if ( !$is_premium ) {
             $this->wpfm_pro_submenu = add_submenu_page(
@@ -516,6 +517,12 @@ class Rex_Product_Feed_Admin {
      * @return void
      */
     public function rex_admin_footer_style() {
+        echo '<script>
+            jQuery(document).ready(function($) {
+                // Make Documentation link open in new tab
+                $("#rex-feed-documentation-submenu").parent("a").attr("target", "_blank");
+            });
+        </script>';
         echo '<style>
 
                 .wpfm-bf-wrapper {

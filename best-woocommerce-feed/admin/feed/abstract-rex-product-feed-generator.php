@@ -994,7 +994,6 @@ abstract class Rex_Product_Feed_Abstract_Generator
 
         if ( is_array( $this->products ) ) {
             $this->products = array_unique( $this->products );
-
             if ( $this->batch === 1 ) {
                 update_post_meta( $this->id, '_rex_feed_product_ids', $this->products );
             }

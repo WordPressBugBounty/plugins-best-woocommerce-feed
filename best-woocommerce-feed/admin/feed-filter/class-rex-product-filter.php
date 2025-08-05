@@ -163,8 +163,9 @@ class Rex_Product_Filter {
                 'sale_price_dates_from' => 'Sale Start Date',
                 'sale_price_dates_to'   => 'Sale End Date',
                 'manufacturer'          => 'Manufacturer',
-                'post_date_gmt'             => 'Product Creation Date',
-                'post_modified_gmt'         => 'Product Last Modified Date'
+                'post_date_gmt'         => 'Product Creation Date',
+                'post_modified_gmt'     => 'Product Last Modified Date',
+                'gtin'                  => 'GTIN',
             ]
         ];
         if( rexfeed_is_woocommerce_brand_active() ) {
@@ -219,7 +220,9 @@ class Rex_Product_Filter {
                 'greater_than'             => __('Greater than', 'rex-product-feed' ),
                 'greater_than_equal'       => __('Greater than or equal to', 'rex-product-feed' ),
                 'less_than'                => __('Less than', 'rex-product-feed' ),
-                'less_than_equal'          => __('Less than or equal to', 'rex-product-feed' )
+                'less_than_equal'          => __('Less than or equal to', 'rex-product-feed' ),
+                'is_empty'                 => __('Is empty'),
+                'is_not_empty'             => __('Is not empty')
             )
         );
     }
@@ -278,7 +281,6 @@ class Rex_Product_Filter {
      * @param string $selected
      */
     public function print_select_dropdown( $key1, $key2, $name, $name_prefix = 'ff', $selected = '', $class = '', $style = '' ){
-
         if ( $name === 'if' ) {
             $items = $this->product_meta_keys;
         }
@@ -368,7 +370,6 @@ class Rex_Product_Filter {
                     }
 
                     $prefix = self::get_method_prefix( $filter[ 'if' ] );
-
                     if( 'postterm_' === $prefix ) {
                         $acf_attributes = [];
                         if ( defined( 'ACF_VERSION' ) ) {
@@ -474,6 +475,7 @@ class Rex_Product_Filter {
             'sale_price_dates_from',
             'sale_price_dates_to',
             'total_sales',
+            'gtin'
         ];
         $term_rel_table_attr = [
             'product_cats',
@@ -563,6 +565,8 @@ class Rex_Product_Filter {
             case 'product_tags':
             case 'product_brands':
                 return 'term_taxonomy_id';
+            case 'gtin':
+                return '_global_unique_id';
             default:
                 return $column;
         }
@@ -939,6 +943,116 @@ class Rex_Product_Filter {
     }
 
     /**
+     * Build SQL condition for checking if a post column is empty.
+     *
+     * @param string $column   Column name to check.
+     * @param string $operator Operator: 'inc' (include) or 'exc' (exclude).
+     * @return string SQL fragment.
+     * @since 7.4.45
+     */
+    private static function post_is_empty( $column, $value, $operator = 'inc' ) {
+        global $wpdb;
+        $condition = "({$wpdb->posts}.{$column} IS NULL OR {$wpdb->posts}.{$column} = '')";
+        if ( 'exc' === $operator ) {
+            $condition = "NOT ( {$condition} )";
+        }
+        return $condition;
+    }
+
+    /**
+     * Build SQL condition for checking if a post column is not empty.
+     *
+     * @param string $column   Column name to check.
+     * @param string $operator Operator: 'inc' (include) or 'exc' (exclude).
+     * @return string SQL fragment.
+     * @since 7.4.45
+     */
+    private static function post_is_not_empty( $column, $value, $operator = 'inc' ) {
+        global $wpdb;
+        $condition = "({$wpdb->posts}.{$column} IS NOT NULL AND {$wpdb->posts}.{$column} != '')";
+        if ( 'exc' === $operator ) {
+            $condition = "NOT ( {$condition} )";
+        }
+        return $condition;
+    }
+
+    /**
+     * Build SQL condition for checking if a postmeta field is empty.
+     *
+     * @param string $column   Meta key name to check.
+     * @param string $value    Unused in this context.
+     * @param string $operator Operator: 'inc' (include) or 'exc' (exclude).
+     * @return string SQL fragment.
+     * @since 7.4.45
+     */
+    private static function postmeta_is_empty($column, $value, $operator = 'inc') {
+        $meta_table = 'RexMeta' . self::$meta_table_count;
+        $condition = "(($meta_table.meta_key = '{$column}' AND ($meta_table.meta_value IS NULL OR $meta_table.meta_value = '')) OR $meta_table.meta_value IS NULL)";
+        if ('exc' === $operator) {
+            $condition = "NOT ($condition)";
+        }
+        return $condition;
+    }
+
+    /**
+     * Build SQL condition for checking if a postmeta field is not empty.
+     *
+     * @param string $column   Meta key name to check.
+     * @param string $value    Unused in this context.
+     * @param string $operator Operator: 'inc' (include) or 'exc' (exclude).
+     * @return string SQL fragment.
+     * @since 7.4.45
+     */
+    private static function postmeta_is_not_empty($column, $value, $operator = 'inc') {
+        $meta_table = 'RexMeta' . self::$meta_table_count;
+        $condition = "($meta_table.meta_key = '{$column}' AND $meta_table.meta_value IS NOT NULL AND $meta_table.meta_value != '')";
+        if ('exc' === $operator) {
+            $condition = "NOT ($condition)";
+        }
+        return $condition;
+    }
+
+    /**
+     * Build SQL condition for checking if a taxonomy term relationship is empty.
+     *
+     * @param string $column   Term column name to check.
+     * @param string $value    Unused in this context.
+     * @param string $operator Operator: 'inc' (include) or 'exc' (exclude).
+     * @return string SQL fragment.
+     * @since 7.4.45
+     */
+    private static function postterm_is_empty($column, $value, $operator = 'inc') {
+        global $wpdb;
+        $term_table = 'RexTerm' . self::$term_table_count;
+        if ('exc' === $operator) {
+            return "$term_table.$column IS NOT NULL";
+        } else {
+            return "$term_table.$column IS NULL";
+        }
+    }
+
+    /**
+     * Build SQL condition for checking if a taxonomy term relationship is not empty.
+     *
+     * @param string $column   Term column name to check.
+     * @param string $value    Unused in this context.
+     * @param string $operator Operator: 'inc' (include) or 'exc' (exclude).
+     * @return string SQL fragment.
+     * @since 7.4.45
+     */
+    private static function postterm_is_not_empty($column, $value, $operator = 'inc') {
+        global $wpdb;
+        $term_table = 'RexTerm' . self::$term_table_count;
+        if ('exc' === $operator) {
+            return "$term_table.$column IS NULL";
+        } else {
+            return "$term_table.$column IS NOT NULL";
+        }
+    }
+
+
+
+    /**
      * Get product ids [comma separated] by term id
      *
      * @param int|string $term_id Taxonomy ID.
@@ -993,9 +1107,11 @@ class Rex_Product_Filter {
      */
     protected static function get_product_variation_attributes() {
         $var_attributes = wpfm_get_cached_data( 'product_variation_attributes_custom_filter' );
-        if ( !is_array( $var_attributes ) || empty( $var_attributes ) ) {
+        if ( !is_array( $var_attributes ) ) {
+            $var_attributes = [];
             $pr_attribtues = wpfm_get_cached_data( 'product_attributes_custom_filter' );
             if ( !empty( $pr_attribtues[ 'Product Attributes' ] ) ) {
+                $var_attributes[ 'Product Variation Attributes' ] = [];
                 foreach ( $pr_attribtues[ 'Product Attributes' ] as $key => $value ) {
                     $var_attributes[ 'Product Variation Attributes' ][ "va_{$key}" ] = $value;
                 }

@@ -973,42 +973,93 @@ class Rex_Product_Feed_Actions {
 	 * @since 7.4.20
 	 */
     public function add_translate_press_value( $value, $rule, $instance ) {
+
         if ( wpfm_is_translatePress_active() ) {
-            $trp_default_lang = rexfeed_get_trp_default_language();
-            $language = $instance->feed->translatepress_language ?? $trp_default_lang;
+            if (empty($value) || !is_string($value)) {
+                return $value;
+            }
 
-            if ( $language !== $trp_default_lang ) {
-                $is_link = isset( $rule['meta_key'] ) && 'link' === $rule['meta_key'];
+            $meta_key = isset($rule['meta_key']) ? $rule['meta_key'] : '';
 
-                if ( !$is_link ) {
-                    $value = trp_translate( $value, $language, false );
-                } else {
-                    $slug = rexfeed_get_trp_url_slug( $language );
+            $trp_default_lang = function_exists('rexfeed_get_trp_default_language') ? rexfeed_get_trp_default_language() : '';
+            $language = isset($instance->feed->translatepress_language) ? $instance->feed->translatepress_language : $trp_default_lang;
 
-                    if ( !empty( $slug ) ) {
-                        if ( is_plugin_active('translatepress-personal/index.php') ) {
-                            $parsed_url = parse_url( $value );
-                            if ( isset( $parsed_url['path'] ) ) {
-                                $path_parts = explode( '/', trim( $parsed_url['path'], '/' ) );
-                                $translated_path_parts = [];
+            if (!function_exists('trp_translate') || !function_exists('wpfm_is_translatePress_active') || !wpfm_is_translatePress_active()) {
+                return $value;
+            }
 
-                                foreach ( $path_parts as $index => $part ) {
-                                    $translated_path_parts[] = $this->rexfeed_get_translated_slug( $part, $language );
+            if ($language === $trp_default_lang) {
+                return $value;
+            }
+
+            if ($meta_key === 'link') {
+                $slug = function_exists('rexfeed_get_trp_url_slug') ? rexfeed_get_trp_url_slug($language) : '';
+                if (!empty($slug)) {
+                    if (function_exists('is_plugin_active') && is_plugin_active('translatepress-personal/index.php')) {
+                        $parsed_url = parse_url($value);
+                        if (isset($parsed_url['path'])) {
+                            $path_parts = explode('/', trim($parsed_url['path'], '/'));
+                            $translated_path_parts = [];
+                            foreach ($path_parts as $index => $part) {
+                                if (method_exists($this, 'rexfeed_get_translated_slug')) {
+                                    $translated_path_parts[] = $this->rexfeed_get_translated_slug($part, $language);
+                                } else {
+                                    $translated_path_parts[] = $part;
                                 }
-
-                                $translated_path = implode( '/', $translated_path_parts );
-                                $value = trailingslashit( home_url() ) . untrailingslashit( $slug ) . '/' . untrailingslashit( $translated_path ) . '/';
-                                $value = urldecode( $value );
                             }
-                        } else {
-                            $value = str_replace( home_url( '/' ), home_url( '/' ) . "$slug/", $value );
+                            $translated_path = implode('/', $translated_path_parts);
+                            $value = trailingslashit(home_url()) . untrailingslashit($slug) . '/' . untrailingslashit($translated_path) . '/';
+                            $value = urldecode($value);
                         }
+                    } else {
+                        $value = str_replace(home_url('/'), home_url('/') . "$slug/", $value);
                     }
                 }
+                return $value;
             }
+
+            $translatable_keys = ['description', 'short_description'];
+            if (in_array($meta_key, $translatable_keys, true)) {
+                $translated_parts = [];
+
+                if (stripos($value, '<p') !== false) {
+                    $paragraphs = preg_split(
+                        '/(<p.*?>.*?<\/p>)/is',
+                        $value,
+                        -1,
+                        PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
+                    );
+                    foreach ($paragraphs as $part) {
+                        $trimmed = trim($part);
+                        if ($trimmed === '') continue;
+                        $translated_parts[] = trp_translate($trimmed, $language, false);
+                    }
+                    $value = implode('', $translated_parts);
+                } else {
+                    $paragraphs = preg_split('/\R{2,}/', $value);
+                    foreach ($paragraphs as $p) {
+                        $p = trim($p);
+                        if ($p === '') continue;
+                        $translated_parts[] = trp_translate($p, $language, false);
+                    }
+                    $value = implode("\n\n", $translated_parts);
+                }
+
+                return $value;
+            }
+
+            if (function_exists('trp_translate')) {
+                $value = trp_translate($value, $language, false);
+            }
+
+            return $value;
+        }else{
+            return $value;
         }
-        return $value;
     }
+
+
+
 
     /**
      * Retrieves the default language set in TranslatePress.

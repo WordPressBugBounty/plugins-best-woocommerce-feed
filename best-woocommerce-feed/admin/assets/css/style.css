@@ -2044,9 +2044,11 @@ a,
   transition: all 0.3s ease;
   filter: drop-shadow(0px 10px 40px rgba(9, 32, 72, 0.2));
 }
+.rex_feed-tooltip p a {
+  text-decoration: underline;
+}
 .rex_feed-tooltip p a:hover {
   color: #3273dc;
-  text-decoration: underline;
 }
 
 .rex_feed-tooltip p:before {
@@ -5038,7 +5040,7 @@ body.post-type-product-feed.shepherd-active .shepherd-button {
   background-color: #216df0;
   border: 1px solid #216df0;
   border-radius: 10px;
-  color: hsla(0, 0%, 100%, 0.75);
+  color: hsla(0deg, 0%, 100%, 0.75);
   margin-right: 0.5rem;
   padding: 0.5rem 1.5rem;
   transition: all 0.5s ease;
@@ -6405,6 +6407,7 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
   font-size: 14px;
   font-weight: 500;
   transition: all 0.3s ease;
+  text-decoration: underline;
 }
 .rex-google-shopping__list a:hover {
   text-decoration: underline;
@@ -7536,7 +7539,7 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
 }
 
 #rex-feed-settings-save-changes {
-  padding: 0px;
+  padding: 20px 0 0;
 }
 
 #rex-feed-config-rules,
@@ -7791,6 +7794,7 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
   font-size: 14px;
   font-weight: 500;
   color: #3273dc;
+  text-decoration: underline;
 }
 #rex-feed-product-taxonomies #rex-feed-product-taxonomies-contents #rex-feed-product-tags .rex-feed-product-cats a:hover,
 #rex-feed-product-taxonomies #rex-feed-product-taxonomies-contents #rex-feed-product-tags .rex-feed-product-tags a:hover,
@@ -7861,6 +7865,7 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
 .rex-feed-product-filter-ids__area .rex-feed-product-filter-ids a {
   font-size: 14px;
   font-weight: 500;
+  text-decoration: underline;
 }
 .rex-feed-product-filter-ids__area .rex-feed-product-filter-ids a:hover {
   text-decoration: underline;
@@ -9194,7 +9199,7 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
 .rex-feed-custom-filter__fine-replace .flex-table-row::before {
   content: "";
   position: absolute;
-  right: 30px;
+  right: 28px;
   bottom: 18px;
   width: 2px;
   height: 102%;
@@ -9465,11 +9470,13 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
   background: #EDEFF1;
 }
 @font-face {
-  font-family: "Inter";
-  src: url("../fonts/Inter-Medium.woff2") format("woff2"), url("../fonts/Inter-Medium.woff") format("woff");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
+  .rex-feed-gmc-diagnostics-report-area {
+    font-family: "Inter";
+    src: url("../fonts/Inter-Medium.woff2") format("woff2"), url("../fonts/Inter-Medium.woff") format("woff");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
 }
 @media (max-width: 1199px) {
   .rex-feed-gmc-diagnostics-report-area {

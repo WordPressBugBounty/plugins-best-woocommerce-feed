@@ -57,7 +57,7 @@ class Rex_Product_CPT {
 			'label'               => 'product-feed',
 			'labels'              => $labels,
 			'supports'            => [ 'title' ],
-			'hierarchical'        => true,
+			'hierarchical'        => false,
 			'show_ui'             => true,
 			'show_in_menu'        => true,
 			'menu_icon'           => $this->get_menu_icon(),

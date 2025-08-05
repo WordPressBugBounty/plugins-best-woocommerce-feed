@@ -845,11 +845,20 @@ if ( ! function_exists( 'wpfm_is_translatePress_active' ) ) {
 	function wpfm_is_translatePress_active() {
 		return defined( 'TRP_PLUGIN_VERSION' );
 	}
-
-	function wpfm_is_curcy_active() {
-		return defined( 'WOOMULTI_CURRENCY_F_VERSION' );
-	}
 }
+
+if( ! function_exists( 'wpfm_is_curcy_active' ) ) {
+    /**
+     * @desc check if WooCommerce Multi Currency is active.
+     *
+     * @return bool
+     * @since 7.4.20
+     */
+    function wpfm_is_curcy_active() {
+        return defined( 'WOOMULTI_CURRENCY_F_VERSION' );
+    }
+}
+
 
 if ( !function_exists( 'rexfeed_get_variable_parent_product_price' ) ) {
 	/**
