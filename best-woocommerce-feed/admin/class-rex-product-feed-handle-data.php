@@ -53,6 +53,9 @@ class Rex_Product_Feed_Data_Handle {
         if( !empty( $feed_data[ 'rex_feed_tags' ] ) ) {
             $filter_data[ 'rex_feed_tags' ] = $feed_data[ 'rex_feed_tags' ];
         }
+        if( !empty( $feed_data[ 'rex_feed_brands' ] ) ) {
+            $filter_data[ 'rex_feed_brands' ] = $feed_data[ 'rex_feed_brands' ];
+        }
         if( !empty( $feed_data[ 'rex_feed_product_filter_ids' ] ) ) {
             $filter_data[ 'rex_feed_product_filter_ids' ] = $feed_data[ 'rex_feed_product_filter_ids' ];
         }
@@ -64,6 +67,10 @@ class Rex_Product_Feed_Data_Handle {
         }
         if( !empty( $feed_data[ 'rex_feed_tags_check_all_btn' ] ) ) {
             $filter_data[ 'rex_feed_tags_check_all_btn' ] = $feed_data[ 'rex_feed_tags_check_all_btn' ];
+        }
+
+        if( !empty( $feed_data[ 'rex_feed_brands_check_all_btn' ] ) ) {
+            $filter_data[ 'rex_feed_brands_check_all_btn' ] = $feed_data[ 'rex_feed_brands_check_all_btn' ];
         }
         if( !empty( $feed_data[ 'fr' ] ) ) {
             $filter_data[ 'fr' ] = $feed_data[ 'fr' ];
@@ -100,7 +107,6 @@ class Rex_Product_Feed_Data_Handle {
         if( !$feed_id || empty( $data ) ) {
             return;
         }
-
         if( isset( $data[ 'rex_feed_products' ] ) ) {
             update_post_meta( $feed_id, '_rex_feed_products', $data[ 'rex_feed_products' ] );
         }
@@ -143,6 +149,13 @@ class Rex_Product_Feed_Data_Handle {
             delete_post_meta( $feed_id, '_rex_feed_tags_check_all_btn' );
         }
 
+        if( isset( $data[ 'rex_feed_brands_check_all_btn' ] ) ) {
+            update_post_meta( $feed_id, '_rex_feed_brands_check_all_btn', $data[ 'rex_feed_brands_check_all_btn' ] );
+        }
+        else {
+            delete_post_meta( $feed_id, '_rex_feed_brands_check_all_btn' );
+        }
+
         if( isset( $data[ 'rex_feed_cats' ] ) ) {
             $cats = array();
             foreach( $data[ 'rex_feed_cats' ] as $cat ) {
@@ -163,6 +176,18 @@ class Rex_Product_Feed_Data_Handle {
         else {
             wp_set_object_terms( $feed_id, array(), 'product_tag' );
         }
+
+        if( isset( $data[ 'rex_feed_brands' ] ) ) {
+            $brands = array();
+            foreach( $data[ 'rex_feed_brands' ] as $brand ) {
+                $brands[] = get_term_by( 'slug', $brand, 'product_brand' )->term_id;
+            }
+            wp_set_object_terms( $feed_id, $brands, 'product_brand' );
+        }
+        else {
+            wp_set_object_terms( $feed_id, array(), 'product_brand' );
+        }
+
     }
 
     /**

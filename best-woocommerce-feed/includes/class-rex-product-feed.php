@@ -198,7 +198,7 @@ class Rex_Product_Feed {
         $this->loader->add_action( 'admin_notices', $feed_actions, 'render_xml_error_message' );
         // Duplicate feed item.
         $this->loader->add_action( 'admin_action_wpfm_duplicate_post_as_draft', $feed_actions, 'duplicate_feed_as_draft' );
-        $this->loader->add_filter( 'page_row_actions', $feed_actions, 'duplicate_feed_link', 10, 2 );
+        $this->loader->add_filter( 'post_row_actions', $feed_actions, 'duplicate_feed_link', 10, 2 );
         $this->loader->add_action( 'wp_footer', $feed_actions, 'enable_facebook_pixel' );
 
         // Custom ajax for data base update.

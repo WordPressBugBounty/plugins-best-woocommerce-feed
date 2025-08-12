@@ -1306,7 +1306,6 @@ class Rex_Product_Feed_Ajax {
         wp_parse_str( $payload[ 'feed_data' ], $feed_data );
 
         $filter_data = Rex_Product_Feed_Data_Handle::get_filter_drawer_data( $feed_data );
-
         if( !empty( $filter_data ) ) {
             Rex_Product_Feed_Data_Handle::save_filter_drawer_data( $payload[ 'feed_id' ], $filter_data );
         }

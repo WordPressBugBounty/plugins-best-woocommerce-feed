@@ -622,7 +622,7 @@
 
     $(document).on("change", "select.sanitize-dropdown, select.default-sanitize-dropdown", rex_feed_update_multiple_filter_counter);
 
-    $(document).on("change", "#rex_feed_cats_check_all_btn, #rex_feed_tags_check_all_btn", rex_feed_check_uncheck_all_tax);
+    $(document).on("change", "#rex_feed_cats_check_all_btn, #rex_feed_tags_check_all_btn, #rex_feed_brands_check_all_btn", rex_feed_check_uncheck_all_tax);
 
     $(document).on("change", "select.attr-dropdown, select.attr-val-dropdown", rex_feed_auto_select_google_shipping_tax);
 
@@ -877,6 +877,7 @@
                             $("#rex-feed-product-taxonomies #rex-feed-product-taxonomies-contents").remove();
                             $(".rex-feed-tags-wrapper").hide();
                             $(".rex-feed-product-filter-ids__area").hide();
+
                             if ("all" === selected) {
                                 $("div#rex-feed-featured-product").hide();
                                 $("div#rex-feed-published-product").show();
@@ -884,6 +885,7 @@
                                 $("div#rex-feed-published-product").hide();
                                 $("div#rex-feed-featured-product").show();
                             }
+
                         } else if (selected === "filter") {
                             $("#rex_feed_product_filters .inside .rex-loading-spinner").hide();
                             $("#rex-feed-product-taxonomies").hide();
@@ -892,31 +894,49 @@
                             $("div#rex-feed-published-product").hide();
                             $("div#rex-feed-featured-product").hide();
                             $("#rex-feed-config-rules").show();
-                        } else if (selected === "product_cat" || selected === "product_tag") {
+
+                        } else if (
+                            selected === "product_cat" ||
+                            selected === "product_tag" ||
+                            selected === "product_brand"
+                        ) {
                             let tax_contents = $("#rex-feed-product-taxonomies-contents");
                             if (tax_contents.length === 0) {
                                 $("#rex-feed-product-taxonomies").append(response.html_content);
                             }
+
                             $("#rex_feed_product_filters .inside .rex-loading-spinner").hide();
                             $(".rex-feed-product-filter-ids__area").hide();
                             $("div#rex-feed-published-product").hide();
                             $("div#rex-feed-featured-product").hide();
                             $("#rex-feed-product-taxonomies").show();
+
                             if (selected === "product_cat") {
                                 $("#rex-feed-product-tags").hide();
+                                $("#rex-feed-product-brands").hide();
                                 $("#rex-feed-product-cats").show();
+                            } else if (selected === "product_tag") {
+                                $("#rex-feed-product-cats").hide();
+                                $("#rex-feed-product-brands").hide();
+                                $("#rex-feed-product-tags").show();
                             } else {
                                 $("#rex-feed-product-cats").hide();
-                                $("#rex-feed-product-tags").show();
+                                $("#rex-feed-product-tags").hide();
+                                $("#rex-feed-product-brands").show();
                             }
+
                         } else if (selected === "product_filter") {
                             $("#rex_feed_product_filters .inside .rex-loading-spinner").hide();
                             $("#rex-feed-product-taxonomies").hide();
                             $("#rex-feed-product-taxonomies #rex-feed-product-taxonomies-contents").remove();
                             $("div#rex-feed-published-product").hide();
                             $("div#rex-feed-featured-product").hide();
-                            $(".rex-feed-product-filter-ids__area").show().children("div.rex-feed-product-filter-selected__area").children("select.product_filter_condition").select2();
+                            $(".rex-feed-product-filter-ids__area").show()
+                                .children("div.rex-feed-product-filter-selected__area")
+                                .children("select.product_filter_condition")
+                                .select2();
                         }
+
 
                         $("#rex_feed_product_filters .inside .rex-loading-spinner").fadeOut();
                         if ( 'ready' === event.type) {
@@ -1250,6 +1270,7 @@
                 products_scope: $("#rex_feed_products").find(":selected").val(),
                 tags: get_checkbox_val("tags"),
                 cats: get_checkbox_val("cats"),
+                brands: get_checkbox_val("brands"),
                 data: $("#rex_feed_product_filter_ids").val(),
             },
 
@@ -2322,6 +2343,8 @@
             rex_feed_check_uncheck_all_cats(button_id);
         } else if ("rex_feed_tags_check_all_btn" === button_id) {
             rex_feed_check_uncheck_all_tags(button_id);
+        } else if ("rex_feed_brands_check_all_btn" === button_id) {
+                rex_feed_check_uncheck_all_brands(button_id);
         }
     }
 
@@ -2348,6 +2371,19 @@
             $("input.rex_feed_tags").prop("checked", true);
         } else {
             $("input.rex_feed_tags").prop("checked", false);
+        }
+    }
+
+    /**
+     * @desc Check/Uncheck All Brands
+     * option in product filters section
+     * @since 7.4.45
+     */
+    function rex_feed_check_uncheck_all_brands(button_id){
+        if (1 <= $("input#" + button_id + ":checked").length) {
+            $("input.rex_feed_brands").prop("checked", true);
+        } else {
+            $("input.rex_feed_brands").prop("checked", false);
         }
     }
 

@@ -218,7 +218,8 @@ class Rex_Product_Metabox
             'all'            => __( 'All Published Products', 'rex-product-feed' ),
             'featured'       => __( 'All Featured Products', 'rex-product-feed' ),
             'product_cat'    => __( 'Category Filters', 'rex-product-feed' ),
-            'product_tag'    => __( 'Tag Filters', 'rex-product-feed' )
+            'product_tag'    => __( 'Tag Filters', 'rex-product-feed' ),
+            'product_brand'  => __( 'Brand Filters', 'rex-product-feed' ),
         );
 
         if ( wpfm_pro_compatibility() ) {

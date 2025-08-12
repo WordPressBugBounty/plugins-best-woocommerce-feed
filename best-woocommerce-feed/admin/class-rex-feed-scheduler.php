@@ -323,9 +323,7 @@ class Rex_Feed_Scheduler {
                         if( !$update_single ) {
                             $schedule             = $this->get_feed_schedule_settings( $feed_id );
                             $schedule_time        = get_post_meta( $feed_id, '_rex_feed_custom_time', true ) ?: get_post_meta( $feed_id, 'rex_feed_custom_time', true );
-                            $timezone             = new DateTimeZone( wp_timezone_string() );
-                            $now_time             = wp_date( "H", null, $timezone );
-                            $is_custom_executable = 'custom' === $schedule && '' !== $schedule_time && $schedule_time == $now_time;
+                            $is_custom_executable = 'custom' === $schedule;
                         }
 
                         if( $update_single || $is_custom_executable || in_array( $schedule, [ 'hourly', 'daily', 'weekly', 'custom' ] ) ) {
@@ -393,10 +391,11 @@ class Rex_Feed_Scheduler {
             ],
         ];
 
-        // Add custom time filter only if schedule is 'custom'
-        if ( 'custom' === $schedule ) {
+        $is_manual_run = $this->is_manual_action_scheduler_run();
+
+        if('custom' === $schedule && !$is_manual_run) {
             $timezone = new DateTimeZone( wp_timezone_string() );
-            $now_time = wp_date( "H", null, $timezone ); // returns hour in 24-hour format
+            $now_time = wp_date( "G", null, $timezone );
 
             $meta_queries[] = [
                 'relation' => 'AND',
@@ -430,8 +429,32 @@ class Rex_Feed_Scheduler {
             'suppress_filters' => true,
         ];
 
-        $result = new WP_Query( $args );
-        return $result->get_posts();
+        return (new WP_Query($args))->get_posts();
+    }
+
+    /**
+     * Check if the current action is a manual run of Action Scheduler
+     *
+     * @return bool
+     * @since 7.4.46
+     */
+    private function is_manual_action_scheduler_run() {
+        // CLI
+        if ( defined( 'WP_CLI' ) && WP_CLI ) {
+            return true;
+        }
+
+        // Admin page trigger (Run button)
+        if ( is_admin() && ! ( defined( 'DOING_CRON' ) && DOING_CRON ) && ! wp_doing_ajax() ) {
+            return true;
+        }
+
+        // The async runner for "Run" button
+        if ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] === 'as_async_request_queue_runner' && is_user_logged_in() ) {
+            return true;
+        }
+
+        return false;
     }
 
 

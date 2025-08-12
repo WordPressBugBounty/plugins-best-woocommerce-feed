@@ -4,9 +4,9 @@ Contributors: rextheme, coderexltd, coderexco
 Donate link: https://rextheme.com/best-WooCommerce-product-feed/
 Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, product feed, google feed, google merchant, product feed, google shopping feed, facebook feed, facebook product feed, woocommerce product feed manager, XML feed, woocommerce feed, Instagram Feed, eBay MIP, woocommerce xml feed, CSV feed, marktplaats, feed generator wordpress, produktfeed, bing shopping, yml, YML for Yandex Market, woocommerce google product feed, facebook pixel, pinterest feed, tiktok ads, Google Remarketing Pixel, twitter ads, woocommerce google shopping, Instagram product feed
 Requires at least: 5.0
-Tested up to:  6.8.1
+Tested up to:  6.8.2
 Requires PHP: 7.4
-Stable tag:  7.4.45
+Stable tag:  7.4.46
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -480,6 +480,13 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 
 == Changelog ==
+
+= 7.4.46 (2025-08-12) =
+* Enhancement: WooCommerce Brands Filter
+* Fix: Incorrect pricing in WPML currency on auto-generated feed refresh
+* Fix: Custom scheduler now updates “Last Update,” triggers “In Queue,” and runs on schedule
+* Fix: Fixed issue where duplicated feeds did not retain all feed settings
+
 
 = 7.4.45 (2025-08-05) =
 * Fix: Auto-collapse "Add New Attribute" after adding to confirm success and avoid duplicates

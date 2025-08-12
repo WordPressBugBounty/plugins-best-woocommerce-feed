@@ -639,23 +639,36 @@ abstract class Rex_Product_Feed_Abstract_Generator
             'suppress_filters'       => false,
         );
 
-        if ( $args[ 'products_scope' ] === 'product_cat' || $args[ 'products_scope' ] === 'product_tag' ) {
-            $terms = $args[ 'products_scope' ] === 'product_tag' ? 'tags' : 'cats';
-            $this->products_args[ 'post_type' ] = array( 'product' );
+        if (
+            $args['products_scope'] === 'product_cat' ||
+            $args['products_scope'] === 'product_tag' ||
+            $args['products_scope'] === 'product_brand'
+        ) {
+            // Map scope to corresponding argument key
+            if ( $args['products_scope'] === 'product_tag' ) {
+                $terms_key = 'tags';
+            } else if($args['products_scope'] === 'product_cat' ){
+                $terms_key = 'cats';
+            } else if ( $args['products_scope'] === 'product_brand' ) {
+                $terms_key = 'brands';
+            }
 
-            if ( isset( $args[ $terms ] ) && is_array( $args[ $terms ] ) ) {
-                $this->products_args[ 'tax_query' ][] = array(
-                    'taxonomy' => $args[ 'products_scope' ],
+            $this->products_args['post_type'] = array( 'product' );
+            if ( isset( $args[ $terms_key ] ) && is_array( $args[ $terms_key ] ) ) {
+                $this->products_args['tax_query'][] = array(
+                    'taxonomy' => $args['products_scope'],
                     'field'    => 'slug',
-                    'terms'    => $args[ $terms ],
+                    'terms'    => $args[ $terms_key ],
                 );
-                $this->products_args[ 'tax_query' ][ 'relation' ] = 'OR';
+
+                $this->products_args['tax_query']['relation'] = 'OR';
 
                 if ( $this->batch === 1 ) {
-                    wp_set_object_terms( $this->id, $args[ $terms ], $args[ 'products_scope' ] );
+                    wp_set_object_terms( $this->id, $args[ $terms_key ], $args['products_scope'] );
                 }
             }
         }
+
 
         if ( $args[ 'products_scope' ] === 'product_filter' ) {
 
@@ -980,10 +993,8 @@ abstract class Rex_Product_Feed_Abstract_Generator
         add_filter( 'posts_distinct', array( $this, 'set_distinct' ) );
         add_filter( 'posts_where', array( $this, 'modify_where_query_for_multilingual_support' ) );
         add_filter( 'posts_join', array( $this, 'modify_join_query_for_polylang' ) );
-
         $result         = new WP_Query( $this->products_args );
         $this->products = $result->posts;
-
         if ( $this->custom_filter_option ) {
             remove_filter( 'posts_where', array( $this, 'add_custom_filter_where_query' ) );
             remove_filter( 'posts_join', array( $this, 'modify_join_query_for_custom_filter' ) );

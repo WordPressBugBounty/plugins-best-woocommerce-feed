@@ -1,4 +1,7 @@
-<?php $icon_question = 'icon/icon-svg/icon-question.php'; ?>
+<?php
+$icon_question = 'icon/icon-svg/icon-question.php';
+$post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
+?>
 
 <div class="rex-contnet-setting-area">
 
@@ -29,8 +32,8 @@
 			<ul id="<?php echo esc_html( $this->prefix ) . 'schedule';?>">
 				<?php
 				$index = 1;
-				$prev_value = get_post_meta( get_the_ID(), '_rex_feed_schedule', true );
-				$prev_value = $prev_value ?: get_post_meta( get_the_ID(), 'rex_feed_schedule', true );
+				$prev_value = get_post_meta( $post_id, '_rex_feed_schedule', true );
+				$prev_value = $prev_value ?: get_post_meta( $post_id, 'rex_feed_schedule', true );
 				$prev_value = $prev_value ?: 'no';
 				foreach( $schedules as $key => $value ) {
 					$checked = $key === $prev_value ? ' checked="checked"' : '';
@@ -73,8 +76,8 @@
 
         <div class="<?php echo esc_attr( $this->prefix ) . 'curcy_list_area'; ?>">
             <?php
-            $merchant = get_post_meta( get_the_ID(), '_rex_feed_merchant', true );
-            $merchant = $merchant ?: get_post_meta( get_the_ID(), 'rex_feed_merchant', true );
+            $merchant = get_post_meta( $post_id, '_rex_feed_merchant', true );
+            $merchant = $merchant ?: get_post_meta( $post_id, 'rex_feed_merchant', true );
             $display  = 'google' === $merchant ? '' : 'style="display:none;"';
             ?>
             <div class="<?php echo esc_attr( $this->prefix ) . 'is_google_content_api'; ?> pl-10" <?php echo $display;?>>
@@ -89,7 +92,7 @@
                 <div class="switch">
                     <div class="wpfm-switcher">
                         <?php
-                        $saved_value = get_post_meta( get_the_ID(), '_rex_feed_is_google_content_api', true );
+                        $saved_value = get_post_meta( $post_id, '_rex_feed_is_google_content_api', true );
                         $saved_value = $saved_value ?: 'no';
                         $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
@@ -111,8 +114,8 @@
 
                 <select name="<?php echo esc_attr( $this->prefix ) . 'feed_country'; ?>" id="<?php echo esc_attr( $this->prefix ) . 'feed_country'; ?>" class="">
                     <?php
-                    $saved_country = get_post_meta( get_the_ID(), '_' . esc_attr( $this->prefix ) . 'feed_country', true );
-                    $saved_country = $saved_country ?: get_post_meta( get_the_ID(), esc_attr( $this->prefix ) . 'feed_country', true );
+                    $saved_country = get_post_meta( $post_id, '_' . esc_attr( $this->prefix ) . 'feed_country', true );
+                    $saved_country = $saved_country ?: get_post_meta( $post_id, esc_attr( $this->prefix ) . 'feed_country', true );
                     $wc_countries  = new WC_Countries();
 
                     if( $saved_country ) {
@@ -149,8 +152,8 @@
 				<div class="switch">
 					<div class="wpfm-switcher">
                         <?php
-                        $saved_value = get_post_meta(get_the_ID(), '_rex_feed_include_out_of_stock', true);
-                        $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_include_out_of_stock', true);
+                        $saved_value = get_post_meta($post_id, '_rex_feed_include_out_of_stock', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_include_out_of_stock', true);
                         $saved_value = $saved_value ?: 'yes';
                         $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
@@ -172,8 +175,8 @@
 			    <div class="switch">
 					<div class="wpfm-switcher">
                         <?php
-                        $saved_value = get_post_meta(get_the_ID(), '_rex_feed_include_zero_price_products', true);
-                        $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_include_zero_price_products', true);
+                        $saved_value = get_post_meta($post_id, '_rex_feed_include_zero_price_products', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_include_zero_price_products', true);
                         $saved_value = $saved_value ?: 'yes';
                         $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
@@ -198,8 +201,8 @@
 				<div class="switch">
 					<div class="wpfm-switcher">
                         <?php
-                        $saved_value = get_post_meta(get_the_ID(), '_rex_feed_variable_product', true);
-                        $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_variable_product', true);
+                        $saved_value = get_post_meta($post_id, '_rex_feed_variable_product', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_variable_product', true);
                         $saved_value = $saved_value ?: 'no';
                         $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
@@ -220,8 +223,8 @@
 				<div class="switch">
 					<div class="wpfm-switcher">
                         <?php
-                        $saved_value = get_post_meta(get_the_ID(), '_rex_feed_hidden_products', true);
-                        $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_hidden_products', true);
+                        $saved_value = get_post_meta($post_id, '_rex_feed_hidden_products', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_hidden_products', true);
                         $saved_value = $saved_value ?: 'no';
                         $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
@@ -255,8 +258,8 @@
 				<div class="switch">
 					<div class="wpfm-switcher">
                         <?php
-                        $saved_value = get_post_meta(get_the_ID(), '_rex_feed_variation_product_name', true);
-                        $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_variation_product_name', true);
+                        $saved_value = get_post_meta($post_id, '_rex_feed_variation_product_name', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_variation_product_name', true);
                         $saved_value = $saved_value ?: 'no';
                         $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
@@ -277,8 +280,8 @@
 				<div class="switch">
 					<div class="wpfm-switcher">
                         <?php
-                        $saved_value = get_post_meta(get_the_ID(), '_rex_feed_parent_product', true);
-                        $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_parent_product', true);
+                        $saved_value = get_post_meta($post_id, '_rex_feed_parent_product', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_parent_product', true);
                         $saved_value = $saved_value ?: 'yes';
                         $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
@@ -318,8 +321,8 @@
 				<div class="switch">
 					<div class="wpfm-switcher">
                         <?php
-                        $saved_value = get_post_meta(get_the_ID(), '_rex_feed_variations', true);
-                        $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_variations', true);
+                        $saved_value = get_post_meta($post_id, '_rex_feed_variations', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_variations', true);
                         $saved_value = $saved_value ?: 'yes';
                         $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
@@ -359,8 +362,8 @@
 				<div class="switch">
 					<div class="wpfm-switcher">
                         <?php
-                        $saved_value = get_post_meta(get_the_ID(), '_rex_feed_skip_product', true);
-                        $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_skip_product', true);
+                        $saved_value = get_post_meta($post_id, '_rex_feed_skip_product', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_skip_product', true);
                         $saved_value = $saved_value ?: 'no';
                         $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
@@ -382,8 +385,8 @@
 				<div class="switch">
 					<div class="wpfm-switcher">
                         <?php
-                        $saved_value = get_post_meta(get_the_ID(), '_rex_feed_skip_row', true);
-                        $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_skip_row', true);
+                        $saved_value = get_post_meta($post_id, '_rex_feed_skip_row', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_skip_row', true);
                         $saved_value = $saved_value ?: 'no';
                         $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
@@ -426,8 +429,8 @@
 				</label>
 				<select name="<?php echo esc_html( $this->prefix ) . 'wcml_currency';?>" id="<?php echo esc_html( $this->prefix ) . 'wcml_currency';?>" class="">
 					<?php
-					$selected_price = get_post_meta( get_the_ID(), '_rex_feed_wcml_currency', true );
-					$selected_price = $selected_price ?: get_post_meta( get_the_ID(), 'rex_feed_wcml_currency', true );
+					$selected_price = get_post_meta( $post_id, '_rex_feed_wcml_currency', true );
+					$selected_price = $selected_price ?: get_post_meta( $post_id, 'rex_feed_wcml_currency', true );
 					foreach( $currencies as $key => $value ) {
 						$selected = $selected_price === $key ? ' selected' : '';
 						echo '<option value="'. esc_attr( $key ) .'" '. esc_html( $selected ) .'>'. esc_attr( $value ) .'</option>';
@@ -464,8 +467,8 @@
 					</label>
 					<select name="<?php echo esc_html( $this->prefix ) . 'aelia_currency';?>" id="<?php echo esc_html( $this->prefix ) . 'aelia_currency';?>" class="">
 						<?php
-						$selected_price = get_post_meta( get_the_ID(), '_rex_feed_aelia_currency', true );
-						$selected_price = $selected_price ?: get_post_meta( get_the_ID(), 'rex_feed_aelia_currency', true );
+						$selected_price = get_post_meta( $post_id, '_rex_feed_aelia_currency', true );
+						$selected_price = $selected_price ?: get_post_meta( $post_id, 'rex_feed_aelia_currency', true );
 						foreach( $currency_options as $key => $value ) {
 							$selected = $selected_price === $key ? ' selected' : '';
 							echo '<option value="'. esc_attr( $key ) .'" '. esc_html( $selected ) .'>'. esc_attr( $value ) .'</option>';
@@ -507,8 +510,8 @@
 					</label>
 					<select name="<?php echo esc_html( $this->prefix ) . 'wmc_currency';?>" id="<?php echo esc_html( $this->prefix ) . 'wmc_currency';?>" class="">
 						<?php
-						$selected_price = get_post_meta( get_the_ID(), '_rex_feed_wmc_currency', true );
-						$selected_price = $selected_price ?: get_post_meta( get_the_ID(), 'rex_feed_wmc_currency', true );
+						$selected_price = get_post_meta( $post_id, '_rex_feed_wmc_currency', true );
+						$selected_price = $selected_price ?: get_post_meta( $post_id, 'rex_feed_wmc_currency', true );
 						$selected_price = $selected_price ?: $wmc_default_currency;
 						foreach( $currency_options as $key => $value ) {
 							$selected = $selected_price === $key ? ' selected' : '';
@@ -534,7 +537,7 @@
                     </label>
                     <select name="<?php echo esc_html( $this->prefix ) . 'translate_press_language';?>" id="<?php echo esc_html( $this->prefix ) . 'translate_press_language';?>" class="">
                         <?php
-                        $selected_language = get_post_meta( get_the_ID(), '_rex_feed_translate_press_language', true );
+                        $selected_language = get_post_meta( $post_id, '_rex_feed_translate_press_language', true );
                         if ( is_array( $translatePress_languages ) && !empty( $translatePress_languages ) ) {
                             foreach ( $translatePress_languages as $key => $value ) {
                                 $selected = $selected_language === $key ? ' selected' : '';
@@ -580,8 +583,8 @@
                     </label>
                     <select name="<?php echo esc_html( $this->prefix ) . 'curcy_currency';?>" id="<?php echo esc_html( $this->prefix ) . 'curcy_currency';?>" class="">
                         <?php
-                        $selected_price = get_post_meta( get_the_ID(), '_rex_feed_curcy_currency', true );
-                        $selected_price = $selected_price ?: get_post_meta( get_the_ID(), 'rex_feed_curcy_currency', true );
+                        $selected_price = get_post_meta( $post_id, '_rex_feed_curcy_currency', true );
+                        $selected_price = $selected_price ?: get_post_meta( $post_id, 'rex_feed_curcy_currency', true );
                         foreach( $currency_options as $key => $value ) {
                             $selected = $selected_price === $key ? ' selected' : '';
                             echo '<option value="'. esc_attr( $key ) .'" '. esc_html( $selected ) .'>'. esc_attr( $value ) .'</option>';
@@ -610,7 +613,7 @@
                     </label>
                     <select name="<?php echo esc_html( $this->prefix ) . 'woocs_currency';?>" id="<?php echo esc_html( $this->prefix ) . 'woocs_currency';?>" class="">
                         <?php
-                        $selected_woocs = get_post_meta( get_the_ID(), '_rex_feed_woocs_currency', true );
+                        $selected_woocs = get_post_meta( $post_id, '_rex_feed_woocs_currency', true );
                         if ( is_array( $woocs_currencies ) && !empty( $woocs_currencies ) ) {
                             foreach ( $woocs_currencies as $key => $value ) {
                                 $selected = $selected_woocs === $key ? ' selected' : '';
@@ -638,8 +641,8 @@
 				<div class="switch">
 					<div class="wpfm-switcher">
                         <?php
-                        $saved_value = get_post_meta(get_the_ID(), '_rex_feed_analytics_params_options', true);
-                        $saved_value = $saved_value ?: get_post_meta(get_the_ID(), 'rex_feed_analytics_params_options', true);
+                        $saved_value = get_post_meta($post_id, '_rex_feed_analytics_params_options', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_analytics_params_options', true);
                         $saved_value = $saved_value ?: 'no';
                         $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
@@ -657,8 +660,8 @@
 			<label for="<?php echo esc_attr( $this->prefix ) . 'analytics_params';?>"><?php esc_html_e('UTM Parameters', 'rex-product-feed')?></label>
 			<ul id="<?php echo esc_html( $this->prefix ) . 'analytics_params';?>">
 				<?php
-				$analytics_params = get_post_meta( get_the_ID(), '_rex_feed_analytics_params', true );
-				$analytics_params = $analytics_params ?: get_post_meta( get_the_ID(), 'rex_feed_analytics_params', true );
+				$analytics_params = get_post_meta( $post_id, '_rex_feed_analytics_params', true );
+				$analytics_params = $analytics_params ?: get_post_meta( $post_id, 'rex_feed_analytics_params', true );
 				$utm_source       = $analytics_params[ 'utm_source' ] ?? '';
 				$utm_medium       = $analytics_params[ 'utm_medium' ] ?? '';
 				$utm_campaign     = $analytics_params[ 'utm_campaign' ] ?? '';

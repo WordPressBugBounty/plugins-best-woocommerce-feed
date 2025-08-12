@@ -128,6 +128,7 @@ class Rex_Product_Feed_Actions {
 			'rex_feed_update_on_product_change',
 			'rex_feed_cats_check_all_btn',
 			'rex_feed_tags_check_all_btn',
+            'rex_feed_brands_check_all_btn',
 			'rex_feed_yandex_company_name',
 			'rex_feed_yandex_old_price',
 			'rex_feed_hotline_firm_id',
@@ -216,6 +217,17 @@ class Rex_Product_Feed_Actions {
 			wp_set_object_terms( $post_id, array(), 'product_tag' );
 		}
 
+        if ( isset( $feed_data[ 'rex_feed_brands' ] ) ) {
+            $brands = array();
+            foreach ( $feed_data[ 'rex_feed_brands' ] as $brand ) {
+                $brands[] = get_term_by('slug', $brand, 'product_brand' )->term_id;
+            }
+            wp_set_object_terms( $post_id, $brands, 'product_brand' );
+        }
+        else {
+            wp_set_object_terms( $post_id, array(), 'product_brand' );
+        }
+
 		if ( !isset( $feed_data[ 'rex_feed_update_on_product_change' ] ) ) {
 			delete_post_meta( $post_id, '_rex_feed_update_on_product_change' );
 		}
@@ -225,6 +237,9 @@ class Rex_Product_Feed_Actions {
 		if ( !isset( $feed_data[ 'rex_feed_tags_check_all_btn' ] ) ) {
 			delete_post_meta( $post_id, '_rex_feed_tags_check_all_btn' );
 		}
+        if ( !isset( $feed_data[ 'rex_feed_brands_check_all_btn' ] ) ) {
+            delete_post_meta( $post_id, '_rex_feed_brands_check_all_btn' );
+        }
 
 		do_action( 'rex_feed_after_draft_feed_config_saved', $post_id, $feed_data );
 	}
@@ -424,6 +439,7 @@ class Rex_Product_Feed_Actions {
 
 			$categories = get_the_terms( $post->ID, 'product_cat' );
 			$tags       = get_the_terms( $post->ID, 'product_tag' );
+            $brands     = get_the_terms( $post->ID, 'product_brand' );
 
 			$new_post_id = wp_insert_post( $args );
 
@@ -443,6 +459,15 @@ class Rex_Product_Feed_Actions {
 					wp_set_object_terms( $new_post_id, $p_tags, 'product_tag' );
 				}
 			}
+
+            if ( $brands ) {
+                foreach ( $brands as $brand ) {
+                    $p_brands[] = $brand->slug;
+                }
+                if ( !empty( $p_brands ) ) {
+                    wp_set_object_terms( $new_post_id, $p_brands, 'product_brand' );
+                }
+            }
 
 			$taxonomies = get_object_taxonomies( $post->post_type ); // returns array of taxonomy names for post type, ex array("category", "post_tag");
 
@@ -469,7 +494,7 @@ class Rex_Product_Feed_Actions {
 				$sql_query .= implode( ' UNION ALL ', $sql_query_sel );
 				$wpdb->query( $sql_query ); //phpcs:ignore
 			}
-			$url = admin_url( 'post.php?action=edit&post=' . $new_post_id );
+            $url = admin_url( 'post.php?action=edit&post=' . $new_post_id . '&pr_post=' . 	$post_id);
 			$url = filter_var( $url, FILTER_SANITIZE_URL );
 			exit( esc_url( wp_redirect( $url ) ) ); //phpcs:ignore
 		}
@@ -488,7 +513,7 @@ class Rex_Product_Feed_Actions {
 	 */
 	public function duplicate_feed_link( $actions, $post ) {
 		$user = wp_get_current_user();
-		if ( 'product-feed' === !$post->post_type ) {
+        if ( 'product-feed' !== $post->post_type ) {
 			return $actions;
 		}
 		if ( in_array( 'administrator', $user->roles ) && current_user_can( 'edit_posts' ) ) {
@@ -760,27 +785,352 @@ class Rex_Product_Feed_Actions {
      *
      * @since 7.4.0
      */
-	public function update_price_compatibility_with_wpml( $product_price, $product, $type, $feed_retriever_obj ) {
-        $feed_wcml_currency = $feed_retriever_obj->get_wcml_currency();
-        if ( get_option( 'woocommerce_currency' ) === $feed_wcml_currency ) {
+    public function update_price_compatibility_with_wpml( $product_price, $product, $type, $feed_retriever_obj ) {
+        global $woocommerce_wpml;
+
+        // Early validation checks
+        if ( empty( $product ) || ! is_object( $product ) || ! method_exists( $feed_retriever_obj, 'get_wcml_currency' ) ) {
             return $product_price;
         }
-		if ( ! empty( $product ) && ! empty( $type ) && $product->get_meta( '_wcml_custom_prices_status' ) ) {
-			return $product->get_meta( "{$type}_{$feed_wcml_currency}" );
-		}
-		if ( defined( 'ICL_LANGUAGE_CODE' ) && $feed_retriever_obj->get_wcml_currency() === ICL_LANGUAGE_CODE ) {
-			return $product_price;
-		}
-		if ( $feed_retriever_obj->is_wcml_active() ) {
-			$updated_price = apply_filters( 'wcml_raw_price_amount',
-				$product_price,
-				$feed_retriever_obj->get_wcml_currency() );
-			if ( ! empty( $updated_price ) ) {
-				return $updated_price;
-			}
-		}
-		return $product_price;
-	}
+
+        $feed_wcml_currency = $feed_retriever_obj->get_wcml_currency();
+        $base_currency = get_option( 'woocommerce_currency' );
+
+        // If currencies are the same, no conversion needed
+        if ( $base_currency === $feed_wcml_currency ) {
+            return $product_price;
+        }
+
+        // Check for custom WPML prices first
+        if ( ! empty( $type ) && $product->get_meta( '_wcml_custom_prices_status' ) ) {
+            $custom_price = $product->get_meta( "{$type}_{$feed_wcml_currency}" );
+            if ( ! empty( $custom_price ) && is_numeric( $custom_price ) ) {
+                return (float)$custom_price;
+            }
+        }
+
+        // Language code check (this condition seems unusual but keeping it from original)
+        if ( defined( 'ICL_LANGUAGE_CODE' ) && $feed_retriever_obj->get_wcml_currency() === ICL_LANGUAGE_CODE ) {
+            return $product_price;
+        }
+
+        // WPML currency conversion logic
+        if ( method_exists( $feed_retriever_obj, 'is_wcml_active' ) && $feed_retriever_obj->is_wcml_active() ) {
+
+            // Handle different product types
+            $converted_price = $this->handle_product_type_conversion( $product, $type, $base_currency, $feed_wcml_currency, $product_price );
+
+            if ( $converted_price !== false ) {
+                return $converted_price;
+            }
+        }
+
+        return $product_price;
+    }
+
+    /**
+     * Handle currency conversion based on product type
+     *
+     * @param WC_Product $product The product object
+     * @param string $type The price type
+     * @param string $base_currency The base currency
+     * @param string $target_currency The target currency
+     * @param string $fallback_price The fallback price
+     * @return float|false The converted price or false if conversion failed
+     * @since 7.4.46
+     */
+    private function handle_product_type_conversion( $product, $type, $base_currency, $target_currency, $fallback_price ) {
+        $product_type = $product->get_type();
+
+        switch ( $product_type ) {
+            case 'variable':
+                return $this->convert_variable_product_price( $product, $type, $base_currency, $target_currency, $fallback_price );
+
+            case 'grouped':
+                return $this->convert_grouped_product_price( $product, $type, $base_currency, $target_currency, $fallback_price );
+
+            case 'variation':
+                return $this->convert_variation_product_price( $product, $type, $base_currency, $target_currency, $fallback_price );
+
+            case 'simple':
+            case 'external':
+            default:
+                return $this->convert_simple_product_price( $product, $type, $base_currency, $target_currency, $fallback_price );
+        }
+    }
+
+    /**
+     * Convert simple product price
+     *
+     * @param WC_Product $product The product object
+     * @param string $type The price type
+     * @param string $base_currency The base currency
+     * @param string $target_currency The target currency
+     * @param string $fallback_price The fallback price
+     * @return float|false The converted price or false if conversion failed
+     */
+    private function convert_simple_product_price( $product, $type, $base_currency, $target_currency, $fallback_price ) {
+        $original_base_price = $this->get_base_currency_price( $product, $type, $base_currency );
+
+        if ( empty( $original_base_price ) || ! is_numeric( $original_base_price ) || $original_base_price <= 0 ) {
+            return false;
+        }
+
+        return $this->apply_currency_conversion( $original_base_price, $target_currency );
+    }
+
+    /**
+     * Convert variable product price
+     *
+     * @param WC_Product_Variable $product The variable product object
+     * @param string $type The price type
+     * @param string $base_currency The base currency
+     * @param string $target_currency The target currency
+     * @param string $fallback_price The fallback price
+     * @return float|false The converted price or false if conversion failed
+     */
+    private function convert_variable_product_price( $product, $type, $base_currency, $target_currency, $fallback_price ) {
+        // For variable products, we need to handle the parent product price
+        // The variations will be handled separately when they're processed individually
+
+        $original_base_price = $this->get_base_currency_price( $product, $type, $base_currency );
+
+        if ( empty( $original_base_price ) || ! is_numeric( $original_base_price ) || $original_base_price <= 0 ) {
+            // For variable products, if no parent price, try to get from variations
+            $variations = $product->get_children();
+            if ( ! empty( $variations ) ) {
+                $variation_prices = array();
+                foreach ( $variations as $variation_id ) {
+                    $variation = wc_get_product( $variation_id );
+                    if ( $variation ) {
+                        $var_price = $this->get_base_currency_price( $variation, $type, $base_currency );
+                        if ( is_numeric( $var_price ) && $var_price > 0 ) {
+                            $variation_prices[] = $var_price;
+                        }
+                    }
+                }
+
+                if ( ! empty( $variation_prices ) ) {
+                    // Use minimum price for variable products
+                    $original_base_price = min( $variation_prices );
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        return $this->apply_currency_conversion( $original_base_price, $target_currency );
+    }
+
+    /**
+     * Convert variation product price
+     *
+     * @param WC_Product_Variation $product The variation product object
+     * @param string $type The price type
+     * @param string $base_currency The base currency
+     * @param string $target_currency The target currency
+     * @param string $fallback_price The fallback price
+     * @return float|false The converted price or false if conversion failed
+     * @since 7.4.46
+     */
+    private function convert_variation_product_price( $product, $type, $base_currency, $target_currency, $fallback_price ) {
+        // First check if variation has custom WPML prices
+        if ( $product->get_meta( '_wcml_custom_prices_status' ) ) {
+            $custom_price = $product->get_meta( "{$type}_{$target_currency}" );
+            if ( ! empty( $custom_price ) && is_numeric( $custom_price ) ) {
+                return (float)$custom_price;
+            }
+        }
+
+        $original_base_price = $this->get_base_currency_price( $product, $type, $base_currency );
+
+        if ( empty( $original_base_price ) || ! is_numeric( $original_base_price ) || $original_base_price <= 0 ) {
+            return false;
+        }
+
+        return $this->apply_currency_conversion( $original_base_price, $target_currency );
+    }
+
+    /**
+     * Convert grouped product price
+     *
+     * @param WC_Product_Grouped $product The grouped product object
+     * @param string $type The price type
+     * @param string $base_currency The base currency
+     * @param string $target_currency The target currency
+     * @param string $fallback_price The fallback price
+     * @return float|false The converted price or false if conversion failed
+     * @since 7.4.46
+     */
+    private function convert_grouped_product_price( $product, $type, $base_currency, $target_currency, $fallback_price ) {
+        // Grouped products typically don't have their own price, but get price from children
+        $children = $product->get_children();
+
+        if ( empty( $children ) ) {
+            return false;
+        }
+
+        $child_prices = array();
+        foreach ( $children as $child_id ) {
+            $child_product = wc_get_product( $child_id );
+            if ( $child_product ) {
+                $child_price = $this->get_base_currency_price( $child_product, $type, $base_currency );
+                if ( is_numeric( $child_price ) && $child_price > 0 ) {
+                    $child_prices[] = $child_price;
+                }
+            }
+        }
+
+        if ( empty( $child_prices ) ) {
+            return false;
+        }
+
+        // Use minimum price from children
+        $original_base_price = min( $child_prices );
+
+        return $this->apply_currency_conversion( $original_base_price, $target_currency );
+    }
+
+    /**
+     * Apply currency conversion with validation
+     *
+     * @param float $original_price The original price
+     * @param string $target_currency The target currency
+     * @return float|false The converted price or false if conversion failed
+     * @since 7.4.46
+     */
+    private function apply_currency_conversion( $original_price, $target_currency ) {
+        $original_price = (float)$original_price;
+
+        // Apply WPML currency conversion
+        $converted_price = apply_filters( 'wcml_raw_price_amount', $original_price, $target_currency );
+
+        if ( ! empty( $converted_price ) && is_numeric( $converted_price ) ) {
+            $converted_price = (float)$converted_price;
+
+            // Validate conversion ratio to prevent extreme values
+            $conversion_ratio = $converted_price / $original_price;
+            if ( $conversion_ratio > 0.001 && $conversion_ratio < 1000 ) {
+                return $converted_price;
+            }
+        }
+
+        // Fallback to original base price if conversion fails
+        return $original_price;
+    }
+
+    /**
+     * Get the original price in base currency, bypassing WPML conversions
+     *
+     * @param WC_Product $product The WooCommerce product object
+     * @param string $type The price type
+     * @param string $base_currency The base currency code
+     * @return float|null The original base price
+     * @since 7.4.46
+     */
+    private function get_base_currency_price( $product, $type, $base_currency ) {
+        global $woocommerce_wpml;
+
+        $original_price = null;
+        $current_currency = null;
+
+        // Try to get price by temporarily switching to base currency
+        if ( isset( $woocommerce_wpml->multi_currency ) ) {
+            try {
+                $current_currency = $woocommerce_wpml->multi_currency->get_client_currency();
+                $woocommerce_wpml->multi_currency->set_client_currency( $base_currency );
+                wp_cache_delete( $product->get_id(), 'posts' );
+                $fresh_product = wc_get_product( $product->get_id() );
+                if ( $fresh_product ) {
+                    $original_price = $this->extract_price_by_type( $fresh_product, $type );
+                }
+
+            } catch ( Exception $e ) {
+                // Silently handle exception
+            } finally {
+                if ($current_currency) {
+                    $woocommerce_wpml->multi_currency->set_client_currency( $current_currency );
+                }
+            }
+        }
+
+        // Fallback to database query if WPML method failed
+        if (! is_numeric( $original_price )) {
+            $original_price = $this->get_price_from_database( $product->get_id(), $type );
+        }
+
+        // Final fallback to direct product method
+        if ( empty( $original_price ) || ! is_numeric( $original_price ) ) {
+            $original_price = $this->extract_price_by_type( $product, $type );
+        }
+
+        return $original_price;
+    }
+
+    /**
+     * Extract price from product based on type
+     *
+     * @param WC_Product $product The product object
+     * @param string $type The price type
+     * @return float|null The price value
+     * @since 7.4.46
+     */
+    private function extract_price_by_type( $product, $type ) {
+        if (! is_object( $product )) {
+            return null;
+        }
+
+        switch( $type ) {
+            case '_price':
+            case 'price':
+                return $product->get_price();
+
+            case '_regular_price':
+            case 'regular_price':
+                return $product->get_regular_price();
+
+            case '_sale_price':
+            case 'sale_price':
+                return $product->get_sale_price();
+
+            default:
+                $meta_price = $product->get_meta( $type );
+                return ! empty( $meta_price ) ? $meta_price : $product->get_price();
+        }
+    }
+
+    /**
+     * Get price directly from database, bypassing all filters
+     *
+     * @param int $product_id The product ID
+     * @param string $type The price type
+     * @return float|null The price from database
+     * @since 7.4.46
+     */
+    private function get_price_from_database( $product_id, $type ) {
+        global $wpdb;
+
+        if ( empty( $product_id ) || ! is_numeric( $product_id ) ) {
+            return null;
+        }
+
+        $meta_key = ltrim( $type, '_' );
+        if ( substr( $meta_key, 0, 1 ) !== '_' ) {
+            $meta_key = '_' . $meta_key;
+        }
+
+        $price = $wpdb->get_var( $wpdb->prepare(
+            "SELECT meta_value FROM {$wpdb->postmeta} 
+         WHERE post_id = %d AND meta_key = %s 
+         LIMIT 1",
+            (int)$product_id,
+            $meta_key
+        ) );
+
+        return is_numeric( $price ) ? (float)$price : null;
+    }
 
     /**
      * Retrieves the converted product price using WooCommerce Multi-Currency (WMC).

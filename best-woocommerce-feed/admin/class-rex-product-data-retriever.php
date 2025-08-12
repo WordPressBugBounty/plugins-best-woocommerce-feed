@@ -709,6 +709,9 @@ class Rex_Product_Data_Retriever {
 			case 'product_tags':
 				return $this->get_product_tags();
 
+            case 'product_brands':
+                return $this->get_product_brands();
+
 			case 'spartoo_product_cats':
 				return $this->get_spartoo_product_cats();
 
@@ -2218,6 +2221,10 @@ class Rex_Product_Data_Retriever {
 		return $this->get_the_term_list( $product_id, $taxonomy, $sep );
 	}
 
+    protected function get_product_brands( $sep = ', ', $taxonomy = 'product_brand' ) {
+        $product_id = 'WC_Product_Variation' === get_class( $this->product ) ? $this->product->get_parent_id() : $this->product->get_id();
+        return $this->get_the_brand_list( $product_id, $taxonomy, $sep );
+    }
 
 	/**
 	 * Get yoast primary category
@@ -2325,6 +2332,21 @@ class Rex_Product_Data_Retriever {
 		return implode( ', ', $output );
 	}
 
+    protected function get_the_brand_list( $id, $taxonomy, $sep = ', ' ) {
+        $terms = wp_get_post_terms( $id, $taxonomy, [ 'hide_empty' => false, 'orderby' => 'term_id' ] );
+
+        if ( empty( $terms ) || is_wp_error( $terms ) ) {
+            return '';
+        }
+
+        $output = array();
+        foreach ( $terms as $term ) {
+            if ( !empty( $term->name ) ) {
+                $output[] = htmlspecialchars_decode( $term->name );
+            }
+        }
+        return implode( $sep, $output );
+    }
 
 	/**
 	 * Get terms with specified path

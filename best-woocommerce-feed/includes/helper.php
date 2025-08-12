@@ -329,8 +329,8 @@ if ( ! function_exists( 'wpfm_switch_site_lang' ) ) {
 
 		if ( wpfm_is_wcml_active() ) {
 			global $woocommerce_wpml;
-			$woocommerce_wpml->multi_currency->set_client_currency($wcml_currency);
 
+            $woocommerce_wpml->multi_currency->set_client_currency( $wcml_currency );
 			/**
 			 * Run your custom functions right after the client currency for the front end is switched via AJAX requests.
 			 *
