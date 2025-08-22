@@ -107,6 +107,21 @@ class Rex_Product_Feed_Data_Handle {
         if( !$feed_id || empty( $data ) ) {
             return;
         }
+
+        // Track custom filter usage
+        if( isset( $data[ 'rex_feed_custom_filter_option_btn' ] ) || isset( $data[ 'ff' ] ) ) {
+            do_action( 'rex_product_feed_advanced_feature_used', $feed_id, [
+                'action' => 'save_custom_filter'
+            ] );
+        }
+
+        // Track feed rules usage
+        if( isset( $data[ 'fr' ] ) || isset( $data[ 'rex_feed_feed_rules_button' ] ) ) {
+            do_action( 'rex_product_feed_advanced_feature_used', $feed_id, [
+                'action' => 'save_custom_filter'
+            ] );
+        }
+
         if( isset( $data[ 'rex_feed_products' ] ) ) {
             update_post_meta( $feed_id, '_rex_feed_products', $data[ 'rex_feed_products' ] );
         }
@@ -303,6 +318,12 @@ class Rex_Product_Feed_Data_Handle {
         if( !$feed_id || empty( $data ) ) {
             return;
         }
+
+        // Track settings changes usage
+        do_action( 'rex_product_feed_advanced_feature_used', $feed_id, [
+            'action' => 'save_custom_filter'
+        ] );
+
         if( isset( $data[ 'rex_feed_schedule' ] ) ) {
             update_post_meta( $feed_id, '_rex_feed_schedule', $data[ 'rex_feed_schedule' ] );
             delete_post_meta( $feed_id, 'rex_feed_schedule' );

@@ -12,6 +12,8 @@
  * @subpackage Rex_Product_Feed/includes
  */
 
+use RexTheme\RexProductFeedManager\Tracking\Tracker;
+
 /**
  * The core plugin class.
  *
@@ -59,6 +61,15 @@ class Rex_Product_Feed {
 	protected $version;
 
 	/**
+	 * The tracker instance for PostHog analytics.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      \RexProductFeedManager\Tracking\Tracker    $tracker    Handles usage tracking.
+	 */
+	private $tracker;
+
+	/**
 	 * Define the core functionality of the plugin.
 	 *
 	 * Set the plugin name and the plugin version that can be used throughout the plugin.
@@ -80,6 +91,7 @@ class Rex_Product_Feed {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+		$this->init_tracking();
 	}
 
 	/**
@@ -127,7 +139,6 @@ class Rex_Product_Feed {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-rex-product-feed-public.php';
 		require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-setup-wizard.php';
 		require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-create-contact.php';
-
 		$this->loader = new Rex_Product_Feed_Loader();
 	}
 
@@ -185,6 +196,7 @@ class Rex_Product_Feed {
         $this->loader->add_action( 'admin_menu', $plugin_admin, 'load_admin_pages' );
         $this->loader->add_action( 'enter_title_here', $plugin_admin, 'change_feed_title_placeholder' );
         $this->loader->add_action( 'admin_footer', $plugin_admin, 'rex_admin_footer_style' );
+        $this->loader->add_filter('rex_product_feed_tracking_enabled', $plugin_admin, 'rex_product_feed_tracking_enabled');
 
         $this->loader->add_action( 'post_submitbox_start', $feed_actions, 'register_purge_button' );
         // remove bulk edit and quick edit for our feed cpt.
@@ -294,4 +306,101 @@ class Rex_Product_Feed {
 	public function get_version() {
 		return $this->version;
 	}
+
+	/**
+	 * Initialize the tracking system.
+	 *
+	 * This loads and initializes the PostHog tracking module to capture
+	 * user activation events.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function init_tracking() {
+		// Check if tracking should be enabled
+		if ( apply_filters( 'rex_product_feed_tracking_enabled', true ) ) {
+			$this->tracker = new Tracker();
+			$this->register_activation_hooks();
+		}
+	}
+
+	/**
+	 * Register hooks to trigger activation events at key points.
+	 *
+	 * This method sets up WordPress hooks that will fire
+	 * when specific activation events occur.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function register_activation_hooks() {
+		// Plugin activation hooks
+		$this->loader->add_action( 'activate_' . WPFM_PLUGIN_BASE, $this, 'track_plugin_activation' );
+		// Feed creation hooks
+		$this->loader->add_action( 'transition_post_status', $this, 'track_feed_creation', 10, 3 );
+	}
+
+	/**
+	 * Track plugin activation.
+	 *
+	 * This is called when the plugin is activated.
+	 *
+	 * @since    1.0.0
+	 */
+	public function track_plugin_activation() {
+		do_action( 'rex_product_feed_activated' );
+	}
+
+
+
+	/**
+	 * Track feed creation.
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post    Post object.
+	 * @param bool    $update  Whether this is an existing post being updated.
+	 *
+	 * @since    1.0.0
+	 */
+    public function track_feed_creation($new_status, $old_status, $post) {
+
+        if ($post->post_type !== 'product-feed') {
+            return;
+        }
+
+        if ($new_status === 'publish' && in_array($old_status, ['auto-draft', 'draft', 'new', ''])) {
+            $feed_count = wp_count_posts('product-feed');
+            $total_feeds = $feed_count->publish + $feed_count->draft;
+
+            $feed_data = array(
+                'merchant' => get_post_meta($post->ID, '_rex_feed_merchant', true),
+                'feed_type' => get_post_meta($post->ID, '_rex_feed_feed_format', true),
+                'title' => $post->post_title,
+                'created_at' => current_time('mysql')
+            );
+
+            do_action('rex_product_feed_feed_created', $post->ID, $feed_data);
+
+            if (1 === $total_feeds) {
+                do_action('rex_product_feed_first_feed_published', $post->ID);
+            }
+
+            update_post_meta($post->ID, 'edit_count', 0);
+            update_post_meta($post->ID, '_feed_created_at', time());
+
+        } else if ($new_status === 'publish' && $old_status === 'publish') {
+            $edit_count = (int) get_post_meta($post->ID, 'edit_count', true);
+            $edit_count++;
+
+            update_post_meta($post->ID, 'edit_count', $edit_count);
+            update_post_meta($post->ID, '_last_manual_edit', time());
+
+            $update_data = array(
+                'updated_at' => current_time('mysql'),
+                'update_type' => 'feed_update',
+                'edit_count' => $edit_count
+            );
+            do_action('rex_product_feed_feed_settings_updated', $post->ID, $update_data);
+        }
+    }
 }

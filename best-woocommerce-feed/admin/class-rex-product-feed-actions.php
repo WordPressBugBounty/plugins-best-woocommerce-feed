@@ -60,7 +60,7 @@ class Rex_Product_Feed_Actions {
 	 *
 	 * @return void
 	 */
-	public function show_review_request_markups() {
+	public function show_review_request_markups( ) {
 		$show_review_request = get_option( 'rex_feed_review_request' );
 
 		if ( empty( $show_review_request ) ) {
@@ -1309,19 +1309,18 @@ class Rex_Product_Feed_Actions {
         return false;
     }
 
-	/**
-	 * Adds a translated value using TranslatePress.
-	 *
-	 * This function takes a value, a rule, and an instance, and returns the translated value
-	 * based on the TranslatePress language setting. If the language is not set, it defaults to 'en_US'.
-	 *
-	 * @param mixed  $value    The value to be translated.
-	 * @param mixed  $rule     The rule associated with the value.
-	 * @param object $instance The instance containing the feed data.
-	 * @return mixed The translated value.
-	 *
-	 * @since 7.4.20
-	 */
+    /**
+     * Adds TranslatePress translation to the value based on the rule and instance.
+     *
+     * This method checks if TranslatePress is active and applies translations to the value based on the provided rule and instance.
+     *
+     * @param string $value The value to be translated.
+     * @param array $rule The rule containing meta_key for translation.
+     * @param object $instance The instance containing feed and language information.
+     * @return string The translated value or original value if no translation is applied.
+     *
+     * @since 7.4.34
+     */
     public function add_translate_press_value( $value, $rule, $instance ) {
 
         if ( wpfm_is_translatePress_active() ) {
@@ -1341,6 +1340,11 @@ class Rex_Product_Feed_Actions {
             if ($language === $trp_default_lang) {
                 return $value;
             }
+
+            // Set the global TRP_LANGUAGE variable before translation
+            global $TRP_LANGUAGE;
+            $original_language = $TRP_LANGUAGE;
+            $TRP_LANGUAGE = $language;
 
             if ($meta_key === 'link') {
                 $slug = function_exists('rexfeed_get_trp_url_slug') ? rexfeed_get_trp_url_slug($language) : '';
@@ -1365,56 +1369,50 @@ class Rex_Product_Feed_Actions {
                         $value = str_replace(home_url('/'), home_url('/') . "$slug/", $value);
                     }
                 }
+                // Restore original language
+                $TRP_LANGUAGE = $original_language;
                 return $value;
             }
 
             $translatable_keys = ['description', 'short_description'];
             if (in_array($meta_key, $translatable_keys, true)) {
-                $translated_parts = [];
 
-                if (stripos($value, '<p') !== false) {
-                    $paragraphs = preg_split(
-                        '/(<p.*?>.*?<\/p>)/is',
-                        $value,
-                        -1,
-                        PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
-                    );
-                    foreach ($paragraphs as $part) {
-                        $trimmed = trim($part);
-                        if ($trimmed === '') continue;
-                        $translated_parts[] = trp_translate($trimmed, $language, false);
-                    }
-                    $value = implode('', $translated_parts);
-                } else {
-                    $paragraphs = preg_split('/\R{2,}/', $value);
-                    foreach ($paragraphs as $p) {
-                        $p = trim($p);
-                        if ($p === '') continue;
-                        $translated_parts[] = trp_translate($p, $language, false);
-                    }
-                    $value = implode("\n\n", $translated_parts);
-                }
+                // CRITICAL: Apply 'the_content' filter to match what TranslatePress stored
+                // This processes the content through wptexturize() and other WP filters
+                $processed_value = apply_filters('the_content', $value);
 
-                return $value;
+                // Now translate the processed content as a whole
+                $translated_value = trp_translate($processed_value, $language, false);
+
+                // Restore original language
+                $TRP_LANGUAGE = $original_language;
+                return $translated_value;
             }
 
-            if (function_exists('trp_translate')) {
-                $value = trp_translate($value, $language, false);
+            // For titles, apply the_title filter
+            if (in_array($meta_key, ['title', 'product_title'], true)) {
+                $processed_value = apply_filters('the_title', $value);
+                $value = trp_translate($processed_value, $language, false);
+            } else {
+                // For other content, apply appropriate filters
+                $processed_value = apply_filters('the_content', $value);
+                $value = trp_translate($processed_value, $language, false);
             }
 
+            // Restore original language
+            $TRP_LANGUAGE = $original_language;
             return $value;
-        }else{
+        } else {
             return $value;
         }
     }
 
-
-
-
     /**
-     * Retrieves the default language set in TranslatePress.
+     * Retrieves the translated slug for a given slug and language.
      *
-     * @return string The default language.
+     * @param string $slug The original slug.
+     * @param string $language The target language.
+     * @return string The translated slug.
      *
      * @since 7.4.34
      */

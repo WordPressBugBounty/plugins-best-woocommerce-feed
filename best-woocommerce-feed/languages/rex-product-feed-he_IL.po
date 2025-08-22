@@ -11,12 +11,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-03-06T09:54:42+00:00\n"
-"PO-Revision-Date: 2024-03-18 06:10+0000\n"
+"PO-Revision-Date: 2025-08-20 09:22+0000\n"
 "X-Generator: Loco https://localise.biz/\n"
 "X-Domain: rex-product-feed\n"
 "Language: he_IL\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Loco-Version: 2.6.6; wp-6.4.3"
+"X-Loco-Version: 2.8.0; wp-6.8.2; php-8.3.8"
 
 #: admin/partials/on_boarding.php:29
 msgid "1 Hour"
@@ -756,7 +756,7 @@ msgstr "ישויות HTML"
 #. Plugin URI of the plugin
 #. Author URI of the plugin
 msgid "https://rextheme.com"
-msgstr ""
+msgstr "https://rextheme.com"
 
 #: admin/partials/rex-feed-product-settings-section.php:560
 msgid "Identify the paid keywords"
@@ -767,7 +767,6 @@ msgid "If"
 msgstr "אם"
 
 #: admin/class-rex-product-feed-actions.php:339
-#, fuzzy
 #| msgid "If these doesn't work, please reach out to us at"
 msgid "If these don't work, please reach out to us at"
 msgstr "אם אלה לא עובדים, אנא פנה אלינו בכתובת"
@@ -1137,7 +1136,7 @@ msgstr "הזנת מוצר"
 #: admin/class-rex-product-feed-cpt.php:44
 msgctxt "Post Type General Name"
 msgid "Product Feeds"
-msgstr ""
+msgstr "הזנות מוצרים"
 
 #: admin/partials/feed-config-metabox-display.php:80
 #: admin/partials/feed-config-metabox-display.php:190

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: WooCommerce Product Feed Manager\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-06-04 07:18+0000\n"
-"PO-Revision-Date: 2020-06-04 10:21+0000\n"
+"PO-Revision-Date: 2025-08-20 08:53+0000\n"
 "Last-Translator: \n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
@@ -12,15 +12,1989 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.4.0; wp-5.4.1"
+"X-Loco-Version: 2.8.0; wp-6.8.2; php-8.3.8"
 
-#: admin/class-rex-google-merchant-content-api.php:96
-#: admin/class-rex-google-merchant-content-api.php:135
-msgid "You are not authorized."
+#: admin/partials/on_boarding.php:29
+msgid "1 Hour"
+msgstr "1 uur"
+
+#: admin/partials/on_boarding.php:34
+msgid "1 Week"
+msgstr "1 week"
+
+#: admin/partials/on_boarding.php:32
+msgid "12 Hours"
+msgstr "12 uur"
+
+#: admin/partials/on_boarding.php:33
+msgid "24 Hours"
+msgstr "24 uur"
+
+#: admin/partials/on_boarding.php:30
+msgid "3 Hours"
+msgstr "3 uur"
+
+#: admin/partials/on_boarding.php:31
+msgid "6 Hours"
+msgstr "6 uur"
+
+#: admin/partials/setup-wizard.php:57
+msgid "A Complete Guide To Facebook"
+msgstr "Een complete gids voor Facebook"
+
+#: admin/partials/setup-wizard.php:22
+msgid "A Complete Guide To Google Shopping"
+msgstr "Een complete gids voor Google Shopping"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:21
+#| msgid "Access to a elite support team."
+msgid "Access to an Elite Support Team"
+msgstr "Toegang tot een elite-ondersteuningsteam."
+
+#: admin/partials/rex-feed-google-merchant.php:165
+msgid ""
+"Access token has expired. Please, authenticate again if you want to submit a "
+"completely new feed to Google Merchant Center."
+msgstr ""
+"Toegangstoken is verlopen. Authenticeer opnieuw als u een volledig nieuwe "
+"feed wilt indienen bij Google Merchant Center."
+
+#: admin/partials/feed-config-metabox-display-filter.php:56
+#: admin/partials/feed-config-metabox-display.php:37
+msgid "Action"
+msgstr "werk"
+
+#: admin/partials/rex-feed-product-filter-header-section.php:41
+msgid "Add Custom Filter"
+msgstr "Aangepast filter toevoegen"
+
+#: admin/partials/on_boarding.php:354
+#| msgid ""
+#| "Add Detailed Product Attributes ( Size, Color, Pattern, Material, Age "
+#| "group, Gender, Additional info ) to product"
+msgid ""
+"Add Detailed Product Attributes ( Size, Color, Pattern, Material, Age group, "
+"Gender ) to product"
+msgstr ""
+"Voeg gedetailleerde productkenmerken (maat, kleur, patroon, materiaal, "
+"leeftijdsgroep, geslacht, aanvullende informatie) toe aan het product"
+
+#: admin/partials/rex-feed-product-filter-header-section.php:32
+msgid "Add Feed Rule"
+msgstr "Feedregel toevoegen"
+
+#: admin/class-rex-product-feed-admin.php:319
+msgid "Add More Attributes To Your Feed"
+msgstr "Voeg meer attributen toe aan uw feed"
+
+#: admin/partials/rex-feed-config-table.php:51
+msgid "Add New Attribute"
+msgstr "Nieuw kenmerk toevoegen"
+
+#: admin/partials/category_mapping.php:21
+msgid "Add New Category Map"
+msgstr "Nieuwe categoriekaart toevoegen"
+
+#: admin/class-rex-product-feed-cpt.php:45
+msgid "Add New Feed"
+msgstr "Nieuwe feed toevoegen"
+
+#: admin/class-rex-product-feed-cpt.php:46
+msgid "Add New Product Feed"
+msgstr "Nieuwe productfeed toevoegen"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:258
+msgid "Add Two Decimal Points"
+msgstr "Voeg twee decimale punten toe"
+
+#: admin/partials/on_boarding.php:325
+#| msgid ""
+#| "Add Unique Product Identifiers ( Brand, GTIN, MPN, UPC, EAN, JAN, ISBN, "
+#| "ITF14, Offer price, Offer effective date ) to product"
+msgid ""
+"Add Unique Product Identifiers ( Brand, GTIN, MPN, UPC, EAN, JAN, ISBN, "
+"ITF14, Offer price, Offer effective date, Additional info ) to product"
+msgstr ""
+"Voeg unieke product-ID's (merk, GTIN, MPN, UPC, EAN, JAN, ISBN, ITF14, "
+"aanbiedingsprijs, effectieve ingangsdatum) toe aan het product"
+
+#: admin/partials/rex-feed-product-settings-section.php:413
+msgid "Aelia Currency"
+msgstr "Aelia-valuta"
+
+#: admin/class-rex-product-feed-metabox.php:225
+msgid "All Featured Products"
+msgstr "Alle aanbevolen producten"
+
+#: admin/class-rex-product-feed-cpt.php:43
+msgid "All Product Feeds"
+msgstr "Alle productfeeds"
+
+#: admin/class-rex-product-feed-metabox.php:224
+msgid "All Published Products"
+msgstr "Alle gepubliceerde producten"
+
+#: admin/partials/rex-feed-filter-description-body.php:16
+msgid "All the published products will be included in the feed."
+msgstr "Alle gepubliceerde producten worden in de feed opgenomen."
+
+#: admin/partials/on_boarding.php:403
+msgid "Allow Private Products"
+msgstr "privéproducten toestaan"
+
+#: admin/partials/rex-feed-review-request-body-content.php:42
+msgid "Already Rated"
+msgstr "Al beoordeeld"
+
+#: admin/class-rex-product-feed-system-status.php:123
+msgid "An error occurred, please try again."
+msgstr "Er is een fout opgetreden, probeer het opnieuw."
+
+#: admin/partials/rex-feed-product-settings-section.php:480
+#| msgid "Analytics parameters"
+msgid "Analytics Parameters "
+msgstr "Analytics-parameters"
+
+#: admin/partials/rex-product-feed-feed-filters-body.php:28
+#: admin/partials/rex-product-feed-feed-filters-body.php:57
+#: admin/partials/rex-product-feed-feed-filters-body.php:90
+#: admin/partials/rex-product-feed-feed-filters-body.php:120
+msgid "AND"
+msgstr "en"
+
+#: admin/class-rex-product-feed-actions.php:326
+msgid "and Regenerate"
+msgstr "en regenereren"
+
+#: admin/class-rex-product-feed-actions.php:341
+msgid "and we will assist you."
+msgstr "En wij zullen u helpen."
+
+#: admin/class-rex-google-merchant-content-api.php:205
+#: admin/partials/rex-feed-google-merchant.php:25
+msgid "API Method (Require authorization)"
+msgstr "API-methode (autorisatie vereist)"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:16
+msgid "Apply Feed Rules"
+msgstr "Feedregels toepassen"
+
+#: admin/partials/feed-config-metabox-display.php:28
+msgid "Assigned Values"
+msgstr "Toegewezen waarden"
+
+#: admin/class-rex-product-feed-actions.php:345
+msgid ""
+"Attach your temporary feed link, and screenshots of your feed attributes, "
+"feed settings, and the feed filter section in the email."
+msgstr ""
+"Voeg uw tijdelijke feedlink en screenshots van uw feedattributen, feed-"
+"instellingen en het sectie Filterfilter in de e-mail toe."
+
+#: admin/feed-templates/abstract-rex-feed-template.php:201
+#| msgid "Attributes"
+msgid "Attribute"
+msgstr "Attributen"
+
+#: admin/partials/feed-config-metabox-display.php:27
+msgid "Attribute Type"
+msgstr "Kenmerktype"
+
+#: admin/class-rex-google-merchant-content-api.php:148
+#: admin/partials/rex-feed-google-merchant.php:166
+msgid "Authenticate"
+msgstr "Waarmerken"
+
+#: admin/class-rex-google-merchant-content-api.php:177
+msgid ""
+"Authorize with GMC to send a new feed for the first time with API Method"
+msgstr ""
+"Autoriseer met GMC om voor het eerst een nieuwe feed te verzenden met de API-"
+"methode"
+
+#: admin/partials/rex-feed-product-settings-section.php:21
+msgid "Auto-Generate Your Feed"
+msgstr "Uw feed automatisch genereren"
+
+#: admin/partials/on_boarding.php:515
+msgid "Available Merchants"
+msgstr "Beschikbare handelaars"
+
+#: admin/partials/rex-feed-review-request-body-content.php:19
+msgid "Awesome, you've generated the feed successfully!"
+msgstr "Geweldig, je hebt de feed met succes gegenereerd!"
+
+#: admin/partials/setup-wizard.php:281
+msgid "Boost your ROI with the largest marketplaces"
+msgstr "Verhoog uw ROI met de grootste marktplaatsen"
+
+#: admin/partials/rex-feed-product-settings-section.php:543
+msgid "Campaign"
+msgstr "Campagne"
+
+#: admin/partials/rex-feed-product-settings-section.php:570
+#| msgid "Campaign content"
+msgid "Campaign Content"
+msgstr "Campagne-inhoud"
+
+#: admin/partials/rex-feed-product-settings-section.php:557
+#| msgid "Campaign term"
+msgid "Campaign Term"
+msgstr "Campagnetermijn"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:40
+msgid "Cancel"
+msgstr "herroepen"
+
+#: admin/class-rex-product-feed-metabox.php:226
+#| msgid "Category Filter"
+msgid "Category Filters"
+msgstr "Categoriefilter"
+
+#: admin/class-rex-product-feed-admin.php:390
+#: admin/class-rex-product-feed-admin.php:391
+msgid "Category Mapping"
+msgstr "Categorie in kaart brengen"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:253
+msgid "CDATA"
+msgstr "C-gegevens"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:254
+msgid "CDATA without space"
+msgstr "CDATA zonder ruimte"
+
+#: admin/partials/feed-config-metabox-display.php:31
+msgid "char Limit"
+msgstr "char-limiet"
+
+#: admin/partials/rex-feed-google-merchant.php:26
+msgid "Check Abbreviation Lists"
+msgstr "Controleer afkortingen"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:24
+#: admin/partials/rex-feed-product-taxonomies-section.php:74
+msgid "Check All"
+msgstr "Controleer alles"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:152
+msgid ""
+"Choose option if you want to include/exclude the old price attribute from "
+"the feed if it is less/equal than/to the current price."
+msgstr ""
+"Kies de optie als u het oude prijskenmerk uit de feed wilt "
+"opnemen/uitsluiten als het minder/gelijk is dan/van de huidige prijs."
+
+#: admin/class-rex-product-feed-actions.php:324
+#: admin/partials/on_boarding.php:195
+#| msgid "Clear batch"
+msgid "Clear Batch"
+msgstr "Partij wissen"
+
+#: admin/partials/on_boarding.php:192
+msgid "Clear Batch (Remove all)"
+msgstr "Batch wissen (Alles verwijderen)"
+
+#: admin/partials/feed-config-metabox-display.php:34
+msgid "Click Here To Edit Attributes"
+msgstr "Klik hier om attributen te bewerken"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:48
+msgid "Click Here To Start"
+msgstr "Klik hier om te beginnen"
+
+#: admin/class-rex-product-feed-admin.php:339
+msgid ""
+"Click on the Feed Settings button to: %s - Schedule Feed Update %s - Include "
+"Out of Stock Products %s - Include Product with No Price %s - Include/ "
+"Exclude Product Type %s - Skip Products/ Attributes With Empty Values %s - "
+"Track Campaign With UTM Parameters"
+msgstr ""
+"Klik op de knop Feedinstellingen om: %s - Plan feed-update %s - Opnemen uit "
+"voorraad Producten %s - Inclusief product zonder prijs %s - "
+"Inclusief/uitsluiten Producttype %s - Producten/attributen met lege waarden "
+"%s - Campagne met UTM-parameters overslaan"
+
+#: admin/class-rex-product-feed-admin.php:350
+msgid ""
+"Click on the publish button to start generating the feed. %s - Once you "
+"click on the Publish button, this tour will end. %s - You will see a feed "
+"loading bar once the feed generation starts. %s - Once the feed generation "
+"is completed, you can view or download the generated feed. %s - Once the "
+"feed is generated, you can click on the View/ Download button to view the "
+"feed or to download the generated feed"
+msgstr ""
+"Klik op de knop Publiceren om de feed te genereren. % S - Zodra u op de knop "
+"Publiceren klikt, eindigt deze tour. % S - U ziet een laadbalk van de invoer "
+"zodra de voergeneratie start. % S - Zodra de feedgeneratie is voltooid, kunt "
+"u de gegenereerde feed bekijken of downloaden. % S - Zodra de feed is "
+"gegenereerd, kunt u op de knop Beeld/ Downloaden klikken om de feed te "
+"bekijken of de gegenereerde feed te downloaden"
+
+#: admin/class-rex-product-feed-admin.php:328
+msgid ""
+"Click on this Product Filter button to: %s - Use All Featured Products "
+"Filter %s - Category Filter %s - Tag Filter %s - Custom Filter %s - Product "
+"Filter (Pro) %s - Product Rule (Pro)"
+msgstr ""
+"Klik op deze productfilterknop om: %s - gebruik alle aanbevolen producten "
+"filter %s - Categorie filter %s - tag filter %s - aangepaste filter %s - "
+"productfilter (pro) %s - productregel (Pro)"
+
+#: admin/partials/merchant_settings.php:59
+msgid "Client ID#: "
+msgstr "Klant identificatie#:"
+
+#: admin/partials/merchant_settings.php:63
+msgid "Client Secret: "
+msgstr "Klantgeheim:"
+
+#: admin/class-rex-product-feed-admin.php:344
+msgid "Close The Settings Drawer"
+msgstr "Sluit de instellingenlade"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:68
+msgid "Comma (,)"
+msgstr "komma (,)"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:166
+msgid "Company Name"
+msgstr "bedrijfsnaam"
+
+#: admin/feed/abstract-rex-product-feed-generator.php:1280
+msgid "Completed feed generation job."
+msgstr "Voltooide job voor feedgeneratie."
+
+#: admin/partials/feed-config-metabox-display-filter.php:44
+msgid "Condition"
+msgstr "Staat"
+
+#: admin/partials/rex-feed-google-merchant.php:169
+msgid "Configure"
+msgstr "figureren"
+
+#: admin/class-rex-product-feed-admin.php:265
+msgid "Configure Category Mapping"
+msgstr "Categorietoewijzing configureren"
+
+#: admin/feed-filter/class-rex-product-filter.php:204
+msgid "Contains"
+msgstr "inhoudelijk"
+
+#: admin/partials/on_boarding.php:101 admin/partials/on_boarding.php:171
+msgid "Controls"
+msgstr "Bediening"
+
+#: admin/partials/on_boarding.php:605
+msgid "Copy log"
+msgstr "Logboek kopiëren"
+
+#: admin/partials/rex-feed-system-status-markups.php:27
+msgid "Copy Status"
+msgstr "Kopieerstatus"
+
+#: admin/partials/rex-feed-ebay-seller-sections.php:29
+#: admin/partials/rex-feed-ebay-seller-sections.php:32
+#: admin/partials/rex-feed-product-settings-section.php:73
+msgid "Country"
+msgstr "streek"
+
+#: admin/partials/setup-wizard.php:145
+msgid "Create Feed"
+msgstr "Feed maken"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:42
+msgid "CSV"
+msgstr "CSV"
+
+#: admin/class-rex-product-feed-admin.php:723
+msgid "Custom field deleted."
+msgstr "Aangepast veld verwijderd."
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:14
+msgid "Custom Field Support - Brand, GTIN, MPN, etc."
+msgstr "Aangepaste veldondersteuning - merk, GTIN, MPN, enz."
+
+#: admin/class-rex-product-feed-admin.php:722
+msgid "Custom field updated."
+msgstr "Aangepast veld bijgewerkt."
+
+#: admin/partials/feed-config-metabox-display-filter.php:25
+msgid "Custom Filter"
+msgstr "Aangepast filter"
+
+#: admin/class-rex-product-feed-metabox.php:195
+msgid "Daily"
+msgstr ""
+"\n"
+"Dagelijks"
+
+#: admin/class-rex-product-feed-actions.php:509
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: admin/class-rex-product-feed-cpt.php:95
+msgid "Date"
+msgstr "dateren"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:259
+msgid "Decimal Separator - Comma (,)"
+msgstr "Decimaal scheidingsteken - komma (,)"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:256
+msgid "Decode URL"
+msgstr "decodeer URL"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:240
+msgid "Default"
+msgstr "feil"
+
+#: admin/class-rex-product-feed-admin.php:376
+#: admin/partials/category_mapping.php:67
+msgid "Delete"
+msgstr "Verwijderen"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:15
+msgid "Detailed Product Attributes Support  - Size, Gender, Material, etc."
+msgstr ""
+"Gedetailleerde productkenmerken Ondersteuning - grootte, geslacht, materiaal,"
+" enz."
+
+#: admin/class-rex-google-merchant-content-api.php:195
+#: admin/partials/rex-feed-google-merchant.php:24
+msgid "Direct Upload Method (No need for authorization)"
+msgstr "Direct uploadmethode (geen autorisatie nodig)"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:35
+msgid "Do you still want to continue?"
+msgstr "Wil je nog door?"
+
+#: admin/partials/rex-feed-filter-settings-body-content.php:20
+#: admin/partials/setup-wizard.php:292
+msgid "Documentation"
+msgstr "Documentatie"
+
+#: admin/feed-filter/class-rex-product-filter.php:205
+msgid "Does not contain"
+msgstr "bevat niet"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:215
+msgid ""
+"Dollar rate, specify the real value if the prices in the product feed are "
+"given in dollars. If the prices are given in hryvnias, you can leave it "
+"empty."
+msgstr ""
+"Dollar tarief, specificeer de reële waarde als de prijzen in de productfeed "
+"in dollars worden gegeven. Als de prijzen in hryvnias worden gegeven, kunt u "
+"deze leeg laten."
+
+#: admin/class-rex-product-feed-cpt.php:173
+msgid "Download"
+msgstr "download"
+
+#: admin/partials/rex-feed-feed-file-section-content.php:24
+msgid "Download Feed"
+msgstr "Feed downloaden"
+
+#: admin/partials/setup-wizard.php:258
+msgid "Dynamic Pricing feature to manipulate your product pricing"
+msgstr "Dynamische prijsfunctie om uw productprijzen te manipuleren"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:249
+msgid "Each Word Uppercase"
+msgstr "elk woord hoofdletters"
+
+#: admin/class-rex-feed-attributes.php:665
+msgid "EAN"
+msgstr "zuivre"
+
+#: admin/partials/rex-feed-ebay-seller-sections.php:51
+#: admin/partials/rex-feed-ebay-seller-sections.php:55
+msgid "eBaySeller Currency"
+msgstr "Ebaysellervaluta"
+
+#: admin/partials/rex-feed-ebay-seller-sections.php:16
+#: admin/partials/rex-feed-ebay-seller-sections.php:19
+msgid "eBaySeller Site ID"
+msgstr "eBaySeller-site-ID"
+
+#: admin/class-rex-product-feed-cpt.php:47
+msgid "Edit Product Feed"
+msgstr "Productfeed bewerken"
+
+#: admin/partials/on_boarding.php:454
+msgid "Enable Facebook Pixel"
+msgstr "Schakel Facebook Pixel in"
+
+#: admin/partials/on_boarding.php:257
+msgid "Enable log"
+msgstr "Log inschakelen"
+
+#: admin/partials/rex-feed-product-settings-section.php:186
+msgid "Enable this option to exclude invisible/hidden products from your feed "
+msgstr ""
+"Schakel deze optie in om onzichtbare/verborgen producten uit uw feed te "
+"sluiten"
+
+#: admin/partials/rex-feed-product-settings-section.php:243
+msgid "Enable this option to include grouped products in your feed"
+msgstr "Schakel deze optie in om gegroepeerde producten in uw feed op te nemen"
+
+#: admin/class-rex-product-data-retriever.php:202
+msgid "End product processing."
+msgstr "Verwerking van eindproducten."
+
+#: admin/class-rex-product-feed-rollback.php:72
+msgid ""
+"Error occurred, The version selected is invalid. Try selecting different "
+"version."
+msgstr ""
+"Er is een fout opgetreden, de geselecteerde versie is ongeldig. Probeer een "
+"andere versie te selecteren."
+
+#: admin/partials/rex-feed-product-settings-section.php:212
+#: admin/partials/rex-feed-product-settings-section.php:269
+msgid "Example:"
+msgstr "Voorbeeld:"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:212
+msgid "Exchange Rate"
+msgstr "wisselkoers"
+
+#: admin/feed-filter/class-rex-product-filter.php:226
+#: admin/partials/rex-feed-merchant-dropdown-section.php:94
+#: admin/partials/rex-feed-merchant-dropdown-section.php:160
+msgid "Exclude"
+msgstr "uitzonden"
+
+#: admin/partials/rex-feed-product-settings-section.php:183
+#| msgid "Exclude invisible/hidden products"
+msgid "Exclude Invisible/Hidden Products"
+msgstr "Sluit onzichtbare / verborgen producten uit"
+
+#: admin/partials/on_boarding.php:382
+msgid "Exclude TAX from structured data prices"
+msgstr "Belasting uitsluiten van gestructureerde dataprijzen"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:20
+#| msgid "Ability To Exclude Tax From Structured Data Prices"
+msgid "Exclude Tax From Structured Data Prices"
+msgstr ""
+"Mogelijkheid om belasting uit te sluiten van gestructureerde dataprijzen"
+
+#: admin/partials/on_boarding.php:475
+#| msgid "Facebook Pixel id"
+msgid "Facebook Pixel ID"
+msgstr "Facebook Pixel-id"
+
+#: admin/class-rex-product-feed-admin.php:308
+msgid "Feed Attributes & Product Data Mapping"
+msgstr "Feedattributen en productgegevenstoewijzing"
+
+#: admin/class-rex-product-feed-cpt.php:89
+msgid "Feed File"
+msgstr "feedbestand"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:18
+msgid "Feed Merchant"
+msgstr "voederverkoper"
+
+#: admin/class-rex-product-feed-admin.php:337
+msgid "Feed Settings Option"
+msgstr "Instellingen voor feed-instellingen"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:33
+msgid "Feed Type"
+msgstr "Type voer"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:16
+msgid "Filter feed by WooCommerce product categories"
+msgstr "Filterfeed op WooCommerce-productcategorieën"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:66
+msgid "Filter feed by WooCommerce tags "
+msgstr "Filterfeed op WooCommerce-tags"
+
+#: admin/partials/rex-feed-filter-products-dropdown-section.php:17
+msgid "Filter Products"
+msgstr "Filterproducten"
+
+#: admin/partials/feed-config-metabox-display-filter.php:28
+msgid "Filter your feed products with your preferred condition"
+msgstr "Filter uw voerproducten met uw voorkeursconditie"
+
+#: admin/class-rex-product-feed-admin.php:353
+msgid "Finish Tour"
+msgstr "Rondleiding afmaken"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:184
+msgid "Firm ID"
+msgstr "vaste ID"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:198
+msgid "Firm Name"
+msgstr "fire naam"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:248
+msgid "First Word Uppercase"
+msgstr "eerste woord hoofdletters"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:19
+#| msgid "Fix WooCommerce's (JSON-LD) structure data bug"
+msgid "Fix WooCommerce's (JSON-LD) Structure Data Bug"
+msgstr "Herstel WooCommerce's (JSON-LD) structuur data bug"
+
+#: admin/partials/on_boarding.php:569
+#| msgid "General"
+msgid "Generate"
+msgstr "Algemeen"
+
+#. Description of the plugin
+msgid ""
+"Generate and maintain your WooCommerce product feed for Google Shopping, "
+"Social Catalogs, Yandex, Idealo, Vivino, Pinterest, eBay MIP, BestPrice, "
+"Skroutz, Fruugo, Bonanza & 180+ Merchants."
+msgstr ""
+"Genereer en onderhoud uw WooCommerce-productfeed voor Google Shopping, "
+"Social Catalogs, Yandex, Idealo, Vivino, Pinterest, eBay MIP, BestPrice, "
+"Skroutz, Fruugo, Bonanza & 180+ Merchants."
+
+#: admin/partials/setup-wizard.php:13
+msgid "Generate Feed"
+msgstr "Feed genereren"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:13
+msgid "Generate Unlimited Products (Free version is limited to 200 products)"
+msgstr ""
+"Genereer onbeperkte producten (gratis versie is beperkt tot 200 producten)"
+
+#: admin/partials/on_boarding.php:495
+msgid "Get email notification if your feed is not generated properly"
+msgstr "Ontvang een e-mailmelding als uw feed niet correct wordt gegenereerd"
+
+#: admin/partials/setup-wizard.php:237
+msgid "Get Pro Now"
+msgstr "Word nu pro"
+
+#: admin/class-rex-product-feed-admin.php:435
+#: admin/class-rex-product-feed-admin.php:436
+msgid "Get Started"
+msgstr "Aan de slag"
+
+#: admin/class-rex-product-feed-admin.php:300
+msgid "Give A Name To This Feed"
+msgstr "Geef een naam aan deze feed"
+
+#: admin/class-rex-product-feed-actions.php:512
+#: admin/class-rex-product-feed-admin.php:425
+msgid "Go Pro"
+msgstr "ga premium"
+
+#: admin/partials/setup-wizard.php:127
+msgid "Go to Plugin Dashboard"
+msgstr "Ga naar het dashboard van de plug-in"
+
+#: admin/partials/merchant_settings.php:54
+msgid "Google Merchant Center Authorization"
+msgstr "Autorisatie van Google Merchant Center"
+
+#: admin/class-rex-product-feed-admin.php:400
+#: admin/class-rex-product-feed-admin.php:401
+msgid "Google Merchant Settings"
+msgstr "Google Merchant Instellingen"
+
+#: admin/feed-filter/class-rex-product-filter.php:208
+msgid "Greater than"
+msgstr "groter dan"
+
+#: admin/feed-filter/class-rex-product-filter.php:209
+msgid "Greater than or equal to"
+msgstr "groter dan of gelijk aan"
+
+#: admin/class-rex-product-feed-cpt.php:201
+msgid "Group products : "
+msgstr "Groepsproducten:"
+
+#: admin/class-rex-product-feed-admin.php:305
+msgid ""
+"Here, you can change the merchant/marketplace and choose the file type when "
+"the product feed is generated."
+msgstr ""
+"Hier kunt u de verkoper/marktplaats wijzigen en het bestandstype kiezen "
+"wanneer de productfeed wordt gegenereerd."
+
+#: admin/partials/on_boarding.php:273
+msgid "Hide Character Limit Column"
+msgstr "kolom tekenlimiet verbergen"
+
+#: admin/class-rex-product-feed-metabox.php:194
+#: admin/class-rex-product-feed-metabox.php:383
+msgid "Hourly"
+msgstr "ieder uur"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:30
+msgid "How about we guide you on how to create your first product feed?"
+msgstr ""
+"Wat dacht je ervan om je te begeleiden bij het maken van je eerste "
+"productfeed?"
+
+#: admin/partials/setup-wizard.php:30
+msgid "How to auto-sync product feed to Google Merchant Shop"
+msgstr "Hoe u productfeed automatisch synchroniseert naar Google Merchant Shop"
+
+#: admin/partials/setup-wizard.php:101
+msgid "How to generate WooCommerce product feed for Ceneo"
+msgstr "Hoe WooCommerce-productfeed voor Ceneo te genereren"
+
+#: admin/partials/setup-wizard.php:61
+msgid "How to generate WooCommerce product feed for Facebook"
+msgstr "Hoe WooCommerce-productfeed voor Facebook te genereren"
+
+#: admin/partials/setup-wizard.php:83
+msgid "How to generate WooCommerce product feed for Favi"
+msgstr "Hoe WooCommerce-productfeed voor Favi te genereren"
+
+#: admin/partials/setup-wizard.php:74
+msgid "How to generate WooCommerce product feed for Fruugo"
+msgstr "Hoe WooCommerce-productfeed voor Fruugo te genereren"
+
+#: admin/partials/setup-wizard.php:48
+msgid "How to generate WooCommerce product feed for Glami"
+msgstr "Hoe WooCommerce-productfeed voor Glamami te genereren"
+
+#: admin/partials/setup-wizard.php:26
+msgid "How to generate WooCommerce product feed for Google"
+msgstr "Hoe WooCommerce-productfeed voor Google te genereren"
+
+#: admin/partials/setup-wizard.php:110
+msgid "How to generate WooCommerce product feed for Heureka"
+msgstr "Hoe WooCommerce-productfeed voor Heureka te genereren"
+
+#: admin/partials/setup-wizard.php:39
+msgid "How to generate WooCommerce product feed for Vivino"
+msgstr "Hoe WooCommerce-productfeed voor Vivino te genereren"
+
+#: admin/partials/setup-wizard.php:92
+msgid "How to List WooCommerce Store Products On Idealo"
+msgstr "Hoe WooCommerce Store-producten op Ideal te vermelden"
+
+#: admin/partials/setup-wizard.php:65
+msgid "How to upload your WooCommerce products on the Facebook store"
+msgstr "Hoe u uw WooCommerce-producten kunt uploaden in de Facebook-winkel"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:243
+msgid "HTML Entities"
+msgstr "HTML-entiteiten"
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+msgid "https://rextheme.com"
+msgstr "https://rextheme.com"
+
+#: admin/partials/rex-feed-product-settings-section.php:560
+msgid "Identify the paid keywords"
+msgstr "Identificeer de betaalde zoekwoorden"
+
+#: admin/partials/feed-config-metabox-display-filter.php:40
+msgid "If"
+msgstr "Als"
+
+#: admin/class-rex-product-feed-actions.php:339
+msgid "If these don't work, please reach out to us at"
+msgstr "Als deze niet werken, neem dan contact met ons op via"
+
+#: admin/feed-filter/class-rex-product-filter.php:225
+#: admin/partials/rex-feed-merchant-dropdown-section.php:93
+#: admin/partials/rex-feed-merchant-dropdown-section.php:159
+msgid "Include"
+msgstr "behelzen"
+
+#: admin/partials/setup-wizard.php:250
+msgid ""
+"Include all the required attributes in your feed (GTIN, MPN, EAN, UPC, etc)"
+msgstr ""
+"Neem alle vereiste attributen op in uw feed (GTIN, MPN, EAN, UPC, enz.)"
+
+#: admin/partials/rex-feed-product-settings-section.php:267
+msgid ""
+"Include all the Variable Products Variations in your feed (these are only "
+"the product variations)"
+msgstr ""
+"Voeg alle variaties van variabele producten in uw feed toe (dit zijn alleen "
+"de productvariaties)"
+
+#: admin/partials/rex-feed-product-settings-section.php:262
+msgid "Include All Variable Products Variations"
+msgstr "alle variaties in variabele producten opnemen"
+
+#: admin/partials/setup-wizard.php:254
+msgid ""
+"Include detailed product attributes (Size, Pattern, Material, Gender, Color, "
+"etc)  "
+msgstr ""
+"Inclusief gedetailleerde productkenmerken (grootte, patroon, materiaal, "
+"geslacht, kleur, enz.)"
+
+#: admin/partials/rex-feed-product-settings-section.php:240
+msgid "Include Grouped Products"
+msgstr "Inclusief gegroepeerde producten"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:86
+msgid ""
+"Include or exclude XML file header attributes (title, link, description, "
+"datetime)"
+msgstr ""
+"Inclusief XML-bestandskop-attributen (titel, link, beschrijving, datetime)"
+
+#: admin/partials/rex-feed-product-settings-section.php:112
+msgid "Include Out of Stock Products"
+msgstr "Producten uit voorraad omvatten"
+
+#: admin/partials/rex-feed-product-settings-section.php:135
+msgid "Include Product with No Price"
+msgstr "Product zonder prijs opnemen"
+
+#: admin/partials/rex-feed-product-settings-section.php:210
+msgid "Include the variation name in the product title"
+msgstr "Neem de variatienaam op in de producttitel"
+
+#: admin/partials/rex-feed-product-settings-section.php:161
+#: admin/partials/rex-feed-product-settings-section.php:164
+msgid "Include Variable Parent Product (No Variations)"
+msgstr "Inclusief variabele bovenliggende producten (geen variaties)"
+
+#: admin/partials/rex-feed-product-settings-section.php:205
+msgid "Include Variation Name In The Product Title"
+msgstr "Variatienaam opnemen in de producttitel"
+
+#: admin/partials/on_boarding.php:428
+#| msgid ""
+#| "Increase the number of products that will be approved in Google's "
+#| "Merchant Center:\n"
+#| "                                           This option will fix "
+#| "WooCommerce's (JSON-LD) structured data bug and add extra structured data "
+#| "elements to your pages"
+msgid ""
+"Increase the number of products that will be approved in Google's Merchant "
+"Center: This option will fix WooCommerce's (JSON-LD) structured data bug and "
+"add extra structured data elements to your pages"
+msgstr ""
+"Verhoog het aantal producten dat wordt goedgekeurd in het Merchant Center "
+"van Google: Deze optie zal de gestructureerde gegevensbug van WooCommerce "
+"(JSON-LD) oplossen en extra gestructureerde gegevenselementen aan uw "
+"pagina's toevoegen"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:244
+msgid "Integer"
+msgstr "geheel getal"
+
+#: admin/class-rex-product-feed-factory.php:316
+msgid "Invalid Merchant."
+msgstr "Ongeldige verkoper."
+
+#: admin/feed-filter/class-rex-product-filter.php:206
+msgid "Is equal to"
+msgstr "is gelijk aan"
+
+#: admin/feed-filter/class-rex-product-filter.php:207
+msgid "Is not equal to"
+msgstr "is niet gelijk aan"
+
+#: rex-product-feed.php:190
+msgid ""
+"It looks like you have an older version of %1$s%2$s. Please update %1$s%2$s "
+"to the latest version to use Pro features properly."
+msgstr ""
+"Het lijkt erop dat je een oudere versie van %1$s%2$s hebt. Werk %1$s%2$s bij "
+"naar de nieuwste versie om Pro-functies correct te gebruiken."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:128
+msgid "Item Wrapper"
+msgstr "Artikelomlooper"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:100
+msgid "Items Wrapper"
+msgstr "Items Wikkel"
+
+#: admin/class-rex-product-feed-cpt.php:215
+msgid "Last Updated: "
+msgstr "Laatst bijgewerkt:"
+
+#: admin/partials/rex-feed-product-settings-section.php:24
+#: admin/partials/rex-feed-product-settings-section.php:77
+#: admin/partials/rex-feed-product-settings-section.php:186
+#: admin/partials/rex-feed-product-settings-section.php:220
+#: admin/partials/rex-feed-product-settings-section.php:480
+#: admin/partials/rex-feed-product-taxonomies-section.php:28
+#: admin/partials/rex-feed-product-taxonomies-section.php:78
+msgid "Learn How"
+msgstr "Leer hoe"
+
+#: admin/feed-filter/class-rex-product-filter.php:210
+msgid "Less than"
+msgstr "minder dan"
+
+#: admin/feed-filter/class-rex-product-filter.php:211
+msgid "Less than or equal to"
+msgstr "kleiner dan of gelijk aan"
+
+#: admin/partials/on_boarding.php:165
+msgid "Logs"
+msgstr "Logboeken"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:18
+msgid "Manipulate Product Pricing"
+msgstr "Productprijzen manipuleren"
+
+#: admin/partials/category_mapping.php:25
+msgid "Mapper Name"
+msgstr "Mapper-naam"
+
+#: admin/partials/rex-feed-product-settings-section.php:533
+msgid "Marketing medium: (e.g. cpc, banner, email)"
+msgstr "Marketingmedium: (bijvoorbeeld CPC, banner, e-mail)"
+
+#: admin/partials/rex-feed-product-settings-section.php:530
+msgid "Medium"
+msgstr "Medium"
+
+#: admin/class-rex-product-feed-cpt.php:88
+msgid "Merchant"
+msgstr "koopvaardij-"
+
+#: admin/partials/merchant_settings.php:67
+msgid "Merchant ID# : "
+msgstr "Verkoper ID #:"
+
+#: admin/partials/on_boarding.php:133
+msgid "Merchants"
+msgstr "Handelaars"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:17
+msgid "Merge Multiple Attributes Values Together"
+msgstr "Meerdere attributenwaarden samenvoegen"
+
+#: admin/class-rex-product-feed-metabox.php:381
+msgid "Monthly"
+msgstr "Maandelijks"
+
+#: admin/class-rex-google-merchant-content-api.php:157
+#: admin/class-rex-google-merchant-content-api.php:267
+msgid ""
+"NB: This session expiration is set by Google. You only need to authorize "
+"while submitting a new feed. You can ignore this if you've already submitted "
+"your feed to Google."
+msgstr ""
+"NB: deze sessieverloop wordt ingesteld door Google. U hoeft alleen te "
+"autoriseren tijdens het indienen van een nieuwe feed. Je kunt dit negeren "
+"als je je feed al hebt ingediend bij Google."
+
+#: admin/partials/rex-feed-config-table.php:59
+msgid "New Attribute"
+msgstr "Nieuw kenmerk"
+
+#: admin/partials/rex-feed-config-table.php:62
+#| msgid "Add New Custom Attribute"
+msgid "New Custom Attribute"
+msgstr "Nieuw aangepast kenmerk toevoegen"
+
+#: admin/class-rex-product-feed-cpt.php:48
+#| msgid "Product Feed"
+msgid "New Product Feed"
+msgstr "Productfeed"
+
+#: admin/class-rex-product-feed-admin.php:355
+msgid "Next"
+msgstr "naast"
+
+#: admin/class-rex-product-feed-cpt.php:226
+msgid "Next Schedule: "
+msgstr "Volgende schema:"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:43
+msgid "No Categories"
+msgstr "Geen categorieën"
+
+#: admin/class-rex-product-feed-metabox.php:193
+msgid "No Interval"
+msgstr "Geen interval"
+
+#: admin/class-rex-product-feed-cpt.php:51
+msgid "No product feeds found"
+msgstr "Geen productfeeds gevonden"
+
+#: admin/class-rex-product-feed-cpt.php:52
+msgid "No product feeds found in trash"
+msgstr "Geen productfeeds gevonden in prullenbak"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:93
+msgid "No Terms"
+msgstr "Geen voorwaarden"
+
+#: admin/partials/rex-feed-save-filters-changes-warning-popup.php:39
+#: admin/partials/rex-feed-save-settings-changes-warning-popup.php:39
+msgid "No, Close"
+msgstr "Nee, dichtbij"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:41
+msgid "No, Thanks"
+msgstr "Nee, bedankt"
+
+#: admin/partials/rex-feed-review-request-body-content.php:50
+msgid "Not Now"
+msgstr "niet nu"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:44
+msgid "Okay"
+msgstr "in orde"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:149
+msgid "Old Price"
+msgstr "Oude prijs"
+
+#: admin/partials/rex-feed-product-settings-section.php:499
+msgid "On Toggle to activate UTM Params"
+msgstr "Aan Toggle om UTM-parameters te activeren"
+
+#: admin/class-rex-product-feed-admin.php:314
+msgid ""
+"Once you have mapped the attribute values, you can click on Publish and the "
+"feed will be generated. %s **This tour will end if you click on the Publish "
+"button and the feed will start generating. %s - You can view the generated "
+"feed once the feed generation is completed. %s - Click on the Next to skip "
+"feed generation for now and  to learn more options to configure the feed. %s"
+msgstr ""
+"Nadat u de attribuutwaarden hebt toegewezen, kunt u op Publiceren klikken en "
+"wordt de feed gegenereerd. % S **Deze tour eindigt als u op de knop "
+"Publiceren klikt en de feed begint te genereren. % S - U kunt de "
+"gegenereerde feed bekijken zodra de voergeneratie is voltooid. % S - Klik op "
+"de volgende om feedgeneratie voor nu over te slaan en om meer opties te "
+"leren om de feed te configureren. %s"
+
+#: admin/class-rex-product-feed-admin.php:334
+#: admin/class-rex-product-feed-admin.php:345
+msgid ""
+"Once you make any changes, click on the Close button to get back to the "
+"Attributes section."
+msgstr ""
+"Zodra u wijzigingen aanbrengt, klikt u op de knop Sluiten om terug te gaan "
+"naar de sectie Attributen."
+
+#: admin/partials/rex-feed-filter-description-body.php:24
+msgid "Only the featured products will be included in the feed."
+msgstr "Alleen de aanbevolen producten worden in de feed opgenomen."
+
+#: admin/class-rex-product-feed-admin.php:266
+msgid "Optimize Product Title"
+msgstr "Optimaliseer de producttitel"
+
+#: admin/partials/rex-product-feed-feed-filters-body.php:139
+#| msgid "ok"
+msgid "OR"
+msgstr "OK"
+
+#: admin/class-rex-product-feed-merchants.php:1120
+msgid "Others"
+msgstr "anderen"
+
+#: admin/partials/setup-wizard.php:286
+msgid "Our Support"
+msgstr "Onze steun"
+
+#: admin/partials/feed-config-metabox-display.php:30
+msgid "Output Filter"
+msgstr "Uitgangsfilter"
+
+#: admin/class-rex-product-feed-cpt.php:53
+msgid "Parent Product Feed:"
+msgstr "Ouderproductfeed:"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:70
+msgid "Pipe (|)"
+msgstr "pijp (|)"
+
+#: admin/partials/rex-feed-review-request-body-content.php:29
+msgid ""
+"Please do give us a %s if you like using our plugin. It will only take 2 "
+"minutes."
+msgstr ""
+"Geef ons alstublieft een %s als u onze plug-in wilt gebruiken. Het duurt "
+"slechts 2 minuten."
+
+#: admin/partials/rex-feed-google-merchant.php:55
+msgid ""
+"Please note that Google has fixed abbreviations for Language. For example, "
+"the abbreviation for language, English is en."
+msgstr ""
+"Houd er rekening mee dat Google een vaste afkorting voor taal heeft. "
+"Bijvoorbeeld de afkorting voor taal, Engels is en."
+
+#: admin/partials/rex-feed-google-merchant.php:38
+msgid ""
+"Please note that Google has fixed abbreviations for Location. For example, "
+"the abbreviation for target location, United States is US."
+msgstr ""
+"Houd er rekening mee dat Google een vaste afkorting heeft voor de locatie. "
+"Bijvoorbeeld de afkorting voor de doellocatie, Verenigde Staten zijn de VS."
+
+#: admin/feed-filter/class-rex-product-filter.php:286
+#: admin/feed-filter/class-rex-product-filter.php:289
+#: admin/feed-templates/abstract-rex-feed-template.php:167
+#: admin/feed-templates/abstract-rex-feed-template.php:203
+#: admin/partials/feed-config-metabox-display.php:58
+#: admin/partials/feed-config-metabox-display.php:167
+#: admin/partials/on_boarding.php:596
+msgid "Please Select"
+msgstr "Selecteer a.u.b"
+
+#: admin/feed/ceneo/Feed.php:415 admin/feed/daisycon/Feed.php:319
+#: admin/feed/favi/Feed.php:379 admin/feed/fruugo/Feed.php:366
+#: admin/feed/glami/Feed.php:347
+#: admin/feed/google-custom-search-ads/Feed.php:464
+#: admin/feed/google-local-products/Feed.php:406
+#: admin/feed/grupo_zap/Feed.php:332 admin/feed/gulog_gratis/Feed.php:448
+#: admin/feed/hotline/Feed.php:436 admin/feed/marktplaats/Feed.php:338
+#: admin/feed/pinterest/Feed.php:327
+#: admin/feed/rex-shopping-bestprice/Feed.php:388
+#: admin/feed/rex-shopping-deals4u/Feed.php:390
+#: admin/feed/rex-shopping-feed/Feed.php:422
+#: admin/feed/rex-shopping-heureka-availability/Feed.php:410
+#: admin/feed/rex-shopping-heureka/Feed.php:388
+#: admin/feed/rex-shopping-ibud/Feed.php:396
+#: admin/feed/rex-shopping-mirakl/Feed.php:423
+#: admin/feed/rex-shopping-rakuten/Feed.php:372
+#: admin/feed/rex-shopping-spartoo-fr/Feed.php:441
+#: admin/feed/rex-shopping-wish/Feed.php:369
+#: admin/feed/rex-shopping-zbozi/Feed.php:379 admin/feed/rozetka/Feed.php:467
+#: admin/feed/shopping/Feed.php:357 admin/feed/sooqr/Feed.php:354
+#: admin/feed/spartoo/Feed.php:343 admin/feed/yandex/Feed.php:423
+#: admin/feed/zap_co_il/Feed.php:445
+#: includes/library/GoogleShoppingFeed/Feed.php:324
+msgid "Please select a Google Category"
+msgstr "Selecteer een Google-categorie"
+
+#: admin/partials/category_mapping.php:80
+msgid "Please update WPFM database"
+msgstr "Werk de WPFM-database bij"
+
+#: admin/class-rex-product-feed-merchants.php:1114
+msgid "Popular Merchants"
+msgstr "Populaire handelaren"
+
+#: admin/class-rex-product-feed-cpt.php:42
+msgctxt "Post Type General Name"
+msgid "Product Feed"
+msgstr "Productfeed"
+
+#: admin/class-rex-product-feed-cpt.php:41
+#: admin/class-rex-product-feed-cpt.php:44
+msgctxt "Post Type General Name"
+msgid "Product Feeds"
+msgstr "Productfeeds"
+
+#: admin/partials/feed-config-metabox-display.php:80
+#: admin/partials/feed-config-metabox-display.php:190
+msgid "Prefix"
+msgstr "Voorvoegsel"
+
+#: admin/partials/feed-config-metabox-display.php:76
+#: admin/partials/feed-config-metabox-display.php:186
+msgid "Prefix/Suffix"
+msgstr "voorvoegsel/achtervoegsel"
+
+#: admin/partials/rex-feed-config-table.php:73
+msgid "Preview Feed"
+msgstr "Voorbeeldfeed"
+
+#: admin/class-rex-product-feed-admin.php:356
+msgid "Previous"
+msgstr "verleden"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:245
+msgid "Price"
+msgstr "waarde"
+
+#: admin/partials/setup-wizard.php:234
+msgid "Prices start at $79.99 "
+msgstr "Prijzen beginnen bij $ 79,99"
+
+#: admin/partials/on_boarding.php:321 admin/partials/on_boarding.php:350
+#: admin/partials/on_boarding.php:377 admin/partials/on_boarding.php:422
+#: admin/partials/on_boarding.php:491 admin/partials/on_boarding.php:557
+#: admin/partials/rex-feed-product-filter-header-section.php:30
+msgid "pro"
+msgstr "pro"
+
+#: admin/class-rex-product-feed-merchants.php:1117
+msgid "Pro Merchants"
+msgstr "Pro-handelaren"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:12
+msgid "Product Categories"
+msgstr "Productcategorieën"
+
+#: admin/partials/setup-wizard.php:262
+msgid "Product data manipulation along with find & replace feature"
+msgstr "Productgegevens manipulatie samen met de functie Zoeken en vervangen"
+
+#: admin/class-rex-product-feed-admin.php:730
+msgid "Product feed draft updated."
+msgstr "Productfeedconcept bijgewerkt."
+
+#: admin/partials/setup-wizard.php:180
+msgid "Product Feed for WooCommerce"
+msgstr "Productfeed voor WooCommerce"
+
+#. Plugin Name of the plugin
+#: admin/partials/setup-wizard.php:135
+msgid "Product Feed Manager for WooCommerce"
+msgstr "Productfeedmanager voor WooCommerce"
+
+#: admin/class-rex-product-feed-admin.php:726
+msgid "Product feed published."
+msgstr "Productfeed gepubliceerd."
+
+#: admin/class-rex-product-feed-admin.php:727
+msgid "Product feed saved."
+msgstr "Productfeed opgeslagen."
+
+#: admin/class-rex-product-feed-admin.php:721
+#: admin/class-rex-product-feed-admin.php:724
+msgid "Product feed updated."
+msgstr "Productfeed bijgewerkt."
+
+#: admin/partials/rex-feed-filter-settings-body-content.php:28
+#: admin/partials/rex-feed-product-filter-header-section.php:5
+msgid "Product Filter"
+msgstr "Productfilter"
+
+#: admin/class-rex-product-feed-admin.php:333
+msgid "Product Filter Close Button"
+msgstr "Productfilter Sluiten Knop"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:62
+msgid "Product Tags"
+msgstr "Producttags"
+
+#: admin/partials/rex-feed-product-settings-section.php:546
+msgid "Product, promo code, or slogan (e.g. spring_sale)"
+msgstr "Product, promotiecode of slogan (bijvoorbeeld spring_sale)"
+
+#: admin/partials/rex-feed-filter-products-dropdown-section.php:14
+msgid "Products"
+msgstr "producten"
+
+#: admin/partials/on_boarding.php:177
+msgid ""
+"Products per batch (Free users cannot generate more than %d products. For "
+"free users it will run only 1 batch)"
+msgstr ""
+"Producten per batch (gratis gebruikers kunnen niet meer dan %d-producten "
+"genereren. Voor gratis gebruikers zal het slechts 1 batch draaien)"
+
+#: admin/partials/rex-feed-config-table.php:76
+msgid "Publish"
+msgstr "afkondigen"
+
+#: admin/class-rex-product-feed-admin.php:348
+msgid "Publish Feed"
+msgstr "Feed publiceren"
+
+#: admin/class-rex-product-feed-admin.php:312
+msgid "Publish To Generate The Product Feed"
+msgstr "publiceren om de productfeed te genereren"
+
+#: admin/class-rex-product-feed-actions.php:528
+#: admin/partials/on_boarding.php:202 admin/partials/on_boarding.php:204
+msgid "Purge Cache"
+msgstr "cache opschonen"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:131
+msgid ""
+"Put custom xml attribute item wrapper name. Keep blank incase of using "
+"default structure."
+msgstr ""
+"Zet aangepaste XML-kenmerkartikelen Wrapper-naam. Houd leeg als u de "
+"standaardstructuur gebruikt."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:117
+msgid ""
+"Put custom xml attribute item wrapper_el name. Keep blank incase of using "
+"default structure."
+msgstr ""
+"Zet aangepaste XML-kenmerkitem WRAPHER_EL-naam. Houd leeg als u de "
+"standaardstructuur gebruikt."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:103
+msgid ""
+"Put custom xml attribute items wrapper name. Keep blank incase of using "
+"default structure."
+msgstr ""
+"Zet aangepaste XML-kenmerkitems wrapper-naam. Houd leeg als u de "
+"standaardstructuur gebruikt."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:169
+msgid ""
+"Put your company name to include in the xml header section with company tag."
+msgstr ""
+"Zet uw bedrijfsnaam om op te nemen in de XML-headersectie met bedrijfstag."
+
+#: admin/partials/rex-feed-review-request-body-content.php:46
+msgid "Rate Now"
+msgstr "Beoordeel nu"
+
+#: admin/partials/rex-feed-review-request-body-content.php:34
+msgid "rating"
+msgstr "rang"
+
+#: admin/partials/merchant_settings.php:72
+msgid "Redirect URL"
+msgstr "Omleidings-URL"
+
+#: admin/partials/rex-feed-product-settings-section.php:517
+msgid "Referrer"
+msgstr "Verwijzer"
+
+#: admin/class-rex-product-feed-cpt.php:90
+msgid "Refresh Interval"
+msgstr "Vernieuwingsinterval"
+
+#: admin/partials/on_boarding.php:302 admin/partials/on_boarding.php:304
+msgid "Reinstall"
+msgstr "opnieuw installeren"
+
+#: admin/partials/on_boarding.php:241
+msgid "Remove All Plugin Data on Plugin Uninstallation"
+msgstr "Verwijder alle plug-ingegevens op de installatie van de plug-in"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:257
+msgid "Remove Decimal Points"
+msgstr "Decimale punten verwijderen"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:260
+msgid "Remove Hyphen"
+msgstr "koppelteken"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:261
+msgid "Remove Hyphen and Space"
+msgstr "Verwijder koppelteken en ruimte"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:250
+msgid "Remove ShortCodes"
+msgstr "Shortcodes verwijderen"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:251
+msgid "Remove ShortCodes and Tags"
+msgstr "Shortcodes en tags verwijderen"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:246
+msgid "Remove Space"
+msgstr "Ruimte verwijderen"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:252
+msgid "Remove Special Character"
+msgstr "Speciaal teken verwijderen"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:247
+msgid "Remove Tab"
+msgstr "Tab verwijderen"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:255
+msgid "Remove Underscore"
+msgstr "Onderstrepingsteken verwijderen"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:263
+msgid "Replace Comma with Backslash"
+msgstr "Vervang komma door backslash"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:264
+msgid "Replace Decimal with Hyphen"
+msgstr "Vervang decimaal door koppelteken"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:262
+msgid "Replace Space with Hyphen"
+msgstr "Vervang de ruimte door koppelteken"
+
+#: admin/partials/feed-config-metabox-display.php:26
+msgid "Required Attributes"
+msgstr "Vereiste attributen"
+
+#: admin/partials/merchant_settings.php:76
+msgid "Reset"
+msgstr "Reset"
+
+#: admin/class-rex-product-feed-admin.php:725
+msgid "Revision restored."
+msgstr "Revisie hersteld."
+
+#. Author of the plugin
+msgid "RexTheme"
+msgstr "RexTheme"
+
+#: admin/partials/on_boarding.php:290
+msgid "Rollback to Older Version"
+msgstr "Terugdraaien naar oudere versie"
+
+#: admin/class-rex-product-feed-rollback.php:92
+msgid "Rollback to Previous Version"
+msgstr "Terugdraaien naar vorige versie"
+
+#: admin/class-rex-product-feed-rollback.php:202
+msgid "Rollback to Product Feed Manager for WooCommerce previous version"
+msgstr "Terugdraaien naar Product Feed Manager voor WooCommerce Vorige versie"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:44
+msgid "RSS"
+msgstr "RSS"
+
+#: admin/partials/category_mapping.php:38 admin/partials/on_boarding.php:184
+#: admin/partials/on_boarding.php:229 admin/partials/on_boarding.php:480
+#: admin/partials/on_boarding.php:500
+msgid "Save"
+msgstr "Opslaan"
+
+#: admin/partials/rex-feed-google-merchant.php:62
+#: admin/partials/rex-feed-google-merchant.php:65
+msgid "Schedule"
+msgstr "Schema"
+
+#: admin/class-rex-product-feed-cpt.php:50
+msgid "Search Product Feeds"
+msgstr "Zoek productfeeds"
+
+#: admin/partials/rex-feed-product-settings-section.php:77
+msgid ""
+"Select a country for the Shipping attribute value for Google/Facebook "
+"merchants."
+msgstr ""
+"Selecteer een land voor de waarde van het verzendkenmerk voor "
+"Google/Facebook-verkopers."
+
+#: admin/partials/rex-feed-google-merchant.php:83
+#: admin/partials/rex-feed-google-merchant.php:86
+#| msgid "Select day of month"
+msgid "Select Day of Month"
+msgstr "Selecteer de dag van de maand"
+
+#: admin/partials/rex-feed-google-merchant.php:108
+#: admin/partials/rex-feed-google-merchant.php:111
+#| msgid "Select day of week"
+msgid "Select Day of Week"
+msgstr "Selecteer dag van de week"
+
+#: admin/partials/rex-feed-google-merchant.php:133
+#: admin/partials/rex-feed-google-merchant.php:136
+msgid "Select Hour"
+msgstr "Selecteer uur"
+
+#: admin/partials/setup-wizard.php:136
+msgid "Select merchant and create feed"
+msgstr "Selecteer Verkoper en maak feed"
+
+#: admin/class-rex-product-feed-admin.php:304
+msgid "Select Merchant And Feed Type"
+msgstr "Selecteer Verkoper en Feedtype"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:56
+msgid "Select separator"
+msgstr "Selecteer scheidingsteken"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:36
+msgid "Select your feed file type"
+msgstr "Selecteer uw feedbestandstype"
+
+#: admin/class-rex-product-feed-merchants.php:1104
+msgid "Select your merchant"
+msgstr "Selecteer uw handelaar"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:21
+msgid "Select your preferred merchant from the list"
+msgstr "Selecteer uw favoriete handelaar uit de lijst"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:69
+msgid "Semi-colon (;)"
+msgstr "puntkomma (;)"
+
+#: admin/class-rex-product-feed-metabox.php:365
+#: admin/class-rex-product-feed-metabox.php:378
+msgid "Send to Google Merchant"
+msgstr "Verzenden naar Google Merchant"
+
+#: admin/partials/rex-feed-google-merchant.php:186
+msgid "Send to google merchant"
+msgstr "Verzenden naar Google Merchant"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:53
+msgid "Separator"
+msgstr "roomafscheider"
+
+#: admin/partials/rex-feed-product-settings-section.php:24
+msgid "Set auto-update to keep your feed in sync with WooCommerce "
+msgstr ""
+"Stel automatische updates in om uw feed synchroon te houden met WooCommerce"
+
+#: admin/class-rex-product-feed-admin.php:410
+#: admin/class-rex-product-feed-admin.php:411
+#: admin/class-rex-product-feed-metabox.php:177
+#: admin/partials/rex-feed-filter-settings-body-content.php:32
+#: admin/partials/rex-feed-product-settings-section.php:9
+msgid "Settings"
+msgstr "Instellingen"
+
+#: admin/class-rex-product-feed-cpt.php:198
+msgid "Simple products : "
+msgstr "Eenvoudige producten:"
+
+#: admin/partials/rex-feed-product-settings-section.php:329
+msgid "Skip attributes with empty value"
+msgstr "Attributen overslaan met lege waarde"
+
+#: admin/partials/rex-feed-product-settings-section.php:306
+msgid "Skip products with empty value"
+msgstr "Producten met lege waarde overslaan"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:27
+msgid "Some required attributes are not configured properly!"
+msgstr "Sommige vereiste attributen zijn niet correct geconfigureerd!"
+
+#: admin/feed/abstract-rex-product-feed-generator.php:505
+msgid "Start feed processing job by cron"
+msgstr "Start feedverwerkingstaak door cron"
+
+#: admin/feed/abstract-rex-product-feed-generator.php:515
+msgid "Start feed processing job."
+msgstr "Start feedverwerkingstaak."
+
+#: admin/class-rex-product-data-retriever.php:194
+msgid "Start product processing."
+msgstr "Start productverwerking."
+
+#: admin/feed-templates/abstract-rex-feed-template.php:201
+msgid "Static"
+msgstr "statisch"
+
+#: admin/class-rex-product-feed-cpt.php:91
+msgid "Status"
+msgstr "positie"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:241
+msgid "Strip Tags"
+msgstr "striptags"
+
+#: admin/partials/merchant_settings.php:80
+msgid "Submit"
+msgstr "voorleggen"
+
+#: admin/partials/feed-config-metabox-display.php:82
+#: admin/partials/feed-config-metabox-display.php:192
+msgid "Suffix"
+msgstr "Achtervoegsel"
+
+#: admin/class-rex-product-feed-admin.php:419
+msgid "Support"
+msgstr "Ondersteuning"
+
+#: admin/partials/on_boarding.php:156
+#: admin/partials/rex-feed-system-status-markups.php:23
+msgid "System Status"
+msgstr "Systeem status"
+
+#: admin/class-rex-product-feed-metabox.php:227
+#| msgid "Tag Filter"
+msgid "Tag Filters"
+msgstr "Tagfilter"
+
+#: admin/partials/setup-wizard.php:164
+msgid "Take Tour"
+msgstr "rondleiding"
+
+#: admin/partials/rex-feed-google-merchant.php:35
+msgid "Target Country"
+msgstr "Doelland"
+
+#: admin/partials/rex-feed-google-merchant.php:52
+msgid "Target Language"
+msgstr "Doel taal"
+
+#: admin/class-rex-product-feed-actions.php:350
+msgid "Temporary Feed URL: "
+msgstr "Tijdelijke feed-URL:"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:41
+msgid "TEXT"
+msgstr "TEKST"
+
+#: admin/partials/setup-wizard.php:179
+msgid "The best plugin to generate"
+msgstr "De beste plug-in om te genereren"
+
+#: admin/partials/rex-feed-product-settings-section.php:520
+msgid "The referrer: (e.g. google, newsletter)"
+msgstr "De verwijzer: (bijv. Google, nieuwsbrief)"
+
+#: admin/partials/feed-config-metabox-display-filter.php:52
+msgid "Then"
+msgstr "Dan"
+
+#: admin/class-rex-product-feed-actions.php:318
+msgid ""
+"There was an error when generating the feed. Please try the following to "
+"troubleshoot the issue."
+msgstr ""
+"Er is een fout opgetreden bij het genereren van de feed. Probeer het "
+"volgende om het probleem op te lossen."
+
+#: admin/class-rex-product-feed-admin.php:309
+msgid ""
+"These are the list of attributes that you are supposed to include for your "
+"products in the product feed. We will be mapping your store product data as "
+"the values of the attributes in this section. %s However, most of these are "
+"already mapped, and you do not need to make any changes to them."
+msgstr ""
+"Dit zijn de lijst met attributen die u verondersteld wordt voor uw producten "
+"in de productfeed op te nemen. We zullen uw winkelproductgegevens toewijzen "
+"als de waarden van de attributen in deze sectie. % s De meeste hiervan zijn "
+"echter al in kaart gebracht en u hoeft ze niet te wijzigen."
+
+#: admin/partials/rex-feed-product-settings-section.php:455
+msgid ""
+"This option will convert all your product prices using WooCommerce Multi-"
+"Currency Switcher"
+msgstr ""
+"Met deze optie worden al uw productprijzen omgezet met WooCommerce Multi-"
+"Currency Switcher"
+
+#: admin/partials/rex-feed-product-settings-section.php:376
+msgid ""
+"This option will convert all your product prices using WooCommerce "
+"Multilingual & Multicurrency"
+msgstr ""
+"Deze optie converteert al uw productprijzen met WooCommerce meertalig en "
+"multi-valuta"
+
+#: admin/partials/rex-feed-product-settings-section.php:115
+msgid "This option will include/exclude out of stock products from feed"
+msgstr "Deze optie omvat/uitsluiten niet op voorraad producten uit Feed"
+
+#: admin/partials/rex-feed-product-settings-section.php:138
+msgid ""
+"This option will include/exclude products with no regular price set or with "
+"regular price zero (0)"
+msgstr ""
+"Deze optie omvat/uitsluiten producten zonder normale prijsset of met normale "
+"prijs nul (0)"
+
+#: admin/partials/rex-feed-product-settings-section.php:332
+msgid ""
+"This option will remove any attribute with empty value (XML feed format only)"
+msgstr ""
+"Deze optie verwijdert elk kenmerk met een lege waarde (alleen XML-"
+"feedformaat)"
+
+#: admin/partials/rex-feed-product-settings-section.php:309
+msgid ""
+"This option will remove products if there is a single attribute with empty "
+"value"
+msgstr ""
+"Deze optie verwijdert producten als er een enkel kenmerk met een lege waarde "
+"is"
+
+#: admin/class-rex-product-feed-cpt.php:87
+msgid "Title"
+msgstr "recht"
+
+#: admin/class-rex-google-merchant-content-api.php:184
+msgid ""
+"To send a feed to the Google Merchant Center, you need to authorize with "
+"Google Merchant Center. You can send the feed to Google Merchant Center "
+"through direct upload method or by using the Content API."
+msgstr ""
+"Als u een feed naar het Google Merchant Center wilt sturen, moet u "
+"autoriseren met Google Merchant Center. U kunt de feed naar Google Merchant "
+"Center verzenden via de directe uploadmethode of door de Content API te "
+"gebruiken."
+
+#: admin/class-rex-product-feed-cpt.php:94
+msgid "Total Products"
+msgstr "Totaal producten"
+
+#: admin/class-rex-product-feed-cpt.php:194
+msgid "Total products : "
+msgstr "Totaal producten:"
+
+#: admin/class-rex-product-feed-cpt.php:196
+msgid "Total reviews : "
+msgstr "Totaal recensies:"
+
+#: admin/partials/rex-feed-product-settings-section.php:477
+msgid "Track Your Campaign"
+msgstr "Volg uw campagne"
+
+#: admin/partials/rex-feed-filter-settings-body-content.php:24
+msgid "Troubleshoot"
+msgstr "Problemen met oplossen"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:43
+msgid "TSV"
+msgstr "TV"
+
+#: admin/partials/rex-feed-save-filters-changes-warning-popup.php:34
+#: admin/partials/rex-feed-save-settings-changes-warning-popup.php:34
+msgid ""
+"Uh-oh! You're trying to exit without saving your changes. Would you like to "
+"save them?"
+msgstr ""
+"euh teneinde eh! U probeert af te sluiten zonder uw wijzigingen op te slaan. "
+"Wilt u ze redden?"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:187
+msgid "Unique code of the firm."
+msgstr "Unieke code van het bedrijf."
+
+#: admin/class-rex-product-feed-admin.php:374
+#: admin/class-rex-product-feed-cpt.php:167
+#: admin/partials/category_mapping.php:66
+msgid "Update"
+msgstr "Bijwerken"
+
+#: admin/class-rex-product-feed-admin.php:375
+msgid "Update & Close"
+msgstr "Update en sluit"
+
+#: admin/class-rex-product-feed-cpt.php:92
+msgid "Update Feed"
+msgstr "Feed bijwerken"
+
+#: admin/partials/on_boarding.php:212
+msgid "Update List"
+msgstr "Lijst bijwerken"
+
+#: admin/partials/on_boarding.php:210
+msgid ""
+"Update WooCommerce variation child list that has no parent assigned "
+"(abandoned child)"
+msgstr ""
+"Update WooCommerce Variation-kinderlijst waar geen ouder is toegewezen "
+"(verlaten kind)"
+
+#: admin/class-rex-product-feed-cpt.php:96
+msgid "Updated"
+msgstr "updated"
+
+#: admin/class-rex-product-feed-metabox.php:412
+msgid "Upgrade Notice"
+msgstr "Upgrade-melding"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:40
+msgid "Upgrade to Pro"
+msgstr "Upgraden naar Pro"
+
+#: admin/partials/setup-wizard.php:230
+msgid "Upgrade to Pro to get access to our premium features"
+msgstr "Upgrade naar Pro om toegang te krijgen tot onze premiumfuncties"
+
+#: admin/class-rex-product-feed-admin.php:326
+msgid "Use Advanced Filters"
+msgstr "Gebruik geavanceerde filters"
+
+#: admin/partials/setup-wizard.php:266
+msgid ""
+"Use eBay (MIP), Google Remarketing (DRM), Google Review, Leguide merchant "
+"templates"
+msgstr ""
+"Gebruik eBay (MIP), Google Remarketing (DRM), Google Review, Leguide "
+"Merchant-sjablonen"
+
+#: admin/partials/rex-feed-google-merchant.php:168
+msgid ""
+"Use Google Auto-sync to send data to your Google Merchant Center at fixed "
+"intervals. Configure and Authenticate Auto-sync with Google to be able to "
+"use this feature."
+msgstr ""
+"Gebruik Google Auto-Sync om gegevens met vaste tussenpozen naar uw Google "
+"Merchant Center te verzenden. Configureer en verifieer automatisch "
+"synchroniseren met Google om deze functie te kunnen gebruiken."
+
+#: admin/partials/setup-wizard.php:246
+msgid "Use Product Filter feature to include/exclude specific products"
+msgstr ""
+"Gebruik de productfilterfunctie om specifieke producten op te nemen/uit te "
+"sluiten"
+
+#: admin/class-rex-product-feed-actions.php:332
+msgid "Use Strip Tags For Description"
+msgstr "Gebruik striptags voor beschrijving"
+
+#: admin/partials/rex-feed-product-settings-section.php:573
+msgid "Use to differentiate ads"
+msgstr "Gebruik om onderscheid te maken tussen advertenties"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:242
+msgid "UTF-8 Encode"
+msgstr "UTF-8-codering"
+
+#: admin/partials/rex-feed-product-settings-section.php:504
+msgid "UTM Parameters"
+msgstr "UTM-parameters"
+
+#: admin/partials/feed-config-metabox-display-filter.php:48
+msgid "Value"
+msgstr "Waarde"
+
+#: admin/class-rex-product-feed-cpt.php:199
+msgid "Variable parent : "
+msgstr "Variabele ouder:"
+
+#: admin/class-rex-product-feed-cpt.php:200
+msgid "Variations : "
+msgstr "Variaties:"
+
+#: admin/class-rex-product-feed-cpt.php:172
+msgid "View"
+msgstr "uitzicht"
+
+#: admin/partials/setup-wizard.php:217
+msgid "View All Merchants"
+msgstr "Bekijk alle handelaren"
+
+#: admin/class-rex-product-feed-actions.php:328
+#: admin/class-rex-product-feed-actions.php:334
+msgid "View Doc"
+msgstr "Bekijk doc"
+
+#: admin/partials/rex-feed-feed-file-section-content.php:19
+msgid "View Feed"
+msgstr "Feed bekijken"
+
+#: admin/partials/on_boarding.php:601
+msgid "View log"
+msgstr "Bekijk log"
+
+#: admin/class-rex-product-feed-cpt.php:49
+msgid "View Product Feed"
+msgstr "Productfeed bekijken"
+
+#: admin/class-rex-product-feed-cpt.php:93
+msgid "View/Download"
+msgstr "bekijken/downloaden"
+
+#: admin/partials/on_boarding.php:309
+msgid ""
+"Warning: Please back up your database before making the rollback as you "
+"might lose you previous data."
+msgstr ""
+"Waarschuwing: maak een back-up van uw database voordat u de terugdraaiing "
+"maakt, omdat u eerdere gegevens mogelijk kwijtraakt."
+
+#: admin/partials/rex-feed-product-settings-section.php:373
+msgid "WCML Currency"
+msgstr "WCML-valuta"
+
+#: admin/class-rex-product-feed-metabox.php:196
+#: admin/class-rex-product-feed-metabox.php:382
+msgid "Weekly"
+msgstr "Wekelijks"
+
+#: admin/partials/setup-wizard.php:134
+msgid "Welcome to"
+msgstr "welkom"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:27
+#| msgid "WooCommerce Product Feed Manager"
+msgid "Welcome to Product Feed Manager!"
+msgstr "WooCommerce Product Feed Manager"
+
+#: admin/partials/on_boarding.php:233
+msgid "When the cache will be expired."
+msgstr "wanneer de cache verlopen is."
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:28
+#| msgid "Why upgrade to Premium Version?"
+msgid "Why Upgrade To The Premium Version?"
+msgstr "Waarom upgraden naar Premium-versie?"
+
+#: admin/partials/rex-feed-product-settings-section.php:452
+msgid "WooCommerce Multi-Currency"
+msgstr "WooCommerce Multi-currency"
+
+#: admin/partials/on_boarding.php:218
+msgid "WPFM cache TTL"
+msgstr "WPFM-cache TTL"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:114
+msgid "Wrapper Element"
+msgstr "wikkelaarelement"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:40
+msgid "XML"
+msgstr "XML"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:83
+msgid "XML Header"
+msgstr "XML-header"
+
+#: admin/partials/rex-feed-save-filters-changes-warning-popup.php:43
+#: admin/partials/rex-feed-save-settings-changes-warning-popup.php:43
+msgid "Yes, Save"
+msgstr "Ja, opslaan"
+
+#: admin/class-rex-google-merchant-content-api.php:226
+#| msgid "You are authorized."
+msgid "You Are Authorized."
+msgstr "U bent geautoriseerd."
+
+#: admin/class-rex-google-merchant-content-api.php:152
+msgid "You Are Not Authorized"
+msgstr "U bent niet geautoriseerd"
+
+#: admin/class-rex-google-merchant-content-api.php:265
+#| msgid "You are not authorized."
+msgid "You Are Not Authorized."
 msgstr "Jij bent niet geautoriseerd."
 
-#: admin/class-rex-google-merchant-content-api.php:97
-#: admin/class-rex-google-merchant-content-api.php:136
+#: admin/class-rex-google-merchant-content-api.php:227
+msgid ""
+"You are now ready to send feed from Product Feed Manager for WooCommerce to "
+"your Google Merchant Center. "
+msgstr ""
+"U bent nu klaar om feed vanuit Product Feed Manager for WooCommerce naar uw "
+"Google Merchant Center te verzenden."
+
+#: admin/class-rex-product-feed-admin.php:321
+msgid ""
+"You can also include more attributes for your products using these buttons. "
+"%s The \"Add New Attribute\" will let you choose from other available "
+"attributes for your selected merchant and then you can map the value with a "
+"product data. %s The \"Add New Custom Attribute\" will let you name an "
+"attribute title yourself and then map the value with a product data."
+msgstr ""
+"U kunt ook meer attributen voor uw producten opnemen met deze knoppen. % s "
+"Met het \"Nieuwe attribuut toevoegen\" kunt u kiezen uit andere beschikbare "
+"attributen voor uw geselecteerde verkoper en vervolgens kunt u de waarde in "
+"kaart brengen met productgegevens. % s Met het \"Nieuwe aangepaste attribuut "
+"toevoegen\" kunt u zelf een attribuuttitel noemen en de waarde vervolgens in "
+"kaart brengen met productgegevens."
+
+#: admin/partials/rex-feed-google-merchant.php:19
+msgid ""
+"You can send the feed to Google Merchant Center through direct upload method "
+"or by using the Content API."
+msgstr ""
+"U kunt de feed naar Google Merchant Center verzenden via de directe "
+"uploadmethode of door de Content API te gebruiken."
+
+#: admin/class-rex-product-feed-admin.php:301
+msgid ""
+"You may give any name. It's just to help you save settings for this feed "
+"generation and help you distinguish between other feeds you generate in the "
+"future."
+msgstr ""
+"U mag elke naam geven. Het is alleen om u te helpen instellingen voor deze "
+"feedgeneratie op te slaan en u te helpen onderscheid te maken tussen andere "
+"feeds die u in de toekomst genereert."
+
+#: admin/class-rex-google-merchant-content-api.php:156
+#: admin/class-rex-google-merchant-content-api.php:266
 msgid ""
 "Your access token has expired. This application uses OAuth 2.0 to Access "
 "Google APIs. Please insert the information below and authenticate token for "
@@ -31,947 +2005,14 @@ msgstr ""
 "token voor Google Merchant Shop. Het gegenereerde toegangstoken verloopt na "
 "3600 sec."
 
-#: admin/class-rex-google-merchant-content-api.php:108
-msgid "You are authorized."
-msgstr "U bent geautoriseerd."
-
-#: admin/class-rex-google-merchant-content-api.php:109
-#, fuzzy
-#| "You are now ready to send feed from WooCommerce Product Feed Manager to "
-#| "your Google Merchant Center. 🚀"
-msgid ""
-"You are now ready to send feed from WooCommerce Product Feed Manager to your "
-"Google Merchant Center. "
-msgstr ""
-"U bent nu klaar om feed van WooCommerce Product Feed Manager naar uw Google "
-"Merchant Center te verzenden. 🚀"
-
-#: admin/class-rex-product-data-retriever.php:110
-msgid "Start product processing."
-msgstr "Start productverwerking."
-
-#: admin/class-rex-product-data-retriever.php:122
-msgid "End product processing."
-msgstr "Verwerking van eindproducten."
-
-#: admin/class-rex-product-feed-admin.php:304
-msgid "Leave a review?"
-msgstr "Laat een beoordeling achter?"
-
-#: admin/class-rex-product-feed-admin.php:305
-msgid ""
-"Hey, I noticed you are using WC product feed manager for over two weeks – "
-"that’s awesome! Could you please do me a BIG favor and give it a 5-star "
-"rating on WordPress? Just to help us spread the word and boost our "
-"motivation."
-msgstr ""
-"Hé, ik heb gemerkt dat je WC-productfeedmanager al meer dan twee weken "
-"gebruikt - dat is geweldig! Kun je me alsjeblieft een GROTE gunst geven en "
-"het een 5-sterrenbeoordeling geven op WordPress? Gewoon om ons te helpen het "
-"woord te verspreiden en onze motivatie te vergroten."
-
-#: admin/class-rex-product-feed-admin.php:309
-msgid "Ok, you deserve it"
-msgstr "Ok, je verdient het"
-
-#: admin/class-rex-product-feed-admin.php:313
-msgid "Nope, maybe later."
-msgstr "Nee, misschien later."
-
-#: admin/class-rex-product-feed-admin.php:317
-msgid "I already did."
-msgstr "Heb ik al gedaan."
-
-#: admin/class-rex-product-feed-admin.php:320
-msgid "Dismiss this notice."
-msgstr "Wijs deze kennisgeving af."
-
-#: admin/class-rex-product-feed-admin.php:383
-msgid "Category Mapping"
-msgstr "Categorie in kaart brengen"
-
-#: admin/class-rex-product-feed-admin.php:384
-msgid "Google Merchant Settings"
-msgstr "Google Merchant Instellingen"
-
-#: admin/class-rex-product-feed-admin.php:385
-msgid "Settings"
-msgstr "Instellingen"
-
-#: admin/class-rex-product-feed-admin.php:386
-#: admin/partials/on_boarding.php:242
-msgid "Support"
-msgstr "Ondersteuning"
-
-#: admin/class-rex-product-feed-admin.php:390
-#: admin/class-rex-product-feed-admin.php:445
-msgid "Go Pro"
-msgstr "ga premium"
-
-#: admin/class-rex-product-feed-admin.php:443
-msgid "Dashboard"
-msgstr "Dashboard"
-
-#: admin/class-rex-product-feed-admin.php:460
-msgid "View WPFM Documentation"
-msgstr "Bekijk WPFM-documentatie"
-
-#: admin/class-rex-product-feed-admin.php:460
-msgid "Docs & FAQs"
-msgstr "Documenten en veelgestelde vragen"
-
-#: admin/class-rex-product-feed-admin.php:786
-msgid "Referrer"
-msgstr "Verwijzer"
-
-#: admin/class-rex-product-feed-admin.php:794
-msgid "The referrer: (e.g. google, newsletter)"
-msgstr "De verwijzer: (bijv. Google, nieuwsbrief)"
-
-#: admin/class-rex-product-feed-admin.php:797
-msgid "Medium"
-msgstr "Medium"
-
-#: admin/class-rex-product-feed-admin.php:805
-msgid "Marketing medium: (e.g. cpc, banner, email)"
-msgstr "Marketingmedium: (bijvoorbeeld CPC, banner, e-mail)"
-
-#: admin/class-rex-product-feed-admin.php:809
-msgid "Campaign"
-msgstr "Campagne"
-
-#: admin/class-rex-product-feed-admin.php:817
-msgid "Product, promo code, or slogan (e.g. spring_sale)"
-msgstr "Product, promotiecode of slogan (bijvoorbeeld spring_sale)"
-
-#: admin/class-rex-product-feed-admin.php:820
-msgid "Campaign term"
-msgstr "Campagnetermijn"
-
-#: admin/class-rex-product-feed-admin.php:828
-msgid "Identify the paid keywords"
-msgstr "Identificeer de betaalde zoekwoorden"
-
-#: admin/class-rex-product-feed-admin.php:832
-msgid "Campaign content"
-msgstr "Campagne-inhoud"
-
-#: admin/class-rex-product-feed-admin.php:840
-msgid "Use to differentiate ads"
-msgstr "Gebruik om onderscheid te maken tussen advertenties"
-
-#: admin/class-rex-product-feed-cpt.php:115
-msgid "Total products : "
-msgstr "Totaal producten:"
-
-#: admin/class-rex-product-feed-cpt.php:116
-msgid "Simple products : "
-msgstr "Eenvoudige producten:"
-
-#: admin/class-rex-product-feed-cpt.php:117
-msgid "Variable parent : "
-msgstr "Variabele ouder:"
-
-#: admin/class-rex-product-feed-cpt.php:118
-msgid "Variations : "
-msgstr "Variaties:"
-
-#: admin/class-rex-product-feed-cpt.php:119
-msgid "Group products : "
-msgstr "Groepsproducten:"
-
-#: admin/class-rex-product-feed-factory.php:219
-msgid "Invalid Merchant."
-msgstr "Ongeldige verkoper."
-
-#: admin/class-rex-product-feed-metabox.php:40
-#: admin/class-rex-product-feed-metabox.php:47
-msgid "Products"
-msgstr "producten"
-
-#: admin/class-rex-product-feed-metabox.php:48
-msgid "Select products to create feed for."
-msgstr "Selecteer producten om feed voor te maken."
-
-#: admin/class-rex-product-feed-metabox.php:54
-msgid "All Published Products"
-msgstr "Alle gepubliceerde producten"
-
-#: admin/class-rex-product-feed-metabox.php:55
-msgid "Custom Filter"
-msgstr "Aangepast filter"
-
-#: admin/class-rex-product-feed-metabox.php:56
-msgid "Category Filter"
-msgstr "Categoriefilter"
-
-#: admin/class-rex-product-feed-metabox.php:57
-msgid "Tag Filter"
-msgstr "Tagfilter"
-
-#: admin/class-rex-product-feed-metabox.php:107
-msgid "Refresh Interval"
-msgstr "Vernieuwingsinterval"
-
-#: admin/class-rex-product-feed-metabox.php:108
-msgid "Feed Schedule Update"
-msgstr "Feedschema update"
-
-#: admin/class-rex-product-feed-metabox.php:112
-msgid "No Interval"
-msgstr "Geen interval"
-
-#: admin/class-rex-product-feed-metabox.php:113
-msgid "Daily"
-msgstr ""
-"\n"
-"Dagelijks"
-
-#: admin/class-rex-product-feed-metabox.php:114
-#: admin/class-rex-product-feed-metabox.php:700
-msgid "Hourly"
-msgstr "ieder uur"
-
-#: admin/class-rex-product-feed-metabox.php:125
-msgid "Include Variable Parent Product"
-msgstr "Voeg een variabel ouderproduct toe"
-
-#: admin/class-rex-product-feed-metabox.php:126
-msgid "Include/Exclude Parent Variable Product"
-msgstr "Opnemen / uitsluiten van een ouder variabel product"
-
-#: admin/class-rex-product-feed-metabox.php:130
-#: admin/class-rex-product-feed-metabox.php:146
-#: admin/class-rex-product-feed-metabox.php:163
-#: admin/class-rex-product-feed-metabox.php:179
-#: admin/class-rex-product-feed-metabox.php:195
-msgid "Yes"
-msgstr "Ja"
-
-#: admin/class-rex-product-feed-metabox.php:131
-#: admin/class-rex-product-feed-metabox.php:147
-#: admin/class-rex-product-feed-metabox.php:164
-#: admin/class-rex-product-feed-metabox.php:180
-#: admin/class-rex-product-feed-metabox.php:196
-msgid "No"
-msgstr "Nee"
-
-#: admin/class-rex-product-feed-metabox.php:141
-msgid "Include Product Variations"
-msgstr "Productvariaties opnemen"
-
-#: admin/class-rex-product-feed-metabox.php:142
-msgid "Include/Exclude Products Variations"
-msgstr "Varianten van producten opnemen / uitsluiten"
-
-#: admin/class-rex-product-feed-metabox.php:158
-msgid "Include variation product name"
-msgstr "Variantproductnaam opnemen"
-
-#: admin/class-rex-product-feed-metabox.php:159
-msgid ""
-"It will add the all the variation name on product title. Will be applicable "
-"if there are more than two variation atrributes of a product."
-msgstr ""
-"Het voegt de volledige variantnaam toe aan de producttitel. Is van "
-"toepassing als er meer dan twee variatiekenmerken van een product zijn."
-
-#: admin/class-rex-product-feed-metabox.php:174
-msgid "Include Parent Product (Grouped Product)"
-msgstr "Bovenliggend product opnemen (gegroepeerd product)"
-
-#: admin/class-rex-product-feed-metabox.php:175
-msgid "Include/Exclude Parent Product"
-msgstr "Ouderproduct opnemen / uitsluiten"
-
-#: admin/class-rex-product-feed-metabox.php:190
-#: admin/class-rex-product-feed-metabox.php:191
-msgid "Exclude invisible/hidden products"
-msgstr "Sluit onzichtbare / verborgen producten uit"
-
-#: admin/class-rex-product-feed-metabox.php:205
-msgid "Analytics parameters"
-msgstr "Analytics-parameters"
-
-#: admin/class-rex-product-feed-metabox.php:206
-msgid "Check to activate utm params"
-msgstr "Vink dit aan om utm-params te activeren"
-
-#: admin/class-rex-product-feed-metabox.php:212
-msgid "Parameters"
-msgstr "Parameters"
-
-#: admin/class-rex-product-feed-metabox.php:303
-msgid "Please select merchant"
-msgstr "Selecteer een verkoper"
-
-#: admin/class-rex-product-feed-metabox.php:334
-msgid "Feed Configuration"
-msgstr "Feedconfiguratie"
-
-#: admin/class-rex-product-feed-metabox.php:339
-msgid "Merchant Type"
-msgstr "Type verkoper"
-
-#: admin/class-rex-product-feed-metabox.php:340
-msgid "Select Merchant Type of the Feed."
-msgstr "Selecteer Handelaarstype van de feed."
-
-#: admin/class-rex-product-feed-metabox.php:351
-msgid "File Format"
-msgstr "Bestandsformaat"
-
-#: admin/class-rex-product-feed-metabox.php:352
-msgid "Select Format of the Feed."
-msgstr "Selecteer Formaat van de feed."
-
-#: admin/class-rex-product-feed-metabox.php:356
-msgid "XML"
-msgstr "XML"
-
-#: admin/class-rex-product-feed-metabox.php:357
-msgid "TEXT"
-msgstr "TEKST"
-
-#: admin/class-rex-product-feed-metabox.php:358
-msgid "CSV"
-msgstr "CSV"
-
-#: admin/class-rex-product-feed-metabox.php:359
-msgid "JSON (Only for Zalando)"
-msgstr "JSON (alleen voor Zalando)"
-
-#: admin/class-rex-product-feed-metabox.php:524
-msgid "Add New Attribute"
-msgstr "Nieuw kenmerk toevoegen"
-
-#: admin/class-rex-product-feed-metabox.php:525
-msgid "Add New Custom Attribute"
-msgstr "Nieuw aangepast kenmerk toevoegen"
-
-#: admin/class-rex-product-feed-metabox.php:557
-msgid "Add New Filter"
-msgstr "Nieuw filter toevoegen"
-
-#: admin/class-rex-product-feed-metabox.php:573
-msgid "Feed URL"
-msgstr "Feed-URL"
-
-#: admin/class-rex-product-feed-metabox.php:580
-msgid "Your Feed URL"
-msgstr "Uw feed-URL"
-
-#: admin/class-rex-product-feed-metabox.php:601
-msgid "Why upgrade to Premium Version?"
-msgstr "Waarom upgraden naar Premium-versie?"
-
-#: admin/class-rex-product-feed-metabox.php:623
-msgid "Supports more than 50 products."
-msgstr "Ondersteunt meer dan 50 producten."
-
-#: admin/class-rex-product-feed-metabox.php:624
-msgid "Access to a elite support team."
-msgstr "Toegang tot een elite-ondersteuningsteam."
-
-#: admin/class-rex-product-feed-metabox.php:625
-msgid "Supports YITH brand attributes."
-msgstr "Ondersteunt YITH-merkkenmerken."
-
-#: admin/class-rex-product-feed-metabox.php:626
-msgid "Dynamic Attribute."
-msgstr "Dynamisch kenmerk."
-
-#: admin/class-rex-product-feed-metabox.php:627
-msgid ""
-"Custom field support - Brand,GTIN,MPN,UPC,EAN,Size, Pattern, Material, Age "
-"Group, Gender."
-msgstr ""
-"Aangepaste veldondersteuning - Merk, GTIN, MPN, UPC, EAN, Grootte, Patroon, "
-"Materiaal, Leeftijdsgroep, Geslacht."
-
-#: admin/class-rex-product-feed-metabox.php:628
-msgid "Fix WooCommerce's (JSON-LD) structure data bug"
-msgstr "Herstel WooCommerce's (JSON-LD) structuur data bug"
-
-#: admin/class-rex-product-feed-metabox.php:646
-msgid "View Feed"
-msgstr "Feed bekijken"
-
-#: admin/class-rex-product-feed-metabox.php:648
-msgid "Download Feed"
-msgstr "Feed downloaden"
-
-#: admin/class-rex-product-feed-metabox.php:664
-msgid "Send to Google Merchant"
-msgstr "Verzenden naar Google Merchant"
-
-#: admin/class-rex-product-feed-metabox.php:672
-msgid "Target Country"
-msgstr "Doelland"
-
-#: admin/class-rex-product-feed-metabox.php:683
-msgid "Target Language"
-msgstr "Doel taal"
-
-#: admin/class-rex-product-feed-metabox.php:693
-msgid "Schedule"
-msgstr "Schema"
-
-#: admin/class-rex-product-feed-metabox.php:698
-msgid "Monthly"
-msgstr "Maandelijks"
-
-#: admin/class-rex-product-feed-metabox.php:699
-msgid "Weekly"
-msgstr "Wekelijks"
-
-#: admin/class-rex-product-feed-metabox.php:708
-msgid "Select day of month"
-msgstr "Selecteer de dag van de maand"
-
-#: admin/class-rex-product-feed-metabox.php:720
-msgid "Select day of week"
-msgstr "Selecteer dag van de week"
-
-#: admin/class-rex-product-feed-metabox.php:740
-msgid "Select Hour"
-msgstr "Selecteer uur"
-
-#: admin/class-rex-product-feed-metabox.php:756
-msgid ""
-"<p class=\"google-desc\">Please note that Google has fixed abbreviations for "
-"Location and Language. For example, the abbreviation for target location, "
-"United States is US and the abbreviation for language, English is en. <a "
-"href=\"https://rextheme.com/google-country-codes-list/\" target=\"_blank\">"
-"Click here</a> to see the list of all abbreviations set by Google.</p>"
-msgstr ""
-"<p class = \"google-desc\"> Houd er rekening mee dat Google vaste "
-"afkortingen heeft voor Locatie en Taal. De afkorting voor doellocatie, "
-"Verenigde Staten is bijvoorbeeld VS en de afkorting voor taal, Engels is en. "
-"<a href=\"https://rextheme.com/google-country-codes-list/\" "
-"target=\"_blank\"> Klik hier </a> om de lijst met alle door Google "
-"ingestelde afkortingen te zien. </p>"
-
-#: admin/class-rex-product-feed-metabox.php:782
-#, fuzzy
-#| "Oops!! Access token has expired.Please authenticate token for Google "
-#| "Merchant Shop to be able to send feed."
-msgid ""
-"Oops!! Access token has expired 😕. Please authenticate token for Google "
-"Merchant Shop to be able to send feed."
-msgstr ""
-"Oops !! Toegangstoken is verlopen. Verifieer token zodat Google Merchant "
-"Shop feed kan verzenden."
-
-#: admin/class-rex-product-feed-metabox.php:784
-msgid "Authenticate"
-msgstr "Waarmerken"
-
-#: admin/class-rex-product-feed-metabox.php:789
-msgid "Send to google merchant"
-msgstr "Verzenden naar Google Merchant"
-
-#: admin/class-rex-product-feed-notices.php:37
-msgid "Product Feed"
-msgstr "Productfeed"
-
-#: admin/feed/abstract-rex-product-feed-generator.php:368
-msgid "Start feed processing job by cron"
-msgstr "Start feedverwerkingstaak door cron"
-
-#: admin/feed/abstract-rex-product-feed-generator.php:378
-msgid "Start feed processing job."
-msgstr "Start feedverwerkingstaak."
-
-#: admin/feed/abstract-rex-product-feed-generator.php:1005
-msgid "Completed feed generation job."
-msgstr "Voltooide job voor feedgeneratie."
-
-#: admin/partials/category_mapping.php:46
-msgid "Update"
-msgstr "Bijwerken"
-
-#: admin/partials/category_mapping.php:47
-msgid "Delete"
-msgstr "Verwijderen"
-
-#: admin/partials/category_mapping.php:57
-msgid "Please update WPFM database"
-msgstr "Werk de WPFM-database bij"
-
-#: admin/partials/category_mapping.php:70
-msgid "Add New Category Map"
-msgstr "Nieuwe categoriekaart toevoegen"
-
-#: admin/partials/category_mapping.php:74
-msgid "Mapper Name"
-msgstr "Mapper-naam"
-
-#: admin/partials/category_mapping.php:87
-msgid "Save"
-msgstr "Opslaan"
-
-#: admin/partials/database-update-notice.php:6
-msgid "WPFM Database Update Notice"
-msgstr "Kennisgeving WPFM-database-update"
-
-#: admin/partials/database-update-notice.php:10
-msgid ""
-"WooCommerce Product Feed Manager is getting better and now, has an updated "
-"data structure for it to run smoothly. Click on update now to get the latest "
-"data structure for WPFM. None of your data will be changed/removed, only "
-"WPFM data will be restructured for better outcome."
-msgstr ""
-"WooCommerce Product Feed Manager wordt beter en heeft nu een bijgewerkte "
-"datastructuur om soepel te werken. Klik nu op update om de nieuwste "
-"gegevensstructuur voor WPFM te krijgen. Geen van uw gegevens wordt gewijzigd "
-"/ verwijderd, alleen WPFM-gegevens worden geherstructureerd voor een beter "
-"resultaat."
-
-#: admin/partials/database-update-notice.php:11
-msgid ""
-"The database update process runs in the background and may take a little "
-"while, so please be patient."
-msgstr ""
-"Het database-updateproces wordt op de achtergrond uitgevoerd en kan even "
-"duren, dus wees geduldig."
-
-#: admin/partials/database-update-notice.php:17
-msgid "Update WPFM Database"
-msgstr "Werk WPFM-database bij"
-
-#: admin/partials/database-update-running-notice.php:6
-msgid "Update in progress…."
-msgstr "Update wordt uitgevoerd…."
-
-#: admin/partials/database-update-running-notice.php:10
-msgid "It will run in the background while you can continue browsing."
-msgstr "Het wordt op de achtergrond uitgevoerd terwijl u kunt blijven browsen."
-
-#: admin/partials/feed-config-metabox-display-filter.php:36
-msgid "If"
-msgstr "Als"
-
-#: admin/partials/feed-config-metabox-display-filter.php:37
-msgid "Condition"
-msgstr "Staat"
-
-#: admin/partials/feed-config-metabox-display-filter.php:38
-#: admin/partials/feed-config-metabox-display.php:29
-msgid "Value"
-msgstr "Waarde"
-
-#: admin/partials/feed-config-metabox-display-filter.php:39
-msgid "Then"
-msgstr "Dan"
-
-#: admin/partials/feed-config-metabox-display.php:27
-msgid "Attributes"
-msgstr "Attributen"
-
-#: admin/partials/feed-config-metabox-display.php:28
-msgid "Type"
-msgstr "Type"
-
-#: admin/partials/feed-config-metabox-display.php:30
-msgid "Prefix"
-msgstr "Voorvoegsel"
-
-#: admin/partials/feed-config-metabox-display.php:31
-msgid "Suffix"
-msgstr "Achtervoegsel"
-
-#: admin/partials/feed-config-metabox-display.php:32
-msgid "Output Sanitization"
-msgstr "Uitgangsopschoning"
-
-#: admin/partials/feed-config-metabox-display.php:33
-msgid "Output Limit"
-msgstr "Uitvoerlimiet"
-
-#: admin/partials/merchant_settings.php:38
-msgid "Configure your google merchant"
-msgstr "Configureer uw Google-verkoper"
-
-#: admin/partials/merchant_settings.php:44
-msgid "Client ID#: "
-msgstr "Klant identificatie#:"
-
-#: admin/partials/merchant_settings.php:48
-msgid "Client Secret: "
-msgstr "Klantgeheim:"
-
-#: admin/partials/merchant_settings.php:52
-msgid "Merchant ID# : "
-msgstr "Verkoper ID #:"
-
-#: admin/partials/merchant_settings.php:57
-msgid "Redirect URL"
-msgstr "Omleidings-URL"
-
-#: admin/partials/merchant_settings.php:60
-msgid "Reset"
-msgstr "Reset"
-
-#: admin/partials/merchant_settings.php:64
-msgid "Submit"
-msgstr "voorleggen"
-
-#: admin/partials/on_boarding.php:50 admin/partials/on_boarding.php:204
-msgid "Go Premium"
-msgstr "Ga voor Premium"
-
-#: admin/partials/on_boarding.php:52
-#, php-format
-msgid ""
-"Purchase our <a href=\"%s\" target=\"_blank\" title=\"Click to Upgrade Pro\">"
-"premium version</a> to unlock these pro components!"
-msgstr ""
-"Koop onze <a href=\"%s\" target=\"_blank\" title=\"Click to Upgrade Pro\"> "
-"premium-versie </a> om deze professionele componenten te ontgrendelen!"
-
-#: admin/partials/on_boarding.php:56
-msgid "ok"
-msgstr "OK"
-
-#: admin/partials/on_boarding.php:91
-msgid "General"
-msgstr "Algemeen"
-
-#: admin/partials/on_boarding.php:115
-msgid "Merchants"
-msgstr "Handelaars"
-
-#: admin/partials/on_boarding.php:158 admin/partials/on_boarding.php:1300
-msgid "Controls"
-msgstr "Bediening"
-
-#: admin/partials/on_boarding.php:180
-msgid "Video Tutorials"
-msgstr "Video uitleg"
-
-#: admin/partials/on_boarding.php:200 admin/partials/on_boarding.php:1495
-msgid "System Status"
-msgstr "Systeem status"
-
-#: admin/partials/on_boarding.php:207
-msgid "Logs"
-msgstr "Logboeken"
-
-#: admin/partials/on_boarding.php:225
-msgid "Documentation"
-msgstr "Documentatie"
-
-#: admin/partials/on_boarding.php:230
-msgid ""
-"Before You start, you can check our Documentation to get familiar with "
-"WooCommerce Product Feed Manager."
-msgstr ""
-"Voordat u begint, kunt u onze documentatie raadplegen om vertrouwd te raken "
-"met WooCommerce Product Feed Manager."
-
-#: admin/partials/on_boarding.php:233
-msgid "View Documentation"
-msgstr "Bekijk documentatie"
-
-#: admin/partials/on_boarding.php:247
-msgid ""
-"Can't find solution on with our documentation? Just Post a ticket on Support "
-"forum. We are to solve your issue."
-msgstr ""
-"Kunt u geen oplossing vinden in onze documentatie? Plaats gewoon een ticket "
-"op het ondersteuningsforum. We moeten uw probleem oplossen."
-
-#: admin/partials/on_boarding.php:250
-msgid "Post a Ticket"
-msgstr "Plaats een ticket"
-
-#: admin/partials/on_boarding.php:259
-msgid "Share Your Thoughts"
-msgstr "Deel je gedachten"
-
-#: admin/partials/on_boarding.php:264
-msgid ""
-"Your suggestions are valubale to us. It can help to make WPFM even better."
-msgstr ""
-"Uw suggesties zijn waardevol voor ons. Het kan helpen om WPFM nog beter te "
-"maken."
-
-#: admin/partials/on_boarding.php:267
-msgid "Suggest"
-msgstr "Stel voor"
-
-#: admin/partials/on_boarding.php:276
-msgid "Make WPFM Popular"
-msgstr "Maak WPFM populair"
-
-#: admin/partials/on_boarding.php:281
-msgid ""
-"Your rating and feedback matters to us. If you are happy with WooCommerce "
-"Product Feed Manager give us a rating."
-msgstr ""
-"Uw beoordeling en feedback zijn belangrijk voor ons. Als u tevreden bent met "
-"WooCommerce Product Feed Manager, geef ons dan een beoordeling."
-
-#: admin/partials/on_boarding.php:284
-msgid "Rate Us!"
-msgstr "Beoordeel ons!"
-
-#: admin/partials/on_boarding.php:293
-msgid "Share On"
-msgstr "Delen op"
-
-#: admin/partials/on_boarding.php:298
-msgid "Share on Facebook"
-msgstr "Delen op Facebook"
-
-#: admin/partials/on_boarding.php:299
-msgid "Share on Twitter"
-msgstr "Delen op Twitter"
-
-#: admin/partials/on_boarding.php:300
-msgid "Share on Google+"
-msgstr "Deel op Google+"
-
-#: admin/partials/on_boarding.php:301
-msgid "Share on LinkedIn"
-msgstr "Deel op LinkedIn"
-
-#: admin/partials/on_boarding.php:313 admin/partials/on_boarding.php:1620
-msgid "Why upgrade to Pro?"
-msgstr "Waarom upgraden naar Pro?"
-
-#: admin/partials/on_boarding.php:315 admin/partials/on_boarding.php:1622
-msgid "Generate feed for unlimited products"
-msgstr "Genereer feed voor onbeperkte producten"
-
-#: admin/partials/on_boarding.php:316 admin/partials/on_boarding.php:1623
-msgid ""
-"Unique Product Identifiers Custom Fields (Brand, GTIN, MPN, UPC, EAN, JAN, "
-"ISBN, ITF14, Offer price, Offer effective date)"
-msgstr ""
-"Unieke product-ID's Aangepaste velden (merk, GTIN, MPN, UPC, EAN, JAN, ISBN, "
-"ITF14, aanbiedingsprijs, effectieve ingangsdatum)"
-
-#: admin/partials/on_boarding.php:317 admin/partials/on_boarding.php:1624
-msgid ""
-"Detailed Product Attributes Custom Fields (Size, Pattern, Material, Age "
-"Group, Gender, Color)"
-msgstr ""
-"Gedetailleerde productkenmerken Aangepaste velden (grootte, patroon, "
-"materiaal, leeftijdsgroep, geslacht, kleur)"
-
-#: admin/partials/on_boarding.php:318 admin/partials/on_boarding.php:1625
-msgid "Ability To Exclude Tax From Structured Data Prices"
-msgstr ""
-"Mogelijkheid om belasting uit te sluiten van gestructureerde dataprijzen"
-
-#: admin/partials/on_boarding.php:319 admin/partials/on_boarding.php:1626
-msgid "Option To Fix WooCommerce’s (Json-Ld) Structured Data Bug"
-msgstr ""
-"Optie om WooCommerce's (Json-Ld) gestructureerde gegevensbug te repareren"
-
-#: admin/partials/on_boarding.php:320 admin/partials/on_boarding.php:1627
-msgid "Custom Batch configuration"
-msgstr "Aangepaste batchconfiguratie"
-
-#: admin/partials/on_boarding.php:321 admin/partials/on_boarding.php:1628
-msgid ""
-"9 more pre-built templates (including eBay MIP, eBay Seller Center, Google "
-"Product Review, Google Re-marketing (DRM) and others)"
-msgstr ""
-"9 meer vooraf gebouwde sjablonen (inclusief eBay MIP, eBay Seller Center, "
-"Google Product Review, Google Re-marketing (DRM) en andere)"
-
-#: admin/partials/on_boarding.php:324
-msgid "Upgrade to Pro"
-msgstr "Upgraden naar Pro"
-
-#: admin/partials/on_boarding.php:334
-msgid "Available Merchants"
-msgstr "Beschikbare handelaars"
-
-#: admin/partials/on_boarding.php:1268 admin/partials/on_boarding.php:1361
-#: admin/partials/on_boarding.php:1386 admin/partials/on_boarding.php:1413
-#: admin/partials/on_boarding.php:1438 admin/partials/on_boarding.php:1466
-msgid "pro"
-msgstr "pro"
-
-#: admin/partials/on_boarding.php:1303
-msgid "Product(s) per batch"
-msgstr "Product (en) per batch"
-
-#: admin/partials/on_boarding.php:1313
-msgid "Clear batch"
-msgstr "Partij wissen"
-
-#: admin/partials/on_boarding.php:1319
-msgid "Enable Facebook Pixel"
-msgstr "Schakel Facebook Pixel in"
-
-#: admin/partials/on_boarding.php:1335
-msgid "Enable log"
-msgstr "Log inschakelen"
-
-#: admin/partials/on_boarding.php:1349
-msgid "Facebook Pixel id"
-msgstr "Facebook Pixel-id"
-
-#: admin/partials/on_boarding.php:1365
-msgid "Add custom fields for Amazon"
-msgstr "Voeg aangepaste velden toe voor Amazon"
-
-#: admin/partials/on_boarding.php:1391
-msgid "Exclude TAX from structured data prices"
-msgstr "Belasting uitsluiten van gestructureerde dataprijzen"
-
-#: admin/partials/on_boarding.php:1417
-msgid ""
-"Add Unique Product Identifiers ( Brand, GTIN, MPN, UPC, EAN, JAN, ISBN, "
-"ITF14, Offer price, Offer effective date ) to product"
-msgstr ""
-"Voeg unieke product-ID's (merk, GTIN, MPN, UPC, EAN, JAN, ISBN, ITF14, "
-"aanbiedingsprijs, effectieve ingangsdatum) toe aan het product"
-
-#: admin/partials/on_boarding.php:1443
-msgid ""
-"Increase the number of products that will be approved in Google's Merchant "
-"Center:\n"
-"                                           This option will fix "
-"WooCommerce's (JSON-LD) structured data bug and add extra structured data "
-"elements to your pages"
-msgstr ""
-"Verhoog het aantal producten dat wordt goedgekeurd in het Merchant Center "
-"van Google:\n"
-"                                            Deze optie zal de "
-"gestructureerde gegevensbug van WooCommerce (JSON-LD) oplossen en extra "
-"gestructureerde gegevenselementen aan uw pagina's toevoegen"
-
-#: admin/partials/on_boarding.php:1470
-msgid ""
-"Add Detailed Product Attributes ( Size, Color, Pattern, Material, Age group, "
-"Gender, Additional info ) to product"
-msgstr ""
-"Voeg gedetailleerde productkenmerken (maat, kleur, patroon, materiaal, "
-"leeftijdsgroep, geslacht, aanvullende informatie) toe aan het product"
-
-#: admin/partials/on_boarding.php:1525
-msgid "PHP version:"
-msgstr "PHP-versie:"
-
-#: admin/partials/on_boarding.php:1531
-#, php-format
-msgid ""
-"%1$s - We recommend using PHP version 7.2 or above for greater performance "
-"and security."
-msgstr ""
-"We raden aan om PHP-versie 7.2 of hoger te gebruiken voor betere prestaties "
-"en beveiliging."
-
-#: admin/partials/on_boarding.php:1537
-msgid "WordPress version:"
-msgstr "WordPress versie:"
-
-#: admin/partials/on_boarding.php:1543
-#, php-format
-msgid "%1$s - WP version above 4 is required. "
-msgstr "WP-versie boven 4 is vereist."
-
-#: admin/partials/on_boarding.php:1549
-msgid "WooCommerce Version:"
-msgstr "WooCommerce-versie:"
-
-#: admin/partials/on_boarding.php:1555
-#, php-format
-msgid "%1$s - WC version above 4 is required. "
-msgstr "WC-versie boven 4 is vereist."
-
-#: admin/partials/on_boarding.php:1561
-msgid "Memory:"
-msgstr "Geheugen:"
-
-#: admin/partials/on_boarding.php:1567
-#, php-format
-msgid "%1$s - We recommend setting memory to at least 64MB. See: %2$s"
-msgstr "We raden aan het geheugen in te stellen op minimaal 64 MB. Zien:"
-
-#: admin/partials/on_boarding.php:1567
-msgid "Increasing memory allocated to PHP"
-msgstr "Meer geheugen toegewezen aan PHP"
-
-#: admin/partials/on_boarding.php:1573
-msgid "Upload Limit:"
-msgstr "Uploadlimiet:"
-
-#: admin/partials/on_boarding.php:1579
-#, php-format
-msgid "%1$s - We recommend upload limit to at least 64MB."
-msgstr "We raden een uploadlimiet aan van minimaal 64 MB."
-
-#: admin/partials/on_boarding.php:1585
-msgid "WP Cron"
-msgstr "WP Cron"
-
-#: admin/partials/on_boarding.php:1597
-msgid "Product Feed Directory Writable"
-msgstr "Productfeed Directory beschrijfbaar"
-
-#: admin/partials/on_boarding.php:1603
-#, php-format
-msgid "It is required to make feed directory writable. %1$s"
-msgstr "Het is vereist om de feeddirectory schrijfbaar te maken."
-
-#: admin/partials/on_boarding.php:1630
-msgid "Get Premium Version"
-msgstr "Download Premium-versie"
-
-#: admin/partials/on_boarding.php:1653
-msgid "View log"
-msgstr "Bekijk log"
-
-#: admin/partials/on_boarding.php:1657
-msgid "Copy log"
-msgstr "Logboek kopiëren"
-
-#: admin/partials/progress-bar.php:27
+#: admin/partials/progress-bar.php:21
 msgid "Your feed is generating"
 msgstr "Je feed wordt gegenereerd"
 
-#: admin/partials/wpmf-black-friday-notice.php:16
-msgid "Upgrade to pro with a"
-msgstr "Upgrade naar pro met een"
+#: admin/partials/rex-feed-feed-file-section-content.php:13
+msgid "Your Feed URL"
+msgstr "Uw feed-URL"
 
-#: admin/partials/wpmf-black-friday-notice.php:17
-msgid "Huge Black Friday Discount"
-msgstr "Enorme Black Friday-korting"
-
-#: admin/partials/wpmf-black-friday-notice.php:18
-msgid "Generate ultimate product feed in minutes."
-msgstr "Genereer ultieme productfeed in minuten."
-
-#: admin/partials/wpmf-black-friday-notice.php:25
-msgid "Coupon:"
-msgstr "Coupon:"
-
-#. Name of the plugin
-msgid "WooCommerce Product Feed Manager"
-msgstr "WooCommerce Product Feed Manager"
-
-#. Description of the plugin
-msgid ""
-"WooCommerce Product Feed Manager helps you to sell more by uploading product "
-"feed to Google shopping, Amazon, Walmart, eBay, Nextag, Pricegrabber and "
-"acquiring real buyer."
-msgstr ""
-"WooCommerce Product Feed Manager helpt u om meer te verkopen door "
-"productfeed te uploaden naar Google Shopping, Amazon, Walmart, eBay, Nextag, "
-"Pricegrabber en het verwerven van echte kopers."
-
-#. URI of the plugin
-#. Author URI of the plugin
-msgid "https://rextheme.com"
-msgstr "https://rextheme.com"
-
-#. Author of the plugin
-msgid "RexTheme"
-msgstr "RexTheme"
+#: admin/partials/rex-feed-merchant-dropdown-section.php:201
+msgid "Your hotline store name."
+msgstr "Uw hotline-winkelnaam."

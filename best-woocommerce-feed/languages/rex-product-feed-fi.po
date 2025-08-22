@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: WooCommerce Product Feed Manager\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-06-04 07:18+0000\n"
-"PO-Revision-Date: 2020-06-05 07:10+0000\n"
+"PO-Revision-Date: 2025-08-20 09:28+0000\n"
 "Last-Translator: \n"
 "Language-Team: Finnish\n"
 "Language: fi\n"
@@ -12,15 +12,1982 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.4.0; wp-5.4.1"
+"X-Loco-Version: 2.8.0; wp-6.8.2; php-8.3.8"
 
-#: admin/class-rex-google-merchant-content-api.php:96
-#: admin/class-rex-google-merchant-content-api.php:135
-msgid "You are not authorized."
+#: admin/partials/on_boarding.php:29
+msgid "1 Hour"
+msgstr "1 tunti"
+
+#: admin/partials/on_boarding.php:34
+msgid "1 Week"
+msgstr "1 viikko"
+
+#: admin/partials/on_boarding.php:32
+msgid "12 Hours"
+msgstr "12 tuntia"
+
+#: admin/partials/on_boarding.php:33
+msgid "24 Hours"
+msgstr "24 tuntia"
+
+#: admin/partials/on_boarding.php:30
+msgid "3 Hours"
+msgstr "3 tuntia"
+
+#: admin/partials/on_boarding.php:31
+msgid "6 Hours"
+msgstr "6 tuntia"
+
+#: admin/partials/setup-wizard.php:57
+msgid "A Complete Guide To Facebook"
+msgstr "Täydellinen opas Facebookiin"
+
+#: admin/partials/setup-wizard.php:22
+msgid "A Complete Guide To Google Shopping"
+msgstr "Täydellinen opas Google Shoppingiin"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:21
+#| msgid "Access to a elite support team."
+msgid "Access to an Elite Support Team"
+msgstr "Pääsy eliitin tukitiimiin."
+
+#: admin/partials/rex-feed-google-merchant.php:165
+msgid ""
+"Access token has expired. Please, authenticate again if you want to submit a "
+"completely new feed to Google Merchant Center."
+msgstr ""
+"käyttöoikeustunnus on vanhentunut. Todenna uudelleen, jos haluat lähettää "
+"täysin uuden syötteen Google Merchant Centeriin."
+
+#: admin/partials/feed-config-metabox-display-filter.php:56
+#: admin/partials/feed-config-metabox-display.php:37
+msgid "Action"
+msgstr "toiminta"
+
+#: admin/partials/rex-feed-product-filter-header-section.php:41
+msgid "Add Custom Filter"
+msgstr "Lisää mukautettu suodatin"
+
+#: admin/partials/on_boarding.php:354
+#| msgid ""
+#| "Add Detailed Product Attributes ( Size, Color, Pattern, Material, Age "
+#| "group, Gender, Additional info ) to product"
+msgid ""
+"Add Detailed Product Attributes ( Size, Color, Pattern, Material, Age group, "
+"Gender ) to product"
+msgstr ""
+"Lisää yksityiskohtaiset tuoteominaisuudet (koko, väri, kuvio, materiaali, "
+"ikäryhmä, sukupuoli, lisätiedot) tuotteesee"
+
+#: admin/partials/rex-feed-product-filter-header-section.php:32
+msgid "Add Feed Rule"
+msgstr "Lisää syötesääntö"
+
+#: admin/class-rex-product-feed-admin.php:319
+msgid "Add More Attributes To Your Feed"
+msgstr "Lisää syötteeseesi lisää määritteitä"
+
+#: admin/partials/rex-feed-config-table.php:51
+msgid "Add New Attribute"
+msgstr "Lisää uusi ominaisuus"
+
+#: admin/partials/category_mapping.php:21
+msgid "Add New Category Map"
+msgstr "Lisää uusi luokkakartta"
+
+#: admin/class-rex-product-feed-cpt.php:45
+msgid "Add New Feed"
+msgstr "Lisää uusi syöte"
+
+#: admin/class-rex-product-feed-cpt.php:46
+msgid "Add New Product Feed"
+msgstr "Lisää uusi tuotesyöte"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:258
+msgid "Add Two Decimal Points"
+msgstr "Lisää kaksi desimaalipistettä"
+
+#: admin/partials/on_boarding.php:325
+#| msgid ""
+#| "Add Unique Product Identifiers ( Brand, GTIN, MPN, UPC, EAN, JAN, ISBN, "
+#| "ITF14, Offer price, Offer effective date ) to product"
+msgid ""
+"Add Unique Product Identifiers ( Brand, GTIN, MPN, UPC, EAN, JAN, ISBN, "
+"ITF14, Offer price, Offer effective date, Additional info ) to product"
+msgstr ""
+"Lisää tuotteeseen yksilölliset tuotetunnisteet (tuotemerkki, GTIN, MPN, UPC, "
+"EAN, JAN, ISBN, ITF14, tarjoushinta, tarjouksen voimaantulopäivä) tuotteeseen"
+
+#: admin/partials/rex-feed-product-settings-section.php:413
+msgid "Aelia Currency"
+msgstr "Aelia Valuutta"
+
+#: admin/class-rex-product-feed-metabox.php:225
+msgid "All Featured Products"
+msgstr "Kaikki esitellyt tuotteet"
+
+#: admin/class-rex-product-feed-cpt.php:43
+msgid "All Product Feeds"
+msgstr "Kaikki tuotesyötteet"
+
+#: admin/class-rex-product-feed-metabox.php:224
+msgid "All Published Products"
+msgstr "Kaikki julkaistut tuotteet"
+
+#: admin/partials/rex-feed-filter-description-body.php:16
+msgid "All the published products will be included in the feed."
+msgstr "Kaikki julkaistut tuotteet sisällytetään syötteeseen."
+
+#: admin/partials/on_boarding.php:403
+msgid "Allow Private Products"
+msgstr "Salli yksityisiä tuotteita"
+
+#: admin/partials/rex-feed-review-request-body-content.php:42
+msgid "Already Rated"
+msgstr "Jo luokiteltu"
+
+#: admin/class-rex-product-feed-system-status.php:123
+msgid "An error occurred, please try again."
+msgstr "Tapahtui virhe, yritä uudelleen."
+
+#: admin/partials/rex-feed-product-settings-section.php:480
+#| msgid "Analytics parameters"
+msgid "Analytics Parameters "
+msgstr "Analytics-parametrit"
+
+#: admin/partials/rex-product-feed-feed-filters-body.php:28
+#: admin/partials/rex-product-feed-feed-filters-body.php:57
+#: admin/partials/rex-product-feed-feed-filters-body.php:90
+#: admin/partials/rex-product-feed-feed-filters-body.php:120
+msgid "AND"
+msgstr "ynnä"
+
+#: admin/class-rex-product-feed-actions.php:326
+msgid "and Regenerate"
+msgstr "ja uudistaa"
+
+#: admin/class-rex-product-feed-actions.php:341
+msgid "and we will assist you."
+msgstr "Ja me autamme sinua."
+
+#: admin/class-rex-google-merchant-content-api.php:205
+#: admin/partials/rex-feed-google-merchant.php:25
+msgid "API Method (Require authorization)"
+msgstr "API-menetelmä (vaatii valtuutuksen)"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:16
+msgid "Apply Feed Rules"
+msgstr "Käytä syötesääntöjä"
+
+#: admin/partials/feed-config-metabox-display.php:28
+msgid "Assigned Values"
+msgstr "Määritetyt arvot"
+
+#: admin/class-rex-product-feed-actions.php:345
+msgid ""
+"Attach your temporary feed link, and screenshots of your feed attributes, "
+"feed settings, and the feed filter section in the email."
+msgstr ""
+"Liitä väliaikainen syötelinkki ja kuvakaappaukset syötteen attribuuteista, "
+"syöteasetuksista ja syötteen suodatinosiosta sähköpostissa."
+
+#: admin/feed-templates/abstract-rex-feed-template.php:201
+#| msgid "Attributes"
+msgid "Attribute"
+msgstr "määritteet"
+
+#: admin/partials/feed-config-metabox-display.php:27
+msgid "Attribute Type"
+msgstr "Ominaisuuden tyyppi"
+
+#: admin/class-rex-google-merchant-content-api.php:148
+#: admin/partials/rex-feed-google-merchant.php:166
+msgid "Authenticate"
+msgstr "todentaa"
+
+#: admin/class-rex-google-merchant-content-api.php:177
+msgid ""
+"Authorize with GMC to send a new feed for the first time with API Method"
+msgstr ""
+"valtuuta GMC:n kanssa lähettämään uusi syöte ensimmäistä kertaa API-"
+"menetelmällä"
+
+#: admin/partials/rex-feed-product-settings-section.php:21
+msgid "Auto-Generate Your Feed"
+msgstr "Luo syötteesi automaattisesti"
+
+#: admin/partials/on_boarding.php:515
+msgid "Available Merchants"
+msgstr "Saatavissa olevat kauppiaat"
+
+#: admin/partials/rex-feed-review-request-body-content.php:19
+msgid "Awesome, you've generated the feed successfully!"
+msgstr "Mahtavaa, olet luonut syötteen onnistuneesti!"
+
+#: admin/partials/setup-wizard.php:281
+msgid "Boost your ROI with the largest marketplaces"
+msgstr ""
+"Paranna sijoitetun pääoman tuottoprosenttia suurimmilla markkinapaikoilla"
+
+#: admin/partials/rex-feed-product-settings-section.php:543
+msgid "Campaign"
+msgstr "kampanja"
+
+#: admin/partials/rex-feed-product-settings-section.php:570
+#| msgid "Campaign content"
+msgid "Campaign Content"
+msgstr "Kampanjan sisältö"
+
+#: admin/partials/rex-feed-product-settings-section.php:557
+#| msgid "Campaign term"
+msgid "Campaign Term"
+msgstr "Kampanjan termi"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:40
+msgid "Cancel"
+msgstr "kumota"
+
+#: admin/class-rex-product-feed-metabox.php:226
+#| msgid "Category Filter"
+msgid "Category Filters"
+msgstr "Luokkasuodatin"
+
+#: admin/class-rex-product-feed-admin.php:390
+#: admin/class-rex-product-feed-admin.php:391
+msgid "Category Mapping"
+msgstr "Luokkakartoitus"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:253
+msgid "CDATA"
+msgstr "CD-data"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:254
+msgid "CDATA without space"
+msgstr "CDATA ilman tilaa"
+
+#: admin/partials/feed-config-metabox-display.php:31
+msgid "char Limit"
+msgstr "merkintätapa"
+
+#: admin/partials/rex-feed-google-merchant.php:26
+msgid "Check Abbreviation Lists"
+msgstr "Tarkista lyhenneluettelot"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:24
+#: admin/partials/rex-feed-product-taxonomies-section.php:74
+msgid "Check All"
+msgstr "tarkista kaikki"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:152
+msgid ""
+"Choose option if you want to include/exclude the old price attribute from "
+"the feed if it is less/equal than/to the current price."
+msgstr ""
+"Valitse vaihtoehto, jos haluat sisällyttää/poissut vanhan hinta-attribuutin "
+"syötteestä, jos se on pienempi/saa kuin nykyinen hinta."
+
+#: admin/class-rex-product-feed-actions.php:324
+#: admin/partials/on_boarding.php:195
+#| msgid "Clear batch"
+msgid "Clear Batch"
+msgstr "Tyhjennä erä"
+
+#: admin/partials/on_boarding.php:192
+msgid "Clear Batch (Remove all)"
+msgstr "Clear Batch (poista kaikki)"
+
+#: admin/partials/feed-config-metabox-display.php:34
+msgid "Click Here To Edit Attributes"
+msgstr "Napsauta tästä muokataksesi määritteitä"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:48
+msgid "Click Here To Start"
+msgstr "Napsauta tästä aloittaaksesi"
+
+#: admin/class-rex-product-feed-admin.php:339
+msgid ""
+"Click on the Feed Settings button to: %s - Schedule Feed Update %s - Include "
+"Out of Stock Products %s - Include Product with No Price %s - Include/ "
+"Exclude Product Type %s - Skip Products/ Attributes With Empty Values %s - "
+"Track Campaign With UTM Parameters"
+msgstr ""
+"Napsauta Syötteen asetukset -painiketta: %s - Aikataulusyötteen päivitys %s -"
+" Sisällytä lopputuotteet %s - Sisällytä tuote ilman hintaa %s - "
+"Sisällytä/poistu tuotetyypistä %s - Ohita tuotteet/määritteet tyhjillä "
+"arvoilla %s - Seuraa kampanjaa UTM-parametreilla"
+
+#: admin/class-rex-product-feed-admin.php:350
+msgid ""
+"Click on the publish button to start generating the feed. %s - Once you "
+"click on the Publish button, this tour will end. %s - You will see a feed "
+"loading bar once the feed generation starts. %s - Once the feed generation "
+"is completed, you can view or download the generated feed. %s - Once the "
+"feed is generated, you can click on the View/ Download button to view the "
+"feed or to download the generated feed"
+msgstr ""
+"Napsauta Julkaise-painiketta aloittaaksesi syötteen luomisen. % S - Kun "
+"napsautat Julkaise-painiketta, tämä kiertue päättyy. % S - Näet syötteen "
+"latauspalkin, kun syötteen luominen alkaa. % S - Kun syötteen luominen on "
+"valmis, voit tarkastella tai ladata luotua syötettä. % S - Kun syöte on "
+"luotu, voit napsauttaa Näytä/lataus -painiketta nähdäksesi syötteen tai "
+"ladataksesi luodun syötteen"
+
+#: admin/class-rex-product-feed-admin.php:328
+msgid ""
+"Click on this Product Filter button to: %s - Use All Featured Products "
+"Filter %s - Category Filter %s - Tag Filter %s - Custom Filter %s - Product "
+"Filter (Pro) %s - Product Rule (Pro)"
+msgstr ""
+"Napsauta tätä tuotesuodatinpainiketta: %s - Käytä kaikkia esiteltyjen "
+"tuotteiden suodatin %s - Luokkasuodatin %s - Tunnistesuodatin %s - "
+"Mukautettu suodatin %s - Tuotesuodatin (Pro) %s - Tuotesääntö (Pro)"
+
+#: admin/partials/merchant_settings.php:59
+msgid "Client ID#: "
+msgstr "Asiakastunnus#:"
+
+#: admin/partials/merchant_settings.php:63
+msgid "Client Secret: "
+msgstr "Asiakassalaisuus:"
+
+#: admin/class-rex-product-feed-admin.php:344
+msgid "Close The Settings Drawer"
+msgstr "Sulje asetuslaatikko"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:68
+msgid "Comma (,)"
+msgstr "Pilkku (,)"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:166
+msgid "Company Name"
+msgstr "seura"
+
+#: admin/feed/abstract-rex-product-feed-generator.php:1280
+msgid "Completed feed generation job."
+msgstr "Valmis rehunluontityö."
+
+#: admin/partials/feed-config-metabox-display-filter.php:44
+msgid "Condition"
+msgstr "Kunto"
+
+#: admin/partials/rex-feed-google-merchant.php:169
+msgid "Configure"
+msgstr "määrätä"
+
+#: admin/class-rex-product-feed-admin.php:265
+msgid "Configure Category Mapping"
+msgstr "Määritä kategoriakartoitus"
+
+#: admin/feed-filter/class-rex-product-filter.php:204
+msgid "Contains"
+msgstr "sisältää"
+
+#: admin/partials/on_boarding.php:101 admin/partials/on_boarding.php:171
+msgid "Controls"
+msgstr "ohjaimet"
+
+#: admin/partials/on_boarding.php:605
+msgid "Copy log"
+msgstr "Kopioi loki"
+
+#: admin/partials/rex-feed-system-status-markups.php:27
+msgid "Copy Status"
+msgstr "kopion tila"
+
+#: admin/partials/rex-feed-ebay-seller-sections.php:29
+#: admin/partials/rex-feed-ebay-seller-sections.php:32
+#: admin/partials/rex-feed-product-settings-section.php:73
+msgid "Country"
+msgstr "maa"
+
+#: admin/partials/setup-wizard.php:145
+msgid "Create Feed"
+msgstr "Luo syötettä"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:42
+msgid "CSV"
+msgstr "CSV"
+
+#: admin/class-rex-product-feed-admin.php:723
+msgid "Custom field deleted."
+msgstr "Mukautettu kenttä poistettu."
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:14
+msgid "Custom Field Support - Brand, GTIN, MPN, etc."
+msgstr "Mukautettu kenttätuki - merkki, GTIN, MPN jne."
+
+#: admin/class-rex-product-feed-admin.php:722
+msgid "Custom field updated."
+msgstr "Mukautettu kenttä päivitetty."
+
+#: admin/partials/feed-config-metabox-display-filter.php:25
+msgid "Custom Filter"
+msgstr "Muokattu suodatin"
+
+#: admin/class-rex-product-feed-metabox.php:195
+msgid "Daily"
+msgstr "Päivittäin"
+
+#: admin/class-rex-product-feed-actions.php:509
+msgid "Dashboard"
+msgstr "kojelauta"
+
+#: admin/class-rex-product-feed-cpt.php:95
+msgid "Date"
+msgstr "aika"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:259
+msgid "Decimal Separator - Comma (,)"
+msgstr "desimaalierotin - pilkku (,)"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:256
+msgid "Decode URL"
+msgstr "dekoodaus URL-osoite"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:240
+msgid "Default"
+msgstr "laiminlyödä"
+
+#: admin/class-rex-product-feed-admin.php:376
+#: admin/partials/category_mapping.php:67
+msgid "Delete"
+msgstr "Poistaa"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:15
+msgid "Detailed Product Attributes Support  - Size, Gender, Material, etc."
+msgstr ""
+"Yksityiskohtaiset tuoteattribuutit Tuki - koko, sukupuoli, materiaali jne."
+
+#: admin/class-rex-google-merchant-content-api.php:195
+#: admin/partials/rex-feed-google-merchant.php:24
+msgid "Direct Upload Method (No need for authorization)"
+msgstr "Suora lataustapa (ei tarvitse valtuutusta)"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:35
+msgid "Do you still want to continue?"
+msgstr "Haluatko silti jatkaa?"
+
+#: admin/partials/rex-feed-filter-settings-body-content.php:20
+#: admin/partials/setup-wizard.php:292
+msgid "Documentation"
+msgstr "Dokumentointi"
+
+#: admin/feed-filter/class-rex-product-filter.php:205
+msgid "Does not contain"
+msgstr "Ei sisällä"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:215
+msgid ""
+"Dollar rate, specify the real value if the prices in the product feed are "
+"given in dollars. If the prices are given in hryvnias, you can leave it "
+"empty."
+msgstr ""
+"Dollarikurssi, määritä todellinen arvo, jos tuotesyötteen hinnat on annettu "
+"dollareina. Jos hinnat on annettu Hryvniassa, voit jättää sen tyhjäksi."
+
+#: admin/class-rex-product-feed-cpt.php:173
+msgid "Download"
+msgstr "käännö"
+
+#: admin/partials/rex-feed-feed-file-section-content.php:24
+msgid "Download Feed"
+msgstr "Lataa syöte"
+
+#: admin/partials/setup-wizard.php:258
+msgid "Dynamic Pricing feature to manipulate your product pricing"
+msgstr ""
+"Dynaaminen hinnoitteluominaisuus, joka manipuloi tuotteesi hinnoittelua"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:249
+msgid "Each Word Uppercase"
+msgstr "Jokainen sana iso kirjain"
+
+#: admin/class-rex-feed-attributes.php:665
+msgid "EAN"
+msgstr "eani"
+
+#: admin/partials/rex-feed-ebay-seller-sections.php:51
+#: admin/partials/rex-feed-ebay-seller-sections.php:55
+msgid "eBaySeller Currency"
+msgstr "ebayseller-valuutta"
+
+#: admin/partials/rex-feed-ebay-seller-sections.php:16
+#: admin/partials/rex-feed-ebay-seller-sections.php:19
+msgid "eBaySeller Site ID"
+msgstr "ebayseller-sivuston tunnus"
+
+#: admin/class-rex-product-feed-cpt.php:47
+msgid "Edit Product Feed"
+msgstr "Muokkaa tuotesyötettä"
+
+#: admin/partials/on_boarding.php:454
+msgid "Enable Facebook Pixel"
+msgstr "Ota Facebook Pixel käyttöön"
+
+#: admin/partials/on_boarding.php:257
+msgid "Enable log"
+msgstr "Ota loki käyttöön"
+
+#: admin/partials/rex-feed-product-settings-section.php:186
+msgid "Enable this option to exclude invisible/hidden products from your feed "
+msgstr ""
+"Ota tämä vaihtoehto pois ja sulkea pois näkymätön/piilotetut tuotteet "
+"syötteestäsi"
+
+#: admin/partials/rex-feed-product-settings-section.php:243
+msgid "Enable this option to include grouped products in your feed"
+msgstr ""
+"Ota tämä vaihtoehto käyttöön sisällyttääksesi ryhmiteltyjä tuotteita "
+"syötteeseesi"
+
+#: admin/class-rex-product-data-retriever.php:202
+msgid "End product processing."
+msgstr "Lopputuotteen käsittely."
+
+#: admin/class-rex-product-feed-rollback.php:72
+msgid ""
+"Error occurred, The version selected is invalid. Try selecting different "
+"version."
+msgstr ""
+"Virhe tapahtui, valittu versio on virheellinen. Yritä valita eri versio."
+
+#: admin/partials/rex-feed-product-settings-section.php:212
+#: admin/partials/rex-feed-product-settings-section.php:269
+msgid "Example:"
+msgstr "Esimerkki:"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:212
+msgid "Exchange Rate"
+msgstr "valuuttakurssi"
+
+#: admin/feed-filter/class-rex-product-filter.php:226
+#: admin/partials/rex-feed-merchant-dropdown-section.php:94
+#: admin/partials/rex-feed-merchant-dropdown-section.php:160
+msgid "Exclude"
+msgstr "sulkea"
+
+#: admin/partials/rex-feed-product-settings-section.php:183
+#| msgid "Exclude invisible/hidden products"
+msgid "Exclude Invisible/Hidden Products"
+msgstr "Sulje pois näkymättömät / piilotetut tuotteet"
+
+#: admin/partials/on_boarding.php:382
+msgid "Exclude TAX from structured data prices"
+msgstr "Sulje TAX jäsenneltyjen tietohintojen ulkopuolelle"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:20
+#| msgid "Ability To Exclude Tax From Structured Data Prices"
+msgid "Exclude Tax From Structured Data Prices"
+msgstr "Kyky sulkea vero pois jäsennellyistä datan hinnoista"
+
+#: admin/partials/on_boarding.php:475
+#| msgid "Facebook Pixel id"
+msgid "Facebook Pixel ID"
+msgstr "Facebook Pixel id"
+
+#: admin/class-rex-product-feed-admin.php:308
+msgid "Feed Attributes & Product Data Mapping"
+msgstr "Syötteen attribuutit ja tuotetietojen kartoitus"
+
+#: admin/class-rex-product-feed-cpt.php:89
+msgid "Feed File"
+msgstr "nukkavipu"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:18
+msgid "Feed Merchant"
+msgstr "rehukauppias"
+
+#: admin/class-rex-product-feed-admin.php:337
+msgid "Feed Settings Option"
+msgstr "Syöttöasetukset vaihtoehto"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:33
+msgid "Feed Type"
+msgstr "syötetyyppi"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:16
+msgid "Filter feed by WooCommerce product categories"
+msgstr "Suodata syöte WooCommercen tuoteluokkien mukaan"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:66
+msgid "Filter feed by WooCommerce tags "
+msgstr "Suodata syöte WooCommerce-tunnisteiden mukaan"
+
+#: admin/partials/rex-feed-filter-products-dropdown-section.php:17
+msgid "Filter Products"
+msgstr "suodatintuotteet"
+
+#: admin/partials/feed-config-metabox-display-filter.php:28
+msgid "Filter your feed products with your preferred condition"
+msgstr "Suodata rehutuotteesi haluamallasi tavalla"
+
+#: admin/class-rex-product-feed-admin.php:353
+msgid "Finish Tour"
+msgstr "viimeistelykierros"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:184
+msgid "Firm ID"
+msgstr "varsinainen tunnus"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:198
+msgid "Firm Name"
+msgstr "yhtiönimi"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:248
+msgid "First Word Uppercase"
+msgstr "Ensimmäinen sana isot kirjaimet"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:19
+#| msgid "Fix WooCommerce's (JSON-LD) structure data bug"
+msgid "Fix WooCommerce's (JSON-LD) Structure Data Bug"
+msgstr "Korjaa WooCommerce (JSON-LD) -rakenteen tietovirhe"
+
+#: admin/partials/on_boarding.php:569
+#| msgid "General"
+msgid "Generate"
+msgstr "yleinen"
+
+#. Description of the plugin
+msgid ""
+"Generate and maintain your WooCommerce product feed for Google Shopping, "
+"Social Catalogs, Yandex, Idealo, Vivino, Pinterest, eBay MIP, BestPrice, "
+"Skroutz, Fruugo, Bonanza & 180+ Merchants."
+msgstr ""
+"Luo ja ylläpidä WooCommerce-tuotesyötettäsi Google Shoppingille, Social "
+"Catalogsille, Yandexille, Idealle, Vivinolle, Pinterestille, eBay MIP:lle, "
+"BestPricelle, Skroutzille, Fruugolle, Bonanzalle ja 180+ kauppiaalle."
+
+#: admin/partials/setup-wizard.php:13
+msgid "Generate Feed"
+msgstr "tuottaa rehua"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:13
+msgid "Generate Unlimited Products (Free version is limited to 200 products)"
+msgstr ""
+"Luo rajattomasti tuotteita (ilmainen versio on rajoitettu 200 tuotteeseen)"
+
+#: admin/partials/on_boarding.php:495
+msgid "Get email notification if your feed is not generated properly"
+msgstr "Saat sähköposti-ilmoituksen, jos syötettäsi ei ole luotu oikein"
+
+#: admin/partials/setup-wizard.php:237
+msgid "Get Pro Now"
+msgstr "Hanki Pro nyt"
+
+#: admin/class-rex-product-feed-admin.php:435
+#: admin/class-rex-product-feed-admin.php:436
+msgid "Get Started"
+msgstr "aloittaa"
+
+#: admin/class-rex-product-feed-admin.php:300
+msgid "Give A Name To This Feed"
+msgstr "Anna tälle syötteelle nimi"
+
+#: admin/class-rex-product-feed-actions.php:512
+#: admin/class-rex-product-feed-admin.php:425
+msgid "Go Pro"
+msgstr "Ryhtyä ammattilaiseksi"
+
+#: admin/partials/setup-wizard.php:127
+msgid "Go to Plugin Dashboard"
+msgstr "Siirry Plugin Dashboardiin"
+
+#: admin/partials/merchant_settings.php:54
+msgid "Google Merchant Center Authorization"
+msgstr "Google Merchant Centerin valtuutus"
+
+#: admin/class-rex-product-feed-admin.php:400
+#: admin/class-rex-product-feed-admin.php:401
+msgid "Google Merchant Settings"
+msgstr "Google-kauppiasasetukset"
+
+#: admin/feed-filter/class-rex-product-filter.php:208
+msgid "Greater than"
+msgstr "suurempi kuin"
+
+#: admin/feed-filter/class-rex-product-filter.php:209
+msgid "Greater than or equal to"
+msgstr "suurempi tai yhtä suuri kuin"
+
+#: admin/class-rex-product-feed-cpt.php:201
+msgid "Group products : "
+msgstr "Ryhmätuotteet:"
+
+#: admin/class-rex-product-feed-admin.php:305
+msgid ""
+"Here, you can change the merchant/marketplace and choose the file type when "
+"the product feed is generated."
+msgstr ""
+"Täällä voit vaihtaa kauppiasta/markkinapaikkaa ja valita tiedostotyypin, kun "
+"tuotesyöte luodaan."
+
+#: admin/partials/on_boarding.php:273
+msgid "Hide Character Limit Column"
+msgstr "Piilota merkkirajoitus -sara"
+
+#: admin/class-rex-product-feed-metabox.php:194
+#: admin/class-rex-product-feed-metabox.php:383
+msgid "Hourly"
+msgstr "tunti-"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:30
+msgid "How about we guide you on how to create your first product feed?"
+msgstr "Mitä jos opastamme sinua ensimmäisen tuotesyötteen luomisessa?"
+
+#: admin/partials/setup-wizard.php:30
+msgid "How to auto-sync product feed to Google Merchant Shop"
+msgstr ""
+"Kuinka synkronoidaan automaattisesti tuotesyöte Google Merchant Shopiin"
+
+#: admin/partials/setup-wizard.php:101
+msgid "How to generate WooCommerce product feed for Ceneo"
+msgstr "Kuinka luoda WooCommerce-tuotesyöte Ceneolle"
+
+#: admin/partials/setup-wizard.php:61
+msgid "How to generate WooCommerce product feed for Facebook"
+msgstr "Kuinka luoda WooCommerce-tuotesyöte Facebookille"
+
+#: admin/partials/setup-wizard.php:83
+msgid "How to generate WooCommerce product feed for Favi"
+msgstr "Kuinka luoda WooCommerce-tuotesyöte faville"
+
+#: admin/partials/setup-wizard.php:74
+msgid "How to generate WooCommerce product feed for Fruugo"
+msgstr "Kuinka luoda WooCommerce-tuotesyöte Fruugolle"
+
+#: admin/partials/setup-wizard.php:48
+msgid "How to generate WooCommerce product feed for Glami"
+msgstr "Kuinka luoda WooCommerce-tuotesyöte Glamille"
+
+#: admin/partials/setup-wizard.php:26
+msgid "How to generate WooCommerce product feed for Google"
+msgstr "Kuinka luoda WooCommerce-tuotesyöte Googlelle"
+
+#: admin/partials/setup-wizard.php:110
+msgid "How to generate WooCommerce product feed for Heureka"
+msgstr "Kuinka luoda WooCommerce-tuotesyöte Heurekaan"
+
+#: admin/partials/setup-wizard.php:39
+msgid "How to generate WooCommerce product feed for Vivino"
+msgstr "Kuinka luoda WooCommerce-tuotesyöte Vivinolle"
+
+#: admin/partials/setup-wizard.php:92
+msgid "How to List WooCommerce Store Products On Idealo"
+msgstr "Kuinka listata WooCommerce-kaupan tuotteita Idealossa"
+
+#: admin/partials/setup-wizard.php:65
+msgid "How to upload your WooCommerce products on the Facebook store"
+msgstr "Kuinka ladata WooCommerce-tuotteesi Facebook-kauppaan"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:243
+msgid "HTML Entities"
+msgstr "HTML entiteetit"
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+msgid "https://rextheme.com"
+msgstr "https://rextheme.com"
+
+#: admin/partials/rex-feed-product-settings-section.php:560
+msgid "Identify the paid keywords"
+msgstr "Tunnista maksetut avainsanat"
+
+#: admin/partials/feed-config-metabox-display-filter.php:40
+msgid "If"
+msgstr "Jos"
+
+#: admin/class-rex-product-feed-actions.php:339
+msgid "If these don't work, please reach out to us at"
+msgstr "Jos nämä eivät auta, ota meihin yhteyttä osoitteessa"
+
+#: admin/feed-filter/class-rex-product-filter.php:225
+#: admin/partials/rex-feed-merchant-dropdown-section.php:93
+#: admin/partials/rex-feed-merchant-dropdown-section.php:159
+msgid "Include"
+msgstr "ottaa mukaan"
+
+#: admin/partials/setup-wizard.php:250
+msgid ""
+"Include all the required attributes in your feed (GTIN, MPN, EAN, UPC, etc)"
+msgstr ""
+"Sisällytä kaikki vaaditut attribuutit syötteeseesi (GTIN, MPN, EAN, UPC jne.)"
+
+#: admin/partials/rex-feed-product-settings-section.php:267
+msgid ""
+"Include all the Variable Products Variations in your feed (these are only "
+"the product variations)"
+msgstr ""
+"Sisällytä kaikki muuttuvat tuotteet -muunnelmat syötteessäsi (nämä ovat vain "
+"tuotemuunnelmia)"
+
+#: admin/partials/rex-feed-product-settings-section.php:262
+msgid "Include All Variable Products Variations"
+msgstr "Sisällytä kaikki muuttuvat tuotteet -muunnelmat"
+
+#: admin/partials/setup-wizard.php:254
+msgid ""
+"Include detailed product attributes (Size, Pattern, Material, Gender, Color, "
+"etc)  "
+msgstr ""
+"Sisällytä yksityiskohtaiset tuotteen ominaisuudet (koko, kuvio, materiaali, "
+"sukupuoli, väri jne.)"
+
+#: admin/partials/rex-feed-product-settings-section.php:240
+msgid "Include Grouped Products"
+msgstr "Sisällytä ryhmitellyt tuotteet"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:86
+msgid ""
+"Include or exclude XML file header attributes (title, link, description, "
+"datetime)"
+msgstr ""
+"Sisällytä tai sulje pois XML-tiedoston otsikon attribuutit (otsikko, linkki, "
+"kuvaus, päivämäärä-aika)"
+
+#: admin/partials/rex-feed-product-settings-section.php:112
+msgid "Include Out of Stock Products"
+msgstr "Sisällytä lopputuotteet"
+
+#: admin/partials/rex-feed-product-settings-section.php:135
+msgid "Include Product with No Price"
+msgstr "Sisällytä tuote ilman hintaa"
+
+#: admin/partials/rex-feed-product-settings-section.php:210
+msgid "Include the variation name in the product title"
+msgstr "Liitä muunnelman nimi tuotteen nimeen"
+
+#: admin/partials/rex-feed-product-settings-section.php:161
+#: admin/partials/rex-feed-product-settings-section.php:164
+msgid "Include Variable Parent Product (No Variations)"
+msgstr "Sisällytä muuttuva perustuote (ei muunnelmia)"
+
+#: admin/partials/rex-feed-product-settings-section.php:205
+msgid "Include Variation Name In The Product Title"
+msgstr "Liitä muunnelman nimi tuotteen nimeen"
+
+#: admin/partials/on_boarding.php:428
+#| msgid ""
+#| "Increase the number of products that will be approved in Google's "
+#| "Merchant Center:\n"
+#| "                                           This option will fix "
+#| "WooCommerce's (JSON-LD) structured data bug and add extra structured data "
+#| "elements to your pages"
+msgid ""
+"Increase the number of products that will be approved in Google's Merchant "
+"Center: This option will fix WooCommerce's (JSON-LD) structured data bug and "
+"add extra structured data elements to your pages"
+msgstr ""
+"Lisää Googlen Kauppiaskeskuksessa hyväksyttävien tuotteiden määrää: Tämä "
+"vaihtoehto korjaa WooCommerce (JSON-LD) -rakenteisen tietovirheen ja lisää "
+"ylimääräisiä jäsenneltyjä tietoelementtejä sivuillesi"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:244
+msgid "Integer"
+msgstr "kokonaisluku"
+
+#: admin/class-rex-product-feed-factory.php:316
+msgid "Invalid Merchant."
+msgstr "Virheellinen kauppias."
+
+#: admin/feed-filter/class-rex-product-filter.php:206
+msgid "Is equal to"
+msgstr "on yhtä suuri kuin"
+
+#: admin/feed-filter/class-rex-product-filter.php:207
+msgid "Is not equal to"
+msgstr "ei ole sama kuin"
+
+#: rex-product-feed.php:190
+msgid ""
+"It looks like you have an older version of %1$s%2$s. Please update %1$s%2$s "
+"to the latest version to use Pro features properly."
+msgstr ""
+"Näyttää siltä, että sinulla on vanhempi versio %1$s%2$s. Päivitä %1$s%2$s "
+"uusimpaan versioon käyttääksesi Pro-ominaisuuksia oikein."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:128
+msgid "Item Wrapper"
+msgstr "ipe"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:100
+msgid "Items Wrapper"
+msgstr "tavarakääre"
+
+#: admin/class-rex-product-feed-cpt.php:215
+msgid "Last Updated: "
+msgstr "Päivitetty viimeksi:"
+
+#: admin/partials/rex-feed-product-settings-section.php:24
+#: admin/partials/rex-feed-product-settings-section.php:77
+#: admin/partials/rex-feed-product-settings-section.php:186
+#: admin/partials/rex-feed-product-settings-section.php:220
+#: admin/partials/rex-feed-product-settings-section.php:480
+#: admin/partials/rex-feed-product-taxonomies-section.php:28
+#: admin/partials/rex-feed-product-taxonomies-section.php:78
+msgid "Learn How"
+msgstr "oppia kuinka"
+
+#: admin/feed-filter/class-rex-product-filter.php:210
+msgid "Less than"
+msgstr "perässä kuin"
+
+#: admin/feed-filter/class-rex-product-filter.php:211
+msgid "Less than or equal to"
+msgstr "pienempi tai yhtä suuri kuin"
+
+#: admin/partials/on_boarding.php:165
+msgid "Logs"
+msgstr "lokit"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:18
+msgid "Manipulate Product Pricing"
+msgstr "Manipuloida tuotteen hinnoittelua"
+
+#: admin/partials/category_mapping.php:25
+msgid "Mapper Name"
+msgstr "Karttattajan nimi"
+
+#: admin/partials/rex-feed-product-settings-section.php:533
+msgid "Marketing medium: (e.g. cpc, banner, email)"
+msgstr "Markkinointikeskus: (esim. Cpc, banneri, sähköposti)"
+
+#: admin/partials/rex-feed-product-settings-section.php:530
+msgid "Medium"
+msgstr "keskikokoinen"
+
+#: admin/class-rex-product-feed-cpt.php:88
+msgid "Merchant"
+msgstr "kauppa-"
+
+#: admin/partials/merchant_settings.php:67
+msgid "Merchant ID# : "
+msgstr "Kauppiaan tunnus #:"
+
+#: admin/partials/on_boarding.php:133
+msgid "Merchants"
+msgstr "kauppiaat"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:17
+msgid "Merge Multiple Attributes Values Together"
+msgstr "Yhdistä useiden attribuuttien arvot yhteen"
+
+#: admin/class-rex-product-feed-metabox.php:381
+msgid "Monthly"
+msgstr "Kuukausittain"
+
+#: admin/class-rex-google-merchant-content-api.php:157
+#: admin/class-rex-google-merchant-content-api.php:267
+msgid ""
+"NB: This session expiration is set by Google. You only need to authorize "
+"while submitting a new feed. You can ignore this if you've already submitted "
+"your feed to Google."
+msgstr ""
+"HUOM: Googlen asettama istunnon vanheneminen. Sinun tarvitsee vain "
+"valtuuttaa lähettäessäsi uutta syötettä. Voit jättää tämän huomioimatta, jos "
+"olet jo lähettänyt syötteesi Googlelle."
+
+#: admin/partials/rex-feed-config-table.php:59
+msgid "New Attribute"
+msgstr "uusi ominaisuus"
+
+#: admin/partials/rex-feed-config-table.php:62
+#| msgid "Add New Custom Attribute"
+msgid "New Custom Attribute"
+msgstr "Lisää uusi mukautettu attribuutti"
+
+#: admin/class-rex-product-feed-cpt.php:48
+#| msgid "Product Feed"
+msgid "New Product Feed"
+msgstr "Tuotesyöte"
+
+#: admin/class-rex-product-feed-admin.php:355
+msgid "Next"
+msgstr "seuraava"
+
+#: admin/class-rex-product-feed-cpt.php:226
+msgid "Next Schedule: "
+msgstr "Seuraava aikataulu:"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:43
+msgid "No Categories"
+msgstr "Ei luokkia"
+
+#: admin/class-rex-product-feed-metabox.php:193
+msgid "No Interval"
+msgstr "Ei väliä"
+
+#: admin/class-rex-product-feed-cpt.php:51
+msgid "No product feeds found"
+msgstr "Tuotesyötteitä ei löytynyt"
+
+#: admin/class-rex-product-feed-cpt.php:52
+msgid "No product feeds found in trash"
+msgstr "Roskakorista ei löydy tuotesyötteitä"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:93
+msgid "No Terms"
+msgstr "EI EHDOT"
+
+#: admin/partials/rex-feed-save-filters-changes-warning-popup.php:39
+#: admin/partials/rex-feed-save-settings-changes-warning-popup.php:39
+msgid "No, Close"
+msgstr "Ei, sulje"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:41
+msgid "No, Thanks"
+msgstr "Ei, kiitos"
+
+#: admin/partials/rex-feed-review-request-body-content.php:50
+msgid "Not Now"
+msgstr "ei nyt"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:44
+msgid "Okay"
+msgstr "okei"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:149
+msgid "Old Price"
+msgstr "vanhan ajan hinta"
+
+#: admin/partials/rex-feed-product-settings-section.php:499
+msgid "On Toggle to activate UTM Params"
+msgstr "UTM-parametrien aktivoimiseksi"
+
+#: admin/class-rex-product-feed-admin.php:314
+msgid ""
+"Once you have mapped the attribute values, you can click on Publish and the "
+"feed will be generated. %s **This tour will end if you click on the Publish "
+"button and the feed will start generating. %s - You can view the generated "
+"feed once the feed generation is completed. %s - Click on the Next to skip "
+"feed generation for now and  to learn more options to configure the feed. %s"
+msgstr ""
+"Kun olet yhdistänyt attribuuttien arvot, voit napsauttaa Julkaise ja syöte "
+"luodaan. % S **Tämä kiertue päättyy, jos napsautat Julkaise-painiketta ja "
+"syöte alkaa luoda. % S - Voit tarkastella luotua syötettä, kun syötteen "
+"luominen on valmis. % S - Napsauta seuraavaa ohittaaksesi syötteen luomisen "
+"toistaiseksi ja saadaksesi lisätietoja syötteen määrittämiseen. %s"
+
+#: admin/class-rex-product-feed-admin.php:334
+#: admin/class-rex-product-feed-admin.php:345
+msgid ""
+"Once you make any changes, click on the Close button to get back to the "
+"Attributes section."
+msgstr ""
+"Kun olet tehnyt muutoksia, napsauta Sulje-painiketta palataksesi Attribuutit-"
+"osioon."
+
+#: admin/partials/rex-feed-filter-description-body.php:24
+msgid "Only the featured products will be included in the feed."
+msgstr "Vain esitellyt tuotteet sisällytetään syötteeseen."
+
+#: admin/class-rex-product-feed-admin.php:266
+msgid "Optimize Product Title"
+msgstr "Optimoi tuotteen nimi"
+
+#: admin/partials/rex-product-feed-feed-filters-body.php:139
+#| msgid "ok"
+msgid "OR"
+msgstr "kunnossa"
+
+#: admin/class-rex-product-feed-merchants.php:1120
+msgid "Others"
+msgstr "muut"
+
+#: admin/partials/setup-wizard.php:286
+msgid "Our Support"
+msgstr "Meidän tukemme"
+
+#: admin/partials/feed-config-metabox-display.php:30
+msgid "Output Filter"
+msgstr "lähtösuodatin"
+
+#: admin/class-rex-product-feed-cpt.php:53
+msgid "Parent Product Feed:"
+msgstr "Vanhemman tuotesyöte:"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:70
+msgid "Pipe (|)"
+msgstr "Pipe (|)"
+
+#: admin/partials/rex-feed-review-request-body-content.php:29
+msgid ""
+"Please do give us a %s if you like using our plugin. It will only take 2 "
+"minutes."
+msgstr ""
+"Anna meille %s, jos haluat käyttää laajennusta. Se kestää vain 2 minuuttia."
+
+#: admin/partials/rex-feed-google-merchant.php:55
+msgid ""
+"Please note that Google has fixed abbreviations for Language. For example, "
+"the abbreviation for language, English is en."
+msgstr ""
+"Huomaa, että Googlella on korjattu kielen lyhenteet. Esimerkiksi kielen, "
+"englannin lyhenne on en."
+
+#: admin/partials/rex-feed-google-merchant.php:38
+msgid ""
+"Please note that Google has fixed abbreviations for Location. For example, "
+"the abbreviation for target location, United States is US."
+msgstr ""
+"Huomaa, että Googlella on korjattu lyhenteet sijainnista. Esimerkiksi "
+"lyhenne sanoista kohdesijainti, Yhdysvallat on US."
+
+#: admin/feed-filter/class-rex-product-filter.php:286
+#: admin/feed-filter/class-rex-product-filter.php:289
+#: admin/feed-templates/abstract-rex-feed-template.php:167
+#: admin/feed-templates/abstract-rex-feed-template.php:203
+#: admin/partials/feed-config-metabox-display.php:58
+#: admin/partials/feed-config-metabox-display.php:167
+#: admin/partials/on_boarding.php:596
+msgid "Please Select"
+msgstr "Ole hyvä ja valitse"
+
+#: admin/feed/ceneo/Feed.php:415 admin/feed/daisycon/Feed.php:319
+#: admin/feed/favi/Feed.php:379 admin/feed/fruugo/Feed.php:366
+#: admin/feed/glami/Feed.php:347
+#: admin/feed/google-custom-search-ads/Feed.php:464
+#: admin/feed/google-local-products/Feed.php:406
+#: admin/feed/grupo_zap/Feed.php:332 admin/feed/gulog_gratis/Feed.php:448
+#: admin/feed/hotline/Feed.php:436 admin/feed/marktplaats/Feed.php:338
+#: admin/feed/pinterest/Feed.php:327
+#: admin/feed/rex-shopping-bestprice/Feed.php:388
+#: admin/feed/rex-shopping-deals4u/Feed.php:390
+#: admin/feed/rex-shopping-feed/Feed.php:422
+#: admin/feed/rex-shopping-heureka-availability/Feed.php:410
+#: admin/feed/rex-shopping-heureka/Feed.php:388
+#: admin/feed/rex-shopping-ibud/Feed.php:396
+#: admin/feed/rex-shopping-mirakl/Feed.php:423
+#: admin/feed/rex-shopping-rakuten/Feed.php:372
+#: admin/feed/rex-shopping-spartoo-fr/Feed.php:441
+#: admin/feed/rex-shopping-wish/Feed.php:369
+#: admin/feed/rex-shopping-zbozi/Feed.php:379 admin/feed/rozetka/Feed.php:467
+#: admin/feed/shopping/Feed.php:357 admin/feed/sooqr/Feed.php:354
+#: admin/feed/spartoo/Feed.php:343 admin/feed/yandex/Feed.php:423
+#: admin/feed/zap_co_il/Feed.php:445
+#: includes/library/GoogleShoppingFeed/Feed.php:324
+msgid "Please select a Google Category"
+msgstr "Valitse Google-luokka"
+
+#: admin/partials/category_mapping.php:80
+msgid "Please update WPFM database"
+msgstr "Päivitä WPFM-tietokanta"
+
+#: admin/class-rex-product-feed-merchants.php:1114
+msgid "Popular Merchants"
+msgstr "Suositut kauppiaat"
+
+#: admin/class-rex-product-feed-cpt.php:42
+msgctxt "Post Type General Name"
+msgid "Product Feed"
+msgstr "tuote"
+
+#: admin/class-rex-product-feed-cpt.php:41
+#: admin/class-rex-product-feed-cpt.php:44
+msgctxt "Post Type General Name"
+msgid "Product Feeds"
+msgstr "Tuotesyötteet"
+
+#: admin/partials/feed-config-metabox-display.php:80
+#: admin/partials/feed-config-metabox-display.php:190
+msgid "Prefix"
+msgstr "Etuliite"
+
+#: admin/partials/feed-config-metabox-display.php:76
+#: admin/partials/feed-config-metabox-display.php:186
+msgid "Prefix/Suffix"
+msgstr "Etuliite/liite"
+
+#: admin/partials/rex-feed-config-table.php:73
+msgid "Preview Feed"
+msgstr "esivyöhyke"
+
+#: admin/class-rex-product-feed-admin.php:356
+msgid "Previous"
+msgstr "edellinen"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:245
+msgid "Price"
+msgstr "hinta"
+
+#: admin/partials/setup-wizard.php:234
+msgid "Prices start at $79.99 "
+msgstr "Hinnat alkavat 79,99 dollarista"
+
+#: admin/partials/on_boarding.php:321 admin/partials/on_boarding.php:350
+#: admin/partials/on_boarding.php:377 admin/partials/on_boarding.php:422
+#: admin/partials/on_boarding.php:491 admin/partials/on_boarding.php:557
+#: admin/partials/rex-feed-product-filter-header-section.php:30
+msgid "pro"
+msgstr "ammattilainen"
+
+#: admin/class-rex-product-feed-merchants.php:1117
+msgid "Pro Merchants"
+msgstr "ammattikauppiaat"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:12
+msgid "Product Categories"
+msgstr "tuoteluokat"
+
+#: admin/partials/setup-wizard.php:262
+msgid "Product data manipulation along with find & replace feature"
+msgstr "Tuotetietojen käsittely sekä Etsi ja korvaa -ominaisuus"
+
+#: admin/class-rex-product-feed-admin.php:730
+msgid "Product feed draft updated."
+msgstr "Tuotesyöteluonnos päivitetty."
+
+#: admin/partials/setup-wizard.php:180
+msgid "Product Feed for WooCommerce"
+msgstr "Tuotesyöte WooCommercelle"
+
+#. Plugin Name of the plugin
+#: admin/partials/setup-wizard.php:135
+msgid "Product Feed Manager for WooCommerce"
+msgstr "WooCommercen tuotesyöttöpäällikkö"
+
+#: admin/class-rex-product-feed-admin.php:726
+msgid "Product feed published."
+msgstr "Tuotesyöte julkaistu."
+
+#: admin/class-rex-product-feed-admin.php:727
+msgid "Product feed saved."
+msgstr "Tuotesyöte tallennettu."
+
+#: admin/class-rex-product-feed-admin.php:721
+#: admin/class-rex-product-feed-admin.php:724
+msgid "Product feed updated."
+msgstr "Tuotesyöte päivitetty."
+
+#: admin/partials/rex-feed-filter-settings-body-content.php:28
+#: admin/partials/rex-feed-product-filter-header-section.php:5
+msgid "Product Filter"
+msgstr "tuotesuodatin"
+
+#: admin/class-rex-product-feed-admin.php:333
+msgid "Product Filter Close Button"
+msgstr "Tuotesuodattimen sulkemispainike"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:62
+msgid "Product Tags"
+msgstr "tuotetunnisteet"
+
+#: admin/partials/rex-feed-product-settings-section.php:546
+msgid "Product, promo code, or slogan (e.g. spring_sale)"
+msgstr "Tuote, tarjouskoodi tai iskulause (esim. Kevään myynti)"
+
+#: admin/partials/rex-feed-filter-products-dropdown-section.php:14
+msgid "Products"
+msgstr "Tuotteet"
+
+#: admin/partials/on_boarding.php:177
+msgid ""
+"Products per batch (Free users cannot generate more than %d products. For "
+"free users it will run only 1 batch)"
+msgstr ""
+"tuotteita erää kohden (ilmaiset käyttäjät eivät voi tuottaa enempää kuin %d-"
+"tuotteita. ilmaisille käyttäjille se toimii vain 1 erä)"
+
+#: admin/partials/rex-feed-config-table.php:76
+msgid "Publish"
+msgstr "julkaista"
+
+#: admin/class-rex-product-feed-admin.php:348
+msgid "Publish Feed"
+msgstr "julkaista syöte"
+
+#: admin/class-rex-product-feed-admin.php:312
+msgid "Publish To Generate The Product Feed"
+msgstr "julkaise tuotesyötteen luominen"
+
+#: admin/class-rex-product-feed-actions.php:528
+#: admin/partials/on_boarding.php:202 admin/partials/on_boarding.php:204
+msgid "Purge Cache"
+msgstr "tyhjentää välimuisti"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:131
+msgid ""
+"Put custom xml attribute item wrapper name. Keep blank incase of using "
+"default structure."
+msgstr ""
+"Laita mukautettu XML-attribuuttien kääreen nimi. Säilytä tyhjänä "
+"oletusrakenteen käyttäminen."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:117
+msgid ""
+"Put custom xml attribute item wrapper_el name. Keep blank incase of using "
+"default structure."
+msgstr ""
+"Laita mukautettu XML-attribuuttikohde WRAPPER_EL-nimi. Säilytä tyhjänä "
+"oletusrakenteen käyttäminen."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:103
+msgid ""
+"Put custom xml attribute items wrapper name. Keep blank incase of using "
+"default structure."
+msgstr ""
+"Laita mukautetut XML-attribuuttikohteet kääreen nimi. Säilytä tyhjänä "
+"oletusrakenteen käyttäminen."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:169
+msgid ""
+"Put your company name to include in the xml header section with company tag."
+msgstr ""
+"Laita yrityksesi nimi sisällytettäväksi XML-otsikkoosioon, jossa on "
+"yrityksen tunniste."
+
+#: admin/partials/rex-feed-review-request-body-content.php:46
+msgid "Rate Now"
+msgstr "Arvioi nyt"
+
+#: admin/partials/rex-feed-review-request-body-content.php:34
+msgid "rating"
+msgstr "luokitus"
+
+#: admin/partials/merchant_settings.php:72
+msgid "Redirect URL"
+msgstr "Ohjaa URL"
+
+#: admin/partials/rex-feed-product-settings-section.php:517
+msgid "Referrer"
+msgstr "referrer"
+
+#: admin/class-rex-product-feed-cpt.php:90
+msgid "Refresh Interval"
+msgstr "Päivitä väli"
+
+#: admin/partials/on_boarding.php:302 admin/partials/on_boarding.php:304
+msgid "Reinstall"
+msgstr "asentaa uudestaan"
+
+#: admin/partials/on_boarding.php:241
+msgid "Remove All Plugin Data on Plugin Uninstallation"
+msgstr "Poista kaikki laajennustiedot liitännäisestä poiston asennuksesta"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:257
+msgid "Remove Decimal Points"
+msgstr "Poista desimaalipisteet"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:260
+msgid "Remove Hyphen"
+msgstr "poista tavuviiva"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:261
+msgid "Remove Hyphen and Space"
+msgstr "Poista yhdysviiva ja välilyönti"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:250
+msgid "Remove ShortCodes"
+msgstr "Poista lyhytkoodit"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:251
+msgid "Remove ShortCodes and Tags"
+msgstr "Poista lyhytkoodit ja tunnisteet"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:246
+msgid "Remove Space"
+msgstr "POISTA TILA"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:252
+msgid "Remove Special Character"
+msgstr "Poista erikoismerkki"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:247
+msgid "Remove Tab"
+msgstr "Poista kieleke"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:255
+msgid "Remove Underscore"
+msgstr "Poista alaviiva"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:263
+msgid "Replace Comma with Backslash"
+msgstr "Korvaa pilkku kelauslaitteella"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:264
+msgid "Replace Decimal with Hyphen"
+msgstr "vaihda desimaali yhdysviivalla"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:262
+msgid "Replace Space with Hyphen"
+msgstr "Korvaa tila yhdysviivalla"
+
+#: admin/partials/feed-config-metabox-display.php:26
+msgid "Required Attributes"
+msgstr "Pakolliset ominaisuudet"
+
+#: admin/partials/merchant_settings.php:76
+msgid "Reset"
+msgstr "asettaa uudelleen"
+
+#: admin/class-rex-product-feed-admin.php:725
+msgid "Revision restored."
+msgstr "versio palautettu."
+
+#. Author of the plugin
+msgid "RexTheme"
+msgstr "RexTheme"
+
+#: admin/partials/on_boarding.php:290
+msgid "Rollback to Older Version"
+msgstr "Palautus vanhempaan versioon"
+
+#: admin/class-rex-product-feed-rollback.php:92
+msgid "Rollback to Previous Version"
+msgstr "Palaa edelliseen versioon"
+
+#: admin/class-rex-product-feed-rollback.php:202
+msgid "Rollback to Product Feed Manager for WooCommerce previous version"
+msgstr "Palaa aikaisempaan WooCommerce-versioon Product Feed Manageriin"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:44
+msgid "RSS"
+msgstr "RSS"
+
+#: admin/partials/category_mapping.php:38 admin/partials/on_boarding.php:184
+#: admin/partials/on_boarding.php:229 admin/partials/on_boarding.php:480
+#: admin/partials/on_boarding.php:500
+msgid "Save"
+msgstr "Tallentaa"
+
+#: admin/partials/rex-feed-google-merchant.php:62
+#: admin/partials/rex-feed-google-merchant.php:65
+msgid "Schedule"
+msgstr "Ajoittaa"
+
+#: admin/class-rex-product-feed-cpt.php:50
+msgid "Search Product Feeds"
+msgstr "Hae tuotesyötteitä"
+
+#: admin/partials/rex-feed-product-settings-section.php:77
+msgid ""
+"Select a country for the Shipping attribute value for Google/Facebook "
+"merchants."
+msgstr "Valitse maa Google/Facebook Merchantsin toimitusmääritteen arvolle."
+
+#: admin/partials/rex-feed-google-merchant.php:83
+#: admin/partials/rex-feed-google-merchant.php:86
+#| msgid "Select day of month"
+msgid "Select Day of Month"
+msgstr "Valitse kuukauden päivä"
+
+#: admin/partials/rex-feed-google-merchant.php:108
+#: admin/partials/rex-feed-google-merchant.php:111
+#| msgid "Select day of week"
+msgid "Select Day of Week"
+msgstr "Valitse viikonpäivä"
+
+#: admin/partials/rex-feed-google-merchant.php:133
+#: admin/partials/rex-feed-google-merchant.php:136
+msgid "Select Hour"
+msgstr "Valitse Tuntia"
+
+#: admin/partials/setup-wizard.php:136
+msgid "Select merchant and create feed"
+msgstr "Valitse kauppias ja luo syöte"
+
+#: admin/class-rex-product-feed-admin.php:304
+msgid "Select Merchant And Feed Type"
+msgstr "Valitse kauppias ja syötetyyppi"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:56
+msgid "Select separator"
+msgstr "Valitse erotin"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:36
+msgid "Select your feed file type"
+msgstr "Valitse syötetiedostotyyppi"
+
+#: admin/class-rex-product-feed-merchants.php:1104
+msgid "Select your merchant"
+msgstr "Valitse kauppias"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:21
+msgid "Select your preferred merchant from the list"
+msgstr "Valitse haluamasi kauppias luettelosta"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:69
+msgid "Semi-colon (;)"
+msgstr "puolipiste (;)"
+
+#: admin/class-rex-product-feed-metabox.php:365
+#: admin/class-rex-product-feed-metabox.php:378
+msgid "Send to Google Merchant"
+msgstr "Lähetä Google-kauppiaalle"
+
+#: admin/partials/rex-feed-google-merchant.php:186
+msgid "Send to google merchant"
+msgstr "Lähetä google-kauppiaalle"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:53
+msgid "Separator"
+msgstr "erotin"
+
+#: admin/partials/rex-feed-product-settings-section.php:24
+msgid "Set auto-update to keep your feed in sync with WooCommerce "
+msgstr ""
+"Aseta automaattinen päivitys, jotta syöte pysyy synkronoituna WooCommercen "
+"kanssa"
+
+#: admin/class-rex-product-feed-admin.php:410
+#: admin/class-rex-product-feed-admin.php:411
+#: admin/class-rex-product-feed-metabox.php:177
+#: admin/partials/rex-feed-filter-settings-body-content.php:32
+#: admin/partials/rex-feed-product-settings-section.php:9
+msgid "Settings"
+msgstr "asetukset"
+
+#: admin/class-rex-product-feed-cpt.php:198
+msgid "Simple products : "
+msgstr "Yksinkertaiset tuotteet:"
+
+#: admin/partials/rex-feed-product-settings-section.php:329
+msgid "Skip attributes with empty value"
+msgstr "ohita attribuutit tyhjällä arvolla"
+
+#: admin/partials/rex-feed-product-settings-section.php:306
+msgid "Skip products with empty value"
+msgstr "Ohita tuotteet, joilla on tyhjä arvo"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:27
+msgid "Some required attributes are not configured properly!"
+msgstr "Joitakin pakollisia määritteitä ei ole määritetty oikein!"
+
+#: admin/feed/abstract-rex-product-feed-generator.php:505
+msgid "Start feed processing job by cron"
+msgstr "Aloita syötteenkäsittelytyö cronilla"
+
+#: admin/feed/abstract-rex-product-feed-generator.php:515
+msgid "Start feed processing job."
+msgstr "Aloita syötteiden käsittelytyö."
+
+#: admin/class-rex-product-data-retriever.php:194
+msgid "Start product processing."
+msgstr "Aloita tuotteen käsittely."
+
+#: admin/feed-templates/abstract-rex-feed-template.php:201
+msgid "Static"
+msgstr "staattinen"
+
+#: admin/class-rex-product-feed-cpt.php:91
+msgid "Status"
+msgstr "asema"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:241
+msgid "Strip Tags"
+msgstr "nauhamerkit"
+
+#: admin/partials/merchant_settings.php:80
+msgid "Submit"
+msgstr "Lähetä"
+
+#: admin/partials/feed-config-metabox-display.php:82
+#: admin/partials/feed-config-metabox-display.php:192
+msgid "Suffix"
+msgstr "jälkiliite"
+
+#: admin/class-rex-product-feed-admin.php:419
+msgid "Support"
+msgstr "Tuki"
+
+#: admin/partials/on_boarding.php:156
+#: admin/partials/rex-feed-system-status-markups.php:23
+msgid "System Status"
+msgstr "Järjestelmän tila"
+
+#: admin/class-rex-product-feed-metabox.php:227
+#| msgid "Tag Filter"
+msgid "Tag Filters"
+msgstr "Tunnussuodatin"
+
+#: admin/partials/setup-wizard.php:164
+msgid "Take Tour"
+msgstr "käydä jkn kimppuun"
+
+#: admin/partials/rex-feed-google-merchant.php:35
+msgid "Target Country"
+msgstr "Kohdemaa"
+
+#: admin/partials/rex-feed-google-merchant.php:52
+msgid "Target Language"
+msgstr "Kohdekieli"
+
+#: admin/class-rex-product-feed-actions.php:350
+msgid "Temporary Feed URL: "
+msgstr "Väliaikainen syötteen URL-osoite:"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:41
+msgid "TEXT"
+msgstr "TEKSTI"
+
+#: admin/partials/setup-wizard.php:179
+msgid "The best plugin to generate"
+msgstr "paras laajennus luoda"
+
+#: admin/partials/rex-feed-product-settings-section.php:520
+msgid "The referrer: (e.g. google, newsletter)"
+msgstr "Viittaus: (esim. Google, uutiskirje)"
+
+#: admin/partials/feed-config-metabox-display-filter.php:52
+msgid "Then"
+msgstr "Sitten"
+
+#: admin/class-rex-product-feed-actions.php:318
+msgid ""
+"There was an error when generating the feed. Please try the following to "
+"troubleshoot the issue."
+msgstr ""
+"Syötteen luomisessa oli virhe. Yritä seuraavaa ongelman vianmääritystä."
+
+#: admin/class-rex-product-feed-admin.php:309
+msgid ""
+"These are the list of attributes that you are supposed to include for your "
+"products in the product feed. We will be mapping your store product data as "
+"the values of the attributes in this section. %s However, most of these are "
+"already mapped, and you do not need to make any changes to them."
+msgstr ""
+"Nämä ovat luettelo ominaisuuksista, jotka sinun pitäisi sisällyttää "
+"tuotteillesi tuotesyötteeseen. Kartoitamme myymäläsi tuotetiedot tämän osion "
+"attribuuttien arvoiksi. % s Suurin osa näistä on kuitenkin jo kartoitettu, "
+"eikä niihin tarvitse tehdä muutoksia."
+
+#: admin/partials/rex-feed-product-settings-section.php:455
+msgid ""
+"This option will convert all your product prices using WooCommerce Multi-"
+"Currency Switcher"
+msgstr ""
+"Tämä vaihtoehto muuntaa kaikki tuotteesi hinnat käyttämällä WooCommerce-"
+"monivaluuttakytkintä"
+
+#: admin/partials/rex-feed-product-settings-section.php:376
+msgid ""
+"This option will convert all your product prices using WooCommerce "
+"Multilingual & Multicurrency"
+msgstr ""
+"Tämä vaihtoehto muuntaa kaikki tuotteesi hinnat käyttämällä WooCommerce "
+"Multilingual & Multicurrency -toimintoa"
+
+#: admin/partials/rex-feed-product-settings-section.php:115
+msgid "This option will include/exclude out of stock products from feed"
+msgstr "Tämä vaihtoehto sisältää/sulkee pois varastotuotteet syötöstä"
+
+#: admin/partials/rex-feed-product-settings-section.php:138
+msgid ""
+"This option will include/exclude products with no regular price set or with "
+"regular price zero (0)"
+msgstr ""
+"Tämä vaihtoehto sisältää/sulkee pois tuotteet ilman normaalihintaa tai "
+"normaalihinta nolla (0)"
+
+#: admin/partials/rex-feed-product-settings-section.php:332
+msgid ""
+"This option will remove any attribute with empty value (XML feed format only)"
+msgstr ""
+"Tämä vaihtoehto poistaa kaikki attribuutit, joilla on tyhjä arvo (vain XML-"
+"syötemuoto)"
+
+#: admin/partials/rex-feed-product-settings-section.php:309
+msgid ""
+"This option will remove products if there is a single attribute with empty "
+"value"
+msgstr ""
+"Tämä vaihtoehto poistaa tuotteet, jos on olemassa yksi attribuutti, jolla on "
+"tyhjä arvo"
+
+#: admin/class-rex-product-feed-cpt.php:87
+msgid "Title"
+msgstr "nimi"
+
+#: admin/class-rex-google-merchant-content-api.php:184
+msgid ""
+"To send a feed to the Google Merchant Center, you need to authorize with "
+"Google Merchant Center. You can send the feed to Google Merchant Center "
+"through direct upload method or by using the Content API."
+msgstr ""
+"Jos haluat lähettää syötteen Google Merchant Centeriin, sinun on "
+"valtuutettava Google Merchant Centerissä. Voit lähettää syötteen Google "
+"Merchant Centeriin suoralla latausmenetelmällä tai käyttämällä "
+"sisältösovellusliittymää."
+
+#: admin/class-rex-product-feed-cpt.php:94
+msgid "Total Products"
+msgstr "Tuotetuotteet yhteensä"
+
+#: admin/class-rex-product-feed-cpt.php:194
+msgid "Total products : "
+msgstr "Tuotteita yhteensä:"
+
+#: admin/class-rex-product-feed-cpt.php:196
+msgid "Total reviews : "
+msgstr "Arvostelut yhteensä:"
+
+#: admin/partials/rex-feed-product-settings-section.php:477
+msgid "Track Your Campaign"
+msgstr "Seuraa kampanjaasi"
+
+#: admin/partials/rex-feed-filter-settings-body-content.php:24
+msgid "Troubleshoot"
+msgstr "vianmääritys"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:43
+msgid "TSV"
+msgstr "TSV"
+
+#: admin/partials/rex-feed-save-filters-changes-warning-popup.php:34
+#: admin/partials/rex-feed-save-settings-changes-warning-popup.php:34
+msgid ""
+"Uh-oh! You're trying to exit without saving your changes. Would you like to "
+"save them?"
+msgstr ""
+"no - Voi! Yrität poistua tallentamatta muutoksia. Haluatko pelastaa heidät?"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:187
+msgid "Unique code of the firm."
+msgstr "Yrityksen ainutlaatuinen koodi."
+
+#: admin/class-rex-product-feed-admin.php:374
+#: admin/class-rex-product-feed-cpt.php:167
+#: admin/partials/category_mapping.php:66
+msgid "Update"
+msgstr "Päivittää"
+
+#: admin/class-rex-product-feed-admin.php:375
+msgid "Update & Close"
+msgstr "Päivitä & Sulje"
+
+#: admin/class-rex-product-feed-cpt.php:92
+msgid "Update Feed"
+msgstr "Päivitä syöte"
+
+#: admin/partials/on_boarding.php:212
+msgid "Update List"
+msgstr "Päivitä lista"
+
+#: admin/partials/on_boarding.php:210
+msgid ""
+"Update WooCommerce variation child list that has no parent assigned "
+"(abandoned child)"
+msgstr ""
+"Päivitä WooCommerce-muunnelman lapsiluettelo, johon ei ole määritetty "
+"vanhemmalle (hylätty lapsi)"
+
+#: admin/class-rex-product-feed-cpt.php:96
+msgid "Updated"
+msgstr "päivitetty"
+
+#: admin/class-rex-product-feed-metabox.php:412
+msgid "Upgrade Notice"
+msgstr "päivitysilmoitus"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:40
+msgid "Upgrade to Pro"
+msgstr "Päivittää Pro: hon"
+
+#: admin/partials/setup-wizard.php:230
+msgid "Upgrade to Pro to get access to our premium features"
+msgstr "Päivitä Prohon saadaksesi pääsyn premium-ominaisuuksiimme"
+
+#: admin/class-rex-product-feed-admin.php:326
+msgid "Use Advanced Filters"
+msgstr "Käytä edistyneitä suodattimia"
+
+#: admin/partials/setup-wizard.php:266
+msgid ""
+"Use eBay (MIP), Google Remarketing (DRM), Google Review, Leguide merchant "
+"templates"
+msgstr ""
+"Käytä eBayta (MIP), Googlen uudelleenmarkkinointia (DRM), Google Reviewia, "
+"Leguide Merchant -malleja"
+
+#: admin/partials/rex-feed-google-merchant.php:168
+msgid ""
+"Use Google Auto-sync to send data to your Google Merchant Center at fixed "
+"intervals. Configure and Authenticate Auto-sync with Google to be able to "
+"use this feature."
+msgstr ""
+"Käytä Google Auto-Syncia lähettääksesi tiedot Google Merchant Centeriin "
+"tietyin väliajoin. Määritä ja todenna automaattinen synkronointi Googlen "
+"kanssa, jotta voit käyttää tätä ominaisuutta."
+
+#: admin/partials/setup-wizard.php:246
+msgid "Use Product Filter feature to include/exclude specific products"
+msgstr ""
+"Käytä tuotesuodatintoimintoa sisällyttääksesi/sulkeaksesi pois tiettyjä "
+"tuotteita"
+
+#: admin/class-rex-product-feed-actions.php:332
+msgid "Use Strip Tags For Description"
+msgstr "Käytä kuvaukseen nauhan tunnisteita"
+
+#: admin/partials/rex-feed-product-settings-section.php:573
+msgid "Use to differentiate ads"
+msgstr "Käytä mainosten erottamiseen"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:242
+msgid "UTF-8 Encode"
+msgstr "UTF-8 koodaa"
+
+#: admin/partials/rex-feed-product-settings-section.php:504
+msgid "UTM Parameters"
+msgstr "UTM-parametrit"
+
+#: admin/partials/feed-config-metabox-display-filter.php:48
+msgid "Value"
+msgstr "Arvo"
+
+#: admin/class-rex-product-feed-cpt.php:199
+msgid "Variable parent : "
+msgstr "Muuttuva vanhempi:"
+
+#: admin/class-rex-product-feed-cpt.php:200
+msgid "Variations : "
+msgstr "Muunnelmat :"
+
+#: admin/class-rex-product-feed-cpt.php:172
+msgid "View"
+msgstr "näkymä"
+
+#: admin/partials/setup-wizard.php:217
+msgid "View All Merchants"
+msgstr "Katso kaikki kauppiaat"
+
+#: admin/class-rex-product-feed-actions.php:328
+#: admin/class-rex-product-feed-actions.php:334
+msgid "View Doc"
+msgstr "Katso Doc"
+
+#: admin/partials/rex-feed-feed-file-section-content.php:19
+msgid "View Feed"
+msgstr "Näytä syöte"
+
+#: admin/partials/on_boarding.php:601
+msgid "View log"
+msgstr "Näytä loki"
+
+#: admin/class-rex-product-feed-cpt.php:49
+msgid "View Product Feed"
+msgstr "Näytä tuotesyöte"
+
+#: admin/class-rex-product-feed-cpt.php:93
+msgid "View/Download"
+msgstr "Näytä/Lataa"
+
+#: admin/partials/on_boarding.php:309
+msgid ""
+"Warning: Please back up your database before making the rollback as you "
+"might lose you previous data."
+msgstr ""
+"Varoitus: Varmuuskopioi tietokanta ennen palautuksen tekemistä, koska saatat "
+"menettää aikaisemmat tietosi."
+
+#: admin/partials/rex-feed-product-settings-section.php:373
+msgid "WCML Currency"
+msgstr "WCML-valuutta"
+
+#: admin/class-rex-product-feed-metabox.php:196
+#: admin/class-rex-product-feed-metabox.php:382
+msgid "Weekly"
+msgstr "Viikoittain"
+
+#: admin/partials/setup-wizard.php:134
+msgid "Welcome to"
+msgstr "tervetullut jh"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:27
+#| msgid "WooCommerce Product Feed Manager"
+msgid "Welcome to Product Feed Manager!"
+msgstr "WooCommerce -syötteiden johtaja"
+
+#: admin/partials/on_boarding.php:233
+msgid "When the cache will be expired."
+msgstr "kun välimuisti vanhenee."
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:28
+#| msgid "Why upgrade to Premium Version?"
+msgid "Why Upgrade To The Premium Version?"
+msgstr "Miksi päivittää premium-versioon?"
+
+#: admin/partials/rex-feed-product-settings-section.php:452
+msgid "WooCommerce Multi-Currency"
+msgstr "WooCommerce monivaluutta"
+
+#: admin/partials/on_boarding.php:218
+msgid "WPFM cache TTL"
+msgstr "WPFM-välimuisti TTL"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:114
+msgid "Wrapper Element"
+msgstr "kääreaine"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:40
+msgid "XML"
+msgstr "XML"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:83
+msgid "XML Header"
+msgstr "XML-otsikko"
+
+#: admin/partials/rex-feed-save-filters-changes-warning-popup.php:43
+#: admin/partials/rex-feed-save-settings-changes-warning-popup.php:43
+msgid "Yes, Save"
+msgstr "Kyllä, säästä"
+
+#: admin/class-rex-google-merchant-content-api.php:226
+#| msgid "You are authorized."
+msgid "You Are Authorized."
+msgstr "Sinulla on valtuutus."
+
+#: admin/class-rex-google-merchant-content-api.php:152
+msgid "You Are Not Authorized"
+msgstr "Et ole valtuutettu"
+
+#: admin/class-rex-google-merchant-content-api.php:265
+#| msgid "You are not authorized."
+msgid "You Are Not Authorized."
 msgstr "Sinulla ei ole valtuutusta"
 
-#: admin/class-rex-google-merchant-content-api.php:97
-#: admin/class-rex-google-merchant-content-api.php:136
+#: admin/class-rex-google-merchant-content-api.php:227
+msgid ""
+"You are now ready to send feed from Product Feed Manager for WooCommerce to "
+"your Google Merchant Center. "
+msgstr ""
+"Olet nyt valmis lähettämään syötteen WooCommercen tuotesyötteen hallinnasta "
+"Google Merchant Centeriin."
+
+#: admin/class-rex-product-feed-admin.php:321
+msgid ""
+"You can also include more attributes for your products using these buttons. "
+"%s The \"Add New Attribute\" will let you choose from other available "
+"attributes for your selected merchant and then you can map the value with a "
+"product data. %s The \"Add New Custom Attribute\" will let you name an "
+"attribute title yourself and then map the value with a product data."
+msgstr ""
+"Voit myös sisällyttää tuotteillesi lisää määritteitä käyttämällä näitä "
+"painikkeita. % s \"Lisää uusi attribuutti\" antaa sinun valita muista "
+"käytettävissä olevista määritteistä valitsemallesi kauppiaalle, minkä "
+"jälkeen voit kartoittaa arvon tuotetiedoilla. % s \"Lisää uusi mukautettu "
+"attribuutti\" antaa sinun nimetä määritteen otsikon itse ja sitten "
+"kartoittaa arvon tuotetiedoilla."
+
+#: admin/partials/rex-feed-google-merchant.php:19
+msgid ""
+"You can send the feed to Google Merchant Center through direct upload method "
+"or by using the Content API."
+msgstr ""
+"Voit lähettää syötteen Google Merchant Centeriin suoralla latausmenetelmällä "
+"tai käyttämällä sisältösovellusliittymää."
+
+#: admin/class-rex-product-feed-admin.php:301
+msgid ""
+"You may give any name. It's just to help you save settings for this feed "
+"generation and help you distinguish between other feeds you generate in the "
+"future."
+msgstr ""
+"Voit antaa minkä tahansa nimen. Se vain auttaa sinua tallentamaan tämän "
+"syötteen luomisen asetukset ja erottamaan muut tulevaisuudessa luomasi "
+"syötteet."
+
+#: admin/class-rex-google-merchant-content-api.php:156
+#: admin/class-rex-google-merchant-content-api.php:266
 msgid ""
 "Your access token has expired. This application uses OAuth 2.0 to Access "
 "Google APIs. Please insert the information below and authenticate token for "
@@ -30,940 +1997,14 @@ msgstr ""
 "pääsyyn Google-sovellusliittymiin. Lisää alla olevat tiedot ja todenna "
 "Google-kauppias-tunnus. Luotu käyttöoikeus vanhenee 3600 sekunnin kuluttua."
 
-#: admin/class-rex-google-merchant-content-api.php:108
-msgid "You are authorized."
-msgstr "Sinulla on valtuutus."
-
-#: admin/class-rex-google-merchant-content-api.php:109
-#, fuzzy
-#| "You are now ready to send feed from WooCommerce Product Feed Manager to "
-#| "your Google Merchant Center. 🚀"
-msgid ""
-"You are now ready to send feed from WooCommerce Product Feed Manager to your "
-"Google Merchant Center. "
-msgstr ""
-"Olet nyt valmis lähettämään syötteen WooCommerce Product Feed Manager -"
-"sovelluksesta Google-kauppiaskeskukseesi. 🚀"
-
-#: admin/class-rex-product-data-retriever.php:110
-msgid "Start product processing."
-msgstr "Aloita tuotteen käsittely."
-
-#: admin/class-rex-product-data-retriever.php:122
-msgid "End product processing."
-msgstr "Lopputuotteen käsittely."
-
-#: admin/class-rex-product-feed-admin.php:304
-msgid "Leave a review?"
-msgstr "Jätä arvostelu?"
-
-#: admin/class-rex-product-feed-admin.php:305
-msgid ""
-"Hey, I noticed you are using WC product feed manager for over two weeks – "
-"that’s awesome! Could you please do me a BIG favor and give it a 5-star "
-"rating on WordPress? Just to help us spread the word and boost our "
-"motivation."
-msgstr ""
-"Hei, huomasin, että käytät WC-tuotteiden syöttöpäällikköä yli kaksi viikkoa -"
-" se on mahtavaa! Voisitko tehdä minulle suuren palvelun ja antaa sille 5 "
-"tähden arvosanan WordPressissä? Vain auttaaksemme meitä levittämään sanaa ja "
-"lisäämään motivaatiota."
-
-#: admin/class-rex-product-feed-admin.php:309
-msgid "Ok, you deserve it"
-msgstr "Ok, ansaitset sen"
-
-#: admin/class-rex-product-feed-admin.php:313
-msgid "Nope, maybe later."
-msgstr "Ei, ehkä myöhemmin."
-
-#: admin/class-rex-product-feed-admin.php:317
-msgid "I already did."
-msgstr "Olen jo tehnyt."
-
-#: admin/class-rex-product-feed-admin.php:320
-msgid "Dismiss this notice."
-msgstr "Hylkää tämä ilmoitus."
-
-#: admin/class-rex-product-feed-admin.php:383
-msgid "Category Mapping"
-msgstr "Luokkakartoitus"
-
-#: admin/class-rex-product-feed-admin.php:384
-msgid "Google Merchant Settings"
-msgstr "Google-kauppiasasetukset"
-
-#: admin/class-rex-product-feed-admin.php:385
-msgid "Settings"
-msgstr "asetukset"
-
-#: admin/class-rex-product-feed-admin.php:386
-#: admin/partials/on_boarding.php:242
-msgid "Support"
-msgstr "Tuki"
-
-#: admin/class-rex-product-feed-admin.php:390
-#: admin/class-rex-product-feed-admin.php:445
-msgid "Go Pro"
-msgstr "Ryhtyä ammattilaiseksi"
-
-#: admin/class-rex-product-feed-admin.php:443
-msgid "Dashboard"
-msgstr "kojelauta"
-
-#: admin/class-rex-product-feed-admin.php:460
-msgid "View WPFM Documentation"
-msgstr "Näytä WPFM-dokumentaatio"
-
-#: admin/class-rex-product-feed-admin.php:460
-msgid "Docs & FAQs"
-msgstr "Dokumentit ja UKK"
-
-#: admin/class-rex-product-feed-admin.php:786
-msgid "Referrer"
-msgstr "referrer"
-
-#: admin/class-rex-product-feed-admin.php:794
-msgid "The referrer: (e.g. google, newsletter)"
-msgstr "Viittaus: (esim. Google, uutiskirje)"
-
-#: admin/class-rex-product-feed-admin.php:797
-msgid "Medium"
-msgstr "keskikokoinen"
-
-#: admin/class-rex-product-feed-admin.php:805
-msgid "Marketing medium: (e.g. cpc, banner, email)"
-msgstr "Markkinointikeskus: (esim. Cpc, banneri, sähköposti)"
-
-#: admin/class-rex-product-feed-admin.php:809
-msgid "Campaign"
-msgstr "kampanja"
-
-#: admin/class-rex-product-feed-admin.php:817
-msgid "Product, promo code, or slogan (e.g. spring_sale)"
-msgstr "Tuote, tarjouskoodi tai iskulause (esim. Kevään myynti)"
-
-#: admin/class-rex-product-feed-admin.php:820
-msgid "Campaign term"
-msgstr "Kampanjan termi"
-
-#: admin/class-rex-product-feed-admin.php:828
-msgid "Identify the paid keywords"
-msgstr "Tunnista maksetut avainsanat"
-
-#: admin/class-rex-product-feed-admin.php:832
-msgid "Campaign content"
-msgstr "Kampanjan sisältö"
-
-#: admin/class-rex-product-feed-admin.php:840
-msgid "Use to differentiate ads"
-msgstr "Käytä mainosten erottamiseen"
-
-#: admin/class-rex-product-feed-cpt.php:115
-msgid "Total products : "
-msgstr "Tuotteita yhteensä:"
-
-#: admin/class-rex-product-feed-cpt.php:116
-msgid "Simple products : "
-msgstr "Yksinkertaiset tuotteet:"
-
-#: admin/class-rex-product-feed-cpt.php:117
-msgid "Variable parent : "
-msgstr "Muuttuva vanhempi:"
-
-#: admin/class-rex-product-feed-cpt.php:118
-msgid "Variations : "
-msgstr "Muunnelmat :"
-
-#: admin/class-rex-product-feed-cpt.php:119
-msgid "Group products : "
-msgstr "Ryhmätuotteet:"
-
-#: admin/class-rex-product-feed-factory.php:219
-msgid "Invalid Merchant."
-msgstr "Virheellinen kauppias."
-
-#: admin/class-rex-product-feed-metabox.php:40
-#: admin/class-rex-product-feed-metabox.php:47
-msgid "Products"
-msgstr "Tuotteet"
-
-#: admin/class-rex-product-feed-metabox.php:48
-msgid "Select products to create feed for."
-msgstr "Valitse tuotteet, joille haluat luoda syötteen."
-
-#: admin/class-rex-product-feed-metabox.php:54
-msgid "All Published Products"
-msgstr "Kaikki julkaistut tuotteet"
-
-#: admin/class-rex-product-feed-metabox.php:55
-msgid "Custom Filter"
-msgstr "Muokattu suodatin"
-
-#: admin/class-rex-product-feed-metabox.php:56
-msgid "Category Filter"
-msgstr "Luokkasuodatin"
-
-#: admin/class-rex-product-feed-metabox.php:57
-msgid "Tag Filter"
-msgstr "Tunnussuodatin"
-
-#: admin/class-rex-product-feed-metabox.php:107
-msgid "Refresh Interval"
-msgstr "Päivitä väli"
-
-#: admin/class-rex-product-feed-metabox.php:108
-msgid "Feed Schedule Update"
-msgstr "Syöteaikataulun päivitys"
-
-#: admin/class-rex-product-feed-metabox.php:112
-msgid "No Interval"
-msgstr "Ei väliä"
-
-#: admin/class-rex-product-feed-metabox.php:113
-msgid "Daily"
-msgstr "Päivittäin"
-
-#: admin/class-rex-product-feed-metabox.php:114
-#: admin/class-rex-product-feed-metabox.php:700
-msgid "Hourly"
-msgstr "tunti-"
-
-#: admin/class-rex-product-feed-metabox.php:125
-msgid "Include Variable Parent Product"
-msgstr "Sisällytä muuttuva emätuote"
-
-#: admin/class-rex-product-feed-metabox.php:126
-msgid "Include/Exclude Parent Variable Product"
-msgstr "Sisällytä / sulje pois emomuuttuja"
-
-#: admin/class-rex-product-feed-metabox.php:130
-#: admin/class-rex-product-feed-metabox.php:146
-#: admin/class-rex-product-feed-metabox.php:163
-#: admin/class-rex-product-feed-metabox.php:179
-#: admin/class-rex-product-feed-metabox.php:195
-msgid "Yes"
-msgstr "Joo"
-
-#: admin/class-rex-product-feed-metabox.php:131
-#: admin/class-rex-product-feed-metabox.php:147
-#: admin/class-rex-product-feed-metabox.php:164
-#: admin/class-rex-product-feed-metabox.php:180
-#: admin/class-rex-product-feed-metabox.php:196
-msgid "No"
-msgstr "Ei"
-
-#: admin/class-rex-product-feed-metabox.php:141
-msgid "Include Product Variations"
-msgstr "Sisällytä tuotevariaatiot"
-
-#: admin/class-rex-product-feed-metabox.php:142
-msgid "Include/Exclude Products Variations"
-msgstr "Sisällytä / sulje pois tuotteiden muunnelmat"
-
-#: admin/class-rex-product-feed-metabox.php:158
-msgid "Include variation product name"
-msgstr "Sisällytä variaation tuotenimi"
-
-#: admin/class-rex-product-feed-metabox.php:159
-msgid ""
-"It will add the all the variation name on product title. Will be applicable "
-"if there are more than two variation atrributes of a product."
-msgstr ""
-"Se lisää tuotteen muunnelman nimen tuotteen otsikkoon. Sovelletaan, jos "
-"tuotteessa on enemmän kuin kaksi variaatiota."
-
-#: admin/class-rex-product-feed-metabox.php:174
-msgid "Include Parent Product (Grouped Product)"
-msgstr "Sisällytä emoyhtiö (ryhmitelty tuote)"
-
-#: admin/class-rex-product-feed-metabox.php:175
-msgid "Include/Exclude Parent Product"
-msgstr "Sisällytä / sulje pois emoyhtiö"
-
-#: admin/class-rex-product-feed-metabox.php:190
-#: admin/class-rex-product-feed-metabox.php:191
-msgid "Exclude invisible/hidden products"
-msgstr "Sulje pois näkymättömät / piilotetut tuotteet"
-
-#: admin/class-rex-product-feed-metabox.php:205
-msgid "Analytics parameters"
-msgstr "Analytics-parametrit"
-
-#: admin/class-rex-product-feed-metabox.php:206
-msgid "Check to activate utm params"
-msgstr "Valitse aktivoidaksesi utm-parametrit"
-
-#: admin/class-rex-product-feed-metabox.php:212
-msgid "Parameters"
-msgstr "parametrit"
-
-#: admin/class-rex-product-feed-metabox.php:303
-msgid "Please select merchant"
-msgstr "Valitse kauppias"
-
-#: admin/class-rex-product-feed-metabox.php:334
-msgid "Feed Configuration"
-msgstr "Syöttöasetukset"
-
-#: admin/class-rex-product-feed-metabox.php:339
-msgid "Merchant Type"
-msgstr "Kauppiaan tyyppi"
-
-#: admin/class-rex-product-feed-metabox.php:340
-msgid "Select Merchant Type of the Feed."
-msgstr "Valitse syötteen kauppiaan tyyppi."
-
-#: admin/class-rex-product-feed-metabox.php:351
-msgid "File Format"
-msgstr "Tiedosto muoto"
-
-#: admin/class-rex-product-feed-metabox.php:352
-msgid "Select Format of the Feed."
-msgstr "Valitse syötteen muoto."
-
-#: admin/class-rex-product-feed-metabox.php:356
-msgid "XML"
-msgstr "XML"
-
-#: admin/class-rex-product-feed-metabox.php:357
-msgid "TEXT"
-msgstr "TEKSTI"
-
-#: admin/class-rex-product-feed-metabox.php:358
-msgid "CSV"
-msgstr "CSV"
-
-#: admin/class-rex-product-feed-metabox.php:359
-msgid "JSON (Only for Zalando)"
-msgstr "JSON (vain Zalando)"
-
-#: admin/class-rex-product-feed-metabox.php:524
-msgid "Add New Attribute"
-msgstr "Lisää uusi ominaisuus"
-
-#: admin/class-rex-product-feed-metabox.php:525
-msgid "Add New Custom Attribute"
-msgstr "Lisää uusi mukautettu attribuutti"
-
-#: admin/class-rex-product-feed-metabox.php:557
-msgid "Add New Filter"
-msgstr "Lisää uusi suodatin"
-
-#: admin/class-rex-product-feed-metabox.php:573
-msgid "Feed URL"
-msgstr "Syötteen URL-osoite"
-
-#: admin/class-rex-product-feed-metabox.php:580
-msgid "Your Feed URL"
-msgstr "Syötteesi URL-osoite"
-
-#: admin/class-rex-product-feed-metabox.php:601
-msgid "Why upgrade to Premium Version?"
-msgstr "Miksi päivittää premium-versioon?"
-
-#: admin/class-rex-product-feed-metabox.php:623
-msgid "Supports more than 50 products."
-msgstr "Tukee yli 50 tuotetta."
-
-#: admin/class-rex-product-feed-metabox.php:624
-msgid "Access to a elite support team."
-msgstr "Pääsy eliitin tukitiimiin."
-
-#: admin/class-rex-product-feed-metabox.php:625
-msgid "Supports YITH brand attributes."
-msgstr "Tukee YITH-tuotemerkkiominaisuuksia."
-
-#: admin/class-rex-product-feed-metabox.php:626
-msgid "Dynamic Attribute."
-msgstr "Dynaaminen ominaisuus."
-
-#: admin/class-rex-product-feed-metabox.php:627
-msgid ""
-"Custom field support - Brand,GTIN,MPN,UPC,EAN,Size, Pattern, Material, Age "
-"Group, Gender."
-msgstr ""
-"Mukautettu kenttätuki - Tuotemerkki, GTIN, MPN, UPC, EAN, koko, kuvio, "
-"materiaali, ikäryhmä, sukupuoli."
-
-#: admin/class-rex-product-feed-metabox.php:628
-msgid "Fix WooCommerce's (JSON-LD) structure data bug"
-msgstr "Korjaa WooCommerce (JSON-LD) -rakenteen tietovirhe"
-
-#: admin/class-rex-product-feed-metabox.php:646
-msgid "View Feed"
-msgstr "Näytä syöte"
-
-#: admin/class-rex-product-feed-metabox.php:648
-msgid "Download Feed"
-msgstr "Lataa syöte"
-
-#: admin/class-rex-product-feed-metabox.php:664
-msgid "Send to Google Merchant"
-msgstr "Lähetä Google-kauppiaalle"
-
-#: admin/class-rex-product-feed-metabox.php:672
-msgid "Target Country"
-msgstr "Kohdemaa"
-
-#: admin/class-rex-product-feed-metabox.php:683
-msgid "Target Language"
-msgstr "Kohdekieli"
-
-#: admin/class-rex-product-feed-metabox.php:693
-msgid "Schedule"
-msgstr "Ajoittaa"
-
-#: admin/class-rex-product-feed-metabox.php:698
-msgid "Monthly"
-msgstr "Kuukausittain"
-
-#: admin/class-rex-product-feed-metabox.php:699
-msgid "Weekly"
-msgstr "Viikoittain"
-
-#: admin/class-rex-product-feed-metabox.php:708
-msgid "Select day of month"
-msgstr "Valitse kuukauden päivä"
-
-#: admin/class-rex-product-feed-metabox.php:720
-msgid "Select day of week"
-msgstr "Valitse viikonpäivä"
-
-#: admin/class-rex-product-feed-metabox.php:740
-msgid "Select Hour"
-msgstr "Valitse Tuntia"
-
-#: admin/class-rex-product-feed-metabox.php:756
-msgid ""
-"<p class=\"google-desc\">Please note that Google has fixed abbreviations for "
-"Location and Language. For example, the abbreviation for target location, "
-"United States is US and the abbreviation for language, English is en. <a "
-"href=\"https://rextheme.com/google-country-codes-list/\" target=\"_blank\">"
-"Click here</a> to see the list of all abbreviations set by Google.</p>"
-msgstr ""
-"<p class = \"google-desc\"> Huomaa, että Google on vahvistanut lyhenteet "
-"sijainnille ja kielelle. Esimerkiksi kohdealueen lyhenne, Yhdysvallat on "
-"Yhdysvallat ja kielen lyhenne, englanti on en. <a href=\"https://rextheme."
-"com/google-country-codes-list/\" target=\"_blank\"> Napsauta tätä </a> "
-"nähdäksesi luettelon kaikista Googlen asettamista lyhenteistä. </p>"
-
-#: admin/class-rex-product-feed-metabox.php:782
-#, fuzzy
-#| "Oops!! Access token has expired.Please authenticate token for Google "
-#| "Merchant Shop to be able to send feed."
-msgid ""
-"Oops!! Access token has expired 😕. Please authenticate token for Google "
-"Merchant Shop to be able to send feed."
-msgstr ""
-"Oho!! Käyttöoikeustunnus on vanhentunut.Aseta autentikointitunnus, jotta "
-"Google Merchant Shop voi lähettää syötettä."
-
-#: admin/class-rex-product-feed-metabox.php:784
-msgid "Authenticate"
-msgstr "todentaa"
-
-#: admin/class-rex-product-feed-metabox.php:789
-msgid "Send to google merchant"
-msgstr "Lähetä google-kauppiaalle"
-
-#: admin/class-rex-product-feed-notices.php:37
-msgid "Product Feed"
-msgstr "Tuotesyöte"
-
-#: admin/feed/abstract-rex-product-feed-generator.php:368
-msgid "Start feed processing job by cron"
-msgstr "Aloita syötteenkäsittelytyö cronilla"
-
-#: admin/feed/abstract-rex-product-feed-generator.php:378
-msgid "Start feed processing job."
-msgstr "Aloita syötteiden käsittelytyö."
-
-#: admin/feed/abstract-rex-product-feed-generator.php:1005
-msgid "Completed feed generation job."
-msgstr "Valmis rehunluontityö."
-
-#: admin/partials/category_mapping.php:46
-msgid "Update"
-msgstr "Päivittää"
-
-#: admin/partials/category_mapping.php:47
-msgid "Delete"
-msgstr "Poistaa"
-
-#: admin/partials/category_mapping.php:57
-msgid "Please update WPFM database"
-msgstr "Päivitä WPFM-tietokanta"
-
-#: admin/partials/category_mapping.php:70
-msgid "Add New Category Map"
-msgstr "Lisää uusi luokkakartta"
-
-#: admin/partials/category_mapping.php:74
-msgid "Mapper Name"
-msgstr "Karttattajan nimi"
-
-#: admin/partials/category_mapping.php:87
-msgid "Save"
-msgstr "Tallentaa"
-
-#: admin/partials/database-update-notice.php:6
-msgid "WPFM Database Update Notice"
-msgstr "WPFM-tietokannan päivitysilmoitus"
-
-#: admin/partials/database-update-notice.php:10
-msgid ""
-"WooCommerce Product Feed Manager is getting better and now, has an updated "
-"data structure for it to run smoothly. Click on update now to get the latest "
-"data structure for WPFM. None of your data will be changed/removed, only "
-"WPFM data will be restructured for better outcome."
-msgstr ""
-"WooCommerce -syötteiden hallintaohjelma paranee, ja sillä on nyt päivitetty "
-"tietorakenne, jotta se toimii sujuvasti. Napsauta päivitystä nyt, niin saat "
-"uusimman WPFM-tietorakenteen. Mikään tiedostasi ei muutu / poistu, vain WPFM-"
-"tiedot uudelleenjärjestetään paremman lopputuloksen saavuttamiseksi."
-
-#: admin/partials/database-update-notice.php:11
-msgid ""
-"The database update process runs in the background and may take a little "
-"while, so please be patient."
-msgstr ""
-"Tietokannan päivitysprosessi toimii taustalla ja voi viedä hetken, joten ole "
-"varovainen."
-
-#: admin/partials/database-update-notice.php:17
-msgid "Update WPFM Database"
-msgstr "Päivitä WPFM-tietokanta"
-
-#: admin/partials/database-update-running-notice.php:6
-msgid "Update in progress…."
-msgstr "Päivitys käynnissä…."
-
-#: admin/partials/database-update-running-notice.php:10
-msgid "It will run in the background while you can continue browsing."
-msgstr "Se toimii taustalla, kun voit jatkaa selaamista."
-
-#: admin/partials/feed-config-metabox-display-filter.php:36
-msgid "If"
-msgstr "Jos"
-
-#: admin/partials/feed-config-metabox-display-filter.php:37
-msgid "Condition"
-msgstr "Kunto"
-
-#: admin/partials/feed-config-metabox-display-filter.php:38
-#: admin/partials/feed-config-metabox-display.php:29
-msgid "Value"
-msgstr "Arvo"
-
-#: admin/partials/feed-config-metabox-display-filter.php:39
-msgid "Then"
-msgstr "Sitten"
-
-#: admin/partials/feed-config-metabox-display.php:27
-msgid "Attributes"
-msgstr "määritteet"
-
-#: admin/partials/feed-config-metabox-display.php:28
-msgid "Type"
-msgstr "Tyyppi"
-
-#: admin/partials/feed-config-metabox-display.php:30
-msgid "Prefix"
-msgstr "Etuliite"
-
-#: admin/partials/feed-config-metabox-display.php:31
-msgid "Suffix"
-msgstr "jälkiliite"
-
-#: admin/partials/feed-config-metabox-display.php:32
-msgid "Output Sanitization"
-msgstr "Tuotteen puhdistus"
-
-#: admin/partials/feed-config-metabox-display.php:33
-msgid "Output Limit"
-msgstr "Lähtöraja"
-
-#: admin/partials/merchant_settings.php:38
-msgid "Configure your google merchant"
-msgstr "Määritä google-kauppias"
-
-#: admin/partials/merchant_settings.php:44
-msgid "Client ID#: "
-msgstr "Asiakastunnus#:"
-
-#: admin/partials/merchant_settings.php:48
-msgid "Client Secret: "
-msgstr "Asiakassalaisuus:"
-
-#: admin/partials/merchant_settings.php:52
-msgid "Merchant ID# : "
-msgstr "Kauppiaan tunnus #:"
-
-#: admin/partials/merchant_settings.php:57
-msgid "Redirect URL"
-msgstr "Ohjaa URL"
-
-#: admin/partials/merchant_settings.php:60
-msgid "Reset"
-msgstr "asettaa uudelleen"
-
-#: admin/partials/merchant_settings.php:64
-msgid "Submit"
-msgstr "Lähetä"
-
-#: admin/partials/on_boarding.php:50 admin/partials/on_boarding.php:204
-msgid "Go Premium"
-msgstr "Go Premium"
-
-#: admin/partials/on_boarding.php:52
-#, php-format
-msgid ""
-"Purchase our <a href=\"%s\" target=\"_blank\" title=\"Click to Upgrade Pro\">"
-"premium version</a> to unlock these pro components!"
-msgstr ""
-"Osta <a href=\"%s\" target=\"_blank\" title=\"Click Upgrade Pro\"> premium-"
-"versio </a> </a> näiden pro-komponenttien lukituksen avaamiseksi!"
-
-#: admin/partials/on_boarding.php:56
-msgid "ok"
-msgstr "kunnossa"
-
-#: admin/partials/on_boarding.php:91
-msgid "General"
-msgstr "yleinen"
-
-#: admin/partials/on_boarding.php:115
-msgid "Merchants"
-msgstr "kauppiaat"
-
-#: admin/partials/on_boarding.php:158 admin/partials/on_boarding.php:1300
-msgid "Controls"
-msgstr "ohjaimet"
-
-#: admin/partials/on_boarding.php:180
-msgid "Video Tutorials"
-msgstr "Video-oppaat"
-
-#: admin/partials/on_boarding.php:200 admin/partials/on_boarding.php:1495
-msgid "System Status"
-msgstr "Järjestelmän tila"
-
-#: admin/partials/on_boarding.php:207
-msgid "Logs"
-msgstr "lokit"
-
-#: admin/partials/on_boarding.php:225
-msgid "Documentation"
-msgstr "Dokumentointi"
-
-#: admin/partials/on_boarding.php:230
-msgid ""
-"Before You start, you can check our Documentation to get familiar with "
-"WooCommerce Product Feed Manager."
-msgstr ""
-"Ennen aloittamista voit tutustua dokumentaatioomme perehtyäksesi WooCommerce "
-"-syötteiden hallintaan."
-
-#: admin/partials/on_boarding.php:233
-msgid "View Documentation"
-msgstr "Näytä dokumentaatio"
-
-#: admin/partials/on_boarding.php:247
-msgid ""
-"Can't find solution on with our documentation? Just Post a ticket on Support "
-"forum. We are to solve your issue."
-msgstr ""
-"Etkö löydä ratkaisua asiakirjoihimme? Lähetä vain lippu tukifoorumiin. "
-"Meidän on ratkaistava ongelmasi."
-
-#: admin/partials/on_boarding.php:250
-msgid "Post a Ticket"
-msgstr "Lähetä lippu"
-
-#: admin/partials/on_boarding.php:259
-msgid "Share Your Thoughts"
-msgstr "Jaa ajatuksesi"
-
-#: admin/partials/on_boarding.php:264
-msgid ""
-"Your suggestions are valubale to us. It can help to make WPFM even better."
-msgstr ""
-"Ehdotuksesi ovat arvokkaita meille. Se voi auttaa tekemään WPFM: stä entistä "
-"paremman."
-
-#: admin/partials/on_boarding.php:267
-msgid "Suggest"
-msgstr "Ehdottaa"
-
-#: admin/partials/on_boarding.php:276
-msgid "Make WPFM Popular"
-msgstr "Tee WPFM: stä suosittu"
-
-#: admin/partials/on_boarding.php:281
-msgid ""
-"Your rating and feedback matters to us. If you are happy with WooCommerce "
-"Product Feed Manager give us a rating."
-msgstr ""
-"Arvostelu ja palaute ovat meille tärkeitä. Jos olet tyytyväinen WooCommerce -"
-"syötteiden hallintaan, anna meille arvostelu."
-
-#: admin/partials/on_boarding.php:284
-msgid "Rate Us!"
-msgstr "Arvioi meidät!"
-
-#: admin/partials/on_boarding.php:293
-msgid "Share On"
-msgstr "Jaa"
-
-#: admin/partials/on_boarding.php:298
-msgid "Share on Facebook"
-msgstr "Jaa Facebookissa"
-
-#: admin/partials/on_boarding.php:299
-msgid "Share on Twitter"
-msgstr "Jaa Twitterissä"
-
-#: admin/partials/on_boarding.php:300
-msgid "Share on Google+"
-msgstr "Jaa Google+ -palvelussa"
-
-#: admin/partials/on_boarding.php:301
-msgid "Share on LinkedIn"
-msgstr "Jaa LinkedInissä"
-
-#: admin/partials/on_boarding.php:313 admin/partials/on_boarding.php:1620
-msgid "Why upgrade to Pro?"
-msgstr "Miksi päivittää Pro: ksi?"
-
-#: admin/partials/on_boarding.php:315 admin/partials/on_boarding.php:1622
-msgid "Generate feed for unlimited products"
-msgstr "Luo rehu rajattomille tuotteille"
-
-#: admin/partials/on_boarding.php:316 admin/partials/on_boarding.php:1623
-msgid ""
-"Unique Product Identifiers Custom Fields (Brand, GTIN, MPN, UPC, EAN, JAN, "
-"ISBN, ITF14, Offer price, Offer effective date)"
-msgstr ""
-"Ainutlaatuisten tuotetunnisteiden mukautetut kentät (tuotemerkki, GTIN, MPN, "
-"UPC, EAN, JAN, ISBN, ITF14, tarjoushinta, tarjouksen voimaantulopäivä)"
-
-#: admin/partials/on_boarding.php:317 admin/partials/on_boarding.php:1624
-msgid ""
-"Detailed Product Attributes Custom Fields (Size, Pattern, Material, Age "
-"Group, Gender, Color)"
-msgstr ""
-"Yksityiskohtaiset tuoteominaisuudet Mukautetut kentät (koko, malli, "
-"materiaali, ikäryhmä, sukupuoli, väri)"
-
-#: admin/partials/on_boarding.php:318 admin/partials/on_boarding.php:1625
-msgid "Ability To Exclude Tax From Structured Data Prices"
-msgstr "Kyky sulkea vero pois jäsennellyistä datan hinnoista"
-
-#: admin/partials/on_boarding.php:319 admin/partials/on_boarding.php:1626
-msgid "Option To Fix WooCommerce’s (Json-Ld) Structured Data Bug"
-msgstr "Mahdollisuus korjata WooCommerce (Json-Ld) -rakenteinen tietovirhe"
-
-#: admin/partials/on_boarding.php:320 admin/partials/on_boarding.php:1627
-msgid "Custom Batch configuration"
-msgstr "Mukautettu erämääritys"
-
-#: admin/partials/on_boarding.php:321 admin/partials/on_boarding.php:1628
-msgid ""
-"9 more pre-built templates (including eBay MIP, eBay Seller Center, Google "
-"Product Review, Google Re-marketing (DRM) and others)"
-msgstr ""
-"9 lisää valmiiksi rakennettuja malleja (mukaan lukien eBay MIP, eBay Seller "
-"Center, Google Product Review, Google Re-markkinointi (DRM) ja muut)"
-
-#: admin/partials/on_boarding.php:324
-msgid "Upgrade to Pro"
-msgstr "Päivittää Pro: hon"
-
-#: admin/partials/on_boarding.php:334
-msgid "Available Merchants"
-msgstr "Saatavissa olevat kauppiaat"
-
-#: admin/partials/on_boarding.php:1268 admin/partials/on_boarding.php:1361
-#: admin/partials/on_boarding.php:1386 admin/partials/on_boarding.php:1413
-#: admin/partials/on_boarding.php:1438 admin/partials/on_boarding.php:1466
-msgid "pro"
-msgstr "ammattilainen"
-
-#: admin/partials/on_boarding.php:1303
-msgid "Product(s) per batch"
-msgstr "Tuote / tuotteet erää kohden"
-
-#: admin/partials/on_boarding.php:1313
-msgid "Clear batch"
-msgstr "Tyhjennä erä"
-
-#: admin/partials/on_boarding.php:1319
-msgid "Enable Facebook Pixel"
-msgstr "Ota Facebook Pixel käyttöön"
-
-#: admin/partials/on_boarding.php:1335
-msgid "Enable log"
-msgstr "Ota loki käyttöön"
-
-#: admin/partials/on_boarding.php:1349
-msgid "Facebook Pixel id"
-msgstr "Facebook Pixel id"
-
-#: admin/partials/on_boarding.php:1365
-msgid "Add custom fields for Amazon"
-msgstr "Lisää mukautettuja kenttiä Amazonille"
-
-#: admin/partials/on_boarding.php:1391
-msgid "Exclude TAX from structured data prices"
-msgstr "Sulje TAX jäsenneltyjen tietohintojen ulkopuolelle"
-
-#: admin/partials/on_boarding.php:1417
-msgid ""
-"Add Unique Product Identifiers ( Brand, GTIN, MPN, UPC, EAN, JAN, ISBN, "
-"ITF14, Offer price, Offer effective date ) to product"
-msgstr ""
-"Lisää tuotteeseen yksilölliset tuotetunnisteet (tuotemerkki, GTIN, MPN, UPC, "
-"EAN, JAN, ISBN, ITF14, tarjoushinta, tarjouksen voimaantulopäivä) tuotteeseen"
-
-#: admin/partials/on_boarding.php:1443
-msgid ""
-"Increase the number of products that will be approved in Google's Merchant "
-"Center:\n"
-"                                           This option will fix "
-"WooCommerce's (JSON-LD) structured data bug and add extra structured data "
-"elements to your pages"
-msgstr ""
-"Lisää Googlen Kauppiaskeskuksessa hyväksyttävien tuotteiden määrää:\n"
-"                                            Tämä vaihtoehto korjaa "
-"WooCommerce (JSON-LD) -rakenteisen tietovirheen ja lisää ylimääräisiä "
-"jäsenneltyjä tietoelementtejä sivuillesi"
-
-#: admin/partials/on_boarding.php:1470
-msgid ""
-"Add Detailed Product Attributes ( Size, Color, Pattern, Material, Age group, "
-"Gender, Additional info ) to product"
-msgstr ""
-"Lisää yksityiskohtaiset tuoteominaisuudet (koko, väri, kuvio, materiaali, "
-"ikäryhmä, sukupuoli, lisätiedot) tuotteeseen"
-
-#: admin/partials/on_boarding.php:1525
-msgid "PHP version:"
-msgstr "PHP-versio:"
-
-#: admin/partials/on_boarding.php:1531
-#, php-format
-msgid ""
-"%1$s - We recommend using PHP version 7.2 or above for greater performance "
-"and security."
-msgstr ""
-"Suosittelemme parantamaan suorituskykyä ja turvallisuutta PHP-version 7.2 "
-"tai uudemman kanssa."
-
-#: admin/partials/on_boarding.php:1537
-msgid "WordPress version:"
-msgstr "WordPress-versio:"
-
-#: admin/partials/on_boarding.php:1543
-#, php-format
-msgid "%1$s - WP version above 4 is required. "
-msgstr "Yli 4 WP-versio vaaditaan."
-
-#: admin/partials/on_boarding.php:1549
-msgid "WooCommerce Version:"
-msgstr "WooCommerce-versio:"
-
-#: admin/partials/on_boarding.php:1555
-#, php-format
-msgid "%1$s - WC version above 4 is required. "
-msgstr "Yli 4: n WC-versio vaaditaan."
-
-#: admin/partials/on_boarding.php:1561
-msgid "Memory:"
-msgstr "Muisti:"
-
-#: admin/partials/on_boarding.php:1567
-#, php-format
-msgid "%1$s - We recommend setting memory to at least 64MB. See: %2$s"
-msgstr "Suosittelemme, että asetat muistiksi vähintään 64 Mt. Katso:"
-
-#: admin/partials/on_boarding.php:1567
-msgid "Increasing memory allocated to PHP"
-msgstr "Lisäämällä muistia PHP: lle"
-
-#: admin/partials/on_boarding.php:1573
-msgid "Upload Limit:"
-msgstr "Lataa rajoitus:"
-
-#: admin/partials/on_boarding.php:1579
-#, php-format
-msgid "%1$s - We recommend upload limit to at least 64MB."
-msgstr "Suosittelemme, että lähetysraja on vähintään 64 Mt."
-
-#: admin/partials/on_boarding.php:1585
-msgid "WP Cron"
-msgstr "WP Cron"
-
-#: admin/partials/on_boarding.php:1597
-msgid "Product Feed Directory Writable"
-msgstr "Tuotesyöttöhakemisto kirjoitettavissa"
-
-#: admin/partials/on_boarding.php:1603
-#, php-format
-msgid "It is required to make feed directory writable. %1$s"
-msgstr "Syöttöhakemistosta on tehtävä kirjoitettava."
-
-#: admin/partials/on_boarding.php:1630
-msgid "Get Premium Version"
-msgstr "Hanki premium-versio"
-
-#: admin/partials/on_boarding.php:1653
-msgid "View log"
-msgstr "Näytä loki"
-
-#: admin/partials/on_boarding.php:1657
-msgid "Copy log"
-msgstr "Kopioi loki"
-
-#: admin/partials/progress-bar.php:27
+#: admin/partials/progress-bar.php:21
 msgid "Your feed is generating"
 msgstr "Syötteesi tuottaa"
 
-#: admin/partials/wpmf-black-friday-notice.php:16
-msgid "Upgrade to pro with a"
-msgstr "Päivitä ammattilaiseksi a"
+#: admin/partials/rex-feed-feed-file-section-content.php:13
+msgid "Your Feed URL"
+msgstr "Syötteesi URL-osoite"
 
-#: admin/partials/wpmf-black-friday-notice.php:17
-msgid "Huge Black Friday Discount"
-msgstr "Valtava musta perjantai-alennus"
-
-#: admin/partials/wpmf-black-friday-notice.php:18
-msgid "Generate ultimate product feed in minutes."
-msgstr "Luo lopullinen tuotesyöttö muutamassa minuutissa."
-
-#: admin/partials/wpmf-black-friday-notice.php:25
-msgid "Coupon:"
-msgstr "Kuponki:"
-
-#. Name of the plugin
-msgid "WooCommerce Product Feed Manager"
-msgstr "WooCommerce -syötteiden johtaja"
-
-#. Description of the plugin
-msgid ""
-"WooCommerce Product Feed Manager helps you to sell more by uploading product "
-"feed to Google shopping, Amazon, Walmart, eBay, Nextag, Pricegrabber and "
-"acquiring real buyer."
-msgstr ""
-"WooCommerce Product Feed Manager auttaa sinua myymään enemmän lähettämällä "
-"tuotesyötettä Google Shoppingiin, Amazoniin, Walmartiin, eBayen, Nextagiin, "
-"Pricegrabberiin ja hankkimalla todellisen ostajan."
-
-#. URI of the plugin
-#. Author URI of the plugin
-msgid "https://rextheme.com"
-msgstr "https://rextheme.com"
-
-#. Author of the plugin
-msgid "RexTheme"
-msgstr "RexTheme"
+#: admin/partials/rex-feed-merchant-dropdown-section.php:201
+msgid "Your hotline store name."
+msgstr "Hotline-myymäläsi nimi."

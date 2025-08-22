@@ -285,10 +285,11 @@ class Rex_Product_Feed_Ajax {
     public static function generate_feed( $config ) {
         try {
             $merchant = Rex_Product_Feed_Factory::build( $config );
-        if( $config[ 'info' ][ 'batch' ] === $config[ 'info' ][ 'total_batch' ] ) {
-              Rex_Product_Feed_Controller::update_feed_status( $config[ 'info' ][ 'post_id' ], 'completed' );
-	        update_post_meta( $config[ 'info' ][ 'post_id' ], '_rex_mas_last_sync', time() );
-        }
+
+            if( $config[ 'info' ][ 'batch' ] === $config[ 'info' ][ 'total_batch' ] ) {
+                Rex_Product_Feed_Controller::update_feed_status( $config[ 'info' ][ 'post_id' ], 'completed' );
+                update_post_meta( $config[ 'info' ][ 'post_id' ], '_rex_mas_last_sync', time() );
+            }
         }
         catch ( Exception $e ) {
             return $e->getMessage();
@@ -336,9 +337,9 @@ class Rex_Product_Feed_Ajax {
          * @since 7.3.11
          */
         $template_markup = apply_filters(
-            "rexfeed_{$merchant_name}_template_markups",
-            plugin_dir_path( __FILE__ ) . 'partials/feed-config-metabox-display.php',
-            $feed_template, $feed_format, $feed_separator,
+                "rexfeed_{$merchant_name}_template_markups",
+                plugin_dir_path( __FILE__ ) . 'partials/feed-config-metabox-display.php',
+                $feed_template, $feed_format, $feed_separator,
         );
         include_once $template_markup;
 
@@ -352,12 +353,12 @@ class Rex_Product_Feed_Ajax {
         }
 
         return array(
-            'success'        => true,
-            'html'           => $result,
-            'feed_format'    => $feed_format,
-            'feed_separator' => $feed_separator,
-            'select'         => $selected_format,
-            'saved_merchant' => $saved_merchant,
+                'success'        => true,
+                'html'           => $result,
+                'feed_format'    => $feed_format,
+                'feed_separator' => $feed_separator,
+                'select'         => $selected_format,
+                'saved_merchant' => $saved_merchant,
         );
     }
 
@@ -376,13 +377,19 @@ class Rex_Product_Feed_Ajax {
             $category_map = get_option( 'rex-wpfm-category-mapping' ) ? get_option( 'rex-wpfm-category-mapping' ) : array();
             $status       = 'success';
             $wpfm_hash    = !empty( $payload[ 'hash' ] ) ? $payload[ 'hash' ] : '';
+            $feed_id_posthog = !empty( $payload[ 'feed_id' ] ) ? $payload[ 'feed_id' ] : '';
+
+            do_action( 'rex_product_feed_advanced_feature_used',$feed_id_posthog, [
+                    'map_name' => $map_name,
+                    'action' => 'save_category_mapping',
+            ] );
 
             if( '' !== $wpfm_hash && array_key_exists( $wpfm_hash, $category_map ) ) {
                 wp_send_json_success(
-                    array(
-                        'status'   => $status,
-                        'location' => $cat_map_url,
-                    ),
+                        array(
+                                'status'   => $status,
+                                'location' => $cat_map_url,
+                        ),
                 );
             }
             if( '' !== $wpfm_hash ) {
@@ -403,9 +410,9 @@ class Rex_Product_Feed_Ajax {
                         $category_name = $product_cat->name;
                     }
                     $config_array[] = array(
-                        'map-key'   => $cat_id,
-                        'map-value' => $value,
-                        'cat-name'  => $category_name,
+                            'map-key'   => $cat_id,
+                            'map-value' => $value,
+                            'cat-name'  => $category_name,
                     );
                 }
             }
@@ -417,13 +424,13 @@ class Rex_Product_Feed_Ajax {
             update_option( 'rex-wpfm-category-mapping', $category_map );
 
             wp_send_json_success( [
-                'status'   => $status,
-                'location' => $cat_map_url,
+                    'status'   => $status,
+                    'location' => $cat_map_url,
             ] );
         }
         wp_send_json_error( [
-            'status'   => 'failed',
-            'location' => $cat_map_url,
+                'status'   => 'failed',
+                'location' => $cat_map_url,
         ] );
     }
 
@@ -439,11 +446,14 @@ class Rex_Product_Feed_Ajax {
         $map_key       = !empty( $payload[ 'map_key' ] ) ? $payload[ 'map_key' ] : '';
         $map_name      = !empty( $payload[ 'map_name' ] ) ? $payload[ 'map_name' ] : '';
         $cat_map_array = [];
-
+        $feed_id_posthog = !empty( $payload[ 'feed_id' ] ) ? $payload[ 'feed_id' ] : '';
         parse_str( $payload[ 'cat_map' ], $cat_map_array );
         $config_array = [];
         $map_array    = [];
-
+        do_action( 'rex_product_feed_advanced_feature_used', $feed_id_posthog, [
+                'map_name' => $map_name,
+                'action' => 'update_category_mapping',
+        ] );
         if ( $cat_map_array ) {
             foreach ( $cat_map_array as $key => $value ) {
                 $cat_id        = preg_replace( '/[^0-9]/', '', $key );
@@ -453,9 +463,9 @@ class Rex_Product_Feed_Ajax {
                     $category_name = $product_cat->name;
                 }
                 $config_array[] = [
-                    'map-key'   => $cat_id,
-                    'map-value' => $value,
-                    'cat-name'  => $category_name,
+                        'map-key'   => $cat_id,
+                        'map-value' => $value,
+                        'cat-name'  => $category_name,
                 ];
             }
         }
@@ -480,6 +490,11 @@ class Rex_Product_Feed_Ajax {
         if( !empty( $payload[ 'map_key' ] ) ) {
             $map_key      = $payload[ 'map_key' ];
             $category_map = get_option( 'rex-wpfm-category-mapping' );
+            $feed_id_posthog = !empty( $payload[ 'feed_id' ] ) ? $payload[ 'feed_id' ] : '';
+            do_action( 'rex_product_feed_advanced_feature_used', $feed_id_posthog, [
+                    'map_name' => $map_key,
+                    'action' => 'delete_category_mapping',
+            ] );
             unset( $category_map[ $map_key ] );
             update_option( 'rex-wpfm-category-mapping', $category_map );
             return [ 'status' => 'success' ];
@@ -592,9 +607,9 @@ class Rex_Product_Feed_Ajax {
                 }
 
                 return array(
-                    'success' => false,
-                    'message' => !empty( $error->error->message ) ? $error->error->message : $error,
-                    'reason'  => !empty( $reason[ 0 ]->reason ) ? $reason[ 0 ]->reason : $error,
+                        'success' => false,
+                        'message' => !empty( $error->error->message ) ? $error->error->message : $error,
+                        'reason'  => !empty( $reason[ 0 ]->reason ) ? $reason[ 0 ]->reason : $error,
                 );
             }
         }
@@ -672,25 +687,25 @@ class Rex_Product_Feed_Ajax {
 
         try {
             $wpdb->update(
-                $wpdb->actionscheduler_actions,
-                [ 'status' => 'failed' ],
-                [
-                    'hook'   => 'rex_feed_regenerate_feed_batch',
-                    'status' => 'processing',
-                ],
+                    $wpdb->actionscheduler_actions,
+                    [ 'status' => 'failed' ],
+                    [
+                            'hook'   => 'rex_feed_regenerate_feed_batch',
+                            'status' => 'processing',
+                    ],
             );
             $wpdb->update(
-                $wpdb->actionscheduler_actions,
-                [ 'status' => 'failed' ],
-                [
-                    'hook'   => 'rex_feed_regenerate_feed_batch',
-                    'status' => 'pending',
-                ],
+                    $wpdb->actionscheduler_actions,
+                    [ 'status' => 'failed' ],
+                    [
+                            'hook'   => 'rex_feed_regenerate_feed_batch',
+                            'status' => 'pending',
+                    ],
             );
             $wpdb->update(
-                $wpdb->postmeta,
-                [ 'meta_value' => 'completed' ],
-                [ 'meta_key' => '_rex_feed_status' ],
+                    $wpdb->postmeta,
+                    [ 'meta_value' => 'completed' ],
+                    [ 'meta_key' => '_rex_feed_status' ],
             );
         }
         catch( Exception $e ) {
@@ -733,9 +748,9 @@ class Rex_Product_Feed_Ajax {
 
             if ( !in_array( $key, $wc_log ) || empty( $file_url ) || false === strpos( $file_url, WC_LOG_DIR ) ) {
                 return [
-                    'success'  => false,
-                    'content'  => 'Access Denied!',
-                    'file_url' => '',
+                        'success'  => false,
+                        'content'  => 'Access Denied!',
+                        'file_url' => '',
                 ];
             }
 
@@ -744,15 +759,15 @@ class Rex_Product_Feed_Ajax {
             $out = ob_get_clean();
             ob_end_clean();
             return [
-                'success'  => true,
-                'content'  => $out,
-                'file_url' => $file_url,
+                    'success'  => true,
+                    'content'  => $out,
+                    'file_url' => $file_url,
             ];
         }
         return [
-            'success'  => false,
-            'content'  => '',
-            'file_url' => '',
+                'success'  => false,
+                'content'  => '',
+                'file_url' => '',
         ];
     }
 
@@ -767,19 +782,19 @@ class Rex_Product_Feed_Ajax {
         $date_now     = gmdate( "Y-m-d", $current_time );
         if ( '2019-11-29' === $date_now || '2019-11-28' === $date_now ) {
             $wpfm_bf_notice = array(
-                'show_notice' => 'never',
-                'updated_at'  => time(),
+                    'show_notice' => 'never',
+                    'updated_at'  => time(),
             );
         }
         else {
             $wpfm_bf_notice = array(
-                'show_notice' => 'no',
-                'updated_at'  => time(),
+                    'show_notice' => 'no',
+                    'updated_at'  => time(),
             );
         }
         update_option( 'wpfm_bf_notice', wp_json_encode( $wpfm_bf_notice ) );
         return array(
-            'success' => true,
+                'success' => true,
         );
     }
 
@@ -795,15 +810,15 @@ class Rex_Product_Feed_Ajax {
         if ( 'yes' === $payload[ 'wpfm_fb_pixel_enabled' ] ) {
             update_option( 'wpfm_fb_pixel_enabled', 'yes' );
             return array(
-                'success' => true,
-                'data'    => 'enabled',
+                    'success' => true,
+                    'data'    => 'enabled',
             );
         }
         else {
             update_option( 'wpfm_fb_pixel_enabled', 'no' );
             return array(
-                'success' => true,
-                'data'    => 'disabled',
+                    'success' => true,
+                    'data'    => 'disabled',
             );
         }
     }
@@ -818,7 +833,7 @@ class Rex_Product_Feed_Ajax {
     public static function save_fb_pixel_value( $payload ) {
         update_option( 'wpfm_fb_pixel_value', $payload );
         return array(
-            'success' => true,
+                'success' => true,
         );
     }
 
@@ -832,7 +847,7 @@ class Rex_Product_Feed_Ajax {
     public static function save_tiktok_pixel_value( $payload ) {
         update_option( 'wpfm_tiktok_pixel_value', $payload );
         return array(
-            'success' => true,
+                'success' => true,
         );
     }
 
@@ -847,15 +862,15 @@ class Rex_Product_Feed_Ajax {
         if ( 'yes' === $payload[ 'wpfm_enable_log' ] ) {
             update_option( 'wpfm_enable_log', 'yes' );
             return array(
-                'success' => true,
-                'data'    => 'enabled',
+                    'success' => true,
+                    'data'    => 'enabled',
             );
         }
         else {
             update_option( 'wpfm_enable_log', 'no' );
             return array(
-                'success' => true,
-                'data'    => 'disabled',
+                    'success' => true,
+                    'data'    => 'disabled',
             );
         }
     }
@@ -872,7 +887,7 @@ class Rex_Product_Feed_Ajax {
             update_option( 'wpfm_cache_ttl', $payload[ 'value' ] );
         }
         return array(
-            'success' => true,
+                'success' => true,
         );
     }
 
@@ -884,7 +899,7 @@ class Rex_Product_Feed_Ajax {
     public static function purge_transient_cache() {
         wpfm_purge_cached_data();
         return array(
-            'success' => true,
+                'success' => true,
         );
     }
 
@@ -901,7 +916,7 @@ class Rex_Product_Feed_Ajax {
             update_option( 'wpfm_allow_private', $payload[ 'allow_private' ] );
         }
         return array(
-            'success' => true,
+                'success' => true,
         );
     }
 
@@ -915,12 +930,12 @@ class Rex_Product_Feed_Ajax {
     public static function rt_black_friday_offer_notice_dismiss() {
         $current_time = time();
         $info         = array(
-            'show_notice' => 'no',
-            'updated_at'  => $current_time,
+                'show_notice' => 'no',
+                'updated_at'  => $current_time,
         );
         update_option( 'rt_bf_notice', $info );
         return array(
-            'success' => true,
+                'success' => true,
         );
     }
 
@@ -934,15 +949,15 @@ class Rex_Product_Feed_Ajax {
      */
     public static function trigger_review_request( $payload ) {
         $data = array(
-            'show'      => !empty( $payload[ 'show' ] ) ? $payload[ 'show' ] : '',
-            'time'      => !empty( $payload[ 'frequency' ] ) && 'never' !== $payload[ 'frequency' ] ? time() : '',
-            'frequency' => !empty( $payload[ 'frequency' ] ) ? $payload[ 'frequency' ] : '',
+                'show'      => !empty( $payload[ 'show' ] ) ? $payload[ 'show' ] : '',
+                'time'      => !empty( $payload[ 'frequency' ] ) && 'never' !== $payload[ 'frequency' ] ? time() : '',
+                'frequency' => !empty( $payload[ 'frequency' ] ) ? $payload[ 'frequency' ] : '',
         );
 
         update_option( 'rex_feed_review_request', $data );
 
         return array(
-            'success' => true,
+                'success' => true,
         );
     }
 
@@ -956,7 +971,7 @@ class Rex_Product_Feed_Ajax {
         update_option( 'rex_feed_new_changes_msg', 'hide' );
 
         return array(
-            'success' => true,
+                'success' => true,
         );
     }
 
@@ -976,8 +991,8 @@ class Rex_Product_Feed_Ajax {
         ob_get_clean();
 
         return array(
-            'success'      => true,
-            'html_content' => $html_content,
+                'success'      => true,
+                'html_content' => $html_content,
         );
     }
 
@@ -1007,34 +1022,34 @@ class Rex_Product_Feed_Ajax {
 
             $required_attr = array( 'id', 'title', 'description', 'link', 'image_link', 'availability', 'price', 'brand', 'gtin', 'mpn' );
             $labels        = array(
-                'id'           => 'Product Id [id]',
-                'title'        => 'Product Title [title]',
-                'description'  => 'Product Description [description]',
-                'link'         => 'Product URL [link]',
-                'image_link'   => 'Main Image [image_link]',
-                'availability' => 'Stock Status [availability]',
-                'price'        => 'Regular Price [price]',
-                'brand'        => 'Manufacturer [brand]',
-                'gtin'         => 'GTIN [gtin]',
-                'mpn'          => 'MPN [mpn]',
+                    'id'           => 'Product Id [id]',
+                    'title'        => 'Product Title [title]',
+                    'description'  => 'Product Description [description]',
+                    'link'         => 'Product URL [link]',
+                    'image_link'   => 'Main Image [image_link]',
+                    'availability' => 'Stock Status [availability]',
+                    'price'        => 'Regular Price [price]',
+                    'brand'        => 'Manufacturer [brand]',
+                    'gtin'         => 'GTIN [gtin]',
+                    'mpn'          => 'MPN [mpn]',
             );
 
             wp_send_json_success(
-                array(
-                    'feed_attr'   => $feed_attr,
-                    'feed_config' => $feed_config,
-                    'req_attr'    => $required_attr,
-                    'labels'      => $labels,
-                ),
+                    array(
+                            'feed_attr'   => $feed_attr,
+                            'feed_config' => $feed_config,
+                            'req_attr'    => $required_attr,
+                            'labels'      => $labels,
+                    ),
             );
         }
         wp_send_json_error(
-            array(
-                'feed_attr'   => '',
-                'feed_config' => '',
-                'req_attr'    => '',
-                'labels'      => '',
-            ),
+                array(
+                        'feed_attr'   => '',
+                        'feed_config' => '',
+                        'req_attr'    => '',
+                        'labels'      => '',
+                ),
         );
     }
 
@@ -1443,7 +1458,7 @@ class Rex_Product_Feed_Ajax {
         $create_contact_instance = new Rex_Product_Feed_Create_Contact( $email, $name );
 
         $response = $create_contact_instance->create_contact_via_webhook();
-
+        update_option('rex_product_feed_posthog_access', true);
         if ( $response ) {
             wp_send_json_success( array( 'message' => __('Contact created successfully', 'rex-product-feed') ), 200 );
         } else {
@@ -1451,52 +1466,52 @@ class Rex_Product_Feed_Ajax {
         }
     }
 
-	/**
-	 * Fetches Google Merchant Center (GMC) report data based on provided payload parameters.
-	 *
-	 * @param array $payload An array containing parameters like pageToken, maxResult, and feed_id.
-	 *
-	 * @return void Sends a JSON response with the GMC report data and related markups or an error if no data is available.
-	 * @since 7.4.20
-	 */
-	public static function fetch_gmc_report( $payload ) {
-		$page_token          = $payload[ 'pageToken' ] ?? null;
-		$max_result          = $payload[ 'maxResult' ] ?? 10;
-		$feed_id             = $payload[ 'feed_id' ] ?? null;
+    /**
+     * Fetches Google Merchant Center (GMC) report data based on provided payload parameters.
+     *
+     * @param array $payload An array containing parameters like pageToken, maxResult, and feed_id.
+     *
+     * @return void Sends a JSON response with the GMC report data and related markups or an error if no data is available.
+     * @since 7.4.20
+     */
+    public static function fetch_gmc_report( $payload ) {
+        $page_token          = $payload[ 'pageToken' ] ?? null;
+        $max_result          = $payload[ 'maxResult' ] ?? 10;
+        $feed_id             = $payload[ 'feed_id' ] ?? null;
 
-		$rex_google_api   = new Rex_Feed_Google_Shopping_Api();
-		$product_status_data = $rex_google_api->get_product_detailed_stats( $page_token, $max_result );
-		if ( !empty( $product_status_data ) ) {
-			$markups = $rex_google_api->build_product_status_table_data( $product_status_data, $feed_id );
-			wp_send_json_success( [
-				'report'  => $product_status_data,
-				'markups' => $markups,
-			] );
-		}
-		wp_send_json_error( $product_status_data );
-	}
+        $rex_google_api   = new Rex_Feed_Google_Shopping_Api();
+        $product_status_data = $rex_google_api->get_product_detailed_stats( $page_token, $max_result );
+        if ( !empty( $product_status_data ) ) {
+            $markups = $rex_google_api->build_product_status_table_data( $product_status_data, $feed_id );
+            wp_send_json_success( [
+                    'report'  => $product_status_data,
+                    'markups' => $markups,
+            ] );
+        }
+        wp_send_json_error( $product_status_data );
+    }
 
-	/**
-	 * Saves Google API credentials.
-	 *
-	 * This function updates the options for Google API credentials, including client ID, client secret, and merchant ID.
-	 * It sends a JSON success response after updating the options.
-	 *
-	 * @param array $payload The payload array containing the Google API credentials.
-	 * @return void
+    /**
+     * Saves Google API credentials.
+     *
+     * This function updates the options for Google API credentials, including client ID, client secret, and merchant ID.
+     * It sends a JSON success response after updating the options.
+     *
+     * @param array $payload The payload array containing the Google API credentials.
+     * @return void
      *
      * @since 7.4.20
-	 */
+     */
     public static function save_google_api_credentials( $payload ) {
-	    if ( isset( $payload[ 'client_id' ] ) ) {
-		    update_option( 'rex_google_client_id', $payload[ 'client_id' ] );
-	    }
-	    if ( isset( $payload[ 'client_secret' ] ) ) {
-		    update_option( 'rex_google_client_secret', $payload[ 'client_secret' ] );
-	    }
-	    if ( isset( $payload[ 'merchant_id' ] ) ) {
-		    update_option( 'rex_google_merchant_id', $payload[ 'merchant_id' ] );
-	    }
+        if ( isset( $payload[ 'client_id' ] ) ) {
+            update_option( 'rex_google_client_id', $payload[ 'client_id' ] );
+        }
+        if ( isset( $payload[ 'client_secret' ] ) ) {
+            update_option( 'rex_google_client_secret', $payload[ 'client_secret' ] );
+        }
+        if ( isset( $payload[ 'merchant_id' ] ) ) {
+            update_option( 'rex_google_merchant_id', $payload[ 'merchant_id' ] );
+        }
         wp_send_json_success();
     }
 }

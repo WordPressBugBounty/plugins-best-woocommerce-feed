@@ -241,7 +241,6 @@ class Rex_Feed_Scheduler {
                 $payload  = $this->get_feed_settings_payload( $feed_id, $current_batch, $total_batches, $per_batch, $offset );
                 $merchant = Rex_Product_Feed_Factory::build( $payload, true );
                 $merchant->make_feed();
-
                 if( empty( $scheduled_actions ) ) {
                     Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'completed' );
                 }
@@ -298,6 +297,7 @@ class Rex_Feed_Scheduler {
     public function schedule_merchant_single_batch_object( $feed_ids, $update_single = false ) {
         if( !is_wp_error( $feed_ids ) && !empty( $feed_ids ) ) {
             $products_info = wpfm_get_cached_data( 'cron_products_info' );
+
             if( is_wp_error( $products_info ) || !is_array( $products_info ) || empty( $products_info ) ) {
                 try {
                     $products_info = Rex_Product_Feed_Ajax::get_product_number( [ 'feed_id' => '' ] );
@@ -318,7 +318,9 @@ class Rex_Feed_Scheduler {
             if( $per_batch && $total_batches ) {
                 foreach( $feed_ids as $feed_id ) {
                     $update_on_product_change = get_post_meta( $feed_id, '_rex_feed_update_on_product_change', true ) ?: get_post_meta( $feed_id, 'rex_feed_update_on_product_change', true );
-                    if( $update_single || ( 'yes' === $update_on_product_change && get_option( 'rex_feed_wc_product_updated', false ) ) || ( !$update_on_product_change || 'no' === $update_on_product_change ) ) {
+                    $is_triggered_by_product_change = ( 'yes' === $update_on_product_change && get_option( 'rex_feed_wc_product_updated', false ) );
+
+                    if( $update_single || $is_triggered_by_product_change || ( !$update_on_product_change || 'no' === $update_on_product_change ) ) {
                         $is_custom_executable = '';
                         if( !$update_single ) {
                             $schedule             = $this->get_feed_schedule_settings( $feed_id );
@@ -327,6 +329,7 @@ class Rex_Feed_Scheduler {
                         }
 
                         if( $update_single || $is_custom_executable || in_array( $schedule, [ 'hourly', 'daily', 'weekly', 'custom' ] ) ) {
+                            update_post_meta( $feed_id, '_generation_start_time', time() );
                             $offset = 0;
                             for( $current_batch = 1; $current_batch <= $total_batches; $current_batch++ ) {
                                 $data         = [];
@@ -617,3 +620,4 @@ class Rex_Feed_Scheduler {
         return $feed_schedule;
     }
 }
+

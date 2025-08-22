@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: WooCommerce Product Feed Manager\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-06-04 07:18+0000\n"
-"PO-Revision-Date: 2020-06-04 13:31+0000\n"
+"PO-Revision-Date: 2025-08-20 09:13+0000\n"
 "Last-Translator: \n"
 "Language-Team: Czech\n"
 "Language: cs_CZ\n"
@@ -13,959 +13,2000 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.4.0; wp-5.4.1"
+"X-Loco-Version: 2.8.0; wp-6.8.2; php-8.3.8"
 
-#: admin/class-rex-google-merchant-content-api.php:96
-#: admin/class-rex-google-merchant-content-api.php:135
-msgid "You are not authorized."
-msgstr "Nejste oprávněni."
+#: admin/partials/on_boarding.php:29
+msgid "1 Hour"
+msgstr "1 hodina"
 
-#: admin/class-rex-google-merchant-content-api.php:97
-#: admin/class-rex-google-merchant-content-api.php:136
+#: admin/partials/on_boarding.php:34
+msgid "1 Week"
+msgstr "1 týden"
+
+#: admin/partials/on_boarding.php:32
+msgid "12 Hours"
+msgstr "12 hodin"
+
+#: admin/partials/on_boarding.php:33
+msgid "24 Hours"
+msgstr "24 hodin"
+
+#: admin/partials/on_boarding.php:30
+msgid "3 Hours"
+msgstr "3 hodiny"
+
+#: admin/partials/on_boarding.php:31
+msgid "6 Hours"
+msgstr "6 hodin"
+
+#: admin/partials/setup-wizard.php:57
+msgid "A Complete Guide To Facebook"
+msgstr "Kompletní průvodce Facebookem"
+
+#: admin/partials/setup-wizard.php:22
+msgid "A Complete Guide To Google Shopping"
+msgstr "Kompletní průvodce nákupem Google"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:21
+#| msgid "Access to a elite support team."
+msgid "Access to an Elite Support Team"
+msgstr "Přístup k elitnímu týmu podpory"
+
+#: admin/partials/rex-feed-google-merchant.php:165
+msgid ""
+"Access token has expired. Please, authenticate again if you want to submit a "
+"completely new feed to Google Merchant Center."
+msgstr ""
+"Platnost přístupového tokenu vypršela. Pokud chcete odeslat zcela nový zdroj "
+"do Google Merchant Center, ověřte se znovu."
+
+#: admin/partials/feed-config-metabox-display-filter.php:56
+#: admin/partials/feed-config-metabox-display.php:37
+msgid "Action"
+msgstr "úkon"
+
+#: admin/partials/rex-feed-product-filter-header-section.php:41
+msgid "Add Custom Filter"
+msgstr "Přidat vlastní filtr"
+
+#: admin/partials/on_boarding.php:354
+#| msgid ""
+#| "Add Detailed Product Attributes ( Size, Color, Pattern, Material, Age "
+#| "group, Gender, Additional info ) to product"
+msgid ""
+"Add Detailed Product Attributes ( Size, Color, Pattern, Material, Age group, "
+"Gender ) to product"
+msgstr ""
+"Přidejte do produktu podrobné atributy produktu (velikost, barva, vzor, "
+"materiál, věková skupina, pohlaví)"
+
+#: admin/partials/rex-feed-product-filter-header-section.php:32
+msgid "Add Feed Rule"
+msgstr "Přidat pravidlo kanálu"
+
+#: admin/class-rex-product-feed-admin.php:319
+msgid "Add More Attributes To Your Feed"
+msgstr "Přidejte do svého zdroje další atributy"
+
+#: admin/partials/rex-feed-config-table.php:51
+msgid "Add New Attribute"
+msgstr "Přidat nový atribut"
+
+#: admin/partials/category_mapping.php:21
+msgid "Add New Category Map"
+msgstr "Přidat novou mapu kategorií"
+
+#: admin/class-rex-product-feed-cpt.php:45
+msgid "Add New Feed"
+msgstr "Přidat nový zdroj"
+
+#: admin/class-rex-product-feed-cpt.php:46
+msgid "Add New Product Feed"
+msgstr "Přidat nový zdroj produktu"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:258
+msgid "Add Two Decimal Points"
+msgstr "Přidejte dva desetinné body"
+
+#: admin/partials/on_boarding.php:325
+#| msgid ""
+#| "Add Unique Product Identifiers ( Brand, GTIN, MPN, UPC, EAN, JAN, ISBN, "
+#| "ITF14, Offer price, Offer effective date ) to product"
+msgid ""
+"Add Unique Product Identifiers ( Brand, GTIN, MPN, UPC, EAN, JAN, ISBN, "
+"ITF14, Offer price, Offer effective date, Additional info ) to product"
+msgstr ""
+"Přidejte do produktu jedinečné identifikátory produktu ( Brand, GTIN, MPN, "
+"UPC, EAN, Jan, ISBN, ITF14, Nabídková cena, datum účinnosti, další informace "
+") do produktu"
+
+#: admin/partials/rex-feed-product-settings-section.php:413
+msgid "Aelia Currency"
+msgstr "měna Aelia"
+
+#: admin/class-rex-product-feed-metabox.php:225
+msgid "All Featured Products"
+msgstr "Všechny doporučené produkty"
+
+#: admin/class-rex-product-feed-cpt.php:43
+msgid "All Product Feeds"
+msgstr "Všechny zdroje produktů"
+
+#: admin/class-rex-product-feed-metabox.php:224
+msgid "All Published Products"
+msgstr "Všechny zveřejněné produkty"
+
+#: admin/partials/rex-feed-filter-description-body.php:16
+msgid "All the published products will be included in the feed."
+msgstr "Všechny publikované produkty budou zahrnuty do zdroje."
+
+#: admin/partials/on_boarding.php:403
+msgid "Allow Private Products"
+msgstr "Povolit soukromé produkty"
+
+#: admin/partials/rex-feed-review-request-body-content.php:42
+msgid "Already Rated"
+msgstr "Již hodnoceno"
+
+#: admin/class-rex-product-feed-system-status.php:123
+msgid "An error occurred, please try again."
+msgstr "Došlo k chybě, zkuste to prosím znovu."
+
+#: admin/partials/rex-feed-product-settings-section.php:480
+#| msgid "Analytics parameters"
+msgid "Analytics Parameters "
+msgstr "Analytické parametry"
+
+#: admin/partials/rex-product-feed-feed-filters-body.php:28
+#: admin/partials/rex-product-feed-feed-filters-body.php:57
+#: admin/partials/rex-product-feed-feed-filters-body.php:90
+#: admin/partials/rex-product-feed-feed-filters-body.php:120
+msgid "AND"
+msgstr "a"
+
+#: admin/class-rex-product-feed-actions.php:326
+msgid "and Regenerate"
+msgstr "a regenerovat"
+
+#: admin/class-rex-product-feed-actions.php:341
+msgid "and we will assist you."
+msgstr "a my vám pomůžeme."
+
+#: admin/class-rex-google-merchant-content-api.php:205
+#: admin/partials/rex-feed-google-merchant.php:25
+msgid "API Method (Require authorization)"
+msgstr "Metoda API (vyžadovat autorizaci)"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:16
+msgid "Apply Feed Rules"
+msgstr "Aplikujte pravidla podávání"
+
+#: admin/partials/feed-config-metabox-display.php:28
+msgid "Assigned Values"
+msgstr "Přiřazené hodnoty"
+
+#: admin/class-rex-product-feed-actions.php:345
+msgid ""
+"Attach your temporary feed link, and screenshots of your feed attributes, "
+"feed settings, and the feed filter section in the email."
+msgstr ""
+"Připojte svůj dočasný odkaz na zdroj a snímky obrazovky atributů zdroje, "
+"nastavení zdroje a sekci filtru kanálu v e-mailu."
+
+#: admin/feed-templates/abstract-rex-feed-template.php:201
+#| msgid "Attributes"
+msgid "Attribute"
+msgstr "vlastnost"
+
+#: admin/partials/feed-config-metabox-display.php:27
+msgid "Attribute Type"
+msgstr "Typ atributu"
+
+#: admin/class-rex-google-merchant-content-api.php:148
+#: admin/partials/rex-feed-google-merchant.php:166
+msgid "Authenticate"
+msgstr "ověřit"
+
+#: admin/class-rex-google-merchant-content-api.php:177
+msgid ""
+"Authorize with GMC to send a new feed for the first time with API Method"
+msgstr "povolit u GMC k prvnímu odeslání nového zdroje pomocí metody API"
+
+#: admin/partials/rex-feed-product-settings-section.php:21
+msgid "Auto-Generate Your Feed"
+msgstr "Automaticky vygenerujte svůj zdroj"
+
+#: admin/partials/on_boarding.php:515
+msgid "Available Merchants"
+msgstr "Dostupní obchodníci"
+
+#: admin/partials/rex-feed-review-request-body-content.php:19
+msgid "Awesome, you've generated the feed successfully!"
+msgstr "Skvělé, vygenerovali jste zdroj úspěšně!"
+
+#: admin/partials/setup-wizard.php:281
+msgid "Boost your ROI with the largest marketplaces"
+msgstr "Zvyšte svou návratnost investic s největšími tržišti"
+
+#: admin/partials/rex-feed-product-settings-section.php:543
+msgid "Campaign"
+msgstr "tažení"
+
+#: admin/partials/rex-feed-product-settings-section.php:570
+#| msgid "Campaign content"
+msgid "Campaign Content"
+msgstr "obsah kampaně"
+
+#: admin/partials/rex-feed-product-settings-section.php:557
+#| msgid "Campaign term"
+msgid "Campaign Term"
+msgstr "volební období"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:40
+msgid "Cancel"
+msgstr "anulovat"
+
+#: admin/class-rex-product-feed-metabox.php:226
+#| msgid "Category Filter"
+msgid "Category Filters"
+msgstr "Filtry kategorií"
+
+#: admin/class-rex-product-feed-admin.php:390
+#: admin/class-rex-product-feed-admin.php:391
+msgid "Category Mapping"
+msgstr "mapování kategorií"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:253
+msgid "CDATA"
+msgstr "cdata"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:254
+msgid "CDATA without space"
+msgstr "CDATA bez místa"
+
+#: admin/partials/feed-config-metabox-display.php:31
+msgid "char Limit"
+msgstr "ochranná omezení"
+
+#: admin/partials/rex-feed-google-merchant.php:26
+msgid "Check Abbreviation Lists"
+msgstr "Zkontrolujte seznamy zkratek"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:24
+#: admin/partials/rex-feed-product-taxonomies-section.php:74
+msgid "Check All"
+msgstr "zkontrolovat vše"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:152
+msgid ""
+"Choose option if you want to include/exclude the old price attribute from "
+"the feed if it is less/equal than/to the current price."
+msgstr ""
+"Zvolte možnost, pokud chcete ze zdroje zahrnout/vyloučit starý atribut ceny, "
+"pokud je menší/stejný než/k aktuální ceně."
+
+#: admin/class-rex-product-feed-actions.php:324
+#: admin/partials/on_boarding.php:195
+#| msgid "Clear batch"
+msgid "Clear Batch"
+msgstr "jasná dávka"
+
+#: admin/partials/on_boarding.php:192
+msgid "Clear Batch (Remove all)"
+msgstr "Vymazat dávku (odstranit vše)"
+
+#: admin/partials/feed-config-metabox-display.php:34
+msgid "Click Here To Edit Attributes"
+msgstr "Klikněte sem pro úpravu atributů"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:48
+msgid "Click Here To Start"
+msgstr "Klikněte zde pro začátek"
+
+#: admin/class-rex-product-feed-admin.php:339
+msgid ""
+"Click on the Feed Settings button to: %s - Schedule Feed Update %s - Include "
+"Out of Stock Products %s - Include Product with No Price %s - Include/ "
+"Exclude Product Type %s - Skip Products/ Attributes With Empty Values %s - "
+"Track Campaign With UTM Parameters"
+msgstr ""
+"Klikněte na tlačítko Nastavení kanálu pro: %s – Plán aktualizace zdroje %s – "
+"Zahrnout produkty mimo sklad %s – Zahrnout produkt bez ceny %s – "
+"Zahrnout/Vyloučit typ produktu %s – Přeskočit produkty/atributy s prázdnými "
+"hodnotami %s – Sledovat kampaň s parametry UTM"
+
+#: admin/class-rex-product-feed-admin.php:350
+msgid ""
+"Click on the publish button to start generating the feed. %s - Once you "
+"click on the Publish button, this tour will end. %s - You will see a feed "
+"loading bar once the feed generation starts. %s - Once the feed generation "
+"is completed, you can view or download the generated feed. %s - Once the "
+"feed is generated, you can click on the View/ Download button to view the "
+"feed or to download the generated feed"
+msgstr ""
+"Kliknutím na tlačítko Publikovat začněte generovat zdroj. %s – Jakmile "
+"kliknete na tlačítko Publikovat, tato prohlídka skončí. %s - Jakmile začne "
+"generování podávání, uvidíte načítání posuvu. %s – Po dokončení generování "
+"kanálu můžete zobrazit nebo stáhnout vygenerovaný zdroj. %s – Jakmile je "
+"zdroj vygenerován, můžete kliknout na tlačítko Zobrazit/stáhnout a zobrazit "
+"zdroj nebo stáhnout vygenerovaný zdroj"
+
+#: admin/class-rex-product-feed-admin.php:328
+msgid ""
+"Click on this Product Filter button to: %s - Use All Featured Products "
+"Filter %s - Category Filter %s - Tag Filter %s - Custom Filter %s - Product "
+"Filter (Pro) %s - Product Rule (Pro)"
+msgstr ""
+"Klikněte na toto tlačítko filtru produktu an: %s - Použijte všechny "
+"doporučené produkty Filtr %s - Filtr kategorie %s - Filtr značek %s - "
+"Vlastní filtr %s - Filtr produktu (Pro) %s - Pravidlo produktu (Pro)"
+
+#: admin/partials/merchant_settings.php:59
+msgid "Client ID#: "
+msgstr "ID klienta:"
+
+#: admin/partials/merchant_settings.php:63
+msgid "Client Secret: "
+msgstr "Tajemství klienta:"
+
+#: admin/class-rex-product-feed-admin.php:344
+msgid "Close The Settings Drawer"
+msgstr "Zavřete zásuvku Nastavení"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:68
+msgid "Comma (,)"
+msgstr "Čárka (,)"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:166
+msgid "Company Name"
+msgstr "název společnosti"
+
+#: admin/feed/abstract-rex-product-feed-generator.php:1280
+msgid "Completed feed generation job."
+msgstr "Dokončená úloha generování krmiva."
+
+#: admin/partials/feed-config-metabox-display-filter.php:44
+msgid "Condition"
+msgstr "stav"
+
+#: admin/partials/rex-feed-google-merchant.php:169
+msgid "Configure"
+msgstr "konfigurovat"
+
+#: admin/class-rex-product-feed-admin.php:265
+msgid "Configure Category Mapping"
+msgstr "Nakonfigurujte mapování kategorií"
+
+#: admin/feed-filter/class-rex-product-filter.php:204
+msgid "Contains"
+msgstr "obsahuje"
+
+#: admin/partials/on_boarding.php:101 admin/partials/on_boarding.php:171
+msgid "Controls"
+msgstr "ovládání"
+
+#: admin/partials/on_boarding.php:605
+msgid "Copy log"
+msgstr "kopírovat protokol"
+
+#: admin/partials/rex-feed-system-status-markups.php:27
+msgid "Copy Status"
+msgstr "Stav kopie"
+
+#: admin/partials/rex-feed-ebay-seller-sections.php:29
+#: admin/partials/rex-feed-ebay-seller-sections.php:32
+#: admin/partials/rex-feed-product-settings-section.php:73
+msgid "Country"
+msgstr "vlast"
+
+#: admin/partials/setup-wizard.php:145
+msgid "Create Feed"
+msgstr "vytvořit krmivo"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:42
+msgid "CSV"
+msgstr "csv"
+
+#: admin/class-rex-product-feed-admin.php:723
+msgid "Custom field deleted."
+msgstr "Vlastní pole odstraněno."
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:14
+msgid "Custom Field Support - Brand, GTIN, MPN, etc."
+msgstr "Vlastní podpora pole - Brand, GTIN, MPN atd."
+
+#: admin/class-rex-product-feed-admin.php:722
+msgid "Custom field updated."
+msgstr "Vlastní pole aktualizováno."
+
+#: admin/partials/feed-config-metabox-display-filter.php:25
+msgid "Custom Filter"
+msgstr "vlastní filtr"
+
+#: admin/class-rex-product-feed-metabox.php:195
+msgid "Daily"
+msgstr "každodenní"
+
+#: admin/class-rex-product-feed-actions.php:509
+msgid "Dashboard"
+msgstr "palubní deska"
+
+#: admin/class-rex-product-feed-cpt.php:95
+msgid "Date"
+msgstr "datum"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:259
+msgid "Decimal Separator - Comma (,)"
+msgstr "Desetinný oddělovač - čárka (,)"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:256
+msgid "Decode URL"
+msgstr "DECODE URL"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:240
+msgid "Default"
+msgstr "výchozí"
+
+#: admin/class-rex-product-feed-admin.php:376
+#: admin/partials/category_mapping.php:67
+msgid "Delete"
+msgstr "zrušit"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:15
+msgid "Detailed Product Attributes Support  - Size, Gender, Material, etc."
+msgstr ""
+"Podpora podrobných atributů produktu – velikost, pohlaví, materiál atd."
+
+#: admin/class-rex-google-merchant-content-api.php:195
+#: admin/partials/rex-feed-google-merchant.php:24
+msgid "Direct Upload Method (No need for authorization)"
+msgstr "Metoda přímého nahrávání (není potřeba autorizace)"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:35
+msgid "Do you still want to continue?"
+msgstr "Stále chcete pokračovat?"
+
+#: admin/partials/rex-feed-filter-settings-body-content.php:20
+#: admin/partials/setup-wizard.php:292
+msgid "Documentation"
+msgstr "dokumentace"
+
+#: admin/feed-filter/class-rex-product-filter.php:205
+msgid "Does not contain"
+msgstr "neobsahuje"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:215
+msgid ""
+"Dollar rate, specify the real value if the prices in the product feed are "
+"given in dollars. If the prices are given in hryvnias, you can leave it "
+"empty."
+msgstr ""
+"Dolarová sazba, zadejte skutečnou hodnotu, pokud jsou ceny v krmivu produktu "
+"uvedeny v dolarech. Pokud jsou ceny uvedeny v hryvnias, můžete jej nechat "
+"prázdný."
+
+#: admin/class-rex-product-feed-cpt.php:173
+msgid "Download"
+msgstr "stáhnout"
+
+#: admin/partials/rex-feed-feed-file-section-content.php:24
+msgid "Download Feed"
+msgstr "Stáhnout Feed"
+
+#: admin/partials/setup-wizard.php:258
+msgid "Dynamic Pricing feature to manipulate your product pricing"
+msgstr "Funkce dynamického cen pro manipulaci s cenou vašich produktů"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:249
+msgid "Each Word Uppercase"
+msgstr "každé slovo velké"
+
+#: admin/class-rex-feed-attributes.php:665
+msgid "EAN"
+msgstr "eean"
+
+#: admin/partials/rex-feed-ebay-seller-sections.php:51
+#: admin/partials/rex-feed-ebay-seller-sections.php:55
+msgid "eBaySeller Currency"
+msgstr "měna eBaySeller"
+
+#: admin/partials/rex-feed-ebay-seller-sections.php:16
+#: admin/partials/rex-feed-ebay-seller-sections.php:19
+msgid "eBaySeller Site ID"
+msgstr "ID webu eBaySeller"
+
+#: admin/class-rex-product-feed-cpt.php:47
+msgid "Edit Product Feed"
+msgstr "Upravit zdroj produktu"
+
+#: admin/partials/on_boarding.php:454
+msgid "Enable Facebook Pixel"
+msgstr "Povolit Facebook Pixel"
+
+#: admin/partials/on_boarding.php:257
+msgid "Enable log"
+msgstr "Povolit protokol"
+
+#: admin/partials/rex-feed-product-settings-section.php:186
+msgid "Enable this option to exclude invisible/hidden products from your feed "
+msgstr ""
+"Povolte tuto možnost, chcete-li ze svého zdroje vyloučit neviditelné/skryté "
+"produkty"
+
+#: admin/partials/rex-feed-product-settings-section.php:243
+msgid "Enable this option to include grouped products in your feed"
+msgstr "Povolte tuto možnost, aby do vašeho zdroje zahrnul seskupené produkty"
+
+#: admin/class-rex-product-data-retriever.php:202
+msgid "End product processing."
+msgstr "zpracování konečného produktu."
+
+#: admin/class-rex-product-feed-rollback.php:72
+msgid ""
+"Error occurred, The version selected is invalid. Try selecting different "
+"version."
+msgstr "došlo k chybě, vybraná verze je neplatná. Zkuste vybrat jinou verzi."
+
+#: admin/partials/rex-feed-product-settings-section.php:212
+#: admin/partials/rex-feed-product-settings-section.php:269
+msgid "Example:"
+msgstr "Příklad:"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:212
+msgid "Exchange Rate"
+msgstr "kurz"
+
+#: admin/feed-filter/class-rex-product-filter.php:226
+#: admin/partials/rex-feed-merchant-dropdown-section.php:94
+#: admin/partials/rex-feed-merchant-dropdown-section.php:160
+msgid "Exclude"
+msgstr "vyloučit"
+
+#: admin/partials/rex-feed-product-settings-section.php:183
+#| msgid "Exclude invisible/hidden products"
+msgid "Exclude Invisible/Hidden Products"
+msgstr "vyloučit neviditelné/skryté produkty"
+
+#: admin/partials/on_boarding.php:382
+msgid "Exclude TAX from structured data prices"
+msgstr "vyloučit daň ze strukturovaných dat"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:20
+#| msgid "Ability To Exclude Tax From Structured Data Prices"
+msgid "Exclude Tax From Structured Data Prices"
+msgstr "vyloučit daň ze strukturovaných dat"
+
+#: admin/partials/on_boarding.php:475
+#| msgid "Facebook Pixel id"
+msgid "Facebook Pixel ID"
+msgstr "Facebook Pixel ID"
+
+#: admin/class-rex-product-feed-admin.php:308
+msgid "Feed Attributes & Product Data Mapping"
+msgstr "Atributy kanálu a mapování produktových dat"
+
+#: admin/class-rex-product-feed-cpt.php:89
+msgid "Feed File"
+msgstr "složkový soubor"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:18
+msgid "Feed Merchant"
+msgstr "obchodník s krmivy"
+
+#: admin/class-rex-product-feed-admin.php:337
+msgid "Feed Settings Option"
+msgstr "Možnost Nastavení zdroje"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:33
+msgid "Feed Type"
+msgstr "Typ krmiva"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:16
+msgid "Filter feed by WooCommerce product categories"
+msgstr "Filtrovat zdroj podle kategorií produktů WooCommerce"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:66
+msgid "Filter feed by WooCommerce tags "
+msgstr "Filtrovat zdroj pomocí značek WooCommerce"
+
+#: admin/partials/rex-feed-filter-products-dropdown-section.php:17
+msgid "Filter Products"
+msgstr "filtrové produkty"
+
+#: admin/partials/feed-config-metabox-display-filter.php:28
+msgid "Filter your feed products with your preferred condition"
+msgstr "Filtrujte své krmné produkty podle preferovaného stavu"
+
+#: admin/class-rex-product-feed-admin.php:353
+msgid "Finish Tour"
+msgstr "dokončit prohlídku"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:184
+msgid "Firm ID"
+msgstr "pevný ID"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:198
+msgid "Firm Name"
+msgstr "název firmy"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:248
+msgid "First Word Uppercase"
+msgstr "První slovo velké"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:19
+#| msgid "Fix WooCommerce's (JSON-LD) structure data bug"
+msgid "Fix WooCommerce's (JSON-LD) Structure Data Bug"
+msgstr "Opravte chybu dat struktury WooCommerce (JSON-LD)."
+
+#: admin/partials/on_boarding.php:569
+#| msgid "General"
+msgid "Generate"
+msgstr "vyrábě"
+
+#. Description of the plugin
+msgid ""
+"Generate and maintain your WooCommerce product feed for Google Shopping, "
+"Social Catalogs, Yandex, Idealo, Vivino, Pinterest, eBay MIP, BestPrice, "
+"Skroutz, Fruugo, Bonanza & 180+ Merchants."
+msgstr ""
+"Vygenerujte a udržujte svůj zdroj produktů WooCommerce pro Nákupy Google, "
+"sociální katalogy, Yandex, Idealo, Vivino, Pinterest, eBay MIP, BestPrice, "
+"Skroutz, Fruugo, Bonanza & 180+ obchodníků."
+
+#: admin/partials/setup-wizard.php:13
+msgid "Generate Feed"
+msgstr "generovat krmivo"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:13
+msgid "Generate Unlimited Products (Free version is limited to 200 products)"
+msgstr ""
+"Generovat neomezené produkty (bezplatná verze je omezena na 200 produktů)"
+
+#: admin/partials/on_boarding.php:495
+msgid "Get email notification if your feed is not generated properly"
+msgstr "Pokud váš zdroj není vygenerován správně, získejte upozornění e-mailem"
+
+#: admin/partials/setup-wizard.php:237
+msgid "Get Pro Now"
+msgstr "Získejte pro"
+
+#: admin/class-rex-product-feed-admin.php:435
+#: admin/class-rex-product-feed-admin.php:436
+msgid "Get Started"
+msgstr "začít"
+
+#: admin/class-rex-product-feed-admin.php:300
+msgid "Give A Name To This Feed"
+msgstr "Dejte jméno tomuto zdroji"
+
+#: admin/class-rex-product-feed-actions.php:512
+#: admin/class-rex-product-feed-admin.php:425
+msgid "Go Pro"
+msgstr "jít pro"
+
+#: admin/partials/setup-wizard.php:127
+msgid "Go to Plugin Dashboard"
+msgstr "Přejděte na řídicí panel pluginu"
+
+#: admin/partials/merchant_settings.php:54
+msgid "Google Merchant Center Authorization"
+msgstr "Autorizace centra Google Merchant"
+
+#: admin/class-rex-product-feed-admin.php:400
+#: admin/class-rex-product-feed-admin.php:401
+msgid "Google Merchant Settings"
+msgstr "Nastavení obchodníka Google"
+
+#: admin/feed-filter/class-rex-product-filter.php:208
+msgid "Greater than"
+msgstr "větší než"
+
+#: admin/feed-filter/class-rex-product-filter.php:209
+msgid "Greater than or equal to"
+msgstr "větší nebo rovné"
+
+#: admin/class-rex-product-feed-cpt.php:201
+msgid "Group products : "
+msgstr "Skupinové produkty:"
+
+#: admin/class-rex-product-feed-admin.php:305
+msgid ""
+"Here, you can change the merchant/marketplace and choose the file type when "
+"the product feed is generated."
+msgstr ""
+"Zde můžete změnit obchodníka/tržiště a vybrat typ souboru, když je generován "
+"zdroj produktu."
+
+#: admin/partials/on_boarding.php:273
+msgid "Hide Character Limit Column"
+msgstr "Skrýt sloupec limitu znaků"
+
+#: admin/class-rex-product-feed-metabox.php:194
+#: admin/class-rex-product-feed-metabox.php:383
+msgid "Hourly"
+msgstr "hodinový"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:30
+msgid "How about we guide you on how to create your first product feed?"
+msgstr "Co kdybychom vás nasměrovali, jak vytvořit váš první produktový zdroj?"
+
+#: admin/partials/setup-wizard.php:30
+msgid "How to auto-sync product feed to Google Merchant Shop"
+msgstr "Jak automaticky synchronizovat zdroj produktu do Google Merchant Shop"
+
+#: admin/partials/setup-wizard.php:101
+msgid "How to generate WooCommerce product feed for Ceneo"
+msgstr "Jak vygenerovat zdroj produktu WooCommerce pro Ceneo"
+
+#: admin/partials/setup-wizard.php:61
+msgid "How to generate WooCommerce product feed for Facebook"
+msgstr "Jak vygenerovat zdroj produktu WooCommerce pro Facebook"
+
+#: admin/partials/setup-wizard.php:83
+msgid "How to generate WooCommerce product feed for Favi"
+msgstr "Jak vygenerovat zdroj produktu WooCommerce pro FAVI"
+
+#: admin/partials/setup-wizard.php:74
+msgid "How to generate WooCommerce product feed for Fruugo"
+msgstr "jak vygenerovat zdroj produktu woocommerce pro fruugo"
+
+#: admin/partials/setup-wizard.php:48
+msgid "How to generate WooCommerce product feed for Glami"
+msgstr "Jak vygenerovat zdroj produktu WooCommerce pro Glami"
+
+#: admin/partials/setup-wizard.php:26
+msgid "How to generate WooCommerce product feed for Google"
+msgstr "Jak vygenerovat zdroj produktu WooCommerce pro Google"
+
+#: admin/partials/setup-wizard.php:110
+msgid "How to generate WooCommerce product feed for Heureka"
+msgstr "Jak vygenerovat zdroj produktu WooCommerce pro Heureka"
+
+#: admin/partials/setup-wizard.php:39
+msgid "How to generate WooCommerce product feed for Vivino"
+msgstr "Jak vygenerovat zdroj produktu WooCommerce pro Vivino"
+
+#: admin/partials/setup-wizard.php:92
+msgid "How to List WooCommerce Store Products On Idealo"
+msgstr "Jak uvést produkty WooCommerce Store na Ideo"
+
+#: admin/partials/setup-wizard.php:65
+msgid "How to upload your WooCommerce products on the Facebook store"
+msgstr "Jak nahrát své produkty WooCommerce do obchodu Facebook"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:243
+msgid "HTML Entities"
+msgstr "HTML entity"
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+msgid "https://rextheme.com"
+msgstr "https://rextheme.com"
+
+#: admin/partials/rex-feed-product-settings-section.php:560
+msgid "Identify the paid keywords"
+msgstr "Identifikujte placená klíčová slova"
+
+#: admin/partials/feed-config-metabox-display-filter.php:40
+msgid "If"
+msgstr "jestli"
+
+#: admin/class-rex-product-feed-actions.php:339
+msgid "If these don't work, please reach out to us at"
+msgstr "Pokud tyto nefungují, kontaktujte nás na adrese"
+
+#: admin/feed-filter/class-rex-product-filter.php:225
+#: admin/partials/rex-feed-merchant-dropdown-section.php:93
+#: admin/partials/rex-feed-merchant-dropdown-section.php:159
+msgid "Include"
+msgstr "zahrnout"
+
+#: admin/partials/setup-wizard.php:250
+msgid ""
+"Include all the required attributes in your feed (GTIN, MPN, EAN, UPC, etc)"
+msgstr ""
+"Zahrňte do svého zdroje všechny požadované atributy (GTIN, MPN, EAN, UPC atd."
+")"
+
+#: admin/partials/rex-feed-product-settings-section.php:267
+msgid ""
+"Include all the Variable Products Variations in your feed (these are only "
+"the product variations)"
+msgstr ""
+"Zahrňte do svého zdroje všechny variabilní varianty produktů (toto jsou "
+"pouze varianty produktů)"
+
+#: admin/partials/rex-feed-product-settings-section.php:262
+msgid "Include All Variable Products Variations"
+msgstr "Zahrňte všechny variabilní varianty produktů"
+
+#: admin/partials/setup-wizard.php:254
+msgid ""
+"Include detailed product attributes (Size, Pattern, Material, Gender, Color, "
+"etc)  "
+msgstr ""
+"Zahrňte podrobné atributy produktu (velikost, vzor, materiál, pohlaví, barva "
+"atd.)"
+
+#: admin/partials/rex-feed-product-settings-section.php:240
+msgid "Include Grouped Products"
+msgstr "Zahrnout seskupené produkty"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:86
+msgid ""
+"Include or exclude XML file header attributes (title, link, description, "
+"datetime)"
+msgstr ""
+"Zahrnout nebo vyloučit atributy záhlaví souboru XML (název, odkaz, popis, "
+"datum a čas)"
+
+#: admin/partials/rex-feed-product-settings-section.php:112
+msgid "Include Out of Stock Products"
+msgstr "Zahrnout produkty mimo sklad"
+
+#: admin/partials/rex-feed-product-settings-section.php:135
+msgid "Include Product with No Price"
+msgstr "Zahrňte produkt bez ceny"
+
+#: admin/partials/rex-feed-product-settings-section.php:210
+msgid "Include the variation name in the product title"
+msgstr "Uveďte název varianty v názvu produktu"
+
+#: admin/partials/rex-feed-product-settings-section.php:161
+#: admin/partials/rex-feed-product-settings-section.php:164
+msgid "Include Variable Parent Product (No Variations)"
+msgstr "Zahrnout variabilní nadřazený produkt (žádné odchylky)"
+
+#: admin/partials/rex-feed-product-settings-section.php:205
+msgid "Include Variation Name In The Product Title"
+msgstr "Uveďte název varianty v názvu produktu"
+
+#: admin/partials/on_boarding.php:428
+#| msgid ""
+#| "Increase the number of products that will be approved in Google's "
+#| "Merchant Center:\n"
+#| "                                           This option will fix "
+#| "WooCommerce's (JSON-LD) structured data bug and add extra structured data "
+#| "elements to your pages"
+msgid ""
+"Increase the number of products that will be approved in Google's Merchant "
+"Center: This option will fix WooCommerce's (JSON-LD) structured data bug and "
+"add extra structured data elements to your pages"
+msgstr ""
+"Zvyšte počet produktů, které budou schváleny v Merchant Center společnosti "
+"Google: Tato možnost opraví chybu strukturovaných dat WooCommerce (JSON-LD) "
+"a přidá na vaše stránky další strukturované datové prvky"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:244
+msgid "Integer"
+msgstr "celé číslo"
+
+#: admin/class-rex-product-feed-factory.php:316
+msgid "Invalid Merchant."
+msgstr "neplatný obchodník."
+
+#: admin/feed-filter/class-rex-product-filter.php:206
+msgid "Is equal to"
+msgstr "je roven"
+
+#: admin/feed-filter/class-rex-product-filter.php:207
+msgid "Is not equal to"
+msgstr "není rovno"
+
+#: rex-product-feed.php:190
+msgid ""
+"It looks like you have an older version of %1$s%2$s. Please update %1$s%2$s "
+"to the latest version to use Pro features properly."
+msgstr ""
+"Vypadá to, že máte starší verzi %1$s%2$s. Aktualizujte prosím %1$s%2$s na "
+"nejnovější verzi, abyste mohli správně používat funkce Pro."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:128
+msgid "Item Wrapper"
+msgstr "obal zboží"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:100
+msgid "Items Wrapper"
+msgstr "Obal položek"
+
+#: admin/class-rex-product-feed-cpt.php:215
+msgid "Last Updated: "
+msgstr "Poslední aktualizace:"
+
+#: admin/partials/rex-feed-product-settings-section.php:24
+#: admin/partials/rex-feed-product-settings-section.php:77
+#: admin/partials/rex-feed-product-settings-section.php:186
+#: admin/partials/rex-feed-product-settings-section.php:220
+#: admin/partials/rex-feed-product-settings-section.php:480
+#: admin/partials/rex-feed-product-taxonomies-section.php:28
+#: admin/partials/rex-feed-product-taxonomies-section.php:78
+msgid "Learn How"
+msgstr "naučit se jak"
+
+#: admin/feed-filter/class-rex-product-filter.php:210
+msgid "Less than"
+msgstr "méně než"
+
+#: admin/feed-filter/class-rex-product-filter.php:211
+msgid "Less than or equal to"
+msgstr "menší nebo rovný"
+
+#: admin/partials/on_boarding.php:165
+msgid "Logs"
+msgstr "kláda"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:18
+msgid "Manipulate Product Pricing"
+msgstr "Manipulovat s cenami produktů"
+
+#: admin/partials/category_mapping.php:25
+msgid "Mapper Name"
+msgstr "Jméno mapovače"
+
+#: admin/partials/rex-feed-product-settings-section.php:533
+msgid "Marketing medium: (e.g. cpc, banner, email)"
+msgstr "Marketingové médium: (např. CPC, banner, e-mail)"
+
+#: admin/partials/rex-feed-product-settings-section.php:530
+msgid "Medium"
+msgstr "prostředek"
+
+#: admin/class-rex-product-feed-cpt.php:88
+msgid "Merchant"
+msgstr "obchodník"
+
+#: admin/partials/merchant_settings.php:67
+msgid "Merchant ID# : "
+msgstr "ID obchodníka#:"
+
+#: admin/partials/on_boarding.php:133
+msgid "Merchants"
+msgstr "obchodníci"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:17
+msgid "Merge Multiple Attributes Values Together"
+msgstr "Sloučit hodnoty více atributů dohromady"
+
+#: admin/class-rex-product-feed-metabox.php:381
+msgid "Monthly"
+msgstr "měsíčně"
+
+#: admin/class-rex-google-merchant-content-api.php:157
+#: admin/class-rex-google-merchant-content-api.php:267
+msgid ""
+"NB: This session expiration is set by Google. You only need to authorize "
+"while submitting a new feed. You can ignore this if you've already submitted "
+"your feed to Google."
+msgstr ""
+"Pozn.: Vypršení tohoto relace nastavuje Google. Při odesílání nového zdroje "
+"musíte pouze autorizovat. Můžete to ignorovat, pokud jste svůj zdroj již "
+"odeslali na Google."
+
+#: admin/partials/rex-feed-config-table.php:59
+msgid "New Attribute"
+msgstr "nový atribut"
+
+#: admin/partials/rex-feed-config-table.php:62
+#| msgid "Add New Custom Attribute"
+msgid "New Custom Attribute"
+msgstr "Nový vlastní atribut"
+
+#: admin/class-rex-product-feed-cpt.php:48
+#| msgid "Product Feed"
+msgid "New Product Feed"
+msgstr "Nový zdroj produktu"
+
+#: admin/class-rex-product-feed-admin.php:355
+msgid "Next"
+msgstr "zase"
+
+#: admin/class-rex-product-feed-cpt.php:226
+msgid "Next Schedule: "
+msgstr "Další plán:"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:43
+msgid "No Categories"
+msgstr "Žádné kategorie"
+
+#: admin/class-rex-product-feed-metabox.php:193
+msgid "No Interval"
+msgstr "Žádný interval"
+
+#: admin/class-rex-product-feed-cpt.php:51
+msgid "No product feeds found"
+msgstr "Nebyly nalezeny žádné zdroje produktu"
+
+#: admin/class-rex-product-feed-cpt.php:52
+msgid "No product feeds found in trash"
+msgstr "V odpadcích nejsou nalezeny žádné zdroje produktů"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:93
+msgid "No Terms"
+msgstr "Žádné podmínky"
+
+#: admin/partials/rex-feed-save-filters-changes-warning-popup.php:39
+#: admin/partials/rex-feed-save-settings-changes-warning-popup.php:39
+msgid "No, Close"
+msgstr "Ne, blízko"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:41
+msgid "No, Thanks"
+msgstr "Ne, díky"
+
+#: admin/partials/rex-feed-review-request-body-content.php:50
+msgid "Not Now"
+msgstr "ne teď"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:44
+msgid "Okay"
+msgstr "souhlas"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:149
+msgid "Old Price"
+msgstr "stará cena"
+
+#: admin/partials/rex-feed-product-settings-section.php:499
+msgid "On Toggle to activate UTM Params"
+msgstr "Zapnuto Přepnutím pro aktivaci UTM PARAM"
+
+#: admin/class-rex-product-feed-admin.php:314
+msgid ""
+"Once you have mapped the attribute values, you can click on Publish and the "
+"feed will be generated. %s **This tour will end if you click on the Publish "
+"button and the feed will start generating. %s - You can view the generated "
+"feed once the feed generation is completed. %s - Click on the Next to skip "
+"feed generation for now and  to learn more options to configure the feed. %s"
+msgstr ""
+"Jakmile namapujete hodnoty atributů, můžete kliknout na Publikovat a bude "
+"vygenerován zdroj. % S **Tato prohlídka skončí, pokud kliknete na tlačítko "
+"Publikovat a zdroj se začne generovat. % S - Po dokončení generování zdroje "
+"můžete zobrazit generovaný zdroj. % S – Klikněte na Další pro přeskočení "
+"generování kanálu prozatím a chcete-li se dozvědět více možností pro "
+"konfiguraci zdroje. %s"
+
+#: admin/class-rex-product-feed-admin.php:334
+#: admin/class-rex-product-feed-admin.php:345
+msgid ""
+"Once you make any changes, click on the Close button to get back to the "
+"Attributes section."
+msgstr ""
+"Jakmile provedete jakékoli změny, klikněte na tlačítko Zavřít a vraťte se do "
+"sekce Atributy."
+
+#: admin/partials/rex-feed-filter-description-body.php:24
+msgid "Only the featured products will be included in the feed."
+msgstr "Do zdroje budou zahrnuty pouze doporučené produkty."
+
+#: admin/class-rex-product-feed-admin.php:266
+msgid "Optimize Product Title"
+msgstr "Optimalizujte název produktu"
+
+#: admin/partials/rex-product-feed-feed-filters-body.php:139
+#| msgid "ok"
+msgid "OR"
+msgstr "anebo"
+
+#: admin/class-rex-product-feed-merchants.php:1120
+msgid "Others"
+msgstr "ostatní"
+
+#: admin/partials/setup-wizard.php:286
+msgid "Our Support"
+msgstr "Naše podpora"
+
+#: admin/partials/feed-config-metabox-display.php:30
+msgid "Output Filter"
+msgstr "výstupní filtr"
+
+#: admin/class-rex-product-feed-cpt.php:53
+msgid "Parent Product Feed:"
+msgstr "Nadřazený zdroj produktu:"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:70
+msgid "Pipe (|)"
+msgstr "trubka (|)"
+
+#: admin/partials/rex-feed-review-request-body-content.php:29
+msgid ""
+"Please do give us a %s if you like using our plugin. It will only take 2 "
+"minutes."
+msgstr ""
+"Pokud chcete používat náš plugin, dejte nám prosím %s. Zabere to jen 2 "
+"minuty."
+
+#: admin/partials/rex-feed-google-merchant.php:55
+msgid ""
+"Please note that Google has fixed abbreviations for Language. For example, "
+"the abbreviation for language, English is en."
+msgstr ""
+"Vezměte prosím na vědomí, že Google má pevné zkratky pro jazyk. Například "
+"zkratka pro jazyk, angličtina je en."
+
+#: admin/partials/rex-feed-google-merchant.php:38
+msgid ""
+"Please note that Google has fixed abbreviations for Location. For example, "
+"the abbreviation for target location, United States is US."
+msgstr ""
+"Vezměte prosím na vědomí, že Google má pevné zkratky pro umístění. Například "
+"zkratka pro cílové umístění, Spojené státy americké jsou USA."
+
+#: admin/feed-filter/class-rex-product-filter.php:286
+#: admin/feed-filter/class-rex-product-filter.php:289
+#: admin/feed-templates/abstract-rex-feed-template.php:167
+#: admin/feed-templates/abstract-rex-feed-template.php:203
+#: admin/partials/feed-config-metabox-display.php:58
+#: admin/partials/feed-config-metabox-display.php:167
+#: admin/partials/on_boarding.php:596
+msgid "Please Select"
+msgstr "Vyberte prosím"
+
+#: admin/feed/ceneo/Feed.php:415 admin/feed/daisycon/Feed.php:319
+#: admin/feed/favi/Feed.php:379 admin/feed/fruugo/Feed.php:366
+#: admin/feed/glami/Feed.php:347
+#: admin/feed/google-custom-search-ads/Feed.php:464
+#: admin/feed/google-local-products/Feed.php:406
+#: admin/feed/grupo_zap/Feed.php:332 admin/feed/gulog_gratis/Feed.php:448
+#: admin/feed/hotline/Feed.php:436 admin/feed/marktplaats/Feed.php:338
+#: admin/feed/pinterest/Feed.php:327
+#: admin/feed/rex-shopping-bestprice/Feed.php:388
+#: admin/feed/rex-shopping-deals4u/Feed.php:390
+#: admin/feed/rex-shopping-feed/Feed.php:422
+#: admin/feed/rex-shopping-heureka-availability/Feed.php:410
+#: admin/feed/rex-shopping-heureka/Feed.php:388
+#: admin/feed/rex-shopping-ibud/Feed.php:396
+#: admin/feed/rex-shopping-mirakl/Feed.php:423
+#: admin/feed/rex-shopping-rakuten/Feed.php:372
+#: admin/feed/rex-shopping-spartoo-fr/Feed.php:441
+#: admin/feed/rex-shopping-wish/Feed.php:369
+#: admin/feed/rex-shopping-zbozi/Feed.php:379 admin/feed/rozetka/Feed.php:467
+#: admin/feed/shopping/Feed.php:357 admin/feed/sooqr/Feed.php:354
+#: admin/feed/spartoo/Feed.php:343 admin/feed/yandex/Feed.php:423
+#: admin/feed/zap_co_il/Feed.php:445
+#: includes/library/GoogleShoppingFeed/Feed.php:324
+msgid "Please select a Google Category"
+msgstr "Vyberte prosím kategorii Google"
+
+#: admin/partials/category_mapping.php:80
+msgid "Please update WPFM database"
+msgstr "Aktualizujte prosím databázi WPFM"
+
+#: admin/class-rex-product-feed-merchants.php:1114
+msgid "Popular Merchants"
+msgstr "Populární obchodníci"
+
+#: admin/class-rex-product-feed-cpt.php:42
+msgctxt "Post Type General Name"
+msgid "Product Feed"
+msgstr "produkt"
+
+#: admin/class-rex-product-feed-cpt.php:41
+#: admin/class-rex-product-feed-cpt.php:44
+msgctxt "Post Type General Name"
+msgid "Product Feeds"
+msgstr "Krmivo produktů"
+
+#: admin/partials/feed-config-metabox-display.php:80
+#: admin/partials/feed-config-metabox-display.php:190
+msgid "Prefix"
+msgstr "předpona"
+
+#: admin/partials/feed-config-metabox-display.php:76
+#: admin/partials/feed-config-metabox-display.php:186
+msgid "Prefix/Suffix"
+msgstr "předpona/přípona"
+
+#: admin/partials/rex-feed-config-table.php:73
+msgid "Preview Feed"
+msgstr "Náhledový kanál"
+
+#: admin/class-rex-product-feed-admin.php:356
+msgid "Previous"
+msgstr "předchozí"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:245
+msgid "Price"
+msgstr "cena"
+
+#: admin/partials/setup-wizard.php:234
+msgid "Prices start at $79.99 "
+msgstr "Ceny začínají na 79,99 $"
+
+#: admin/partials/on_boarding.php:321 admin/partials/on_boarding.php:350
+#: admin/partials/on_boarding.php:377 admin/partials/on_boarding.php:422
+#: admin/partials/on_boarding.php:491 admin/partials/on_boarding.php:557
+#: admin/partials/rex-feed-product-filter-header-section.php:30
+msgid "pro"
+msgstr "profesionál"
+
+#: admin/class-rex-product-feed-merchants.php:1117
+msgid "Pro Merchants"
+msgstr "profesionální obchodníci"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:12
+msgid "Product Categories"
+msgstr "kategorie produktů"
+
+#: admin/partials/setup-wizard.php:262
+msgid "Product data manipulation along with find & replace feature"
+msgstr "Manipulace s daty produktu spolu s funkcí Najít a nahradit"
+
+#: admin/class-rex-product-feed-admin.php:730
+msgid "Product feed draft updated."
+msgstr "Aktualizován návrh zdroje produktu."
+
+#: admin/partials/setup-wizard.php:180
+msgid "Product Feed for WooCommerce"
+msgstr "Produktový zdroj pro WooCommerce"
+
+#. Plugin Name of the plugin
+#: admin/partials/setup-wizard.php:135
+msgid "Product Feed Manager for WooCommerce"
+msgstr "Product Feed Manager pro WooCommerce"
+
+#: admin/class-rex-product-feed-admin.php:726
+msgid "Product feed published."
+msgstr "Zveřejněno zdroji produktu."
+
+#: admin/class-rex-product-feed-admin.php:727
+msgid "Product feed saved."
+msgstr "Uložený zdroj produktu."
+
+#: admin/class-rex-product-feed-admin.php:721
+#: admin/class-rex-product-feed-admin.php:724
+msgid "Product feed updated."
+msgstr "Aktualizováno zdroj produktu."
+
+#: admin/partials/rex-feed-filter-settings-body-content.php:28
+#: admin/partials/rex-feed-product-filter-header-section.php:5
+msgid "Product Filter"
+msgstr "filtr produktů"
+
+#: admin/class-rex-product-feed-admin.php:333
+msgid "Product Filter Close Button"
+msgstr "Tlačítko Zavření filtru"
+
+#: admin/partials/rex-feed-product-taxonomies-section.php:62
+msgid "Product Tags"
+msgstr "Produktové štítky"
+
+#: admin/partials/rex-feed-product-settings-section.php:546
+msgid "Product, promo code, or slogan (e.g. spring_sale)"
+msgstr "Produkt, promo kód nebo slogan (např. Spring_Sale)"
+
+#: admin/partials/rex-feed-filter-products-dropdown-section.php:14
+msgid "Products"
+msgstr "výrobky"
+
+#: admin/partials/on_boarding.php:177
+msgid ""
+"Products per batch (Free users cannot generate more than %d products. For "
+"free users it will run only 1 batch)"
+msgstr ""
+"Produkty na šarži (bezplatní uživatelé nemohou generovat více než %d "
+"produktů. pro bezplatné uživatele poběží pouze 1 dávka)"
+
+#: admin/partials/rex-feed-config-table.php:76
+msgid "Publish"
+msgstr "vydat"
+
+#: admin/class-rex-product-feed-admin.php:348
+msgid "Publish Feed"
+msgstr "Publish Feed"
+
+#: admin/class-rex-product-feed-admin.php:312
+msgid "Publish To Generate The Product Feed"
+msgstr "Publikovat pro generování zdroje produktu"
+
+#: admin/class-rex-product-feed-actions.php:528
+#: admin/partials/on_boarding.php:202 admin/partials/on_boarding.php:204
+msgid "Purge Cache"
+msgstr "vyčistit mezipaměť"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:131
+msgid ""
+"Put custom xml attribute item wrapper name. Keep blank incase of using "
+"default structure."
+msgstr ""
+"Vložte vlastní obal položky atributu XML název. Ponechte prázdné v případě "
+"použití výchozí struktury."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:117
+msgid ""
+"Put custom xml attribute item wrapper_el name. Keep blank incase of using "
+"default structure."
+msgstr ""
+"Vložte vlastní atribut položky XML Wrapper_El Name. Ponechte prázdné v "
+"případě použití výchozí struktury."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:103
+msgid ""
+"Put custom xml attribute items wrapper name. Keep blank incase of using "
+"default structure."
+msgstr ""
+"Vložte vlastní název obalu atributů XML. Ponechte prázdné v případě použití "
+"výchozí struktury."
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:169
+msgid ""
+"Put your company name to include in the xml header section with company tag."
+msgstr ""
+"Zadejte název vaší společnosti do sekce záhlaví XML se značkou společnosti."
+
+#: admin/partials/rex-feed-review-request-body-content.php:46
+msgid "Rate Now"
+msgstr "ohodnotit nyní"
+
+#: admin/partials/rex-feed-review-request-body-content.php:34
+msgid "rating"
+msgstr "hodnocení"
+
+#: admin/partials/merchant_settings.php:72
+msgid "Redirect URL"
+msgstr "Přesměrujte URL"
+
+#: admin/partials/rex-feed-product-settings-section.php:517
+msgid "Referrer"
+msgstr "referr"
+
+#: admin/class-rex-product-feed-cpt.php:90
+msgid "Refresh Interval"
+msgstr "interval obnovy"
+
+#: admin/partials/on_boarding.php:302 admin/partials/on_boarding.php:304
+msgid "Reinstall"
+msgstr "znovu nainstalovat"
+
+#: admin/partials/on_boarding.php:241
+msgid "Remove All Plugin Data on Plugin Uninstallation"
+msgstr "Odstraňte všechna data pluginu při odinstalaci pluginu"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:257
+msgid "Remove Decimal Points"
+msgstr "Odstraňte desetinné body"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:260
+msgid "Remove Hyphen"
+msgstr "odstranit pomlčku"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:261
+msgid "Remove Hyphen and Space"
+msgstr "Odstraňte pomlčku a mezeru"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:250
+msgid "Remove ShortCodes"
+msgstr "Odstraňte krátké kódy"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:251
+msgid "Remove ShortCodes and Tags"
+msgstr "Odstraňte krátké kódy a značky"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:246
+msgid "Remove Space"
+msgstr "Odstranit prostor"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:252
+msgid "Remove Special Character"
+msgstr "Odebrat speciální znak"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:247
+msgid "Remove Tab"
+msgstr "karta Odstranit"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:255
+msgid "Remove Underscore"
+msgstr "Odebrat podtržítko"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:263
+msgid "Replace Comma with Backslash"
+msgstr "Nahraďte čárku zpětným lomítkem"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:264
+msgid "Replace Decimal with Hyphen"
+msgstr "Nahraďte desítkové smyčky pomlčkou"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:262
+msgid "Replace Space with Hyphen"
+msgstr "Nahraďte mezeru pomlčkou"
+
+#: admin/partials/feed-config-metabox-display.php:26
+msgid "Required Attributes"
+msgstr "Požadované atributy"
+
+#: admin/partials/merchant_settings.php:76
+msgid "Reset"
+msgstr "přesázet"
+
+#: admin/class-rex-product-feed-admin.php:725
+msgid "Revision restored."
+msgstr "Revize obnovena."
+
+#. Author of the plugin
+msgid "RexTheme"
+msgstr "rextheme"
+
+#: admin/partials/on_boarding.php:290
+msgid "Rollback to Older Version"
+msgstr "vrácení zpět do starší verze"
+
+#: admin/class-rex-product-feed-rollback.php:92
+msgid "Rollback to Previous Version"
+msgstr "Vraťte se zpět na předchozí verzi"
+
+#: admin/class-rex-product-feed-rollback.php:202
+msgid "Rollback to Product Feed Manager for WooCommerce previous version"
+msgstr "vrácení zpět do Product Feed Manager pro WooCommerce předchozí verzi"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:44
+msgid "RSS"
+msgstr "RSS"
+
+#: admin/partials/category_mapping.php:38 admin/partials/on_boarding.php:184
+#: admin/partials/on_boarding.php:229 admin/partials/on_boarding.php:480
+#: admin/partials/on_boarding.php:500
+msgid "Save"
+msgstr "šetřit"
+
+#: admin/partials/rex-feed-google-merchant.php:62
+#: admin/partials/rex-feed-google-merchant.php:65
+msgid "Schedule"
+msgstr "plán"
+
+#: admin/class-rex-product-feed-cpt.php:50
+msgid "Search Product Feeds"
+msgstr "Hledat zdroje produktů"
+
+#: admin/partials/rex-feed-product-settings-section.php:77
+msgid ""
+"Select a country for the Shipping attribute value for Google/Facebook "
+"merchants."
+msgstr ""
+"Vyberte zemi pro hodnotu atributu odeslání pro obchodníky Google/Facebook."
+
+#: admin/partials/rex-feed-google-merchant.php:83
+#: admin/partials/rex-feed-google-merchant.php:86
+#| msgid "Select day of month"
+msgid "Select Day of Month"
+msgstr "Vyberte den v měsíci"
+
+#: admin/partials/rex-feed-google-merchant.php:108
+#: admin/partials/rex-feed-google-merchant.php:111
+#| msgid "Select day of week"
+msgid "Select Day of Week"
+msgstr "Vyberte den v týdnu"
+
+#: admin/partials/rex-feed-google-merchant.php:133
+#: admin/partials/rex-feed-google-merchant.php:136
+msgid "Select Hour"
+msgstr "Vyberte hodinu"
+
+#: admin/partials/setup-wizard.php:136
+msgid "Select merchant and create feed"
+msgstr "Vyberte obchodník a vytvořte zdroj"
+
+#: admin/class-rex-product-feed-admin.php:304
+msgid "Select Merchant And Feed Type"
+msgstr "Vyberte Obchodník a Typ zdroje"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:56
+msgid "Select separator"
+msgstr "Vyberte Separátor"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:36
+msgid "Select your feed file type"
+msgstr "Vyberte typ souboru zdroje"
+
+#: admin/class-rex-product-feed-merchants.php:1104
+msgid "Select your merchant"
+msgstr "Vyberte svého obchodníka"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:21
+msgid "Select your preferred merchant from the list"
+msgstr "Vyberte preferovaného obchodníka ze seznamu"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:69
+msgid "Semi-colon (;)"
+msgstr "středník (;)"
+
+#: admin/class-rex-product-feed-metabox.php:365
+#: admin/class-rex-product-feed-metabox.php:378
+msgid "Send to Google Merchant"
+msgstr "Odeslat obchodníkovi Google"
+
+#: admin/partials/rex-feed-google-merchant.php:186
+msgid "Send to google merchant"
+msgstr "Odeslat obchodníkovi Google"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:53
+msgid "Separator"
+msgstr "oddělovač"
+
+#: admin/partials/rex-feed-product-settings-section.php:24
+msgid "Set auto-update to keep your feed in sync with WooCommerce "
+msgstr ""
+"Nastavte automatickou aktualizaci, aby byl váš zdroj synchronizovaný s "
+"WooCommerce"
+
+#: admin/class-rex-product-feed-admin.php:410
+#: admin/class-rex-product-feed-admin.php:411
+#: admin/class-rex-product-feed-metabox.php:177
+#: admin/partials/rex-feed-filter-settings-body-content.php:32
+#: admin/partials/rex-feed-product-settings-section.php:9
+msgid "Settings"
+msgstr "antologie"
+
+#: admin/class-rex-product-feed-cpt.php:198
+msgid "Simple products : "
+msgstr "Jednoduché produkty:"
+
+#: admin/partials/rex-feed-product-settings-section.php:329
+msgid "Skip attributes with empty value"
+msgstr "Přeskočit atributy s prázdnou hodnotou"
+
+#: admin/partials/rex-feed-product-settings-section.php:306
+msgid "Skip products with empty value"
+msgstr "Přeskočte produkty s prázdnou hodnotou"
+
+#: admin/partials/rex-product-feed-google-missing-attribute-warning-popup.php:27
+msgid "Some required attributes are not configured properly!"
+msgstr "Některé požadované atributy nejsou správně nakonfigurovány!"
+
+#: admin/feed/abstract-rex-product-feed-generator.php:505
+msgid "Start feed processing job by cron"
+msgstr "Spusťte úlohu zpracování zdroje pomocí cron"
+
+#: admin/feed/abstract-rex-product-feed-generator.php:515
+msgid "Start feed processing job."
+msgstr "Spusťte úlohu zpracování zdroje."
+
+#: admin/class-rex-product-data-retriever.php:194
+msgid "Start product processing."
+msgstr "zahájit zpracování produktu."
+
+#: admin/feed-templates/abstract-rex-feed-template.php:201
+msgid "Static"
+msgstr "statický"
+
+#: admin/class-rex-product-feed-cpt.php:91
+msgid "Status"
+msgstr "postavení"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:241
+msgid "Strip Tags"
+msgstr "stripovací štítky"
+
+#: admin/partials/merchant_settings.php:80
+msgid "Submit"
+msgstr "předložit"
+
+#: admin/partials/feed-config-metabox-display.php:82
+#: admin/partials/feed-config-metabox-display.php:192
+msgid "Suffix"
+msgstr "přípona"
+
+#: admin/class-rex-product-feed-admin.php:419
+msgid "Support"
+msgstr "podpora"
+
+#: admin/partials/on_boarding.php:156
+#: admin/partials/rex-feed-system-status-markups.php:23
+msgid "System Status"
+msgstr "Stav systému"
+
+#: admin/class-rex-product-feed-metabox.php:227
+#| msgid "Tag Filter"
+msgid "Tag Filters"
+msgstr "Filtry štítků"
+
+#: admin/partials/setup-wizard.php:164
+msgid "Take Tour"
+msgstr "vyrazit na prohlíd"
+
+#: admin/partials/rex-feed-google-merchant.php:35
+msgid "Target Country"
+msgstr "cílová země"
+
+#: admin/partials/rex-feed-google-merchant.php:52
+msgid "Target Language"
+msgstr "cílový jazyk"
+
+#: admin/class-rex-product-feed-actions.php:350
+msgid "Temporary Feed URL: "
+msgstr "Dočasná adresa URL zdroje:"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:41
+msgid "TEXT"
+msgstr "text"
+
+#: admin/partials/setup-wizard.php:179
+msgid "The best plugin to generate"
+msgstr "nejlepší plugin pro generování"
+
+#: admin/partials/rex-feed-product-settings-section.php:520
+msgid "The referrer: (e.g. google, newsletter)"
+msgstr "Odkazatel: (např. Google, Newsletter)"
+
+#: admin/partials/feed-config-metabox-display-filter.php:52
+msgid "Then"
+msgstr "tehde"
+
+#: admin/class-rex-product-feed-actions.php:318
+msgid ""
+"There was an error when generating the feed. Please try the following to "
+"troubleshoot the issue."
+msgstr ""
+"Při generování zdroje došlo k chybě. Chcete-li problém vyřešit, zkuste "
+"problém vyřešit následující."
+
+#: admin/class-rex-product-feed-admin.php:309
+msgid ""
+"These are the list of attributes that you are supposed to include for your "
+"products in the product feed. We will be mapping your store product data as "
+"the values of the attributes in this section. %s However, most of these are "
+"already mapped, and you do not need to make any changes to them."
+msgstr ""
+"Toto je seznam atributů, které byste měli zahrnout pro své produkty do "
+"zdroje produktu. Data vašeho obchodu s produktovými daty budeme mapovat jako "
+"hodnoty atributů v této části. % S, většina z nich je však již zmapována a "
+"nemusíte v nich provádět žádné změny."
+
+#: admin/partials/rex-feed-product-settings-section.php:455
+msgid ""
+"This option will convert all your product prices using WooCommerce Multi-"
+"Currency Switcher"
+msgstr ""
+"Tato možnost převede všechny ceny vašich produktů pomocí WooCommerce Multi-"
+"Currency Switcher"
+
+#: admin/partials/rex-feed-product-settings-section.php:376
+msgid ""
+"This option will convert all your product prices using WooCommerce "
+"Multilingual & Multicurrency"
+msgstr ""
+"Tato možnost převede všechny ceny vašich produktů pomocí WooCommerce "
+"Multilingual & MultiCurrency"
+
+#: admin/partials/rex-feed-product-settings-section.php:115
+msgid "This option will include/exclude out of stock products from feed"
+msgstr ""
+"Tato možnost bude zahrnovat/vyloučí produkty, které nejsou na skladě ze "
+"zdroje"
+
+#: admin/partials/rex-feed-product-settings-section.php:138
+msgid ""
+"This option will include/exclude products with no regular price set or with "
+"regular price zero (0)"
+msgstr ""
+"Tato možnost bude zahrnovat/vyloučit produkty bez běžné ceny nebo s běžnou "
+"cenou nula (0)"
+
+#: admin/partials/rex-feed-product-settings-section.php:332
+msgid ""
+"This option will remove any attribute with empty value (XML feed format only)"
+msgstr ""
+"Tato možnost odstraní jakýkoli atribut s prázdnou hodnotou (pouze formát "
+"zdroje XML)"
+
+#: admin/partials/rex-feed-product-settings-section.php:309
+msgid ""
+"This option will remove products if there is a single attribute with empty "
+"value"
+msgstr ""
+"Tato možnost odstraní produkty, pokud existuje jeden atribut s prázdnou "
+"hodnotou"
+
+#: admin/class-rex-product-feed-cpt.php:87
+msgid "Title"
+msgstr "titul"
+
+#: admin/class-rex-google-merchant-content-api.php:184
+msgid ""
+"To send a feed to the Google Merchant Center, you need to authorize with "
+"Google Merchant Center. You can send the feed to Google Merchant Center "
+"through direct upload method or by using the Content API."
+msgstr ""
+"Chcete-li odeslat zdroj do Google Merchant Center, musíte autorizovat pomocí "
+"Google Merchant Center. Zdroj můžete odeslat do Google Merchant Center "
+"pomocí metody přímého nahrávání nebo pomocí rozhraní API Content."
+
+#: admin/class-rex-product-feed-cpt.php:94
+msgid "Total Products"
+msgstr "Celkem produktů"
+
+#: admin/class-rex-product-feed-cpt.php:194
+msgid "Total products : "
+msgstr "Celkové produkty:"
+
+#: admin/class-rex-product-feed-cpt.php:196
+msgid "Total reviews : "
+msgstr "Celkové recenze:"
+
+#: admin/partials/rex-feed-product-settings-section.php:477
+msgid "Track Your Campaign"
+msgstr "Sledujte svou kampaň"
+
+#: admin/partials/rex-feed-filter-settings-body-content.php:24
+msgid "Troubleshoot"
+msgstr "řešení problémů"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:43
+msgid "TSV"
+msgstr "TSV"
+
+#: admin/partials/rex-feed-save-filters-changes-warning-popup.php:34
+#: admin/partials/rex-feed-save-settings-changes-warning-popup.php:34
+msgid ""
+"Uh-oh! You're trying to exit without saving your changes. Would you like to "
+"save them?"
+msgstr ""
+"uh - Ó! Snažíte se ukončit, aniž byste uložili změny. Chtěli byste je "
+"zachránit?"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:187
+msgid "Unique code of the firm."
+msgstr "Jedinečný kód firmy."
+
+#: admin/class-rex-product-feed-admin.php:374
+#: admin/class-rex-product-feed-cpt.php:167
+#: admin/partials/category_mapping.php:66
+msgid "Update"
+msgstr "doplnit o"
+
+#: admin/class-rex-product-feed-admin.php:375
+msgid "Update & Close"
+msgstr "Aktualizace a zavření"
+
+#: admin/class-rex-product-feed-cpt.php:92
+msgid "Update Feed"
+msgstr "Aktualizace kanálu"
+
+#: admin/partials/on_boarding.php:212
+msgid "Update List"
+msgstr "seznam aktualizací"
+
+#: admin/partials/on_boarding.php:210
+msgid ""
+"Update WooCommerce variation child list that has no parent assigned "
+"(abandoned child)"
+msgstr ""
+"Aktualizujte seznam podřízených variací WooCommerce, který nemá přiřazeno "
+"žádného rodiče (opuštěné dítě)"
+
+#: admin/class-rex-product-feed-cpt.php:96
+msgid "Updated"
+msgstr "aktualizovaný"
+
+#: admin/class-rex-product-feed-metabox.php:412
+msgid "Upgrade Notice"
+msgstr "Upgrade Noti"
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:40
+msgid "Upgrade to Pro"
+msgstr "upgradovat na pro"
+
+#: admin/partials/setup-wizard.php:230
+msgid "Upgrade to Pro to get access to our premium features"
+msgstr "Upgradujte na Pro, abyste získali přístup k našim prémiovým funkcím"
+
+#: admin/class-rex-product-feed-admin.php:326
+msgid "Use Advanced Filters"
+msgstr "Používejte pokročilé filtry"
+
+#: admin/partials/setup-wizard.php:266
+msgid ""
+"Use eBay (MIP), Google Remarketing (DRM), Google Review, Leguide merchant "
+"templates"
+msgstr ""
+"Používejte eBay (MIP), Google Remarketing (DRM), Google Review, Leguide "
+"Merchant Templates"
+
+#: admin/partials/rex-feed-google-merchant.php:168
+msgid ""
+"Use Google Auto-sync to send data to your Google Merchant Center at fixed "
+"intervals. Configure and Authenticate Auto-sync with Google to be able to "
+"use this feature."
+msgstr ""
+"Použijte Auto-Sync pomocí Google k odesílání dat do vašeho centra Google "
+"Merchant v pevně stanovených intervalech. Nakonfigurujte a ověřte "
+"automatickou synchronizaci pomocí společnosti Google, abyste mohli tuto "
+"funkci používat."
+
+#: admin/partials/setup-wizard.php:246
+msgid "Use Product Filter feature to include/exclude specific products"
+msgstr ""
+"Použijte funkci filtru produktu k zahrnutí/vyloučení konkrétních produktů"
+
+#: admin/class-rex-product-feed-actions.php:332
+msgid "Use Strip Tags For Description"
+msgstr "Pro popis použijte štítky proužků"
+
+#: admin/partials/rex-feed-product-settings-section.php:573
+msgid "Use to differentiate ads"
+msgstr "Použijte k rozlišení reklam"
+
+#: admin/feed-templates/abstract-rex-feed-template.php:242
+msgid "UTF-8 Encode"
+msgstr "kódování UTF-8"
+
+#: admin/partials/rex-feed-product-settings-section.php:504
+msgid "UTM Parameters"
+msgstr "parametry UTM"
+
+#: admin/partials/feed-config-metabox-display-filter.php:48
+msgid "Value"
+msgstr "hodnota"
+
+#: admin/class-rex-product-feed-cpt.php:199
+msgid "Variable parent : "
+msgstr "Variabilní rodič:"
+
+#: admin/class-rex-product-feed-cpt.php:200
+msgid "Variations : "
+msgstr "Variace:"
+
+#: admin/class-rex-product-feed-cpt.php:172
+msgid "View"
+msgstr "prohlížet"
+
+#: admin/partials/setup-wizard.php:217
+msgid "View All Merchants"
+msgstr "Zobrazit všechny obchodníky"
+
+#: admin/class-rex-product-feed-actions.php:328
+#: admin/class-rex-product-feed-actions.php:334
+msgid "View Doc"
+msgstr "Zobrazit dokument"
+
+#: admin/partials/rex-feed-feed-file-section-content.php:19
+msgid "View Feed"
+msgstr "Zobrazit zdroj"
+
+#: admin/partials/on_boarding.php:601
+msgid "View log"
+msgstr "Zobrazit protokol"
+
+#: admin/class-rex-product-feed-cpt.php:49
+msgid "View Product Feed"
+msgstr "Zobrazit zdroj produktu"
+
+#: admin/class-rex-product-feed-cpt.php:93
+msgid "View/Download"
+msgstr "Zobrazit/stáhnout"
+
+#: admin/partials/on_boarding.php:309
+msgid ""
+"Warning: Please back up your database before making the rollback as you "
+"might lose you previous data."
+msgstr ""
+"Upozornění: Před provedením vrácení zpět si prosím zálohujte databázi, "
+"protože byste mohli ztratit předchozí data."
+
+#: admin/partials/rex-feed-product-settings-section.php:373
+msgid "WCML Currency"
+msgstr "měna WCML"
+
+#: admin/class-rex-product-feed-metabox.php:196
+#: admin/class-rex-product-feed-metabox.php:382
+msgid "Weekly"
+msgstr "týdenní"
+
+#: admin/partials/setup-wizard.php:134
+msgid "Welcome to"
+msgstr "vítám koho"
+
+#: admin/partials/rex-product-feed-confirmation-alert.php:27
+#| msgid "WooCommerce Product Feed Manager"
+msgid "Welcome to Product Feed Manager!"
+msgstr "Vítejte ve Správci zdrojů produktu!"
+
+#: admin/partials/on_boarding.php:233
+msgid "When the cache will be expired."
+msgstr "kdy vyprší platnost mezipaměti."
+
+#: admin/partials/rex-feed-upgrade-to-pro-notice-section.php:28
+#| msgid "Why upgrade to Premium Version?"
+msgid "Why Upgrade To The Premium Version?"
+msgstr "Proč upgradovat na prémiovou verzi?"
+
+#: admin/partials/rex-feed-product-settings-section.php:452
+msgid "WooCommerce Multi-Currency"
+msgstr "WooCommerce Multi-Měna"
+
+#: admin/partials/on_boarding.php:218
+msgid "WPFM cache TTL"
+msgstr "wpfm cache ttl"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:114
+msgid "Wrapper Element"
+msgstr "prvek obalu"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:40
+msgid "XML"
+msgstr "XML"
+
+#: admin/partials/rex-feed-merchant-dropdown-section.php:83
+msgid "XML Header"
+msgstr "XML záhlaví"
+
+#: admin/partials/rex-feed-save-filters-changes-warning-popup.php:43
+#: admin/partials/rex-feed-save-settings-changes-warning-popup.php:43
+msgid "Yes, Save"
+msgstr "Ano, uložit"
+
+#: admin/class-rex-google-merchant-content-api.php:226
+#| msgid "You are authorized."
+msgid "You Are Authorized."
+msgstr "máte oprávnění."
+
+#: admin/class-rex-google-merchant-content-api.php:152
+msgid "You Are Not Authorized"
+msgstr "nemáte oprávnění"
+
+#: admin/class-rex-google-merchant-content-api.php:265
+#| msgid "You are not authorized."
+msgid "You Are Not Authorized."
+msgstr "nemáte oprávnění."
+
+#: admin/class-rex-google-merchant-content-api.php:227
+msgid ""
+"You are now ready to send feed from Product Feed Manager for WooCommerce to "
+"your Google Merchant Center. "
+msgstr ""
+"Nyní jste připraveni odeslat zdroj z Product Feed Manager pro WooCommerce do "
+"vašeho Google Merchant Center."
+
+#: admin/class-rex-product-feed-admin.php:321
+msgid ""
+"You can also include more attributes for your products using these buttons. "
+"%s The \"Add New Attribute\" will let you choose from other available "
+"attributes for your selected merchant and then you can map the value with a "
+"product data. %s The \"Add New Custom Attribute\" will let you name an "
+"attribute title yourself and then map the value with a product data."
+msgstr ""
+"Pomocí těchto tlačítek můžete také zahrnout více atributů pro své produkty. "
+"% s \"Přidat nový atribut\" vám umožní vybrat si z dalších dostupných "
+"atributů pro vámi vybraného obchodníka a poté můžete hodnotu namapovat "
+"pomocí dat produktu. % s \"Přidat nový vlastní atribut\" vám umožní "
+"pojmenovat název atributu sami a poté namapovat hodnotu pomocí produktových "
+"dat."
+
+#: admin/partials/rex-feed-google-merchant.php:19
+msgid ""
+"You can send the feed to Google Merchant Center through direct upload method "
+"or by using the Content API."
+msgstr ""
+"Zdroj můžete odeslat do Google Merchant Center pomocí metody přímého "
+"nahrávání nebo pomocí rozhraní API Content."
+
+#: admin/class-rex-product-feed-admin.php:301
+msgid ""
+"You may give any name. It's just to help you save settings for this feed "
+"generation and help you distinguish between other feeds you generate in the "
+"future."
+msgstr ""
+"Můžete uvést jakékoli jméno. Je to jen proto, aby vám pomohl uložit "
+"nastavení pro tuto generaci zdroje a pomohl vám rozlišit mezi ostatními "
+"zdroji, které v budoucnu generujete."
+
+#: admin/class-rex-google-merchant-content-api.php:156
+#: admin/class-rex-google-merchant-content-api.php:266
 msgid ""
 "Your access token has expired. This application uses OAuth 2.0 to Access "
 "Google APIs. Please insert the information below and authenticate token for "
 "Google Merchant Shop. Generated access token expires after 3600 sec."
 msgstr ""
-"Platnost vašeho přístupového tokenu vypršela. Tato aplikace používá pro "
-"přístup k API Google OAuth 2.0. Vložte níže uvedené informace a ověřte token "
-"pro službu Google Merchant Shop. Vygenerovaný přístupový token vyprší po "
-"3600 sekundách."
-
-#: admin/class-rex-google-merchant-content-api.php:108
-msgid "You are authorized."
-msgstr "Jste oprávněni."
-
-#: admin/class-rex-google-merchant-content-api.php:109
-#, fuzzy
-#| "You are now ready to send feed from WooCommerce Product Feed Manager to "
-#| "your Google Merchant Center. 🚀"
-msgid ""
-"You are now ready to send feed from WooCommerce Product Feed Manager to your "
-"Google Merchant Center. "
-msgstr ""
-"Nyní jste připraveni poslat zdroj ze Správce zdrojů produktů WooCommerce do "
-"svého Google Merchant Center. 🚀"
-
-#: admin/class-rex-product-data-retriever.php:110
-msgid "Start product processing."
-msgstr "Zahajte zpracování produktu."
-
-#: admin/class-rex-product-data-retriever.php:122
-msgid "End product processing."
-msgstr "Zpracování konečného produktu."
-
-#: admin/class-rex-product-feed-admin.php:304
-msgid "Leave a review?"
-msgstr "Zanechat recenzi?"
-
-#: admin/class-rex-product-feed-admin.php:305
-msgid ""
-"Hey, I noticed you are using WC product feed manager for over two weeks – "
-"that’s awesome! Could you please do me a BIG favor and give it a 5-star "
-"rating on WordPress? Just to help us spread the word and boost our "
-"motivation."
-msgstr ""
-"Hej, všiml jsem si, že používáte správce krmiv pro produkty WC více než dva "
-"týdny - to je úžasné! Mohl byste mi prosím udělat velkou laskavost a dát mu "
-"na WordPress 5 hvězdiček? Jen abychom nám pomohli šířit slovo a posílit naši "
-"motivaci."
-
-#: admin/class-rex-product-feed-admin.php:309
-msgid "Ok, you deserve it"
-msgstr "Dobře, zasloužíš si to"
-
-#: admin/class-rex-product-feed-admin.php:313
-msgid "Nope, maybe later."
-msgstr "Ne, možná později."
-
-#: admin/class-rex-product-feed-admin.php:317
-msgid "I already did."
-msgstr "Už se stalo."
-
-#: admin/class-rex-product-feed-admin.php:320
-msgid "Dismiss this notice."
-msgstr "Toto oznámení zrušit."
-
-#: admin/class-rex-product-feed-admin.php:383
-msgid "Category Mapping"
-msgstr "Mapování kategorií"
-
-#: admin/class-rex-product-feed-admin.php:384
-msgid "Google Merchant Settings"
-msgstr "Nastavení obchodníka Google"
-
-#: admin/class-rex-product-feed-admin.php:385
-msgid "Settings"
-msgstr "Nastavení"
-
-#: admin/class-rex-product-feed-admin.php:386
-#: admin/partials/on_boarding.php:242
-msgid "Support"
-msgstr "Podpěra, podpora"
-
-#: admin/class-rex-product-feed-admin.php:390
-#: admin/class-rex-product-feed-admin.php:445
-msgid "Go Pro"
-msgstr "Staň se profesionálem"
-
-#: admin/class-rex-product-feed-admin.php:443
-msgid "Dashboard"
-msgstr "Přístrojová deska"
-
-#: admin/class-rex-product-feed-admin.php:460
-msgid "View WPFM Documentation"
-msgstr "Zobrazit dokumentaci WPFM"
-
-#: admin/class-rex-product-feed-admin.php:460
-msgid "Docs & FAQs"
-msgstr "Dokumenty a časté dotazy"
-
-#: admin/class-rex-product-feed-admin.php:786
-msgid "Referrer"
-msgstr "Referrer"
-
-#: admin/class-rex-product-feed-admin.php:794
-msgid "The referrer: (e.g. google, newsletter)"
-msgstr "Referrer: (např. Google, newsletter)"
-
-#: admin/class-rex-product-feed-admin.php:797
-msgid "Medium"
-msgstr "Střední"
-
-#: admin/class-rex-product-feed-admin.php:805
-msgid "Marketing medium: (e.g. cpc, banner, email)"
-msgstr "Marketingové médium: (např. CPC, banner, e-mail)"
-
-#: admin/class-rex-product-feed-admin.php:809
-msgid "Campaign"
-msgstr "Kampaň"
-
-#: admin/class-rex-product-feed-admin.php:817
-msgid "Product, promo code, or slogan (e.g. spring_sale)"
-msgstr "Produkt, propagační kód nebo slogan (např. Spring_sale)"
-
-#: admin/class-rex-product-feed-admin.php:820
-msgid "Campaign term"
-msgstr "Termín kampaně"
-
-#: admin/class-rex-product-feed-admin.php:828
-msgid "Identify the paid keywords"
-msgstr "Identifikujte placená klíčová slova"
-
-#: admin/class-rex-product-feed-admin.php:832
-msgid "Campaign content"
-msgstr "Obsah kampaně"
-
-#: admin/class-rex-product-feed-admin.php:840
-msgid "Use to differentiate ads"
-msgstr "Použijte k rozlišení reklam"
-
-#: admin/class-rex-product-feed-cpt.php:115
-msgid "Total products : "
-msgstr "Celkem produktů:"
-
-#: admin/class-rex-product-feed-cpt.php:116
-msgid "Simple products : "
-msgstr "Jednoduché výrobky:"
-
-#: admin/class-rex-product-feed-cpt.php:117
-msgid "Variable parent : "
-msgstr "Variabilní rodič:"
-
-#: admin/class-rex-product-feed-cpt.php:118
-msgid "Variations : "
-msgstr "Varianty:"
-
-#: admin/class-rex-product-feed-cpt.php:119
-msgid "Group products : "
-msgstr "Skupinové produkty:"
-
-#: admin/class-rex-product-feed-factory.php:219
-msgid "Invalid Merchant."
-msgstr "Neplatný obchodník."
-
-#: admin/class-rex-product-feed-metabox.php:40
-#: admin/class-rex-product-feed-metabox.php:47
-msgid "Products"
-msgstr "produkty"
-
-#: admin/class-rex-product-feed-metabox.php:48
-msgid "Select products to create feed for."
-msgstr "Vyberte produkty, pro které chcete vytvořit zdroj."
-
-#: admin/class-rex-product-feed-metabox.php:54
-msgid "All Published Products"
-msgstr "Všechny publikované produkty"
-
-#: admin/class-rex-product-feed-metabox.php:55
-msgid "Custom Filter"
-msgstr "Vlastní filtr"
-
-#: admin/class-rex-product-feed-metabox.php:56
-msgid "Category Filter"
-msgstr "Filtr kategorií"
-
-#: admin/class-rex-product-feed-metabox.php:57
-msgid "Tag Filter"
-msgstr "Filtr značek"
-
-#: admin/class-rex-product-feed-metabox.php:107
-msgid "Refresh Interval"
-msgstr "Interval obnovení"
-
-#: admin/class-rex-product-feed-metabox.php:108
-msgid "Feed Schedule Update"
-msgstr "Aktualizace plánu zdroje"
-
-#: admin/class-rex-product-feed-metabox.php:112
-msgid "No Interval"
-msgstr "Žádný interval"
-
-#: admin/class-rex-product-feed-metabox.php:113
-msgid "Daily"
-msgstr "Denně"
-
-#: admin/class-rex-product-feed-metabox.php:114
-#: admin/class-rex-product-feed-metabox.php:700
-msgid "Hourly"
-msgstr "Hodinově"
-
-#: admin/class-rex-product-feed-metabox.php:125
-msgid "Include Variable Parent Product"
-msgstr "Zahrnout variabilní rodičovský produkt"
-
-#: admin/class-rex-product-feed-metabox.php:126
-msgid "Include/Exclude Parent Variable Product"
-msgstr "Zahrnout / vyloučit nadřazený variabilní produkt"
-
-#: admin/class-rex-product-feed-metabox.php:130
-#: admin/class-rex-product-feed-metabox.php:146
-#: admin/class-rex-product-feed-metabox.php:163
-#: admin/class-rex-product-feed-metabox.php:179
-#: admin/class-rex-product-feed-metabox.php:195
-msgid "Yes"
-msgstr "Ano"
-
-#: admin/class-rex-product-feed-metabox.php:131
-#: admin/class-rex-product-feed-metabox.php:147
-#: admin/class-rex-product-feed-metabox.php:164
-#: admin/class-rex-product-feed-metabox.php:180
-#: admin/class-rex-product-feed-metabox.php:196
-msgid "No"
-msgstr "Ne"
-
-#: admin/class-rex-product-feed-metabox.php:141
-msgid "Include Product Variations"
-msgstr "Zahrnout varianty produktu"
-
-#: admin/class-rex-product-feed-metabox.php:142
-msgid "Include/Exclude Products Variations"
-msgstr "Zahrnout / vyloučit varianty produktů"
-
-#: admin/class-rex-product-feed-metabox.php:158
-msgid "Include variation product name"
-msgstr "Uveďte název produktu varianty"
-
-#: admin/class-rex-product-feed-metabox.php:159
-msgid ""
-"It will add the all the variation name on product title. Will be applicable "
-"if there are more than two variation atrributes of a product."
-msgstr ""
-"Do názvu produktu přidá celý název varianty. Bude použitelné, pokud existují "
-"více než dvě variace atrributů produktu."
-
-#: admin/class-rex-product-feed-metabox.php:174
-msgid "Include Parent Product (Grouped Product)"
-msgstr "Zahrnout nadřazený produkt (seskupený produkt)"
-
-#: admin/class-rex-product-feed-metabox.php:175
-msgid "Include/Exclude Parent Product"
-msgstr "Zahrnout / vyloučit nadřazený produkt"
-
-#: admin/class-rex-product-feed-metabox.php:190
-#: admin/class-rex-product-feed-metabox.php:191
-msgid "Exclude invisible/hidden products"
-msgstr "Vyloučit neviditelné / skryté produkty"
-
-#: admin/class-rex-product-feed-metabox.php:205
-msgid "Analytics parameters"
-msgstr "Parametry Analytics"
-
-#: admin/class-rex-product-feed-metabox.php:206
-msgid "Check to activate utm params"
-msgstr "Zaškrtněte pro aktivaci utm parametrů"
-
-#: admin/class-rex-product-feed-metabox.php:212
-msgid "Parameters"
-msgstr "Parametry"
-
-#: admin/class-rex-product-feed-metabox.php:303
-msgid "Please select merchant"
-msgstr "Vyberte obchodníka"
-
-#: admin/class-rex-product-feed-metabox.php:334
-msgid "Feed Configuration"
-msgstr "Konfigurace zdroje"
-
-#: admin/class-rex-product-feed-metabox.php:339
-msgid "Merchant Type"
-msgstr "Typ obchodníka"
-
-#: admin/class-rex-product-feed-metabox.php:340
-msgid "Select Merchant Type of the Feed."
-msgstr "Vyberte Typ obchodníka zdroje."
-
-#: admin/class-rex-product-feed-metabox.php:351
-msgid "File Format"
-msgstr "Formát souboru"
-
-#: admin/class-rex-product-feed-metabox.php:352
-msgid "Select Format of the Feed."
-msgstr "Vyberte Formát zdroje."
-
-#: admin/class-rex-product-feed-metabox.php:356
-msgid "XML"
-msgstr "XML"
-
-#: admin/class-rex-product-feed-metabox.php:357
-msgid "TEXT"
-msgstr "TEXT"
-
-#: admin/class-rex-product-feed-metabox.php:358
-msgid "CSV"
-msgstr "CSV"
-
-#: admin/class-rex-product-feed-metabox.php:359
-msgid "JSON (Only for Zalando)"
-msgstr "JSON (pouze pro Zalando)"
-
-#: admin/class-rex-product-feed-metabox.php:524
-msgid "Add New Attribute"
-msgstr "Přidat nový atribut"
-
-#: admin/class-rex-product-feed-metabox.php:525
-msgid "Add New Custom Attribute"
-msgstr "Přidat nový vlastní atribut"
-
-#: admin/class-rex-product-feed-metabox.php:557
-msgid "Add New Filter"
-msgstr "Přidat nový filtr"
-
-#: admin/class-rex-product-feed-metabox.php:573
-msgid "Feed URL"
-msgstr "Adresa URL zdroje"
-
-#: admin/class-rex-product-feed-metabox.php:580
-msgid "Your Feed URL"
-msgstr "Adresa URL zdroje"
-
-#: admin/class-rex-product-feed-metabox.php:601
-msgid "Why upgrade to Premium Version?"
-msgstr "Proč upgradovat na prémiovou verzi?"
-
-#: admin/class-rex-product-feed-metabox.php:623
-msgid "Supports more than 50 products."
-msgstr "Podporuje více než 50 produktů."
-
-#: admin/class-rex-product-feed-metabox.php:624
-msgid "Access to a elite support team."
-msgstr "Přístup k elitnímu týmu podpory."
-
-#: admin/class-rex-product-feed-metabox.php:625
-msgid "Supports YITH brand attributes."
-msgstr "Podporuje atributy značky YITH."
-
-#: admin/class-rex-product-feed-metabox.php:626
-msgid "Dynamic Attribute."
-msgstr "Dynamický atribut."
-
-#: admin/class-rex-product-feed-metabox.php:627
-msgid ""
-"Custom field support - Brand,GTIN,MPN,UPC,EAN,Size, Pattern, Material, Age "
-"Group, Gender."
-msgstr ""
-"Podpora vlastních polí - značka, GTIN, MPN, UPC, EAN, velikost, vzor, "
-"materiál, věková skupina, pohlaví."
-
-#: admin/class-rex-product-feed-metabox.php:628
-msgid "Fix WooCommerce's (JSON-LD) structure data bug"
-msgstr "Opravte chybu datové struktury struktury WooCommerce (JSON-LD)"
-
-#: admin/class-rex-product-feed-metabox.php:646
-msgid "View Feed"
-msgstr "Zobrazit zdroj"
-
-#: admin/class-rex-product-feed-metabox.php:648
-msgid "Download Feed"
-msgstr "Stáhněte si zdroj"
-
-#: admin/class-rex-product-feed-metabox.php:664
-msgid "Send to Google Merchant"
-msgstr "Odeslat do služby Google Merchant"
-
-#: admin/class-rex-product-feed-metabox.php:672
-msgid "Target Country"
-msgstr "Cílová země"
-
-#: admin/class-rex-product-feed-metabox.php:683
-msgid "Target Language"
-msgstr "Cílový jazyk"
-
-#: admin/class-rex-product-feed-metabox.php:693
-msgid "Schedule"
-msgstr "Plán"
-
-#: admin/class-rex-product-feed-metabox.php:698
-msgid "Monthly"
-msgstr "Měsíční"
-
-#: admin/class-rex-product-feed-metabox.php:699
-msgid "Weekly"
-msgstr "Týdně"
-
-#: admin/class-rex-product-feed-metabox.php:708
-msgid "Select day of month"
-msgstr "Vyberte den v měsíci"
-
-#: admin/class-rex-product-feed-metabox.php:720
-msgid "Select day of week"
-msgstr "Vyberte den v týdnu"
-
-#: admin/class-rex-product-feed-metabox.php:740
-msgid "Select Hour"
-msgstr "Vyberte hodinu"
-
-#: admin/class-rex-product-feed-metabox.php:756
-msgid ""
-"<p class=\"google-desc\">Please note that Google has fixed abbreviations for "
-"Location and Language. For example, the abbreviation for target location, "
-"United States is US and the abbreviation for language, English is en. <a "
-"href=\"https://rextheme.com/google-country-codes-list/\" target=\"_blank\">"
-"Click here</a> to see the list of all abbreviations set by Google.</p>"
-msgstr ""
-"<p class = \"google-desc\"> Vezměte prosím na vědomí, že Google má pevné "
-"zkratky pro umístění a jazyk. Například zkratka pro cílové umístění, Spojené "
-"státy americké a zkratka pro jazyk, angličtina je en. <a href=\"https:"
-"//rextheme.com/google-country-codes-list/\" target=\"_blank\"> Klepnutím sem "
-"</a> zobrazíte seznam všech zkratek nastavených společností Google. </p>"
-
-#: admin/class-rex-product-feed-metabox.php:782
-#, fuzzy
-#| "Oops!! Access token has expired.Please authenticate token for Google "
-#| "Merchant Shop to be able to send feed."
-msgid ""
-"Oops!! Access token has expired 😕. Please authenticate token for Google "
-"Merchant Shop to be able to send feed."
-msgstr ""
-"Jejda !! Platnost přístupového tokenu vypršela. Ověřte token, aby mohl "
-"obchod Google Merchant Shop posílat zdroj."
-
-#: admin/class-rex-product-feed-metabox.php:784
-msgid "Authenticate"
-msgstr "Ověřit"
-
-#: admin/class-rex-product-feed-metabox.php:789
-msgid "Send to google merchant"
-msgstr "Odeslat obchodníkovi Google"
-
-#: admin/class-rex-product-feed-notices.php:37
-msgid "Product Feed"
-msgstr "Krmení produktu"
-
-#: admin/feed/abstract-rex-product-feed-generator.php:368
-msgid "Start feed processing job by cron"
-msgstr "Spusťte úlohu zpracování kanálu pomocí cronu"
-
-#: admin/feed/abstract-rex-product-feed-generator.php:378
-msgid "Start feed processing job."
-msgstr "Spusťte úlohu zpracování zdroje."
-
-#: admin/feed/abstract-rex-product-feed-generator.php:1005
-msgid "Completed feed generation job."
-msgstr "Dokončena úloha generování zdroje."
-
-#: admin/partials/category_mapping.php:46
-msgid "Update"
-msgstr "Aktualizace"
-
-#: admin/partials/category_mapping.php:47
-msgid "Delete"
-msgstr "Odstranit"
-
-#: admin/partials/category_mapping.php:57
-msgid "Please update WPFM database"
-msgstr "Aktualizujte prosím databázi WPFM"
-
-#: admin/partials/category_mapping.php:70
-msgid "Add New Category Map"
-msgstr "Přidat novou mapu kategorií"
-
-#: admin/partials/category_mapping.php:74
-msgid "Mapper Name"
-msgstr "Název mapovače"
-
-#: admin/partials/category_mapping.php:87
-msgid "Save"
-msgstr "Uložit"
-
-#: admin/partials/database-update-notice.php:6
-msgid "WPFM Database Update Notice"
-msgstr "Oznámení o aktualizaci databáze WPFM"
-
-#: admin/partials/database-update-notice.php:10
-msgid ""
-"WooCommerce Product Feed Manager is getting better and now, has an updated "
-"data structure for it to run smoothly. Click on update now to get the latest "
-"data structure for WPFM. None of your data will be changed/removed, only "
-"WPFM data will be restructured for better outcome."
-msgstr ""
-"Produkt WooCommerce Product Feed Manager se zlepšuje a nyní má "
-"aktualizovanou strukturu dat, aby mohl běžet hladce. Kliknutím na "
-"aktualizaci získáte nejnovější strukturu dat pro WPFM. Žádné z vašich dat "
-"nebudou změněny / odstraněny, pouze WPFM data budou restrukturalizována pro "
-"lepší výsledek."
-
-#: admin/partials/database-update-notice.php:11
-msgid ""
-"The database update process runs in the background and may take a little "
-"while, so please be patient."
-msgstr ""
-"Proces aktualizace databáze probíhá na pozadí a může chvíli trvat, takže "
-"buďte trpěliví."
-
-#: admin/partials/database-update-notice.php:17
-msgid "Update WPFM Database"
-msgstr "Aktualizujte databázi WPFM"
-
-#: admin/partials/database-update-running-notice.php:6
-msgid "Update in progress…."
-msgstr "Aktualizace probíhá…."
-
-#: admin/partials/database-update-running-notice.php:10
-msgid "It will run in the background while you can continue browsing."
-msgstr "Bude spuštěn na pozadí, zatímco budete moci pokračovat v prohlížení."
-
-#: admin/partials/feed-config-metabox-display-filter.php:36
-msgid "If"
-msgstr "Li"
-
-#: admin/partials/feed-config-metabox-display-filter.php:37
-msgid "Condition"
-msgstr "Stav"
-
-#: admin/partials/feed-config-metabox-display-filter.php:38
-#: admin/partials/feed-config-metabox-display.php:29
-msgid "Value"
-msgstr "Hodnota"
-
-#: admin/partials/feed-config-metabox-display-filter.php:39
-msgid "Then"
-msgstr "Pak"
-
-#: admin/partials/feed-config-metabox-display.php:27
-msgid "Attributes"
-msgstr "Atributy"
-
-#: admin/partials/feed-config-metabox-display.php:28
-msgid "Type"
-msgstr "Typ"
-
-#: admin/partials/feed-config-metabox-display.php:30
-msgid "Prefix"
-msgstr "Předpona"
-
-#: admin/partials/feed-config-metabox-display.php:31
-msgid "Suffix"
-msgstr "Přípona"
-
-#: admin/partials/feed-config-metabox-display.php:32
-msgid "Output Sanitization"
-msgstr "Výstupní dezinfekce"
-
-#: admin/partials/feed-config-metabox-display.php:33
-msgid "Output Limit"
-msgstr "Výstupní limit"
-
-#: admin/partials/merchant_settings.php:38
-msgid "Configure your google merchant"
-msgstr "Nakonfigurujte svého obchodníka google"
-
-#: admin/partials/merchant_settings.php:44
-msgid "Client ID#: "
-msgstr "ID klienta:"
-
-#: admin/partials/merchant_settings.php:48
-msgid "Client Secret: "
-msgstr "Tajemství klienta:"
-
-#: admin/partials/merchant_settings.php:52
-msgid "Merchant ID# : "
-msgstr "ID obchodníka:"
-
-#: admin/partials/merchant_settings.php:57
-msgid "Redirect URL"
-msgstr "Adresa URL přesměrování"
-
-#: admin/partials/merchant_settings.php:60
-msgid "Reset"
-msgstr "Resetovat"
-
-#: admin/partials/merchant_settings.php:64
-msgid "Submit"
-msgstr "Předložit"
-
-#: admin/partials/on_boarding.php:50 admin/partials/on_boarding.php:204
-msgid "Go Premium"
-msgstr "Přejít na prémii"
-
-#: admin/partials/on_boarding.php:52
-#, php-format
-msgid ""
-"Purchase our <a href=\"%s\" target=\"_blank\" title=\"Click to Upgrade Pro\">"
-"premium version</a> to unlock these pro components!"
-msgstr ""
-"K odemknutí těchto profesionálních součástí si zakupte naši <a href=\"%s\" "
-"target=\"_blank\" title=\"Kliknutím na Upgrade Pro\"> prémiovou verzi </a>!"
-
-#: admin/partials/on_boarding.php:56
-msgid "ok"
-msgstr "OK"
-
-#: admin/partials/on_boarding.php:91
-msgid "General"
-msgstr "Všeobecné"
-
-#: admin/partials/on_boarding.php:115
-msgid "Merchants"
-msgstr "Obchodníci"
-
-#: admin/partials/on_boarding.php:158 admin/partials/on_boarding.php:1300
-msgid "Controls"
-msgstr "Řízení"
-
-#: admin/partials/on_boarding.php:180
-msgid "Video Tutorials"
-msgstr "Video návody"
-
-#: admin/partials/on_boarding.php:200 admin/partials/on_boarding.php:1495
-msgid "System Status"
-msgstr "Stav systému"
-
-#: admin/partials/on_boarding.php:207
-msgid "Logs"
-msgstr "Protokoly"
-
-#: admin/partials/on_boarding.php:225
-msgid "Documentation"
-msgstr "Dokumentace"
-
-#: admin/partials/on_boarding.php:230
-msgid ""
-"Before You start, you can check our Documentation to get familiar with "
-"WooCommerce Product Feed Manager."
-msgstr ""
-"Než začnete, můžete si přečíst naši dokumentaci, abyste se seznámili s "
-"produktem WooCommerce Feed Manager."
-
-#: admin/partials/on_boarding.php:233
-msgid "View Documentation"
-msgstr "Zobrazit dokumentaci"
-
-#: admin/partials/on_boarding.php:247
-msgid ""
-"Can't find solution on with our documentation? Just Post a ticket on Support "
-"forum. We are to solve your issue."
-msgstr ""
-"Nemůžete najít řešení v naší dokumentaci? Stačí vložit lístek na fóru "
-"podpory. Váš problém vyřešíme."
-
-#: admin/partials/on_boarding.php:250
-msgid "Post a Ticket"
-msgstr "Vložte lístek"
-
-#: admin/partials/on_boarding.php:259
-msgid "Share Your Thoughts"
-msgstr "Sdílej svoje myšlenky"
-
-#: admin/partials/on_boarding.php:264
-msgid ""
-"Your suggestions are valubale to us. It can help to make WPFM even better."
-msgstr "Vaše návrhy jsou pro nás cenné. Může pomoci vylepšit WPFM."
-
-#: admin/partials/on_boarding.php:267
-msgid "Suggest"
-msgstr "Navrhnout"
-
-#: admin/partials/on_boarding.php:276
-msgid "Make WPFM Popular"
-msgstr "Udělejte si WPFM populární"
-
-#: admin/partials/on_boarding.php:281
-msgid ""
-"Your rating and feedback matters to us. If you are happy with WooCommerce "
-"Product Feed Manager give us a rating."
-msgstr ""
-"Vaše hodnocení a zpětná vazba jsou pro nás důležité. Pokud jste spokojeni s "
-"produktem Feed Manager produktu WooCommerce, dejte nám hodnocení."
-
-#: admin/partials/on_boarding.php:284
-msgid "Rate Us!"
-msgstr "Ohodnoťte nás!"
-
-#: admin/partials/on_boarding.php:293
-msgid "Share On"
-msgstr "Sdílet na"
-
-#: admin/partials/on_boarding.php:298
-msgid "Share on Facebook"
-msgstr "Sdílet na Facebooku"
-
-#: admin/partials/on_boarding.php:299
-msgid "Share on Twitter"
-msgstr "Sdílet na Twitteru"
-
-#: admin/partials/on_boarding.php:300
-msgid "Share on Google+"
-msgstr "Sdílet na Google+"
-
-#: admin/partials/on_boarding.php:301
-msgid "Share on LinkedIn"
-msgstr "Sdílet na LinkedIn"
-
-#: admin/partials/on_boarding.php:313 admin/partials/on_boarding.php:1620
-msgid "Why upgrade to Pro?"
-msgstr "Proč upgradovat na Pro?"
-
-#: admin/partials/on_boarding.php:315 admin/partials/on_boarding.php:1622
-msgid "Generate feed for unlimited products"
-msgstr "Generujte krmivo pro neomezené množství produktů"
-
-#: admin/partials/on_boarding.php:316 admin/partials/on_boarding.php:1623
-msgid ""
-"Unique Product Identifiers Custom Fields (Brand, GTIN, MPN, UPC, EAN, JAN, "
-"ISBN, ITF14, Offer price, Offer effective date)"
-msgstr ""
-"Vlastní pole jedinečných identifikátorů produktu (značka, GTIN, MPN, UPC, "
-"EAN, JAN, ISBN, ITF14, nabídková cena, datum účinnosti nabídky)"
-
-#: admin/partials/on_boarding.php:317 admin/partials/on_boarding.php:1624
-msgid ""
-"Detailed Product Attributes Custom Fields (Size, Pattern, Material, Age "
-"Group, Gender, Color)"
-msgstr ""
-"Podrobné atributy produktu Vlastní pole (velikost, vzor, materiál, věková "
-"skupina, pohlaví, barva)"
-
-#: admin/partials/on_boarding.php:318 admin/partials/on_boarding.php:1625
-msgid "Ability To Exclude Tax From Structured Data Prices"
-msgstr "Schopnost vyloučit daň z cen strukturovaných dat"
-
-#: admin/partials/on_boarding.php:319 admin/partials/on_boarding.php:1626
-msgid "Option To Fix WooCommerce’s (Json-Ld) Structured Data Bug"
-msgstr ""
-"Možnost opravit chybu strukturovaných dat společnosti WooCommerce (Json-Ld)"
-
-#: admin/partials/on_boarding.php:320 admin/partials/on_boarding.php:1627
-msgid "Custom Batch configuration"
-msgstr "Konfigurace vlastní dávky"
-
-#: admin/partials/on_boarding.php:321 admin/partials/on_boarding.php:1628
-msgid ""
-"9 more pre-built templates (including eBay MIP, eBay Seller Center, Google "
-"Product Review, Google Re-marketing (DRM) and others)"
-msgstr ""
-"9 dalších předdefinovaných šablon (včetně eBay MIP, eBay Seller Center, "
-"Recenze produktů Google, Re-marketing Google (DRM) a další)"
-
-#: admin/partials/on_boarding.php:324
-msgid "Upgrade to Pro"
-msgstr "Upgradujte na Pro"
-
-#: admin/partials/on_boarding.php:334
-msgid "Available Merchants"
-msgstr "Dostupné obchodníky"
-
-#: admin/partials/on_boarding.php:1268 admin/partials/on_boarding.php:1361
-#: admin/partials/on_boarding.php:1386 admin/partials/on_boarding.php:1413
-#: admin/partials/on_boarding.php:1438 admin/partials/on_boarding.php:1466
-msgid "pro"
-msgstr "pro"
-
-#: admin/partials/on_boarding.php:1303
-msgid "Product(s) per batch"
-msgstr "Produkt (produkty) na šarži"
-
-#: admin/partials/on_boarding.php:1313
-msgid "Clear batch"
-msgstr "Vymazat šarži"
-
-#: admin/partials/on_boarding.php:1319
-msgid "Enable Facebook Pixel"
-msgstr "Povolit Facebook Pixel"
-
-#: admin/partials/on_boarding.php:1335
-msgid "Enable log"
-msgstr "Povolit protokol"
-
-#: admin/partials/on_boarding.php:1349
-msgid "Facebook Pixel id"
-msgstr "Facebook Pixel id"
-
-#: admin/partials/on_boarding.php:1365
-msgid "Add custom fields for Amazon"
-msgstr "Přidejte vlastní pole pro Amazon"
-
-#: admin/partials/on_boarding.php:1391
-msgid "Exclude TAX from structured data prices"
-msgstr "Vyloučit daň z cen strukturovaných dat"
-
-#: admin/partials/on_boarding.php:1417
-msgid ""
-"Add Unique Product Identifiers ( Brand, GTIN, MPN, UPC, EAN, JAN, ISBN, "
-"ITF14, Offer price, Offer effective date ) to product"
-msgstr ""
-"Přidejte k produktu jedinečné identifikátory produktu (značka, GTIN, MPN, "
-"UPC, EAN, JAN, ISBN, ITF14, nabídková cena, datum účinnosti nabídky)"
-
-#: admin/partials/on_boarding.php:1443
-msgid ""
-"Increase the number of products that will be approved in Google's Merchant "
-"Center:\n"
-"                                           This option will fix "
-"WooCommerce's (JSON-LD) structured data bug and add extra structured data "
-"elements to your pages"
-msgstr ""
-"Zvyšte počet produktů, které budou schváleny ve službě Google Merchant "
-"Center:\n"
-"                                            Tato možnost opraví chybu "
-"strukturovaných dat WooCommerce (JSON-LD) a přidá na vaše stránky další "
-"prvky strukturovaných dat."
-
-#: admin/partials/on_boarding.php:1470
-msgid ""
-"Add Detailed Product Attributes ( Size, Color, Pattern, Material, Age group, "
-"Gender, Additional info ) to product"
-msgstr ""
-"Přidejte do produktu podrobné atributy produktu (velikost, barva, vzor, "
-"materiál, věková skupina, pohlaví, další informace)"
-
-#: admin/partials/on_boarding.php:1525
-msgid "PHP version:"
-msgstr "Verze PHP:"
-
-#: admin/partials/on_boarding.php:1531
-#, php-format
-msgid ""
-"%1$s - We recommend using PHP version 7.2 or above for greater performance "
-"and security."
-msgstr ""
-"Pro vyšší výkon a zabezpečení doporučujeme používat PHP verze 7.2 nebo vyšší."
-
-#: admin/partials/on_boarding.php:1537
-msgid "WordPress version:"
-msgstr "Verze WordPress:"
-
-#: admin/partials/on_boarding.php:1543
-#, php-format
-msgid "%1$s - WP version above 4 is required. "
-msgstr "Je vyžadována verze WP nad 4."
-
-#: admin/partials/on_boarding.php:1549
-msgid "WooCommerce Version:"
-msgstr "Verze WooCommerce:"
-
-#: admin/partials/on_boarding.php:1555
-#, php-format
-msgid "%1$s - WC version above 4 is required. "
-msgstr "Je nutná verze WC nad 4."
-
-#: admin/partials/on_boarding.php:1561
-msgid "Memory:"
-msgstr "Paměť:"
-
-#: admin/partials/on_boarding.php:1567
-#, php-format
-msgid "%1$s - We recommend setting memory to at least 64MB. See: %2$s"
-msgstr "Doporučujeme nastavit paměť alespoň na 64 MB. Vidět:"
-
-#: admin/partials/on_boarding.php:1567
-msgid "Increasing memory allocated to PHP"
-msgstr "Zvyšování paměti přidělené PHP"
-
-#: admin/partials/on_boarding.php:1573
-msgid "Upload Limit:"
-msgstr "Limit nahrávání:"
-
-#: admin/partials/on_boarding.php:1579
-#, php-format
-msgid "%1$s - We recommend upload limit to at least 64MB."
-msgstr "Doporučujeme uploadovat minimálně 64 MB."
-
-#: admin/partials/on_boarding.php:1585
-msgid "WP Cron"
-msgstr "WP Cron"
-
-#: admin/partials/on_boarding.php:1597
-msgid "Product Feed Directory Writable"
-msgstr "It is required to make feed directory writable."
-
-#: admin/partials/on_boarding.php:1603
-#, php-format
-msgid "It is required to make feed directory writable. %1$s"
-msgstr "Je nutné, aby byl adresář zdroje zapisovatelný."
-
-#: admin/partials/on_boarding.php:1630
-msgid "Get Premium Version"
-msgstr "Získejte prémiovou verzi"
-
-#: admin/partials/on_boarding.php:1653
-msgid "View log"
-msgstr "Zobrazit protokol"
-
-#: admin/partials/on_boarding.php:1657
-msgid "Copy log"
-msgstr "Kopírovat protokol"
-
-#: admin/partials/progress-bar.php:27
+"Platnost vašeho přístupového tokenu vypršela. Tato aplikace používá OAuth 2."
+"0 pro přístup k rozhraní API Google. Vložte prosím níže uvedené informace a "
+"ověřte token pro Google Merchant Shop. Platnost generovaného přístupového "
+"tokenu vyprší po 3600 sekundách."
+
+#: admin/partials/progress-bar.php:21
 msgid "Your feed is generating"
-msgstr "Váš zdroj se generuje"
+msgstr "Váš zdroj generuje"
 
-#: admin/partials/wpmf-black-friday-notice.php:16
-msgid "Upgrade to pro with a"
-msgstr "Upgradujte na profík s"
+#: admin/partials/rex-feed-feed-file-section-content.php:13
+msgid "Your Feed URL"
+msgstr "URL vašeho zdroje"
 
-#: admin/partials/wpmf-black-friday-notice.php:17
-msgid "Huge Black Friday Discount"
-msgstr "Obrovská černá páteční sleva"
-
-#: admin/partials/wpmf-black-friday-notice.php:18
-msgid "Generate ultimate product feed in minutes."
-msgstr "Generujte maximální množství krmiva během několika minut."
-
-#: admin/partials/wpmf-black-friday-notice.php:25
-msgid "Coupon:"
-msgstr "Kupón:"
-
-#. Name of the plugin
-msgid "WooCommerce Product Feed Manager"
-msgstr "Správce zdroje produktů WooCommerce"
-
-#. Description of the plugin
-msgid ""
-"WooCommerce Product Feed Manager helps you to sell more by uploading product "
-"feed to Google shopping, Amazon, Walmart, eBay, Nextag, Pricegrabber and "
-"acquiring real buyer."
-msgstr ""
-"Produkt WooCommerce Product Feed Manager vám pomůže prodat více tím, že "
-"nahrajete zdroj produktů do Nákupů Google, Amazon, Walmart, eBay, Nextag, "
-"Pricegrabber a získání skutečného kupce."
-
-#. URI of the plugin
-#. Author URI of the plugin
-msgid "https://rextheme.com"
-msgstr "https://rextheme.com"
-
-#. Author of the plugin
-msgid "RexTheme"
-msgstr "RexTheme"
+#: admin/partials/rex-feed-merchant-dropdown-section.php:201
+msgid "Your hotline store name."
+msgstr "Název vašeho obchodu na horké lince."

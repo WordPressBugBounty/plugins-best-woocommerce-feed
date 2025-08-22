@@ -51,6 +51,7 @@ jQuery(document).ready(function($){
         let $payload = {
             map_name: $('#map_name').val(),
             cat_map: $('.add_cat_map').serialize(),
+            feed_id: $('#post_ID').val()
         };
 
         if ($('#map_name').val().length != 0){
@@ -92,7 +93,8 @@ jQuery(document).ready(function($){
         let $payload = {
             map_name: map_name.text(),
             cat_map: form.serialize(),
-            map_key: map_name.attr('data-id')
+            map_key: map_name.attr('data-id'),
+            feed_id: $('#post_ID').val()
         };
         $('.rex-loading-spinner').css('display', 'flex');
 
@@ -122,7 +124,8 @@ jQuery(document).ready(function($){
         let container = $(this).closest('.acordion-item');
         let map_name = container.find('.mapper_name_update');
         let $payload = {
-            map_key: map_name.attr('data-id')
+            map_key: map_name.attr('data-id'),
+            feed_id: $('#post_ID').val()
         };
 
         $('.rex-loading-spinner').css('display', 'flex');

@@ -11,8 +11,13 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
     );
 
     public static $prefixLengthsPsr4 = array (
+        'R' => 
+        array (
+            'RexTheme\\RexProductFeedManager\\' => 31,
+        ),
         'P' => 
         array (
+            'PostHog\\' => 8,
             'PhilipNewcomer\\WP_Ajax_Helper\\' => 30,
         ),
         'A' => 
@@ -22,6 +27,15 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
     );
 
     public static $prefixDirsPsr4 = array (
+        'RexTheme\\RexProductFeedManager\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/includes',
+            1 => __DIR__ . '/../..' . '/admin',
+        ),
+        'PostHog\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/posthog/posthog-php/lib',
+        ),
         'PhilipNewcomer\\WP_Ajax_Helper\\' => 
         array (
             0 => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components',
@@ -48,6 +62,19 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
         'PhilipNewcomer\\WP_Ajax_Helper\\Utility' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components/Utility.php',
         'PhilipNewcomer\\WP_Ajax_Helper\\Validations' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components/Validations.php',
         'PhilipNewcomer\\WP_Ajax_Helper\\Validator' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components/Validator.php',
+        'PostHog\\Client' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Client.php',
+        'PostHog\\Consumer' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer.php',
+        'PostHog\\Consumer\\File' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer/File.php',
+        'PostHog\\Consumer\\ForkCurl' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer/ForkCurl.php',
+        'PostHog\\Consumer\\LibCurl' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer/LibCurl.php',
+        'PostHog\\Consumer\\Socket' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer/Socket.php',
+        'PostHog\\FeatureFlag' => __DIR__ . '/..' . '/posthog/posthog-php/lib/FeatureFlag.php',
+        'PostHog\\HttpClient' => __DIR__ . '/..' . '/posthog/posthog-php/lib/HttpClient.php',
+        'PostHog\\HttpResponse' => __DIR__ . '/..' . '/posthog/posthog-php/lib/HttpResponse.php',
+        'PostHog\\InconclusiveMatchException' => __DIR__ . '/..' . '/posthog/posthog-php/lib/InconclusiveMatchException.php',
+        'PostHog\\PostHog' => __DIR__ . '/..' . '/posthog/posthog-php/lib/PostHog.php',
+        'PostHog\\QueueConsumer' => __DIR__ . '/..' . '/posthog/posthog-php/lib/QueueConsumer.php',
+        'PostHog\\SizeLimitedHash' => __DIR__ . '/..' . '/posthog/posthog-php/lib/SizeLimitedHash.php',
         'RexFeed\\Google\\AccessToken\\Revoke' => __DIR__ . '/../..' . '/includes/library/google/apiclient/src/AccessToken/Revoke.php',
         'RexFeed\\Google\\AccessToken\\Verify' => __DIR__ . '/../..' . '/includes/library/google/apiclient/src/AccessToken/Verify.php',
         'RexFeed\\Google\\AuthHandler\\AuthHandlerFactory' => __DIR__ . '/../..' . '/includes/library/google/apiclient/src/AuthHandler/AuthHandlerFactory.php',
@@ -840,6 +867,13 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
         'RexTheme\\RexHeurekaAvailability\\Feed' => __DIR__ . '/../..' . '/admin/feed/rex-shopping-heureka-availability/Feed.php',
         'RexTheme\\RexHeurekaAvailability\\Item' => __DIR__ . '/../..' . '/admin/feed/rex-shopping-heureka-availability/Item.php',
         'RexTheme\\RexHeurekaAvailability\\Node' => __DIR__ . '/../..' . '/admin/feed/rex-shopping-heureka-availability/Node.php',
+        'RexTheme\\RexProductFeedManager\\Tracking\\AbstractEvent' => __DIR__ . '/../..' . '/admin/Tracking/AbstractEvent.php',
+        'RexTheme\\RexProductFeedManager\\Tracking\\Events\\AhaMomentEvents' => __DIR__ . '/../..' . '/admin/Tracking/Events/AhaMomentEvents.php',
+        'RexTheme\\RexProductFeedManager\\Tracking\\Events\\HabitMomentEvents' => __DIR__ . '/../..' . '/admin/Tracking/Events/HabitMomentEvents.php',
+        'RexTheme\\RexProductFeedManager\\Tracking\\Events\\SetupEvents' => __DIR__ . '/../..' . '/admin/Tracking/Events/SetupEvents.php',
+        'RexTheme\\RexProductFeedManager\\Tracking\\Events\\SignupEvents' => __DIR__ . '/../..' . '/admin/Tracking/Events/SignupEvents.php',
+        'RexTheme\\RexProductFeedManager\\Tracking\\PosthogClient' => __DIR__ . '/../..' . '/admin/Tracking/PosthogClient.php',
+        'RexTheme\\RexProductFeedManager\\Tracking\\Tracker' => __DIR__ . '/../..' . '/admin/Tracking/Tracker.php',
         'RexTheme\\RexShoppingBestprice\\Containers\\RexShopping' => __DIR__ . '/../..' . '/admin/feed/rex-shopping-bestprice/Containers/RexShopping.php',
         'RexTheme\\RexShoppingBestprice\\Feed' => __DIR__ . '/../..' . '/admin/feed/rex-shopping-bestprice/Feed.php',
         'RexTheme\\RexShoppingBestprice\\Item' => __DIR__ . '/../..' . '/admin/feed/rex-shopping-bestprice/Item.php',

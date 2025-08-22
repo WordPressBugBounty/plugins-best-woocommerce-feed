@@ -2041,6 +2041,7 @@
             map_name: default_name,
             cat_map: default_value,
             hash: "wpfm_google_product_category_default",
+            feed_id: $('#post_ID').val()
         };
 
         wpAjaxHelperRequest( 'rexfeed-save-category-mapping', $payload )

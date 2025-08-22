@@ -6,6 +6,8 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'RexTheme\\RexProductFeedManager\\' => array($baseDir . '/includes', $baseDir . '/admin'),
+    'PostHog\\' => array($vendorDir . '/posthog/posthog-php/lib'),
     'PhilipNewcomer\\WP_Ajax_Helper\\' => array($vendorDir . '/philipnewcomer/wp-ajax-helper/src/components'),
     'Appsero\\' => array($vendorDir . '/appsero/client/src'),
 );

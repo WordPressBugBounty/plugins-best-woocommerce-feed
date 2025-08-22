@@ -6,7 +6,7 @@ Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, 
 Requires at least: 5.0
 Tested up to:  6.8.2
 Requires PHP: 7.4
-Stable tag:  7.4.46
+Stable tag:  7.4.47
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -481,12 +481,15 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 == Changelog ==
 
+= 7.4.47 (2025-08-22) =
+* Fix: Translated descriptions not appearing in feeds for grouped products when using TranslatePress
+* Enhancement: Translation update for German, Dutch, French, Italian, Spanish, Arabic, Croatian, Czech, Danish, Finnish, German (Switzerland), Japanese, Polish, Portuguese (Portugal), Russian, Swedish, Chinese (China), Greek, Hebrew, Portuguese (Brazil)
+
 = 7.4.46 (2025-08-12) =
 * Enhancement: WooCommerce Brands Filter
 * Fix: Incorrect pricing in WPML currency on auto-generated feed refresh
 * Fix: Custom scheduler now updates “Last Update,” triggers “In Queue,” and runs on schedule
 * Fix: Fixed issue where duplicated feeds did not retain all feed settings
-
 
 = 7.4.45 (2025-08-05) =
 * Fix: Auto-collapse "Add New Attribute" after adding to confirm success and avoid duplicates

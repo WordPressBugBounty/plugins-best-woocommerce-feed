@@ -783,4 +783,16 @@ class Rex_Product_Feed_Admin {
             'name' => !empty( $admin_user->display_name ) ? $admin_user->display_name : '',
         );
     }
+
+    /**
+     * Check if product feed tracking is enabled.
+     *
+     * @return bool True if tracking is enabled, false otherwise.
+     * @since 7.4.47
+     */
+    public function rex_product_feed_tracking_enabled(){
+        $value = get_option( 'rex_product_feed_posthog_access', true );
+        return (bool) $value;
+    }
 }
+
