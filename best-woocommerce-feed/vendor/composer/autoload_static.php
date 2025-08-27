@@ -11,10 +11,6 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
     );
 
     public static $prefixLengthsPsr4 = array (
-        'R' => 
-        array (
-            'RexTheme\\RexProductFeedManager\\' => 31,
-        ),
         'P' => 
         array (
             'PostHog\\' => 8,
@@ -27,11 +23,6 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
     );
 
     public static $prefixDirsPsr4 = array (
-        'RexTheme\\RexProductFeedManager\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/includes',
-            1 => __DIR__ . '/../..' . '/admin',
-        ),
         'PostHog\\' => 
         array (
             0 => __DIR__ . '/..' . '/posthog/posthog-php/lib',
@@ -68,13 +59,10 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
         'PostHog\\Consumer\\ForkCurl' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer/ForkCurl.php',
         'PostHog\\Consumer\\LibCurl' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer/LibCurl.php',
         'PostHog\\Consumer\\Socket' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer/Socket.php',
-        'PostHog\\FeatureFlag' => __DIR__ . '/..' . '/posthog/posthog-php/lib/FeatureFlag.php',
         'PostHog\\HttpClient' => __DIR__ . '/..' . '/posthog/posthog-php/lib/HttpClient.php',
         'PostHog\\HttpResponse' => __DIR__ . '/..' . '/posthog/posthog-php/lib/HttpResponse.php',
-        'PostHog\\InconclusiveMatchException' => __DIR__ . '/..' . '/posthog/posthog-php/lib/InconclusiveMatchException.php',
         'PostHog\\PostHog' => __DIR__ . '/..' . '/posthog/posthog-php/lib/PostHog.php',
         'PostHog\\QueueConsumer' => __DIR__ . '/..' . '/posthog/posthog-php/lib/QueueConsumer.php',
-        'PostHog\\SizeLimitedHash' => __DIR__ . '/..' . '/posthog/posthog-php/lib/SizeLimitedHash.php',
         'RexFeed\\Google\\AccessToken\\Revoke' => __DIR__ . '/../..' . '/includes/library/google/apiclient/src/AccessToken/Revoke.php',
         'RexFeed\\Google\\AccessToken\\Verify' => __DIR__ . '/../..' . '/includes/library/google/apiclient/src/AccessToken/Verify.php',
         'RexFeed\\Google\\AuthHandler\\AuthHandlerFactory' => __DIR__ . '/../..' . '/includes/library/google/apiclient/src/AuthHandler/AuthHandlerFactory.php',
@@ -1189,16 +1177,20 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
         'Rex_Product_CPT' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-cpt.php',
         'Rex_Product_Data_Retriever' => __DIR__ . '/../..' . '/admin/class-rex-product-data-retriever.php',
         'Rex_Product_Ebay_Seller_Data_Retriever' => __DIR__ . '/../..' . '/admin/feed/rex-shopping-feed/ebay-seller/class-rex-product-feed-pro-ebay-seller-data-retriever.php',
+        'Rex_Product_Feed' => __DIR__ . '/../..' . '/includes/class-rex-product-feed.php',
         'Rex_Product_Feed_Abstract_Generator' => __DIR__ . '/../..' . '/admin/feed/abstract-rex-product-feed-generator.php',
         'Rex_Product_Feed_Actions' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-actions.php',
+        'Rex_Product_Feed_Activator' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-activator.php',
         'Rex_Product_Feed_Admin' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-admin.php',
         'Rex_Product_Feed_Ajax' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-ajax.php',
         'Rex_Product_Feed_Bestprice' => __DIR__ . '/../..' . '/admin/feed/class_rex_product_feed_bestprice.php',
         'Rex_Product_Feed_Bing_image' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-bing-image.php',
         'Rex_Product_Feed_Ceneo' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-ceneo.php',
         'Rex_Product_Feed_Controller' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-controller.php',
+        'Rex_Product_Feed_Create_Contact' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-create-contact.php',
         'Rex_Product_Feed_Daisycon' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-daisycon.php',
         'Rex_Product_Feed_Data_Handle' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-handle-data.php',
+        'Rex_Product_Feed_Deactivator' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-deactivator.php',
         'Rex_Product_Feed_DealsForU' => __DIR__ . '/../..' . '/admin/feed/class_rex_product_feed_deals4u.php',
         'Rex_Product_Feed_Ebay_seller' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-ebay_seller.php',
         'Rex_Product_Feed_Ebay_seller_tickets' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-ebay_seller_tickets.php',
@@ -1220,11 +1212,13 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
         'Rex_Product_Feed_Ibud' => __DIR__ . '/../..' . '/admin/feed/class_rex_product_feed_ibud.php',
         'Rex_Product_Feed_Idealo' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed_idealo.php',
         'Rex_Product_Feed_Lesitedumif' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-lesitedumif.php',
+        'Rex_Product_Feed_Loader' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-loader.php',
         'Rex_Product_Feed_Marktplaats' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-marktplaats.php',
         'Rex_Product_Feed_Mirakl' => __DIR__ . '/../..' . '/admin/feed/class_rex_product_feed_mirakl.php',
         'Rex_Product_Feed_Other' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-other.php',
         'Rex_Product_Feed_Rakuten' => __DIR__ . '/../..' . '/admin/feed/class_rex_product_feed_rakuten.php',
         'Rex_Product_Feed_Rozetka' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-rozetka.php',
+        'Rex_Product_Feed_Setup_Wizard' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-setup-wizard.php',
         'Rex_Product_Feed_Shipping' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-shipping.php',
         'Rex_Product_Feed_Shopee' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-shopee.php',
         'Rex_Product_Feed_Shopping' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-shopping.php',
@@ -1240,6 +1234,7 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
         'Rex_Product_Feed_Zalando_stock_update' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-zalando-stock-update.php',
         'Rex_Product_Feed_Zap_co_il' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-zap-co-il.php',
         'Rex_Product_Feed_Zbozi' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-zbozi.php',
+        'Rex_Product_Feed_i18n' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-i18n.php',
         'Rex_Product_Filter' => __DIR__ . '/../..' . '/admin/feed-filter/class-rex-product-filter.php',
         'Rex_Product_Glami_Data_Retriever' => __DIR__ . '/../..' . '/admin/feed/glami/class-free-glami-data-retriever.php',
         'Rex_Product_Marktplaats_Data_Retriever' => __DIR__ . '/../..' . '/admin/feed/marktplaats/marktplaats-data-retriever.php',

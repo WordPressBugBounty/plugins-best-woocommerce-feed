@@ -91,7 +91,7 @@ class Rex_Product_Feed {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
-		$this->init_tracking();
+//		$this->init_tracking();
 	}
 
 	/**

@@ -21,10 +21,10 @@ class LibCurl extends QueueConsumer
      *     number   "max_queue_size" - the max size of messages to enqueue
      *     number   "batch_size" - how many messages to send in a single request
      */
-    public function __construct($apiKey, $options = [], ?HttpClient $httpClient = null)
+    public function __construct($apiKey, $options = [])
     {
         parent::__construct($apiKey, $options);
-        $this->httpClient = $httpClient !== null ? $httpClient : new HttpClient(
+        $this->httpClient = new HttpClient(
             $this->host,
             $this->ssl(),
             $this->maximum_backoff_duration,
@@ -76,9 +76,6 @@ class LibCurl extends QueueConsumer
             [
                 // Send user agent in the form of {library_name}/{library_version} as per RFC 7231.
                 "User-Agent: {$messages[0]['library']}/{$messages[0]['library_version']}",
-            ],
-            [
-                'shouldVerify' => $this->options['verify_batch_events_request'] ?? true,
             ]
         )->getResponse();
     }

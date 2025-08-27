@@ -6,11 +6,11 @@ use Exception;
 
 class PostHog
 {
-    public const VERSION = '3.6.0';
+    public const VERSION = '2.1.0';
     public const ENV_API_KEY = "POSTHOG_API_KEY";
     public const ENV_HOST = "POSTHOG_HOST";
 
-    private static Client $client;
+    private static $client;
 
     /**
      * Initializes the default client to use. Uses the libcurl consumer by default.
@@ -19,14 +19,11 @@ class PostHog
      * @param Client|null $client
      * @throws Exception
      */
-    public static function init(
-        ?string $apiKey = null,
-        ?array $options = [],
-        ?Client $client = null,
-        ?string $personalAPIKey = null
-    ): void {
+    public static function init(?string $apiKey = null, ?array $options = [], ?Client $client = null): void
+    {
         if (null === $client) {
             $apiKey = $apiKey ?: getenv(self::ENV_API_KEY);
+
 
             if (array_key_exists("host", $options)) {
                 $options["host"] = self::cleanHost($options["host"]);
@@ -38,7 +35,7 @@ class PostHog
             }
 
             self::assert($apiKey, "PostHog::init() requires an apiKey");
-            self::$client = new Client($apiKey, $options, null, $personalAPIKey);
+            self::$client = new Client($apiKey, $options);
         } else {
             self::$client = $client;
         }
@@ -111,116 +108,19 @@ class PostHog
      *
      * @param string $key
      * @param string $distinctId
-     * @param array $groups
-     * @param array $personProperties
-     * @param array $groupProperties
+     * @param mixed $default
      * @return boolean
      * @throws Exception
      */
     public static function isFeatureEnabled(
         string $key,
         string $distinctId,
-        array $groups = array(),
-        array $personProperties = array(),
-        array $groupProperties = array(),
-        bool $onlyEvaluateLocally = false,
-        bool $sendFeatureFlagEvents = true
-    ): null | bool {
+        $default = false,
+        array $groups = array()
+    ): bool {
         self::checkClient();
-        return self::$client->isFeatureEnabled(
-            $key,
-            $distinctId,
-            $groups,
-            $personProperties,
-            $groupProperties,
-            $onlyEvaluateLocally,
-            $sendFeatureFlagEvents
-        );
+        return self::$client->isFeatureEnabled($key, $distinctId, $default, $groups);
     }
-
-    /**
-     * get the feature flag value for this distinct id.
-     *
-     * @param string $key
-     * @param string $distinctId
-     * @param array $groups
-     * @param array $personProperties
-     * @param array $groupProperties
-     * @return boolean | string
-     * @throws Exception
-     */
-    public static function getFeatureFlag(
-        string $key,
-        string $distinctId,
-        array $groups = array(),
-        array $personProperties = array(),
-        array $groupProperties = array(),
-        bool $onlyEvaluateLocally = false,
-        bool $sendFeatureFlagEvents = true
-    ): null | bool | string {
-        self::checkClient();
-        return self::$client->GetFeatureFlag(
-            $key,
-            $distinctId,
-            $groups,
-            $personProperties,
-            $groupProperties,
-            $onlyEvaluateLocally,
-            $sendFeatureFlagEvents
-        );
-    }
-
-    /**
-     * @param string $key
-     * @param string $distinctId
-     * @param array $groups
-     * @param array $personProperties
-     * @param array $groupProperties
-     * @return mixed
-     */
-    public static function getFeatureFlagPayload(
-        string $key,
-        string $distinctId,
-        array $groups = array(),
-        array $personProperties = array(),
-        array $groupProperties = array(),
-    ): mixed {
-        return self::$client->getFeatureFlagPayload(
-            $key,
-            $distinctId,
-            $groups,
-            $personProperties,
-            $groupProperties
-        );
-    }
-
-    /**
-     * get all enabled flags for distinct_id
-     *
-     * @param string $distinctId
-     * @param array $groups
-     * @param array $personProperties
-     * @param array $groupProperties
-     * @return array
-     * @throws Exception
-     */
-    public static function getAllFlags(
-        string $distinctId,
-        array $groups = array(),
-        array $personProperties = array(),
-        array $groupProperties = array(),
-        bool $onlyEvaluateLocally = false
-    ): array {
-        self::checkClient();
-        return self::$client->getAllFlags(
-            $distinctId,
-            $groups,
-            $personProperties,
-            $groupProperties,
-            $onlyEvaluateLocally
-        );
-    }
-
 
     /**
      *
@@ -228,10 +128,10 @@ class PostHog
      * @return array
      * @throws Exception
      */
-    public static function fetchFeatureVariants(string $distinctId, array $groups = array()): array
+    public static function fetchEnabledFeatureFlags(string $distinctId, array $groups = array()): array
     {
         self::checkClient();
-        return self::$client->fetchFeatureVariants($distinctId, $groups);
+        return self::$client->fetchEnabledFeatureFlags($distinctId, $groups);
     }
 
     /**
@@ -273,7 +173,7 @@ class PostHog
     public static function validate($msg, $type)
     {
         $distinctId = !empty($msg["distinctId"]);
-        self::assert($distinctId, "PostHog::{$type}() requires distinctId");
+        self::assert($distinctId, "PostHog::${type}() requires distinctId");
     }
 
     /**
