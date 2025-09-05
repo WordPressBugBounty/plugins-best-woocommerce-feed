@@ -72,10 +72,12 @@ class  Rex_Feed_Handle_Google_Product {
 	 * @since 7.4.20
 	 */
 	public static function set_sale_price( Product &$google_product, float $value ) {
-		$price = new Price();
-		$price->setValue( $value );
-		$price->setCurrency( get_option( 'woocommerce_currency' ) );
-		$google_product->setSalePrice( $price );
+		if ( $value > 0 ) {
+			$price = new Price();
+			$price->setValue( $value );
+			$price->setCurrency( get_option( 'woocommerce_currency' ) );
+			$google_product->setSalePrice( $price );
+		}
 	}
 
 	/**

@@ -6,7 +6,7 @@ Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, 
 Requires at least: 5.0
 Tested up to:  6.8.2
 Requires PHP: 7.4
-Stable tag:  7.4.48
+Stable tag:  7.4.49
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -480,6 +480,11 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 
 == Changelog ==
+
+= 7.4.49 (2025-09-05) =
+* Enhancement: Update tooltips
+* Fix: Sale price no longer set to 0 for variations without a sale price in Google Content API feeds
+* Enhancement: Translation update for German, Dutch, French, Italian, Spanish, Arabic, Croatian, Czech, Danish, Finnish, German (Switzerland), Japanese, Polish, Portuguese (Portugal), Russian, Swedish, Chinese (China), Greek, Hebrew, Portuguese (Brazil)
 
 = 7.4.48 (2025-08-27) =
 * Fix: Remove unnecessary code

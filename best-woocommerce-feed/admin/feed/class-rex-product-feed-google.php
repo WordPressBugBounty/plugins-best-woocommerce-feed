@@ -346,7 +346,13 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator {
 			'availability'              => 'setAvailability',
 			'availability_date'         => 'setAvailabilityDate',
 			'price'                     => function ( Product &$google_product, $value ) { Rex_Feed_Handle_Google_Product::set_price( $google_product, (float)$value ); },
-			'sale_price'                => function ( Product &$google_product, $value ) { Rex_Feed_Handle_Google_Product::set_sale_price( $google_product, (float)$value ); },
+			'sale_price'                => function ( Product &$google_product, $value ) { 
+				// Only process sale price if the value is not empty, numeric, and greater than 0
+				// This prevents setting sale price as 0 for variable products that don't have a sale price
+				if ( !empty( $value ) && is_numeric( $value ) && (float)$value > 0 ) {
+					Rex_Feed_Handle_Google_Product::set_sale_price( $google_product, (float)$value );
+				}
+			},
 			'sale_price_effective_date' => 'setSalePriceEffectiveDate',
 			'cost_of_goods_sold'        => 'setCostOfGoodsSold',
 			'expiration_date'           => 'setExpirationDate',

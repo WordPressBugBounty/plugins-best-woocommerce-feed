@@ -14,7 +14,7 @@ $product_brand_url = 'https://rextheme.com/docs/how-to-use-brands-filter-when-ge
                 <span class="rex_feed-tooltip">
                     <?php include plugin_dir_path(__FILE__) . $icon;?>
                     <p>
-                        <?php esc_html_e('Filter feed by WooCommerce product categories', 'rex-product-feed')?>
+                        <?php esc_html_e('Add or exclude products by WooCommerce categories.', 'rex-product-feed')?>
                     </p>
                 </span>
                 <?php
@@ -26,7 +26,7 @@ $product_brand_url = 'https://rextheme.com/docs/how-to-use-brands-filter-when-ge
             </label>
 
             <a href="<?php echo esc_url($product_categories_url)?>" target="_blank">
-                <?php esc_html_e('Learn How', 'rex-product-feed')?>
+                <?php esc_html_e('View Doc', 'rex-product-feed')?>
             </a>
 
         </div>
@@ -64,7 +64,7 @@ $product_brand_url = 'https://rextheme.com/docs/how-to-use-brands-filter-when-ge
                 <span class="rex_feed-tooltip">
                     <?php include plugin_dir_path(__FILE__) . $icon;?>
                     <p>
-                        <?php esc_html_e('Filter feed by WooCommerce tags ', 'rex-product-feed')?>
+                        <?php esc_html_e('Add or exclude products by WooCommerce tags.', 'rex-product-feed')?>
                     </p>
                 </span>
                 <?php
@@ -76,7 +76,7 @@ $product_brand_url = 'https://rextheme.com/docs/how-to-use-brands-filter-when-ge
             </label>
 
             <a href="<?php echo esc_url($product_tag_url)?>" target="_blank">
-                <?php esc_html_e('Learn How', 'rex-product-feed')?>
+                <?php esc_html_e('View Doc', 'rex-product-feed')?>
             </a>
 
         </div>
@@ -114,7 +114,7 @@ $product_brand_url = 'https://rextheme.com/docs/how-to-use-brands-filter-when-ge
                 <span class="rex_feed-tooltip">
                     <?php include plugin_dir_path(__FILE__) . $icon;?>
                     <p>
-                        <?php esc_html_e('Filter feed by WooCommerce brands ', 'rex-product-feed')?>
+                        <?php esc_html_e('Add or exclude products by WooCommerce brands.', 'rex-product-feed')?>
                     </p>
                 </span>
                 <?php
@@ -126,7 +126,7 @@ $product_brand_url = 'https://rextheme.com/docs/how-to-use-brands-filter-when-ge
             </label>
 
             <a href="<?php echo esc_url($product_brand_url)?>" target="_blank">
-                <?php esc_html_e('Learn How', 'rex-product-feed')?>
+                <?php esc_html_e('View Doc', 'rex-product-feed')?>
             </a>
 
         </div>

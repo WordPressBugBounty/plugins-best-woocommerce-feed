@@ -25,7 +25,7 @@ if ( wpfm_pro_compatibility() ) {
                             <?php _e('Custom Filter', 'rex-product-feed' )?>
                             <span class="rex_feed-tooltip">
                                 <?php include plugin_dir_path(__FILE__) . '../assets/icon/icon-svg/icon-question.php';?>
-                                <p><?php esc_html_e( 'Filter your feed products with your preferred condition', 'rex-product-feed' ); ?></p>
+                                <p><?php esc_html_e( 'Add or exclude products based on conditions.', 'rex-product-feed' ); ?></p>
                             </span>
                         </label>
                     </span>

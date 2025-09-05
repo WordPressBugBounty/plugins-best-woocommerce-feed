@@ -24,7 +24,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 			<label for="<?php echo esc_attr( $this->prefix ) . 'schedule_label';?>"><?php esc_html_e('Auto-Generate Your Feed', 'rex-product-feed')?>
 				<span class="rex_feed-tooltip">
                     <?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
-                    <p><?php esc_html_e( 'Set auto-update to keep your feed in sync with WooCommerce ', 'rex-product-feed' ); ?><a href="<?php echo esc_url( 'https://rextheme.com/docs/wpfm-schedule-auto-update-of-feed-on-intervals/?utm_source=plugin&utm_medium=auto_update_link&utm_campaign=pfm_plugin' )?>" target="_blank"><?php esc_html_e('Learn How', 'rex-product-feed')?></a></p>
+                    <p><?php esc_html_e( 'Schedule feed updates at your preferred interval: No interval, Hourly, Daily, Weekly, or a custom time each day. ', 'rex-product-feed' ); ?><a href="<?php echo esc_url( ' https://rextheme.com/docs/wpfm-schedule-auto-update-of-feed-on-intervals/?utm_source=plugin&utm_medium=auto_update_link&utm_campaign=pfm_plugin' )?>" target="_blank"><?php esc_html_e('View Doc', 'rex-product-feed')?></a></p>
                 </span>
 			</label>
 
@@ -75,6 +75,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 		<div class="<?php echo esc_attr( $this->prefix ) . 'country_list_area'; ?>"
 
         <div class="<?php echo esc_attr( $this->prefix ) . 'curcy_list_area'; ?>">
+			
             <?php
             $merchant = get_post_meta( $post_id, '_rex_feed_merchant', true );
             $merchant = $merchant ?: get_post_meta( $post_id, 'rex_feed_merchant', true );
@@ -107,7 +108,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
                     <span class="rex_feed-tooltip">
 						<?php require WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question; ?>
 						<p>
-							<?php esc_html_e( 'Select a country for the Shipping attribute value for Google/Facebook merchants.', 'rex-product-feed' ); ?><a href="<?php echo esc_url( 'https://rextheme.com/docs/product-feed-manager-documentation/?utm_source=plugin&utm_medium=shipping_link&utm_campaign=pfm_plugin#tax-shipping' ); ?>" target="_blank"><?php esc_html_e( 'Learn How', 'rex-product-feed' ); ?></a>
+							<?php esc_html_e( 'Define the country for shipping attribute values (Google/Facebook feeds). ', 'rex-product-feed' ); ?><a href="<?php echo esc_url( 'https://rextheme.com/docs/how-to-include-shipping-values-into-woocommerce-product-feed/' ); ?>" target="_blank"><?php esc_html_e( 'View Doc', 'rex-product-feed' ); ?></a>
 						</p>
 					</span>
                 </label>
@@ -145,7 +146,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 					<?php esc_html_e( 'Include Out of Stock Products', 'rex-product-feed' ); ?>
 					<span class="rex_feed-tooltip">
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
-						<p><?php esc_html_e( 'This option will include/exclude out of stock products from feed', 'rex-product-feed' ); ?></p>
+						<p><?php esc_html_e( 'Add or exclude out-of-stock items.', 'rex-product-feed' ); ?></p>
 					</span>
 				</label>
 
@@ -165,10 +166,10 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 
 			<div class="<?php echo esc_attr( $this->prefix ) . 'include_zero_price_products_content';?> pr-10">
 				<label for="<?php echo esc_attr( $this->prefix ) . 'include_zero_price_products_label';?>">
-					<?php esc_html_e('Include Product with No Price', 'rex-product-feed')?>
+					<?php esc_html_e('Include Products with No Price', 'rex-product-feed')?>
 					<span class="rex_feed-tooltip">
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
-						<p><?php esc_html_e( 'This option will include/exclude products with no regular price set or with regular price zero (0)', 'rex-product-feed' ); ?></p>
+						<p><?php esc_html_e( 'Add or exclude products without a set price.', 'rex-product-feed' ); ?></p>
 					</span>
 				</label>
 
@@ -194,7 +195,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 					<?php esc_html_e('Include Variable Parent Product (No Variations)', 'rex-product-feed')?>
 					<span class="rex_feed-tooltip">
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
-						<p><?php esc_html_e( 'Include Variable Parent Product (No Variations)', 'rex-product-feed' ); ?></p>
+						<p><?php esc_html_e( 'Add or exclude parent products without variations.', 'rex-product-feed' ); ?></p>
 					</span>
 				</label>
 
@@ -216,7 +217,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 				<label for="<?php echo esc_attr( $this->prefix ) . 'hidden_products_label';?>"><?php esc_html_e('Exclude Invisible/Hidden Products', 'rex-product-feed')?>
 					<span class="rex_feed-tooltip">
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
-						<p><?php esc_html_e( 'Enable this option to exclude invisible/hidden products from your feed ', 'rex-product-feed' ); ?><a href="<?php echo esc_url( 'https://rextheme.com/docs/wpfm-exclude-invisible-products-hidden-products/?utm_source=plugin&utm_medium=exclude_invisible_products_link&utm_campaign=pfm_plugin' )?>" target="_blank"><?php esc_html_e('Learn How', 'rex-product-feed')?></a>
+						<p><?php esc_html_e( 'Skip products marked hidden in WooCommerce.', 'rex-product-feed' ); ?><a href="<?php echo esc_url( 'https://rextheme.com/docs/wpfm-exclude-invisible-products-hidden-products/?utm_source=plugin&utm_medium=exclude_invisible_products_link&utm_campaign=pfm_plugin' )?>" target="_blank"><?php esc_html_e('View Doc', 'rex-product-feed')?></a>
 					</p>
 					</span>
 				</label>
@@ -240,17 +241,8 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
 						<p>
 							<?php
-							esc_html_e( 'Include the variation name in the product title', 'rex-product-feed' );
-							echo "<br>";
-							esc_html_e( 'Example:', 'rex-product-feed' );
-							echo "<br>";
-							echo esc_html( '<g:title>' );
-							echo "<br>";
-							echo esc_html( '<![CDATA[ V-Neck T-Shirt - Red ]]>' );
-							echo "<br>";
-							echo esc_html( '</g:title>' );
-							?>
-							<a href="<?php echo esc_url( 'https://rextheme.com/docs/how-to-include-product-variation-term-to-the-product-name/?utm_source=plugin&utm_medium=exclude_variation_name_link&utm_campaign=pfm_plugin' )?>" target="_blank"><?php esc_html_e('Learn How', 'rex-product-feed')?></a>
+							esc_html_e( 'Add or exclude the variation name in the product title (e.g. “T-Shirt – Red”). ', 'rex-product-feed' );?>
+							<a href="<?php echo esc_url( 'https://rextheme.com/docs/how-to-include-product-variation-term-to-the-product-name/' )?>" target="_blank"><?php esc_html_e('View Doc', 'rex-product-feed')?></a>
 						</p>
 					</span>
 				</label>
@@ -273,7 +265,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 				<label for="<?php echo esc_attr( $this->prefix ) . 'parent_product_label';?>"><?php esc_html_e('Include Grouped Products', 'rex-product-feed')?>
 					<span class="rex_feed-tooltip">
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
-						<p><?php esc_html_e( 'Enable this option to include grouped products in your feed', 'rex-product-feed' ); ?></p>
+						<p><?php esc_html_e( 'Add or exclude grouped products.', 'rex-product-feed' ); ?></p>
 					</span>
 				</label>
 
@@ -297,22 +289,8 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
 						<p>
 							<?php
-							esc_html_e( 'Include all the Variable Products Variations in your feed (these are only the product variations)', 'rex-product-feed' );
-							echo "<br>";
-							esc_html_e( 'Example:', 'rex-product-feed' );
-							echo "<br>";
-							echo esc_html( '<g:title>' );
-							echo "<br>";
-							echo esc_html( '<![CDATA[ V-Neck T-Shirt]]>' );
-							echo "<br>";
-							echo esc_html( '</g:title>' );
-							echo "<br>";
-							echo esc_html( '<g:link>' );
-							echo "<br>";
-							echo esc_html( '<![CDATA[ http://URL/]]>' );
-							echo "<br>";
-							echo esc_html( '</g:link>');
-							echo "<br>";
+							esc_html_e( 'Add or exclude all variations as separate products.', 'rex-product-feed' );
+						
 							?>
 						</p>
 					</span>
@@ -355,7 +333,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 				<label for="<?php echo esc_attr( $this->prefix ) . 'skip_product_label';?>"><?php esc_html_e('Skip products with empty value', 'rex-product-feed')?>
 					<span class="rex_feed-tooltip">
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
-						<p><?php esc_html_e( 'This option will remove products if there is a single attribute with empty value', 'rex-product-feed' ); ?></p>
+						<p><?php esc_html_e( 'Exclude products missing any required attribute.', 'rex-product-feed' ); ?></p>
 					</span>
 				</label>
 
@@ -378,7 +356,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 				<label for="<?php echo esc_attr( $this->prefix ) . 'skip_row_label';?>"><?php esc_html_e('Skip attributes with empty value', 'rex-product-feed')?>
 					<span class="rex_feed-tooltip">
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
-						<p><?php esc_html_e( 'This option will remove any attribute with empty value (XML feed format only)', 'rex-product-feed' ); ?></p>
+						<p><?php esc_html_e( 'Exclude empty attributes (XML feeds only).', 'rex-product-feed' ); ?></p>
 					</span>
 				</label>
 
@@ -633,7 +611,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 				<label for="<?php echo esc_attr( $this->prefix ) . 'analytics_params_options_content';?>"><?php esc_html_e('Track Your Campaign', 'rex-product-feed')?>
 					<span class="rex_feed-tooltip">
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
-						<p><?php esc_html_e( 'Analytics Parameters ', 'rex-product-feed' ); ?><a href="<?php echo esc_url( 'https://rextheme.com/docs/how-to-add-utm-parameters-to-product-urls/?utm_source=plugin&utm_medium=analytics_parameters_link&utm_campaign=pfm_plugin' )?>" target="_blank"><?php esc_html_e('Learn How', 'rex-product-feed')?></a>
+						<p><?php esc_html_e( 'Add UTM tracking parameters to feed links.', 'rex-product-feed' ); ?><a href="<?php echo esc_url( 'https://rextheme.com/docs/how-to-add-utm-parameters-to-product-urls/?utm_source=plugin&utm_medium=analytics_parameters_link&utm_campaign=pfm_plugin' )?>" target="_blank"><?php esc_html_e('View Doc', 'rex-product-feed')?></a>
 					</p>
 					</span>
 				</label>
@@ -673,7 +651,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 				<label for="<?php echo esc_attr( $this->prefix ) . 'analytics_params_utm_source';?>"><?php esc_html_e('Referrer', 'rex-product-feed')?>
 					<span class="rex_feed-tooltip">
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
-						<p><?php esc_html_e('The referrer: (e.g. google, newsletter)', 'rex-product-feed') ?></p>
+						<p><?php esc_html_e('Source of traffic (e.g. google, newsletter).', 'rex-product-feed') ?></p>
 					</span>
 				</label>
 
@@ -686,7 +664,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 				<label for="<?php echo esc_attr( $this->prefix ) . 'analytics_params_utm_medium';?>"><?php esc_html_e('Medium', 'rex-product-feed')?>
 					<span class="rex_feed-tooltip">
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
-						<p><?php esc_html_e('Marketing medium: (e.g. cpc, banner, email)', 'rex-product-feed') ?></p>
+						<p><?php esc_html_e('Marketing channel (e.g. cpc, email).', 'rex-product-feed') ?></p>
 					</span>
 				</label>
 
@@ -699,7 +677,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 				<label for="<?php echo esc_attr( $this->prefix ) . 'analytics_params_utm_campaign';?>"><?php esc_html_e('Campaign', 'rex-product-feed')?>
 					<span class="rex_feed-tooltip">
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
-						<p><?php esc_html_e('Product, promo code, or slogan (e.g. spring_sale)', 'rex-product-feed') ?></p>
+						<p><?php esc_html_e('Campaign name or promo code (e.g. spring_sale).', 'rex-product-feed') ?></p>
 					</span>
 				</label>
 
@@ -713,7 +691,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 				<label for="<?php echo esc_attr( $this->prefix ) . 'analytics_params_utm_term';?>"><?php esc_html_e('Campaign Term', 'rex-product-feed')?>
 					<span class="rex_feed-tooltip">
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
-						<p><?php esc_html_e('Identify the paid keywords', 'rex-product-feed') ?></p>
+						<p><?php esc_html_e('Keyword for paid ads.', 'rex-product-feed') ?></p>
 					</span>
 				</label>
 
@@ -726,7 +704,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 				<label for="<?php echo esc_attr( $this->prefix ) . 'analytics_params_utm_content';?>"><?php esc_html_e('Campaign Content', 'rex-product-feed')?>
 					<span class="rex_feed-tooltip">
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
-						<p><?php esc_html_e('Use to differentiate ads', 'rex-product-feed') ?></p>
+						<p><?php esc_html_e('Differentiate between multiple ads.', 'rex-product-feed') ?></p>
 					</span>
 				</label>
 

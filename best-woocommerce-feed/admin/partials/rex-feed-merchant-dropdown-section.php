@@ -18,7 +18,7 @@ $icon = 'icon/icon-svg/icon-question.php';
 	<label for="<?php echo esc_attr( $this->prefix ) . 'merchant'; ?>"><?php esc_html_e( 'Feed Merchant', 'rex-product-feed' ); ?>
 		<span class="rex_feed-tooltip">
 			<?php require WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon; ?>
-			<p><?php echo __( 'Select your preferred merchant from the list', 'rex-product-feed' ); ?></p>
+			<p><?php echo __( 'Choose the marketplace or platform (e.g. Google, Facebook).', 'rex-product-feed' ); ?></p>
 		</span>
 	</label>
 	<?php
@@ -33,7 +33,7 @@ $icon = 'icon/icon-svg/icon-question.php';
 	<label for="<?php echo esc_attr( $this->prefix ) . 'feed_format'; ?>"><?php esc_html_e( 'Feed Type', 'rex-product-feed' ); ?>
 		<span class="rex_feed-tooltip">
 			<?php require WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon; ?>
-			<p><?php echo __( 'Select your feed file type', 'rex-product-feed' ); ?></p>
+			<p><?php echo __( 'Pick the output file format (XML, CSV, TXT).', 'rex-product-feed' ); ?></p>
 		</span>
 	</label>
 	<select name="<?php echo esc_attr( $this->prefix ) . 'feed_format'; ?>" id="<?php echo esc_attr( $this->prefix ) . 'feed_format'; ?>" class="<?php echo esc_attr( $this->prefix ) . 'feed-format'; ?>">

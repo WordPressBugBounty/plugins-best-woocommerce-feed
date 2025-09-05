@@ -14,7 +14,7 @@
 	<label for="<?php echo esc_attr( $this->prefix ) . 'products'; ?>"><?php esc_html_e( 'Products', 'rex-product-feed' ); ?>
 		<span class="rex_feed-tooltip">
 			<?php require WPFM_PLUGIN_ASSETS_FOLDER_PATH . 'icon/icon-svg/icon-question.php'; ?>
-			<p><?php esc_html_e( 'Filter Products', 'rex-product-feed' ); ?></p>
+			<p><?php esc_html_e( 'Add or exclude products (All, Featured, by Category, Tag, Brand, or Custom).', 'rex-product-feed' ); ?></p>
 		</span>
 	</label>
 	<select name="<?php echo esc_attr( $this->prefix ) . 'products'; ?>" id="<?php echo esc_attr( $this->prefix ) . 'products'; ?>">
