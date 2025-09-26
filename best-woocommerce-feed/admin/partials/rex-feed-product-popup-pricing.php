@@ -66,13 +66,13 @@
                             $discount_price = "$59.99";
                         }  else {
                             $discount_percentage = "Save 15%";
-                            $discount_price = "$67.99";
+                            $discount_price = "$79.99";
                         }
                     ?>
 
                     <div class="rex-premium-feature__discount-price">
                         <p class="rex-premium-feature__discount-price-label" data-discount="<?php echo $discount_percentage; ?>"><?php printf( esc_html__('Starting at %s/year', 'rex-product-feed'), '<span style= "font-weight:600; color:#0F2F72;">' . esc_html( $discount_price ) . '</span>' ); ?></p>
-                        <p><?php printf( esc_html__('Normally %s/year', 'rex-product-feed'), esc_html( $price ) ); ?></p>
+                        <p><?php //printf( esc_html__('Normally %s/year', 'rex-product-feed'), esc_html( $price ) ); ?></p>
                     </div>
 
 

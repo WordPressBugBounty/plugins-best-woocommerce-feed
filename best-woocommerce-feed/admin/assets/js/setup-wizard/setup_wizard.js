@@ -413,7 +413,6 @@
                 
                   <div class="setup-wizard__pro-features-price">
                       <p class="setup-wizard__discount-price-label" data-discount="${discountPrice?.discount_percentage_text}">Starting at <span style="font-weight:600; color:#216DF0;">${discountPrice?.discount_price}</span>/year</p>
-                      <p>Normally $79.99/year</p>
                   </div>
 
                 <div class="setup-wizard__pro-feature-list-button-container">

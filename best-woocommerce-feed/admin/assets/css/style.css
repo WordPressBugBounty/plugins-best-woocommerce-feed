@@ -1258,25 +1258,6 @@ a,
   position: relative;
   font-size: 20px;
 }
-.wpfm-setup-wizard__container .setup-wizard__inner-container .setup-wizard__features-section-container .setup-wizard__pro-features-section-container .setup-wizard__pro-features-price .setup-wizard__discount-price-label::before {
-  content: var(--discount-content, "Save 15%");
-  position: absolute;
-  background: #00b4ff;
-  border-radius: 16px 16px 16px 0;
-  font-weight: 600;
-  font-size: 12px;
-  line-height: 13px;
-  text-align: center;
-  color: #fff;
-  padding: 7px 11px;
-  top: -22px;
-  left: 69%;
-  -webkit-transform: translateX(-50%);
-  -moz-transform: translateX(-50%);
-  -ms-transform: translateX(-50%);
-  transform: translateX(-50%);
-  min-width: 82px;
-}
 @media (max-width: 768px) {
   .wpfm-setup-wizard__container .setup-wizard__inner-container .setup-wizard__features-section-container .setup-wizard__pro-features-section-container .setup-wizard__pro-features-price p {
     font-size: 18px;
@@ -2759,25 +2740,6 @@ a,
 .rex-premium-feature__discount-price-label {
   position: relative;
   font-size: 16px;
-}
-.rex-premium-feature__discount-price-label:before {
-  content: var(--discount-content-value, "Save 15%");
-  position: absolute;
-  background: #00b4ff;
-  border-radius: 16px 16px 16px 0;
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 13px;
-  text-align: center;
-  color: #fff;
-  padding: 7px 11px;
-  top: -27px;
-  left: 74%;
-  -webkit-transform: translateX(-50%);
-  -moz-transform: translateX(-50%);
-  -ms-transform: translateX(-50%);
-  transform: translateX(-50%);
-  min-width: 90px;
 }
 .rex-premium-feature__btn {
   display: flex;
@@ -5040,7 +5002,7 @@ body.post-type-product-feed.shepherd-active .shepherd-button {
   background-color: #216df0;
   border: 1px solid #216df0;
   border-radius: 10px;
-  color: hsla(0, 0%, 100%, 0.75);
+  color: hsla(0deg, 0%, 100%, 0.75);
   margin-right: 0.5rem;
   padding: 0.5rem 1.5rem;
   transition: all 0.5s ease;
@@ -9498,11 +9460,13 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
   background: #EDEFF1;
 }
 @font-face {
-  font-family: "Inter";
-  src: url("../fonts/Inter-Medium.woff2") format("woff2"), url("../fonts/Inter-Medium.woff") format("woff");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
+  .rex-feed-gmc-diagnostics-report-area {
+    font-family: "Inter";
+    src: url("../fonts/Inter-Medium.woff2") format("woff2"), url("../fonts/Inter-Medium.woff") format("woff");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
 }
 @media (max-width: 1199px) {
   .rex-feed-gmc-diagnostics-report-area {

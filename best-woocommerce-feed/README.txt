@@ -6,7 +6,7 @@ Tags: woocommerce product feed, woocommerce, facebook catalog ,google shopping, 
 Requires at least: 5.0
 Tested up to:  6.8.2
 Requires PHP: 7.4
-Stable tag:  7.4.49
+Stable tag:  7.4.50
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -480,6 +480,10 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 
 == Changelog ==
+
+= 7.4.50 (2025-09-26) =
+* Added: Add 10 new custom filter options
+* Fix: Fix UTM parameter issue in feed URL
 
 = 7.4.49 (2025-09-05) =
 * Enhancement: Update tooltips

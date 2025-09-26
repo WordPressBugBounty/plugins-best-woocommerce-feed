@@ -1363,6 +1363,13 @@ class Rex_Product_Feed_Actions {
                             }
                             $translated_path = implode('/', $translated_path_parts);
                             $value = trailingslashit(home_url()) . untrailingslashit($slug) . '/' . untrailingslashit($translated_path) . '/';
+
+                            if (!empty($parsed_url['query'])) {
+                                $value .= '?' . $parsed_url['query'];
+                            }
+                            if (!empty($parsed_url['fragment'])) {
+                                $value .= '#' . $parsed_url['fragment'];
+                            }
                             $value = urldecode($value);
                         }
                     } else {
@@ -1371,7 +1378,7 @@ class Rex_Product_Feed_Actions {
                 }
                 // Restore original language
                 $TRP_LANGUAGE = $original_language;
-                return $value;
+                return html_entity_decode(rawurldecode($value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
             }
 
             $translatable_keys = ['description', 'short_description'];
@@ -1398,6 +1405,10 @@ class Rex_Product_Feed_Actions {
                 $processed_value = apply_filters('the_content', $value);
                 $value = trp_translate($processed_value, $language, false);
             }
+
+			if(isset($rule['attr']) && 'image_link' === $rule['attr']){
+				$value = html_entity_decode(rawurldecode($value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+			}
 
             // Restore original language
             $TRP_LANGUAGE = $original_language;

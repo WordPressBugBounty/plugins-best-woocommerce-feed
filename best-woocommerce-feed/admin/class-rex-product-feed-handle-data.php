@@ -138,6 +138,7 @@ class Rex_Product_Feed_Data_Handle {
             update_post_meta( $feed_id, '_rex_feed_product_condition', $data[ 'product_filter_condition' ] );
         }
 
+
         if( isset( $data[ 'fr' ] ) ) {
             reset( $data[ 'fr' ] );
             $key = key( $data[ 'fr' ] );
