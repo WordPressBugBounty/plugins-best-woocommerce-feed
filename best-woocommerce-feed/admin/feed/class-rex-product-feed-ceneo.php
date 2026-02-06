@@ -37,9 +37,35 @@ class Rex_Product_Feed_Ceneo extends Rex_Product_Feed_Abstract_Generator {
         RexShoppingCeneo::link($this->link);
         RexShoppingCeneo::description($this->desc);
 
-        $this->generate_product_feed();
+        $should_regenerate = true;
+        // Use the helper to check if we should regenerate
+        $should_regenerate = Rex_Feed_Generator_Helper::wpfm_should_regenerate_feed(
+            $this->id,
+            $this->batch,
+            $this->bypass,
+            $this->products,
+            $this->feed
+        );
 
-        $this->feed = $this->returnFinalProduct();
+        if ($should_regenerate) {
+            // Generate feed for both simple and variable products
+            $this->generate_product_feed();
+            $this->feed = $this->returnFinalProduct();
+
+            // Cache the feed using the helper
+            Rex_Feed_Generator_Helper::wpfm_cache_feed(
+                $this->id,
+                $this->batch,
+                $this->bypass,
+                $this->products,
+                $this->feed
+            );
+        }
+
+        // Update timestamp in the last batch
+        if ($this->batch >= $this->tbatch && $this->bypass) {
+            Rex_Feed_Generator_Helper::wpfm_update_feed_timestamp($this->id);
+        }
 
         if ($this->batch >= $this->tbatch ) {
             $this->save_feed($this->feed_format);
@@ -55,7 +81,7 @@ class Rex_Product_Feed_Ceneo extends Rex_Product_Feed_Abstract_Generator {
 
         //get feed rules filter if value
         $feed_if_val = '';
-        if( $this->feed_config_filter ) {
+        if( isset($this->feed_config_filter) && $this->feed_config_filter ) {
             foreach ($this->feed_config_filter as $key => $value) {
                 foreach ($value as $sub_key => $sub_val) {
                     if($sub_key === 'if')
@@ -137,20 +163,12 @@ class Rex_Product_Feed_Ceneo extends Rex_Product_Feed_Abstract_Generator {
                         else {
                             $variations = $product->get_children();
                         }
-                        if( $variations ) {
-                            foreach ($variations as $variation) {
-                                if($this->variations) {
-                                    $variation_products[] = $variation;
-                                    $variation_product = wc_get_product( $variation );
-                                    if ( ( !$this->include_out_of_stock )
-                                        && ( !$variation_product->is_in_stock()
-                                            || $variation_product->is_on_backorder()
-                                            || (is_integer($variation_product->get_stock_quantity()) && 0 >= $variation_product->get_stock_quantity())
-                                        )
-                                    ) {
-                                        continue;
-                                    }
-                                    $this->add_to_feed( $variation_product, $product_meta_keys, 'variation' );
+                        if ($variations) {
+                            foreach ($variations as $variation_id) {
+                                $variation_product = wc_get_product($variation_id);
+                                if ($variation_product && $this->should_include_variation($variation_product, $variation_id)) {
+                                    $variation_products[] = $variation_id;
+                                    $this->add_to_feed($variation_product, $product_meta_keys, 'variation');
                                 }
                             }
                         }
@@ -162,23 +180,16 @@ class Rex_Product_Feed_Ceneo extends Rex_Product_Feed_Abstract_Generator {
                         }else {
                             $variations = $product->get_children();
                         }
-                        if( $variations ) {
-                            foreach ($variations as $variation) {
-                                if($this->variations) {
-                                    $variation_products[] = $variation;
-                                    $variation_product = wc_get_product( $variation );
-                                    if ( ( !$this->include_out_of_stock )
-                                        && ( !$variation_product->is_in_stock()
-                                            || $variation_product->is_on_backorder()
-                                            || (is_integer($variation_product->get_stock_quantity()) && 0 >= $variation_product->get_stock_quantity())
-                                        )
-                                    ) {
-                                        continue;
-                                    }
-                                    $this->add_to_feed( $variation_product, $product_meta_keys, 'variation' );
+                        if ($variations) {
+                            foreach ($variations as $variation_id) {
+                                $variation_product = wc_get_product($variation_id);
+                                if ($variation_product && $this->should_include_variation($variation_product, $variation_id)) {
+                                    $variation_products[] = $variation_id;
+                                    $this->add_to_feed($variation_product, $product_meta_keys, 'variation');
                                 }
                             }
                         }
+
                     }
                 }
             }
@@ -191,8 +202,10 @@ class Rex_Product_Feed_Ceneo extends Rex_Product_Feed_Abstract_Generator {
             if($feed_if_val!== 'id' || $feed_if_val!== 'price'||$feed_if_val!== 'sale_price'){
                 if( $this->product_scope === 'all' || $this->product_scope === 'product_filter' || $this->custom_filter_option ) {
                     if ( $product->get_type() === 'variation' ) {
-                        $variation_products[] = $productId;
-                        $this->add_to_feed( $product, $product_meta_keys, 'variation' );
+						if ($this->should_include_variation($product, $productId)) {
+							$variation_products[] = $productId;
+							$this->add_to_feed($product, $product_meta_keys, 'variation');
+						}
                     }
                 }
             }

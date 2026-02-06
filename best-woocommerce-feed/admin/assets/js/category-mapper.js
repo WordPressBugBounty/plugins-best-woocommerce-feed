@@ -51,7 +51,8 @@ jQuery(document).ready(function($){
         let $payload = {
             map_name: $('#map_name').val(),
             cat_map: $('.add_cat_map').serialize(),
-            feed_id: $('#post_ID').val()
+            feed_id: $('#post_ID').val(),
+            track: 'yes'
         };
 
         if ($('#map_name').val().length != 0){

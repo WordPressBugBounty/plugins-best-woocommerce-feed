@@ -32,9 +32,36 @@ class Rex_Product_Feed_Zalando_stock_update extends Rex_Product_Feed_Abstract_Ge
 		RexShopping::link($this->link);
 		RexShopping::description($this->desc);
 
-		$this->generate_product_feed();
+        $should_regenerate = true;
+        // Use the helper to check if we should regenerate
+        $should_regenerate = Rex_Feed_Generator_Helper::wpfm_should_regenerate_feed(
+            $this->id,
+            $this->batch,
+            $this->bypass,
+            $this->products,
+            $this->feed
+        );
 
-        $this->feed = $this->returnFinalProduct();
+        if ($should_regenerate) {
+            $this->generate_product_feed();
+
+            $this->feed = $this->returnFinalProduct();
+            
+            // Cache the feed using the helper
+            Rex_Feed_Generator_Helper::wpfm_cache_feed(
+                $this->id,
+                $this->batch,
+                $this->bypass,
+                $this->products,
+                $this->feed
+            );
+        }
+
+        // Update timestamp in the last batch
+        if ($this->batch >= $this->tbatch && $this->bypass) {
+            Rex_Feed_Generator_Helper::wpfm_update_feed_timestamp($this->id);
+        }
+
 
 		if ($this->batch >= $this->tbatch ) {
 			$this->save_feed($this->feed_format );
@@ -110,30 +137,33 @@ class Rex_Product_Feed_Zalando_stock_update extends Rex_Product_Feed_Abstract_Ge
                         $variations = $product->get_children();
                     }
 
-                    if( $variations ) {
-                        foreach ($variations as $variation) {
-                            if($this->variations) {
-                                $variation_product = wc_get_product( $variation );
-                                if ( $this->is_out_of_stock( $variation_product ) ) {
-                                    $variation_products[] = $variation;
-                                    $this->add_to_feed( $variation_product, $product_meta_keys, 'variation' );
-                                }
-                            }
-                        }
-                    }
+					if ($variations) {
+						foreach ($variations as $variation_id) {
+							$variation_product = wc_get_product($variation_id);
+							if ($variation_product && $this->should_include_variation($variation_product, $variation_id)) {
+								$variation_products[] = $variation_id;
+								$this->add_to_feed($variation_product, $product_meta_keys, 'variation');
+							}
+						}
+					}
                 }
             }
 
             if ( $this->is_out_of_stock( $product ) ) {
-                if ( $product->is_type( 'simple' ) || $product->is_type( 'external' ) || $product->is_type( 'composite' ) || $product->is_type( 'bundle' ) ) {
-                    $simple_products[] = $productId;
+                if ( $product->is_type( 'simple' ) || $product->is_type( 'external' ) || $product->is_type( 'composite' ) || $product->is_type( 'bundle' ) || $product->is_type('yith_bundle') || $product->is_type('yith-composite')) {
+                    if ( $this->exclude_simple_products ) {
+                        continue;
+                    }
+					$simple_products[] = $productId;
                     $this->add_to_feed( $product, $product_meta_keys );
                 }
 
                 if ( $this->product_scope === 'all' || $this->product_scope === 'product_filter' || $this->custom_filter_option ) {
                     if ( $product->get_type() === 'variation' ) {
-                        $variation_products[] = $productId;
-                        $this->add_to_feed( $product, $product_meta_keys, 'variation' );
+						if ($this->should_include_variation($product, $productId)) {
+							$variation_products[] = $productId;
+							$this->add_to_feed($product, $product_meta_keys, 'variation');
+						}
                     }
                 }
 

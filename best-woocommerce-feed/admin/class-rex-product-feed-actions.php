@@ -141,6 +141,7 @@ class Rex_Product_Feed_Actions {
 			'rex_feed_include_zero_price_products',
 			'rex_feed_variable_product',
 			'rex_feed_hidden_products',
+			'rex_feed_exclude_simple_products',
 			'rex_feed_variation_product_name',
 			'rex_feed_parent_product',
 			'rex_feed_variations',
@@ -317,8 +318,9 @@ class Rex_Product_Feed_Actions {
 		if ( 'product-feed' === get_post_type( $feed_id ) ) {
 			$temp_xml_url = get_post_meta( $feed_id, '_rex_feed_temp_xml_file', true ) ?: get_post_meta( $feed_id, 'rex_feed_temp_xml_file', true );
 			$feed_format  = get_post_meta( $feed_id, '_rex_feed_feed_format', true ) ?: get_post_meta( $feed_id, 'rex_feed_feed_format', true );
+			$product_ids  = get_post_meta( $feed_id, '_rex_feed_product_ids', true );
 
-			if ( '' !== $temp_xml_url && 'xml' === $feed_format ) {
+			if ( '' !== $temp_xml_url && 'xml' === $feed_format && ! empty( $product_ids ) ) {
 				?>
 				<script>
 					(function ($) {
@@ -786,6 +788,7 @@ class Rex_Product_Feed_Actions {
      * @since 7.4.0
      */
     public function update_price_compatibility_with_wpml( $product_price, $product, $type, $feed_retriever_obj ) {
+
         global $woocommerce_wpml;
 
         // Early validation checks
@@ -851,6 +854,9 @@ class Rex_Product_Feed_Actions {
 
             case 'variation':
                 return $this->convert_variation_product_price( $product, $type, $base_currency, $target_currency, $fallback_price );
+
+            case 'bundle':
+                return $this->convert_bundle_product_price( $product, $type, $base_currency, $target_currency, $fallback_price );
 
             case 'simple':
             case 'external':
@@ -992,6 +998,228 @@ class Rex_Product_Feed_Actions {
 
         return $this->apply_currency_conversion( $original_base_price, $target_currency );
     }
+
+    /**
+     * Convert WooCommerce Bundle product price (Product Bundles plugin)
+     * Handles:
+     *  - Fixed-price bundles
+     *  - Priced-per-item bundles
+     *  - Bundled simple + variable products
+     *  - Allowed/limited variations
+     *  - Optional items
+     *  - Multiple instances of the same product
+     *  - Min/Max quantity logic
+     */
+    private function convert_bundle_product_price( $product, $type, $base_currency, $target_currency, $fallback_price ) {
+        if ( ! $product || ! is_a( $product, 'WC_Product_Bundle' ) ) {
+            return false;
+        }
+
+        // Check if bundle is purchasable first
+        if ( ! $product->is_purchasable() ) {
+            return $fallback_price;
+        }
+
+        // 1. Try getting the fixed base price directly (for static bundles)
+        $original_base_price = $this->get_base_currency_price( $product, $type, $base_currency );
+
+        // 2. If not valid, handle dynamic ("priced per item") bundles
+        if ( empty( $original_base_price ) || ! is_numeric( $original_base_price ) || $original_base_price <= 0 ) {
+
+            // Check if this is actually a dynamic bundle
+            $bundled_items = $product->get_bundled_items();
+            if ( empty( $bundled_items ) ) {
+                return $fallback_price;
+            }
+
+            // Check if ANY item is priced individually
+            $has_priced_items = false;
+            foreach ( $bundled_items as $item ) {
+                if ( $item->is_priced_individually() ) {
+                    $has_priced_items = true;
+                    break;
+                }
+            }
+
+            // If no items are priced individually, bundle is not properly configured
+            if ( ! $has_priced_items ) {
+                return $fallback_price;
+            }
+
+            $bundle_total = 0;
+
+            foreach ( $bundled_items as $bundled_item ) {
+                $child_product = $bundled_item->get_product();
+
+                if ( ! $child_product || ! $child_product->is_purchasable() ) {
+                    continue;
+                }
+
+                // Skip non-priced items
+                if ( ! $bundled_item->is_priced_individually() ) {
+                    continue;
+                }
+
+                // Get quantity limits
+                $min_qty = $bundled_item->get_quantity( 'min' );
+                $max_qty = $bundled_item->get_quantity( 'max' );
+                $quantity = $bundled_item->get_quantity();
+
+                // Handle optional items:
+                // - Explicitly optional items
+                // - Items with min quantity 0 and not checked by default
+                $is_explicitly_optional = $bundled_item->is_optional();
+                $is_implicitly_optional = ( $min_qty == 0 || empty( $min_qty ) );
+
+                if ( $is_explicitly_optional ) {
+                    // Check if optional item is selected by default
+                    $optional_selected = $bundled_item->is_optional_checked();
+                    if ( ! $optional_selected ) {
+                        continue; // Skip unselected optional items
+                    }
+                } elseif ( $is_implicitly_optional ) {
+                    // Min quantity is 0, treat as optional
+                    // Check if it has a default quantity > 0 or is checked
+                    if ( ! $quantity || $quantity <= 0 ) {
+                        // Check if optional checked (might be implicitly optional but checked)
+                        if ( method_exists( $bundled_item, 'is_optional_checked' ) ) {
+                            $optional_selected = $bundled_item->is_optional_checked();
+                            if ( ! $optional_selected ) {
+                                continue; // Skip items with 0 min qty and not selected
+                            }
+                        } else {
+                            continue; // Skip if no way to determine selection
+                        }
+                    }
+                }
+
+                // Determine final quantity (respect min/max limits)
+                if ( ! $quantity || $quantity < $min_qty ) {
+                    $quantity = $min_qty;
+                }
+                if ( $max_qty && $quantity > $max_qty ) {
+                    $quantity = $max_qty;
+                }
+
+                // Fallback to 1 if still invalid and not optional
+                if ( ( ! $quantity || $quantity <= 0 ) && ! $is_implicitly_optional ) {
+                    $quantity = 1;
+                }
+
+                // Skip if final quantity is 0
+                if ( ! $quantity || $quantity <= 0 ) {
+                    continue;
+                }
+
+                $item_price = 0;
+
+                // --- Handle Variable Bundled Products ---
+                if ( $child_product->is_type( 'variable' ) ) {
+                    $allowed_variations = $bundled_item->get_allowed_variations();
+                    $variation_prices = [];
+
+                    if ( ! empty( $allowed_variations ) ) {
+                        // Restricted variations only
+                        foreach ( $allowed_variations as $variation_id ) {
+                            $variation = wc_get_product( $variation_id );
+                            if ( $variation && $variation->is_purchasable() ) {
+                                $var_price = $this->get_base_currency_price( $variation, $type, $base_currency );
+                                if ( is_numeric( $var_price ) && $var_price > 0 ) {
+                                    $variation_prices[ $variation_id ] = $var_price;
+                                }
+                            }
+                        }
+                    } else {
+                        // No restrictions → consider all variations
+                        foreach ( $child_product->get_children() as $variation_id ) {
+                            $variation = wc_get_product( $variation_id );
+                            if ( $variation && $variation->is_purchasable() ) {
+                                $var_price = $this->get_base_currency_price( $variation, $type, $base_currency );
+                                if ( is_numeric( $var_price ) && $var_price > 0 ) {
+                                    $variation_prices[ $variation_id ] = $var_price;
+                                }
+                            }
+                        }
+                    }
+
+                    // Select the appropriate variation price
+                    if ( ! empty( $variation_prices ) ) {
+                        // Check for default variation first
+                        $default_attributes = $bundled_item->get_default_variation_attributes();
+                        $default_variation_id = null;
+
+                        if ( ! empty( $default_attributes ) ) {
+                            // Try to find matching variation
+                            foreach ( array_keys( $variation_prices ) as $variation_id ) {
+                                $variation = wc_get_product( $variation_id );
+                                if ( $variation ) {
+                                    $variation_attributes = $variation->get_attributes();
+                                    $match = true;
+
+                                    foreach ( $default_attributes as $attr_key => $attr_value ) {
+                                        if ( ! isset( $variation_attributes[ $attr_key ] ) ||
+                                                $variation_attributes[ $attr_key ] !== $attr_value ) {
+                                            $match = false;
+                                            break;
+                                        }
+                                    }
+
+                                    if ( $match ) {
+                                        $default_variation_id = $variation_id;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Use default variation price if found, otherwise use minimum
+                        if ( $default_variation_id && isset( $variation_prices[ $default_variation_id ] ) ) {
+                            $item_price = $variation_prices[ $default_variation_id ];
+                        } else {
+                            $item_price = min( $variation_prices );
+                        }
+                    }
+
+                } else {
+                    // --- Handle Simple / Other Bundled Products ---
+                    $item_price = $this->get_base_currency_price( $child_product, $type, $base_currency );
+
+                    if ( ! is_numeric( $item_price ) || $item_price <= 0 ) {
+                        continue;
+                    }
+                }
+
+                // Check for price override (sale or regular price override)
+                $override_price = $bundled_item->get_regular_price();
+                if ( is_numeric( $override_price ) && $override_price > 0 ) {
+                    $item_price = $override_price;
+                }
+
+                // Apply discount if set
+                $discount = $bundled_item->get_discount();
+                if ( is_numeric( $discount ) && $discount > 0 ) {
+                    $item_price = $item_price * ( 1 - ( $discount / 100 ) );
+                }
+
+                // Add to bundle total
+                if ( $item_price > 0 ) {
+                    $bundle_total += $item_price * $quantity;
+                }
+            }
+
+            // If total computed, use it
+            if ( $bundle_total > 0 ) {
+                $original_base_price = $bundle_total;
+            } else {
+                // Bundle not properly configured or all items are zero-priced
+                return $fallback_price;
+            }
+        }
+
+        // 3. Apply currency conversion and return
+        return $this->apply_currency_conversion( $original_base_price, $target_currency );
+    }
+
 
     /**
      * Apply currency conversion with validation

@@ -42,6 +42,7 @@ $icon = 'icon/icon-svg/icon-question.php';
 		<option value="csv" <?php echo 'csv' === $file_format ? 'selected' : ''; ?> ><?php echo esc_html__( 'CSV', 'rex-product-feed' ); ?></option>
 		<option value="tsv" <?php echo 'tsv' === $file_format ? 'selected' : ''; ?> ><?php echo esc_html__( 'TSV', 'rex-product-feed' ); ?></option>
 		<option value="rss" <?php echo 'rss' === $file_format ? 'selected' : ''; ?> ><?php echo esc_html__( 'RSS', 'rex-product-feed' ); ?></option>
+		<option value="json" <?php echo 'json' === $file_format ? 'selected' : ''; ?> ><?php echo esc_html__( 'JSON', 'rex-product-feed' ); ?></option>
 	</select>
 </div>
 

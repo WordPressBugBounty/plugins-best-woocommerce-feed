@@ -21,10 +21,15 @@ $redirect_uri        = $rex_google_merchant->get_redirect_url();
 
 if ( 'merchant_settings' === $current_page ) {
 	$code = !empty( $data[ 'code' ] ) ? sanitize_text_field( $data[ 'code' ] ) : null;
-	$rex_google_merchant->fetch_access_token( $code );
+	if ( $code ) {
+		$rex_google_merchant->fetch_access_token( $code );
+	}
 }
 
-if ( !( $rex_google_merchant->is_authorized() ) ) {
+// Check authorization status
+$is_authorized = $rex_google_merchant->is_authorized();
+
+if ( ! $is_authorized ) {
 	if ( $client_id && $client_secret && $merchant_id ) {
 		$html = $rex_google_merchant->get_access_token_html();
 	}

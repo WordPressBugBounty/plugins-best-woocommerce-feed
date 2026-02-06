@@ -51,6 +51,7 @@ class Rex_Feed_Special_Occasion_Banner {
 		$this->occasion   = "rex_feed_{$occasion}";
 		$this->start_date = strtotime( $start_date );
 		$this->end_date   = strtotime( $end_date );
+
 	}
 
 	/**
@@ -151,6 +152,9 @@ class Rex_Feed_Special_Occasion_Banner {
             echo '<input type="hidden" id="rexfeed_special_occasion" name="rexfeed_special_occasion" value="'.$this->occasion.'">';
             ?>
 
+          
+            <!-- https://prnt.sc/TZHFKQTLxBTN -->
+
             <!-- Name: Eid mubarak Notification Banner -->
             <div class="rex-feed-tb__notification pfm-banner" id="rexfeed_deal_notification">
                 <div class="banner-overflow">
@@ -210,7 +214,7 @@ class Rex_Feed_Special_Occasion_Banner {
             </div>
 
             <script>
-                rexfeed_deal_countdown_handler();
+                //rexfeed_deal_countdown_handler();
 
                 function rexfeed_deal_countdown_handler() {
                     let timeRemaining = <?php echo $time_remaining; ?>;
@@ -256,6 +260,7 @@ class Rex_Feed_Special_Occasion_Banner {
                         },
                     });
                 }
+
             </script>
 
             <?php
@@ -370,6 +375,7 @@ class Rex_Feed_Special_Occasion_Banner {
                     gap: 10px;
                 }
             }
+
             @media only screen and (max-width: 767px) {
                 .pfm-banner .rex-notification-counter__list {
                     align-items: center;
@@ -377,6 +383,7 @@ class Rex_Feed_Special_Occasion_Banner {
                     gap: 15px;
                 }
             }
+
             .pfm-banner .rex-notification-counter__item {
                 display: flex;
                 flex-direction: column;

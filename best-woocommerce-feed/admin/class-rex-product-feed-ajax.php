@@ -88,6 +88,11 @@ class Rex_Product_Feed_Ajax {
                         ->with_callback( array( 'Rex_Product_Feed_Ajax', 'save_google_api_credentials' ) )
                         ->with_validation( $validations );
 
+        // Reset Google merchant credentials.
+        wp_ajax_helper()->handle( 'rexfeed-reset-google-credentials' )
+                        ->with_callback( array( 'Rex_Product_Feed_Ajax', 'reset_google_api_credentials' ) )
+                        ->with_validation( $validations );
+
         // Send to Google Merchant Center.
         wp_ajax_helper()->handle( 'rexfeed-send-to-google' )
                         ->with_callback( array( 'Rex_Product_Feed_Ajax', 'send_to_google' ) )
@@ -379,10 +384,12 @@ class Rex_Product_Feed_Ajax {
             $wpfm_hash    = !empty( $payload[ 'hash' ] ) ? $payload[ 'hash' ] : '';
             $feed_id_posthog = !empty( $payload[ 'feed_id' ] ) ? $payload[ 'feed_id' ] : '';
 
-            do_action( 'rex_product_feed_advanced_feature_used',$feed_id_posthog, [
-                    'map_name' => $map_name,
-                    'action' => 'save_category_mapping',
-            ] );
+            $track = 'yes' === $payload[ 'track' ] ?? false;
+            if ( $track) {
+                do_action( 'rex_product_feed_advanced_feature_used',$feed_id_posthog, [
+                        'feature' => 'Category Mapping',
+                ] );
+            }
 
             if( '' !== $wpfm_hash && array_key_exists( $wpfm_hash, $category_map ) ) {
                 wp_send_json_success(
@@ -450,10 +457,6 @@ class Rex_Product_Feed_Ajax {
         parse_str( $payload[ 'cat_map' ], $cat_map_array );
         $config_array = [];
         $map_array    = [];
-        do_action( 'rex_product_feed_advanced_feature_used', $feed_id_posthog, [
-                'map_name' => $map_name,
-                'action' => 'update_category_mapping',
-        ] );
         if ( $cat_map_array ) {
             foreach ( $cat_map_array as $key => $value ) {
                 $cat_id        = preg_replace( '/[^0-9]/', '', $key );
@@ -491,10 +494,6 @@ class Rex_Product_Feed_Ajax {
             $map_key      = $payload[ 'map_key' ];
             $category_map = get_option( 'rex-wpfm-category-mapping' );
             $feed_id_posthog = !empty( $payload[ 'feed_id' ] ) ? $payload[ 'feed_id' ] : '';
-            do_action( 'rex_product_feed_advanced_feature_used', $feed_id_posthog, [
-                    'map_name' => $map_key,
-                    'action' => 'delete_category_mapping',
-            ] );
             unset( $category_map[ $map_key ] );
             update_option( 'rex-wpfm-category-mapping', $category_map );
             return [ 'status' => 'success' ];
@@ -1458,7 +1457,14 @@ class Rex_Product_Feed_Ajax {
         $create_contact_instance = new Rex_Product_Feed_Create_Contact( $email, $name );
 
         $response = $create_contact_instance->create_contact_via_webhook();
-        update_option('rex_product_feed_posthog_access', true);
+
+        /**
+         * Fires after contact is created via webhook
+         *
+         * @param string $response Response from webhook.
+         * @since 7.3.1
+         */
+        do_action( 'rex_feed_after_contact_created', $response );
         if ( $response ) {
             wp_send_json_success( array( 'message' => __('Contact created successfully', 'rex-product-feed') ), 200 );
         } else {
@@ -1495,6 +1501,7 @@ class Rex_Product_Feed_Ajax {
      * Saves Google API credentials.
      *
      * This function updates the options for Google API credentials, including client ID, client secret, and merchant ID.
+     * It validates the credentials first by attempting to create an auth URL with them.
      * It sends a JSON success response after updating the options.
      *
      * @param array $payload The payload array containing the Google API credentials.
@@ -1503,15 +1510,99 @@ class Rex_Product_Feed_Ajax {
      * @since 7.4.20
      */
     public static function save_google_api_credentials( $payload ) {
+        $client_id     = isset( $payload[ 'client_id' ] ) ? sanitize_text_field( $payload[ 'client_id' ] ) : '';
+        $client_secret = isset( $payload[ 'client_secret' ] ) ? sanitize_text_field( $payload[ 'client_secret' ] ) : '';
+        $merchant_id   = isset( $payload[ 'merchant_id' ] ) ? sanitize_text_field( $payload[ 'merchant_id' ] ) : '';
+
+        // Validate credentials by attempting to create a client with them
+        if ( $client_id && $client_secret && $merchant_id ) {
+            try {
+                $test_client = new RexFeed\Google\Client();
+                $test_client->setClientId( $client_id );
+                $test_client->setClientSecret( $client_secret );
+                $test_client->setRedirectUri( admin_url( 'admin.php?page=merchant_settings' ) );
+                $test_client->setScopes( 'https://www.googleapis.com/auth/content' );
+                
+                // Try to create auth URL - this will fail if credentials are invalid
+                $auth_url = $test_client->createAuthUrl();
+                
+                if ( empty( $auth_url ) ) {
+                    wp_send_json_error( array(
+                        'message' => __( 'Invalid credentials. Please check your Client ID and Client Secret.', 'rex-product-feed' )
+                    ), 400 );
+                    return;
+                }
+            } catch ( Exception $e ) {
+                wp_send_json_error( array(
+                    'message' => __( 'Invalid credentials. Please check your Client ID, Client Secret, and Merchant ID.', 'rex-product-feed' ),
+                    'error' => $e->getMessage()
+                ), 400 );
+                return;
+            }
+        }
+
+        // Clear access token only when credentials change
+        $existing_client_id = get_option( 'rex_google_client_id', '' );
+        $existing_client_secret = get_option( 'rex_google_client_secret', '' );
+        $existing_merchant_id = get_option( 'rex_google_merchant_id', '' );
+        
+        $credentials_changed = ( $client_id !== $existing_client_id || 
+                                  $client_secret !== $existing_client_secret || 
+                                  $merchant_id !== $existing_merchant_id );
+        
+        if ( $credentials_changed ) {
+            delete_option( 'rex_google_access_token' );
+        }
+
         if ( isset( $payload[ 'client_id' ] ) ) {
-            update_option( 'rex_google_client_id', $payload[ 'client_id' ] );
+            update_option( 'rex_google_client_id', $client_id );
         }
         if ( isset( $payload[ 'client_secret' ] ) ) {
-            update_option( 'rex_google_client_secret', $payload[ 'client_secret' ] );
+            update_option( 'rex_google_client_secret', $client_secret );
         }
         if ( isset( $payload[ 'merchant_id' ] ) ) {
-            update_option( 'rex_google_merchant_id', $payload[ 'merchant_id' ] );
+            update_option( 'rex_google_merchant_id', $merchant_id );
         }
-        wp_send_json_success();
+        
+        // Check if user is authorized after saving
+        $google_api = new Rex_Feed_Google_Shopping_Api();
+        $is_authorized = $google_api->is_authorized();
+        
+        if ( $credentials_changed ) {
+            $message = __( 'Credentials updated successfully. Please click "Authenticate" to authorize access.', 'rex-product-feed' );
+        } else if ( $is_authorized ) {
+            $message = __( 'Credentials saved successfully. You are already authorized.', 'rex-product-feed' );
+        } else {
+            $message = __( 'Credentials saved successfully. Please click "Authenticate" to authorize access.', 'rex-product-feed' );
+        }
+        
+        wp_send_json_success( array(
+            'message' => $message,
+            'needs_auth' => $credentials_changed || !$is_authorized,
+            'is_authorized' => $is_authorized
+        ) );
+    }
+
+    /**
+     * Resets Google API credentials.
+     *
+     * This function clears all stored Google API credentials including client ID, client secret, merchant ID,
+     * and access tokens. This ensures a clean state when users want to re-authorize with different credentials.
+     *
+     * @param array $payload The payload array (not used, but required for AJAX handler compatibility).
+     * @return void
+     *
+     * @since 7.4.21
+     */
+    public static function reset_google_api_credentials( $payload ) {
+        // Delete all Google API related options
+        delete_option( 'rex_google_client_id' );
+        delete_option( 'rex_google_client_secret' );
+        delete_option( 'rex_google_merchant_id' );
+        delete_option( 'rex_google_access_token' );
+        
+        wp_send_json_success( array(
+            'message' => __( 'All Google Merchant credentials and authorization have been cleared.', 'rex-product-feed' )
+        ) );
     }
 }

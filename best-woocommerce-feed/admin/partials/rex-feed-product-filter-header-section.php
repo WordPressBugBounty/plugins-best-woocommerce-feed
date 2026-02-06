@@ -42,7 +42,7 @@
         </span>
 
         <span class="rex-contnet-filter__cross-icon" id="rex_feed_filter_modal_close_btn">
-            <?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . 'icon/icon-svg/corss.php';?>
+            <?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . 'icon/icon-svg/cross.php';?>
         </span>
         
         <?php do_action( 'rex_feed_after_filter_modal_close_button' );?>

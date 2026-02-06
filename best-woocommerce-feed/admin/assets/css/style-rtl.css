@@ -7455,7 +7455,7 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
     position: relative;
     font-size: 16px;
   }
-  .rex-premium-feature__discount-price-label:before {
+  /* .rex-premium-feature__discount-price-label:before {
     content: "Save 20%";
     position: absolute;
     background: #00b4ff;
@@ -7473,7 +7473,7 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
     -ms-transform: translateX(50%);
     transform: translateX(50%);
     min-width: 90px;
-  }
+  } */
   .rex-premium-feature__btn {
     display: flex;
     align-items: center;

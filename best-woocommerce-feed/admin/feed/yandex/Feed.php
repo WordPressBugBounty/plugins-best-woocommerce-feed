@@ -108,6 +108,12 @@ class Feed
     protected $stand_alone = false;
 
     /**
+     * Stores current param element for Yandex param tags
+     * @var \SimpleXMLElement|null
+     */
+    public $param;
+
+    /**
      * Feed constructor
      */
     public function __construct($wrapper = false, $itemlName = 'item', $namespace = null, $version = '', $rss = 'rss', $stand_alone = false, $wrapperel = '')
@@ -278,34 +284,77 @@ class Feed
         }
         foreach ($this->items as $item) {
             $feedItemNode = $this->feed->shop->offers->addChild($this->itemlName);
+            
+            // Collect all param data first (name, value, unit) indexed by param number
+            $params = array();
+            
             foreach ($item->nodes() as $itemNode) {
-                if($itemNode->get('name') === 'id') {
-                    $feedItemNode->addAttribute($itemNode->get('name'), $itemNode->get('value'));
-                }elseif ($itemNode->get('name') === 'available') {
-                    $feedItemNode->addAttribute('available', $itemNode->get('value') === 'in stock' || $itemNode->get('value') === 'in_stock'? 'true' : 'false');
-                }elseif ($itemNode->get('name') === 'bid') {
-                    $feedItemNode->addAttribute($itemNode->get('name'), $itemNode->get('value') );
-                }elseif ($itemNode->get('name') === 'cbid') {
-                    $feedItemNode->addAttribute($itemNode->get('name'), $itemNode->get('value'));
-                }elseif ($itemNode->get('name') === 'type') {
-                    $feedItemNode->addAttribute($itemNode->get('name'), $itemNode->get('value'));
+                // Skip array nodes for param processing
+                if (is_array($itemNode)) {
+                    foreach ($itemNode as $node) {
+                        $feedItemNode->addChild(str_replace(' ', '_', $node->get('name')), $node->get('value'), $node->get('_namespace'));
+                    }
+                    continue;
+                }
+                
+                $nodeName = $itemNode->get('name');
+                $nodeValue = $itemNode->get('value');
+                
+                if($nodeName === 'id') {
+                    $feedItemNode->addAttribute($nodeName, $nodeValue);
+                }elseif ($nodeName === 'available') {
+                    $feedItemNode->addAttribute('available', $nodeValue === 'in stock' || $nodeValue === 'in_stock'? 'true' : 'false');
+                }elseif ($nodeName === 'bid') {
+                    $feedItemNode->addAttribute($nodeName, $nodeValue);
+                }elseif ($nodeName === 'cbid') {
+                    $feedItemNode->addAttribute($nodeName, $nodeValue);
+                }elseif ($nodeName === 'type') {
+                    $feedItemNode->addAttribute($nodeName, $nodeValue);
+                }
+                // Collect Yandex param data: <param name="AttributeName" unit="cm">Value</param>
+                elseif (preg_match('/^Param_name_(\d+)$/i', $nodeName, $matches)) {
+                    $paramNum = $matches[1];
+                    if (!isset($params[$paramNum])) {
+                        $params[$paramNum] = array('name' => '', 'value' => '', 'unit' => '');
+                    }
+                    $params[$paramNum]['name'] = $nodeValue;
+                }
+                elseif (preg_match('/^Param_value_(\d+)$/i', $nodeName, $matches)) {
+                    $paramNum = $matches[1];
+                    if (!isset($params[$paramNum])) {
+                        $params[$paramNum] = array('name' => '', 'value' => '', 'unit' => '');
+                    }
+                    $params[$paramNum]['value'] = $nodeValue;
+                }
+                elseif (preg_match('/^Param_unit_(\d+)$/i', $nodeName, $matches)) {
+                    $paramNum = $matches[1];
+                    if (!isset($params[$paramNum])) {
+                        $params[$paramNum] = array('name' => '', 'value' => '', 'unit' => '');
+                    }
+                    $params[$paramNum]['unit'] = $nodeValue;
                 }
                 else {
-                    if (is_array($itemNode)) {
-                        foreach ($itemNode as $node) {
-                            $feedItemNode->addChild(str_replace(' ', '_', $node->get('name')), $node->get('value'), $node->get('_namespace'));
+                    if(is_array($nodeValue)) {
+                        foreach ($nodeValue as $val) {
+                            $feedItemNode->addChild($nodeName, $val);
                         }
-                    } else {
-                        if(is_array($itemNode->get('value'))) {
-                            foreach ($itemNode->get('value') as $val) {
-                                $feedItemNode->addChild($itemNode->get('name'), $val);
-                            }
-                        }else {
-                            $itemNode->attachNodeTo($feedItemNode);
-                        }
+                    }else {
+                        $itemNode->attachNodeTo($feedItemNode);
                     }
                 }
-
+            }
+            
+            // Now add all collected params to the feed
+            ksort($params); // Sort by param number
+            foreach ($params as $paramData) {
+                if (!empty($paramData['name']) && !empty($paramData['value'])) {
+                    $this->param = $feedItemNode->addChild('param', htmlspecialchars($paramData['value']));
+                    $this->param->addAttribute('name', $paramData['name']);
+                    // Add unit attribute if provided
+                    if (!empty($paramData['unit'])) {
+                        $this->param->addAttribute('unit', $paramData['unit']);
+                    }
+                }
             }
         }
     }

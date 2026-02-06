@@ -172,10 +172,13 @@ class Rex_Product_CPT {
 				$url         = get_post_meta( $post_id, '_rex_feed_xml_file', true ) ?: get_post_meta( $post_id, 'rex_feed_xml_file', true );
 				$url         = esc_url( $url );
                 $is_csv_feed = strpos( $url , '.csv' ) !== false;
-                if ( !$is_csv_feed ) {
-                    echo '<a target="_blank" class="button" href="' . esc_url( $url ) . '" ' . $disabled . '>' . __( 'View', 'rex-product-feed' ) . '</a> ';
+                $is_rex_google_content_api = get_post_meta( $post_id, '_rex_feed_is_google_content_api', true );
+                if('no' === $is_rex_google_content_api){
+                    if ( !$is_csv_feed ) {
+                        echo '<a target="_blank" class="button" href="' . esc_url( $url ) . '" ' . $disabled . '>' . __( 'View', 'rex-product-feed' ) . '</a> ';
+                    }
+                    echo '<a target="_blank" class="button" href="' . esc_url( $url ) . '" ' . $disabled . ' download>' . __( 'Download', 'rex-product-feed' ) . '</a>';
                 }
-				echo '<a target="_blank" class="button" href="' . esc_url( $url ) . '" ' . $disabled . ' download>' . __( 'Download', 'rex-product-feed' ) . '</a>';
 				break;
 			case 'total_products':
 				$total_products = get_post_meta( $post_id, '_rex_feed_total_products', true ) ?: get_post_meta( $post_id, 'rex_feed_total_products', true );

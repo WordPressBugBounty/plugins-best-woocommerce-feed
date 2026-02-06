@@ -32,6 +32,12 @@ class Feed
     private $items = array();
 
     /**
+     * Stores the field order from the first batch to ensure consistency across all batches
+     * @var array|null
+     */
+    private static $cached_field_order = null;
+
+    /**
      * @var bool
      */
     private $channelCreated = false;
@@ -219,20 +225,51 @@ class Feed
     private function addItemsToFeedText() {
         $str = '';
         if(count($this->items)){
-            $items_row[] = array_keys(end($this->items)->nodes());
+            // Phase 1: Determine the field order
+            // Use cached order from batch 1, or collect from current batch if this is batch 1
+            if (self::$cached_field_order === null) {
+                // First batch: collect all unique field names from ALL items
+                $all_fields = array();
+                foreach ($this->items as $item) {
+                    foreach ($item->nodes() as $key => $itemNode) {
+                        if (!in_array($key, $all_fields)) {
+                            $all_fields[] = $key;
+                        }
+                    }
+                }
+                // Cache the field order for subsequent batches
+                self::$cached_field_order = $all_fields;
+            } else {
+                // Subsequent batches: use the cached field order
+                $all_fields = self::$cached_field_order;
+            }
+            
+            // Add header row with all fields
+            $items_row[] = $all_fields;
+            
+            // Phase 2: Generate rows with consistent field order
             foreach ($this->items as $item) {
                 $row = array();
-                foreach ($item->nodes() as $itemNode) {
-                    if (is_array($itemNode)) {
-                        foreach ($itemNode as $node) {
-                            $row[] = str_replace(array("\r\n", "\n", "\r"), ' ', $node->get('value'));
+                $item_nodes = $item->nodes();
+                
+                foreach ($all_fields as $field) {
+                    if (isset($item_nodes[$field])) {
+                        $itemNode = $item_nodes[$field];
+                        if (is_array($itemNode)) {
+                            foreach ($itemNode as $node) {
+                                $row[] = str_replace(array("\r\n", "\n", "\r"), ' ', $node->get('value'));
+                            }
+                        } else {
+                            $row[] = str_replace(array("\r\n", "\n", "\r"), ' ', $itemNode->get('value'));
                         }
                     } else {
-                        $row[] = str_replace(array("\r\n", "\n", "\r"), ' ', $itemNode->get('value'));
+                        // Empty value for missing fields to maintain column alignment
+                        $row[] = '';
                     }
                 }
                 $items_row[] = $row;
             }
+            
             foreach ($items_row as $fields) {
                 $str .= implode("\t", $fields) . "\n";
             }
@@ -364,17 +401,52 @@ class Feed
      * @param bool $output
      * @return string
      */
-    public function asRss($output = false)
-    {
-        if (ob_get_contents()) ob_end_clean();
-        $this->addItemsToFeed();
-        $data = html_entity_decode($this->feed->asXml());
-        if ($output) {
-            header('Content-Type: application/xml; charset=utf-8');
-            die($data);
-        }
-        return $data;
+public function asRss($output = false)
+{
+    if (ob_get_contents()) ob_end_clean();
+    $this->addItemsToFeed();
+    $data = $this->feed->asXml();
+    
+    // Step 1: Fix CDATA encoding
+    $data = str_replace(
+        ['&lt;![CDATA[', ']]&gt;'],
+        ['<![CDATA[', ']]>'],
+        $data
+    );
+
+    // Step 2: Decode HTML entities
+    $data = html_entity_decode($data, ENT_QUOTES | ENT_XML1, 'UTF-8');
+    
+    // Step 3: Fix URLs dynamically with optimized detection
+    $data = preg_replace_callback(
+        '/<([^>]+)>([^<]+)<\/\1>/',
+        function($matches) {
+            $content = $matches[2];
+            
+            // Quick rejection: if no & or no :// skip immediately
+            if (strpos($content, '&') === false) {
+                return $matches[0]; // No & means no encoding needed
+            }
+            
+            // Fast URL detection: only check for :// (protocol indicator)
+            // This covers http://, https://, ftp://, etc.
+            if (strpos($content, '://') !== false) {
+                // Re-encode & to &amp; for URLs
+                $content = str_replace('&', '&amp;', $content);
+                return "<{$matches[1]}>{$content}</{$matches[1]}>";
+            }
+            
+            return $matches[0]; // Not a URL, return unchanged
+        },
+        $data
+    );
+    
+    if ($output) {
+        header('Content-Type: application/xml; charset=utf-8');
+        die($data);
     }
+    return $data;
+}
 
     /**
      * Generate Txt feed
@@ -406,6 +478,71 @@ class Feed
         return $data;
     }
 
+    /**
+     * Generate JSON feed
+     * @param bool $output
+     * @return string
+     */
+    public function asJSON($output = false)
+    {
+        if (ob_get_contents()) ob_end_clean();
+        $data = $this->addItemsToFeedJSON();
+        if ($output) {
+            header('Content-Type: application/json; charset=utf-8');
+            die($data);
+        }
+        return $data;
+    }
+
+    /**
+     * Add items to JSON feed
+     * @return string
+     * @since 7.4.58
+     */
+    private function addItemsToFeedJSON()
+    {
+        $products = array();
+        
+        if (count($this->items)) {
+            foreach ($this->items as $item) {
+                $product = array();
+                foreach ($item->nodes() as $key => $itemNode) {
+                    if (is_array($itemNode)) {
+                        foreach ($itemNode as $node) {
+                            $nodeName = $node->get('name');
+                            $nodeValue = $node->get('value');
+                            // Handle multiple values with same key (like additional_image_link)
+                            if (isset($product[$nodeName])) {
+                                if (!is_array($product[$nodeName])) {
+                                    $product[$nodeName] = array($product[$nodeName]);
+                                }
+                                $product[$nodeName][] = $nodeValue;
+                            } else {
+                                $product[$nodeName] = $nodeValue;
+                            }
+                        }
+                    } else {
+                        $nodeName = $itemNode->get('name');
+                        $nodeValue = $itemNode->get('value');
+                        // Remove g: prefix if present
+                        $nodeName = preg_replace('/^g:/', '', $nodeName);
+                        $product[$nodeName] = $nodeValue;
+                    }
+                }
+                $products[] = $product;
+            }
+        }
+
+        $feed = array(
+            'title' => $this->title,
+            'link' => $this->link,
+            'description' => $this->description,
+            'products' => $products
+        );
+
+        return json_encode($feed, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
 
     /**
      * Remove last inserted item
@@ -413,5 +550,13 @@ class Feed
     public function removeLastItem()
     {
         array_pop($this->items);
+    }
+
+    /**
+     * Reset the cached field order (call this when starting a new feed generation)
+     */
+    public static function resetFieldOrder()
+    {
+        self::$cached_field_order = null;
     }
 }

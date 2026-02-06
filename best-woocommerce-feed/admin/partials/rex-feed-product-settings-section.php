@@ -14,7 +14,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 		</div>
 
         <span class="rex-contnet-filter__cross-icon close-btn" id="rex_feed_settings_modal_close_btn">
-			<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . 'icon/icon-svg/corss.php';?>
+			<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . 'icon/icon-svg/cross.php';?>
         </span>
 	</div>
 
@@ -305,18 +305,171 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
                         $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
                         <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'variations'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'variations'?>" <?php echo esc_attr( $checked )?>>
-						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'variations'?>"></label>
+												<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'variations'?>"></label>
 					</div>
 				</div>
 			</div>
 
+			<div class="<?php echo esc_attr( $this->prefix ) . 'default_variation';?> pr-10">
+				<label for="<?php echo esc_attr( $this->prefix ) . 'default_variation_label';?>"><?php esc_html_e('Include Default Variations', 'rex-product-feed')?>
+					<span class="rex_feed-tooltip">
+						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
+						<p>
+							<?php
+							esc_html_e( 'Enable this option to include only the default variation of variable products in the feed. Other variations will be excluded.', 'rex-product-feed' );
+						
+							?>
+						</p>
+					</span>
+				</label>
+
+				<div class="switch">
+					<div class="wpfm-switcher">
+                        <?php
+                        $saved_value = get_post_meta($post_id, '_rex_feed_default_variation', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_default_variation', true);
+                        $saved_value = $saved_value ?: 'no';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
+                        ?>
+                        <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'default_variation'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'default_variation'?>" <?php echo esc_attr( $checked )?>>
+						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'default_variation'?>"></label>
+					</div>
+				</div>
+			</div>
+
+			<div class="<?php echo esc_attr( $this->prefix ) . 'cheapest_variation';?> pl-10">
+				<label for="<?php echo esc_attr( $this->prefix ) . 'cheapest_variation_label';?>"><?php esc_html_e('Include Cheapest Priced Variations', 'rex-product-feed')?>
+					<span class="rex_feed-tooltip">
+						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
+						<p>
+							<?php
+							esc_html_e( 'Enable this option to include only the cheapest variation of variable products in the feed. Other variations will be excluded.', 'rex-product-feed' );
+						
+							?>
+						</p>
+					</span>
+				</label>
+
+				<div class="switch">
+					<div class="wpfm-switcher">
+                        <?php
+                        $saved_value = get_post_meta($post_id, '_rex_feed_cheapest_variation', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_cheapest_variation', true);
+                        $saved_value = $saved_value ?: 'no';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
+                        ?>
+                        <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'cheapest_variation'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'cheapest_variation'?>" <?php echo esc_attr( $checked )?>>
+						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'cheapest_variation'?>"></label>
+					</div>
+				</div>
+			</div>
+
+			<div class="<?php echo esc_attr( $this->prefix ) . 'highest_variation';?> pr-10">
+				<label for="<?php echo esc_attr( $this->prefix ) . 'highest_variation_label';?>"><?php esc_html_e('Include Highest Priced Variations', 'rex-product-feed')?>
+					<span class="rex_feed-tooltip">
+						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
+						<p>
+							<?php
+							esc_html_e( 'Enable this option to include only the highest priced variation of variable products in the feed. Other variations will be excluded.', 'rex-product-feed' );
+						
+							?>
+						</p>
+					</span>
+				</label>
+
+				<div class="switch">
+					<div class="wpfm-switcher">
+                        <?php
+                        $saved_value = get_post_meta($post_id, '_rex_feed_highest_variation', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_highest_variation', true);
+                        $saved_value = $saved_value ?: 'no';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
+                        ?>
+                        <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'highest_variation'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'highest_variation'?>" <?php echo esc_attr( $checked )?>>
+						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'highest_variation'?>"></label>
+					</div>
+				</div>
+			</div>
+
+			<div class="<?php echo esc_attr( $this->prefix ) . 'first_variation';?> pl-10">
+				<label for="<?php echo esc_attr( $this->prefix ) . 'first_variation_label';?>"><?php esc_html_e('Include First Variation', 'rex-product-feed')?>
+					<span class="rex_feed-tooltip">
+						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
+						<p>
+							<?php
+							esc_html_e( 'Enable this option to include only the first variation of variable products in the feed. Other variations will be excluded.', 'rex-product-feed' );
+						
+							?>
+						</p>
+					</span>
+				</label>
+
+				<div class="switch">
+					<div class="wpfm-switcher">
+                        <?php
+                        $saved_value = get_post_meta($post_id, '_rex_feed_first_variation', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_first_variation', true);
+                        $saved_value = $saved_value ?: 'no';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
+                        ?>
+                        <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'first_variation'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'first_variation'?>" <?php echo esc_attr( $checked )?>>
+						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'first_variation'?>"></label>
+					</div>
+				</div>
+			</div>
+
+			<div class="<?php echo esc_attr( $this->prefix ) . 'last_variation';?> pr-10">
+				<label for="<?php echo esc_attr( $this->prefix ) . 'last_variation_label';?>"><?php esc_html_e('Include Last Variation', 'rex-product-feed')?>
+					<span class="rex_feed-tooltip">
+						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
+						<p>
+							<?php
+							esc_html_e( 'Enable this option to include only the last variation of variable products in the feed. Other variations will be excluded.', 'rex-product-feed' );
+						
+							?>
+						</p>
+					</span>
+				</label>
+
+				<div class="switch">
+					<div class="wpfm-switcher">
+                        <?php
+                        $saved_value = get_post_meta($post_id, '_rex_feed_last_variation', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_last_variation', true);
+                        $saved_value = $saved_value ?: 'no';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
+                        ?>
+                        <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'last_variation'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'last_variation'?>" <?php echo esc_attr( $checked )?>>
+						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'last_variation'?>"></label>
+					</div>
+				</div>
+			</div>
+			
+			<div class="<?php echo esc_attr( $this->prefix ) . 'exclude_simple_products';?> pl-10">
+				<label for="<?php echo esc_attr( $this->prefix ) . 'exclude_simple_products_label';?>"><?php esc_html_e('Exclude All Simple Products', 'rex-product-feed')?>
+					<span class="rex_feed-tooltip">
+						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
+						<p><?php esc_html_e( 'Enable this option to exclude all Simple Products from the feed. Only Variable and Grouped products will be included.', 'rex-product-feed' ); ?></p>
+					</span>
+				</label>
+
+				<div class="switch">
+					<div class="wpfm-switcher">
+                        <?php
+                        $saved_value = get_post_meta($post_id, '_rex_feed_exclude_simple_products', true);
+                        $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_exclude_simple_products', true);
+                        $saved_value = $saved_value ?: 'no';
+                        $checked = 'yes' === $saved_value ? ' checked' : '';
+                        ?>
+                        <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'exclude_simple_products'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'exclude_simple_products'?>" <?php echo esc_attr( $checked )?>>
+						<label class="lever" for="<?php echo esc_attr( $this->prefix ) . 'exclude_simple_products'?>"></label>
+					</div>
+				</div>
+			</div>
+
+
 			<?php
-            /**
-             * Fires after rendering product type fields in the feed settings form.
-             *
-             * This action hook allows developers to inject custom content or perform additional
-             * actions after rendering the product type fields within the feed settings form.
-             * It provides a convenient way to extend or modify the product type settings section
+			/**
              * dynamically.
              *
              * @since 7.4.5

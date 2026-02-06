@@ -139,6 +139,15 @@ class Rex_Product_Feed {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-rex-product-feed-public.php';
 		require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-setup-wizard.php';
 		require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-create-contact.php';
+        require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-telemetry.php';
+
+		/**
+		 * Load the Feed Validator system.
+		 *
+		 * @since 7.4.58
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/feed-validator/class-rex-feed-validator-loader.php';
+
 		$this->loader = new Rex_Product_Feed_Loader();
 	}
 
@@ -173,14 +182,27 @@ class Rex_Product_Feed {
 	    $appsero_data           = new Rex_Product_Appsero_Data();
 	    $scheduler              = new Rex_Feed_Scheduler();
 
-        $special_banner = new Rex_Feed_Special_Occasion_Banner(
-            '4th_of_july_deal_2025',
-		   	'2025-07-01 00:00:00',
-		   	'2025-07-14 23:59:59'
-        ); // Date format: YYYY-MM-DD HH:MM:SS
-        if ( !defined( 'REX_PRODUCT_FEED_PRO_VERSION' ) && 'no' === get_option( 'rexfeed_hide_sales_notification_bar', 'no' ) ) {
-            new Rex_Feed_Sales_Notification_Bar();
+        /**
+         * Initialize the Feed Validator system.
+         *
+         * @since 7.4.58
+         */
+        rex_feed_validator_loader();
+
+        // $special_banner = new Rex_Feed_Special_Occasion_Banner(
+        //     'halloween_deal_2025',
+		//    	'2025-10-10 00:00:00',
+		//    	'2025-11-05 23:59:59'
+        // );
+		 // Date format: YYYY-MM-DD HH:MM:SS
+        if ( !defined( 'REX_PRODUCT_FEED_PRO_VERSION' ) && 'no' === get_option( 'rexfeed_hide_happy_new_year_deal_notification_bar', 'no' ) ) {
+            new Rex_Feed_Sales_Notification_Bar(
+				'happy_new_year_deal_2025',
+				'2025-12-31 00:00:00',
+				'2026-01-12 23:59:59'
+			);
         }
+
 
 	    $this->loader->add_action( 'admin_init', $plugin_admin, 'register_setup_wizard_page' );
 	    $this->loader->add_action( 'admin_init', $plugin_admin, 'admin_redirects' );
@@ -223,7 +245,7 @@ class Rex_Product_Feed {
 
         $this->loader->add_filter( 'best-woocommerce-feed_tracker_data', $appsero_data, 'send_merchant_info' );
 
-        $this->loader->add_action( 'init', $scheduler, 'register_background_schedulers' );
+
         $this->loader->add_action( HOURLY_SCHEDULE_HOOK, $scheduler, 'hourly_cron_handler' );
         $this->loader->add_action( DAILY_SCHEDULE_HOOK, $scheduler, 'daily_cron_handler' );
         $this->loader->add_action( DAILY_SCHEDULE_HOOK, $scheduler, 'register_wc_abandoned_child_update_scheduler' );
@@ -234,7 +256,7 @@ class Rex_Product_Feed {
 
 	    $this->loader->add_action( 'woocommerce_update_non_option_setting', $plugin_admin, 'delete_shipping_transient', 99 );
 
-	    $this->loader->add_action( 'admin_init', $special_banner, 'init' );
+	    // $this->loader->add_action( 'admin_init', $special_banner, 'init' );
 	    $this->loader->add_filter( 'post_updated_messages', $plugin_admin, 'post_updated_messages' );
 
 	    $this->loader->add_filter( 'rex_feed_product_price_before_formatting', $feed_actions, 'update_price_compatibility_with_wpml', 10, 4 );

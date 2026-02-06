@@ -53,7 +53,6 @@ if ( wpfm_pro_compatibility() ) {
                                         </div>
 
                                         <div class="flex-row" role="columnheader">
-                                            <?php echo __('Action', 'rex-product-feed') ?>
                                         </div>
 
                                     </div>

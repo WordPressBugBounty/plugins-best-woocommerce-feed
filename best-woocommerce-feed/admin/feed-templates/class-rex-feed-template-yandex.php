@@ -60,7 +60,25 @@ class Rex_Feed_Template_Yandex extends Rex_Feed_Abstract_Template {
 				'downloadable'          => 'Downloadable',
 				'item_group_id'         => 'Group id',
 			),
+			'Product Parameters' => $this->generate_param_attributes( 100 ),
 		);
+	}
+
+	/**
+	 * Generate param attributes dynamically
+	 *
+	 * @param int $count Number of param sets to generate.
+	 * @return array
+	 * @since 7.4.58
+	 */
+	private function generate_param_attributes( $count = 100 ) {
+		$params = array();
+		for ( $i = 1; $i <= $count; $i++ ) {
+			$params[ "Param_name_{$i}" ]  = "Param {$i} Name (Static)";
+			$params[ "Param_value_{$i}" ] = "Param {$i} Value (Attribute)";
+			$params[ "Param_unit_{$i}" ]  = "Param {$i} Unit (Static)";
+		}
+		return $params;
 	}
 
 	/**

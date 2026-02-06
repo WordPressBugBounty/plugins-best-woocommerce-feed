@@ -179,7 +179,7 @@ class Rex_Feed_Google_Shopping_Api {
 			$access_token = $this->get_client()->$fetch_function( $code );
 		} catch ( Exception $e ) {
 			$log = wc_get_logger();
-			$log->info( $e->getMessage(), [ 'source' => 'WPFMGmcAuthorization' ] );
+			$log->info( sprintf( __( 'Error fetching access token: %s', 'rex-product-feed' ), $e->getMessage() ), [ 'source' => 'WPFMGmcAuthorization' ] );
 		}
 
 		if ( empty( $access_token[ 'error' ] ) && ! empty( $access_token[ 'access_token' ] ) ) {
@@ -228,8 +228,46 @@ class Rex_Feed_Google_Shopping_Api {
 	 * @since 7.4.20
 	 */
 	public function is_authorized() {
-		$client = $this->get_client();
-		return !$client->isAccessTokenExpired();
+		// Check if we have basic credentials first
+		$client_id = $this->get_client_id();
+		$client_secret = $this->get_client_secret();
+		$merchant_id = $this->get_merchant_id();
+		
+		if ( empty( $client_id ) || empty( $client_secret ) || empty( $merchant_id ) ) {
+			return false;
+		}
+		
+		// Check if we have an access token
+		$access_token = $this->get_access_token();
+		if ( empty( $access_token ) ) {
+			return false;
+		}
+		
+		try {
+			$client = $this->get_client();
+			return ! $client->isAccessTokenExpired();
+		} catch ( Exception $e ) {
+			// If there's an error checking the token, consider it unauthorized
+			$log = wc_get_logger();
+			$log->info( sprintf( __( 'Authorization check failed: %s', 'rex-product-feed' ), $e->getMessage() ), [ 'source' => 'WPFMGmcAuthorization' ] );
+			return false;
+		}
+	}
+
+	/**
+	 * Check if credentials were ever successfully authorized.
+	 *
+	 * This method checks if the user has ever been successfully authorized by verifying
+	 * if an access token has been stored. This helps distinguish between first-time
+	 * invalid credentials and expired tokens from previously valid credentials.
+	 *
+	 * @return bool `true` if previously authorized at some point, `false` otherwise.
+	 *
+	 * @since 7.4.21
+	 */
+	public function was_previously_authorized() {
+		$token_data = $this->get_access_token();
+		return !empty( $token_data ) && ( !empty( $token_data['access_token'] ) || !empty( $token_data['refresh_token'] ) );
 	}
 
 	/**
@@ -237,13 +275,24 @@ class Rex_Feed_Google_Shopping_Api {
 	 *
 	 * This method retrieves the authorization URL for the Google API.
 	 * It uses the Google API client to create the URL with the required scopes.
+	 * Returns empty string if credentials are invalid or missing.
 	 *
-	 * @return string The authorization URL.
+	 * @return string The authorization URL or empty string on error.
 	 *
 	 * @since 7.4.20
 	 */
 	public function get_auth_url() {
-		return $this->get_client()->createAuthUrl();
+		try {
+			// Validate that required credentials are present
+			if ( empty( $this->get_client_id() ) || empty( $this->get_client_secret() ) ) {
+				return '';
+			}
+			return $this->get_client()->createAuthUrl();
+		} catch ( Exception $e ) {
+			$log = wc_get_logger();
+			$log->error( 'Failed to create auth URL: ' . $e->getMessage(), [ 'source' => 'WPFMGmcAuthorization' ] );
+			return '';
+		}
 	}
 
 	/**
@@ -321,7 +370,26 @@ class Rex_Feed_Google_Shopping_Api {
 	 */
 	public function get_product_detailed_stats( $page_token = null, $max_results = 10 ) {
 		$merchant_id = $this->get_merchant_id();
-		if ( ! empty( $merchant_id ) && is_numeric( $merchant_id ) && $this->validate_auth() ) {
+		
+		// Check if we have valid credentials and merchant ID
+		if ( empty( $merchant_id ) || ! is_numeric( $merchant_id ) ) {
+			return [
+				'error' => true,
+				'message' => __( 'Invalid Merchant ID. Please check your Google Merchant Center settings.', 'rex-product-feed' ),
+				'products' => [],
+			];
+		}
+		
+		// Validate authorization before attempting to fetch data
+		if ( ! $this->validate_auth() ) {
+			return [
+				'error' => true,
+				'message' => __( 'Authorization required. Please re-authorize your Google Merchant Center account.', 'rex-product-feed' ),
+				'products' => [],
+			];
+		}
+		
+		try {
 			$client   = $this->get_client();
 			$products = [];
 			$service  = new ShoppingContent( $client );
@@ -337,7 +405,15 @@ class Rex_Feed_Google_Shopping_Api {
 				] );
 			} catch ( Exception $e ) {
 				$log = wc_get_logger();
-				$log->info( $e->getMessage(), [ 'source' => 'WPFMGmcDiagnosticsReport' ] );
+				$log->info( sprintf( __( 'Error fetching product statuses: %s', 'rex-product-feed' ), $e->getMessage() ), [ 'source' => 'WPFMGmcDiagnosticsReport' ] );
+				
+				// Return user-friendly error instead of fatal error
+				return [
+					'error' => true,
+					'message' => __( 'Failed to fetch product data from Google Merchant Center. Please verify your authorization and try again.', 'rex-product-feed' ),
+					'technical_error' => $e->getMessage(),
+					'products' => [],
+				];
 			}
 
 			if ( !empty( $products_statuses ) && is_object( $products_statuses ) && method_exists( $products_statuses, 'getResources' ) ) {
@@ -379,13 +455,22 @@ class Rex_Feed_Google_Shopping_Api {
 			}
 
 			return [
+				'error' => false,
 				'prev_page_token' => $page_token,
 				'next_page_token' => $products_statuses->nextPageToken ?? null,
 				'products'        => $products,
 			];
+		} catch ( Exception $e ) {
+			$log = wc_get_logger();
+			$log->error( sprintf( __( 'Fatal error in get_product_detailed_stats: %s', 'rex-product-feed' ), $e->getMessage() ), [ 'source' => 'WPFMGmcDiagnosticsReport' ] );
+			
+			return [
+				'error' => true,
+				'message' => __( 'An unexpected error occurred while fetching the report. Please check your credentials and authorization.', 'rex-product-feed' ),
+				'technical_error' => $e->getMessage(),
+				'products' => [],
+			];
 		}
-
-		return [];
 	}
 
 	/**
@@ -452,17 +537,27 @@ class Rex_Feed_Google_Shopping_Api {
 	 * @since 7.4.20
 	 */
 	public function get_access_token_html() {
+		$was_previously_authorized = $this->was_previously_authorized();
 		ob_start();
 		?>
         <div class="single-merchant-area authorized">
             <div class="single-merchant-block">
                 <header>
-                    <h2 class="title"><?php esc_html_e( "You Are Not Authorized", "rex-product-feed" ); ?></h2>
+					<?php if ( $was_previously_authorized ) : ?>
+                        <h2 class="title"><?php esc_html_e( "You Are Not Authorized", "rex-product-feed" ); ?></h2>
+					<?php else : ?>
+                        <h2 class="title"><?php esc_html_e( "Invalid Credentials", "rex-product-feed" ); ?></h2>
+					<?php endif; ?>
                     <img src="<?php echo WPFM_PLUGIN_ASSETS_FOLDER . "/icon/danger.png"; ?>" class="title-icon" alt="bwf-documentation">
                 </header>
                 <div class="body">
-                    <p><?php esc_html_e( 'Your access token has expired. This application uses OAuth 2.0 to Access Google APIs. Please insert the information below and authenticate token for Google Merchant Shop. Generated access token expires after 3600 sec.', 'rex-product-feed' ); ?></p>
-                    <p class="single-merchant-bold"><?php _e( 'NB: This session expiration is set by Google. You only need to authorize while submitting a new feed. You can ignore this if you\'ve already submitted your feed to Google.', 'rex-product-feed' ); ?></p>
+					<?php if ( $was_previously_authorized ) : ?>
+                        <p><?php esc_html_e( 'Your access token has expired. This application uses OAuth 2.0 to Access Google APIs. Please insert the information below and authenticate token for Google Merchant Shop. Generated access token expires after 3600 sec.', 'rex-product-feed' ); ?></p>
+                        <p class="single-merchant-bold"><?php _e( 'NB: This session expiration is set by Google. You only need to authorize while submitting a new feed. You can ignore this if you\'ve already submitted your feed to Google.', 'rex-product-feed' ); ?></p>
+					<?php else : ?>
+                        <p><?php esc_html_e( 'Invalid credentials. Please check your Client ID, Client Secret, or Merchant ID and try again. Make sure you have entered the correct values from your Google Cloud Console and Google Merchant Center.', 'rex-product-feed' ); ?></p>
+                        <p class="single-merchant-bold"><?php _e( 'Tip: Verify that your Client ID and Client Secret match those in your Google Cloud Console OAuth 2.0 credentials, and that your Merchant ID is correct.', 'rex-product-feed' ); ?></p>
+					<?php endif; ?>
                     <a class="btn-default" href="<?php echo esc_url( $this->get_auth_url() ); ?>" target="_blank"><?php _e( 'Authenticate', 'rex-product-feed' ); ?></a>
                 </div>
             </div>

@@ -55,24 +55,24 @@
                 <div class="rex-premium-feature__btn-area">
 
                     <?php
-                        $price = '$79.99'; // This could be dynamic
+                        $price = '$99.99'; // This could be dynamic
                         $current_date = date('Y-m-d H:i:s');
-                        $start_date = '2025-07-04 00:00:00';
-                        $end_date = '2025-07-14 23:59:59';
-                        $discount_percentage = '';
+                        $start_date = '2025-12-31 00:00:00';
+                        $end_date = '2026-01-12 23:59:59';
+                        $discount_percentage = "";
                         $discount_price = '';
                         if ($current_date >= $start_date && $current_date <= $end_date) {
                             $discount_percentage = "Save 25%";
-                            $discount_price = "$59.99";
+                            $discount_price = "$74.99";
                         }  else {
-                            $discount_percentage = "Save 15%";
-                            $discount_price = "$79.99";
+                            $discount_percentage = "Save 25%";
+                            $discount_price = "$99.99";
                         }
                     ?>
 
                     <div class="rex-premium-feature__discount-price">
-                        <p class="rex-premium-feature__discount-price-label" data-discount="<?php echo $discount_percentage; ?>"><?php printf( esc_html__('Starting at %s/year', 'rex-product-feed'), '<span style= "font-weight:600; color:#0F2F72;">' . esc_html( $discount_price ) . '</span>' ); ?></p>
-                        <p><?php //printf( esc_html__('Normally %s/year', 'rex-product-feed'), esc_html( $price ) ); ?></p>
+                        <p class="rex-premium-feature__discount-price-label" data-discount="<?php echo $price; ?>"><?php printf( esc_html__('Starting at %s/year', 'rex-product-feed'), '<span style= "font-weight:600; color:#0F2F72;">' . esc_html( $price ) . '</span>' ); ?></p>
+                        <!-- <p style="text-decoration: line-through; color: #999;">Normally <?php //echo esc_html( $price ); ?>/year</p> -->
                     </div>
 
 
@@ -88,10 +88,10 @@
 </section>
 <!-- `rex-premium-feature` block  end -->
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        let discountLabel = document.querySelector(".rex-premium-feature__discount-price-label");
-        if (discountLabel) {
-            discountLabel.style.setProperty("--discount-content-value", `"${discountLabel.getAttribute('data-discount')}"`);
-        }
-    });
+    // document.addEventListener("DOMContentLoaded", function() {
+    //     let discountLabel = document.querySelector(".rex-premium-feature__discount-price-label");
+    //     if (discountLabel) {
+    //         discountLabel.style.setProperty("--discount-content-value", `"${discountLabel.getAttribute('data-discount')}"`);
+    //     }
+    // });
 </script>

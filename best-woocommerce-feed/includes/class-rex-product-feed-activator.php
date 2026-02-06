@@ -32,7 +32,21 @@ class Rex_Product_Feed_Activator {
         self::set_wpfm_activation_transients();
         self::update_wpfm_version();
         self::update_installed_time();
+        self::schedule_cron_jobs();
 	}
+
+    /**
+     * Schedule cron jobs
+     *
+     * @since 7.4.47
+     */
+    public static function schedule_cron_jobs() {
+        if ( ! class_exists( 'Rex_Feed_Scheduler' ) ) {
+            require_once trailingslashit(WPFM_ADMIN_PATH) . 'class-rex-feed-scheduler.php';
+        }
+        $scheduler = new Rex_Feed_Scheduler();
+        $scheduler->register_background_schedulers();
+    }
 
 
     /**

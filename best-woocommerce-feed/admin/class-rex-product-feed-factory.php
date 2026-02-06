@@ -264,12 +264,12 @@ class Rex_Product_Feed_Factory {
 			'bing',
             'google_css_center',
             'temu_seller_center',
+			'openai',
 		];
 		self::$bestprice_format = [ 'Bestprice' ];
 		self::$mirakl_format = [ 'mirakl' ];
 		self::$deals_for_u = [ 'DealsForU' ];
 		self::$spartoo_fr = [ 'spartooFr' ];
-
 		if ( in_array( $config[ 'merchant' ], self::$other_merchants ) ) {
 			$class_name = 'Rex_Product_Feed_Other';
 		}

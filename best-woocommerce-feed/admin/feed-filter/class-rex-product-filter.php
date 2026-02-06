@@ -363,74 +363,127 @@ class Rex_Product_Filter {
      * @return array
      * @since 1.0.0
      */
-    public static function get_custom_filter_where_query( $filter_mappings ) {
+    public static function get_custom_filter_where_query($filter_mappings) {
         $where                  = '';
-        $inner_where            = '';
         $term_exists            = false;
-		$meta_keys			    = [];
+        $meta_keys              = [];
         self::$meta_table_count = 0;
         self::$term_table_count = 0;
 
-        foreach( $filter_mappings as $key1 => $filters ) {
-            foreach( $filters as $key2 => $filter ) {
-                if( !empty( $filter[ 'if' ] ) && !empty( $filter[ 'then' ] ) && !empty( $filter[ 'condition' ] ) && isset( $filter[ 'value' ] ) ) {
-                    $if        = self::get_column_name( $filter[ 'if' ] );
-                    $then      = htmlspecialchars( $filter[ 'then' ] );
-                    $condition = htmlspecialchars( $filter[ 'condition' ] );
-                    $value     = htmlspecialchars( $filter[ 'value' ] );
+        $group_conditions = [];
 
-                    if ( self::is_unix_date( $if ) ) {
-                        $value = strtotime( $value );
-                    }
-                    elseif ( Rex_Product_Feed_Actions::is_acf_field_type( $if, 'date_time_picker' )
-                        || Rex_Product_Feed_Actions::is_acf_field_type( $if, 'date_picker' )
-                        || Rex_Product_Feed_Actions::is_acf_field_type( $if, 'time_picker' )
+        // Remove the "first index" if it looks like an empty filter group
+        foreach ($filter_mappings as $gk => $group) {
+            if (is_array($group) && isset($group[$gk]) && empty($group[$gk]['if']) && empty($group[$gk]['condition']) && empty($group[$gk]['value']) && empty($group[$gk]['then'])) {
+                unset($filter_mappings[$gk]);
+            }
+        }
+
+        // Reindex the array for consistency
+        $filter_mappings = array_values($filter_mappings);
+
+        foreach ($filter_mappings as $group_key => $filters) {
+            $filter_conditions = [];
+            $group_cfo = isset($filters['cfo']) ? strtoupper($filters['cfo']) : 'AND';
+            unset($filters['cfo']); // Remove outer CFO so only rows remain
+
+            foreach ($filters as $filter_key => $filter) {
+                // Skip non-arrays
+                if (!is_array($filter)) {
+                    continue;
+                }
+
+                if (!empty($filter['if']) && !empty($filter['then']) && !empty($filter['condition']) && isset($filter['value'])) {
+                    $if        = self::get_column_name($filter['if']);
+                    $then      = htmlspecialchars($filter['then']);
+                    $condition = htmlspecialchars($filter['condition']);
+                    $value     = htmlspecialchars($filter['value']);
+
+                    // Handle date/time conversions
+                    if (self::is_unix_date($if)) {
+                        $value = strtotime($value);
+                    } elseif (
+                        Rex_Product_Feed_Actions::is_acf_field_type($if, 'date_time_picker') ||
+                        Rex_Product_Feed_Actions::is_acf_field_type($if, 'date_picker') ||
+                        Rex_Product_Feed_Actions::is_acf_field_type($if, 'time_picker')
                     ) {
-                        $value = date( 'Y-m-d H:i:s', strtotime( $value ) );
+                        $value = date('Y-m-d H:i:s', strtotime($value));
                     }
 
-                    $prefix = self::get_method_prefix( $filter[ 'if' ] );
-;
-                    if( 'postterm_' === $prefix ) {
+                    // Handle taxonomy filters
+                    $prefix = self::get_method_prefix($filter['if']);
+                    if ('postterm_' === $prefix) {
                         $acf_attributes = [];
-                        if ( defined( 'ACF_VERSION' ) ) {
+                        if (defined('ACF_VERSION')) {
                             $acf_attributes = Rex_Feed_Attributes::get_acf_fields();
                         }
                         self::$term_table_count++;
+                        $column   = $filter['if'];
+                        $taxonomy = preg_match('/^pa_/i', $column) || (!empty($acf_attributes['ACF Taxonomies']) && array_key_exists($column, $acf_attributes['ACF Taxonomies'])) ? $column : substr($column, 0, -1);
+                        $value    = self::get_term_id($value, $taxonomy);
 
-                        $column   = $filter[ 'if' ];
-
-                        $shipping_properties = ['product_shipping_class', 'shipping_cost'];
-
-                        $taxonomy = preg_match( '/^pa_/i', $column ) || in_array($column, $shipping_properties, true) || ( !empty( $acf_attributes[ 'ACF Taxonomies' ] ) && array_key_exists( $column, $acf_attributes[ 'ACF Taxonomies' ] ) ) ? $column : substr( $column, 0, -1 );
-
-                        $value    = self::get_term_id( $value, $taxonomy, $condition, $then );
-
-                        if( !$value && !in_array($column, $shipping_properties, true)) {
+                        if (!$value) {
                             continue;
                         }
 
                         $term_exists = true;
-
-                    } elseif ( 'postmeta_' === $prefix ) {
-	                    self::$meta_table_count ++;
-	                    $if          = preg_replace( '/^va_pa_/i', 'attribute_pa_', $if );
-	                    $meta_keys[] = $if;
+                    } elseif ('postmeta_' === $prefix) {
+                        self::$meta_table_count++;
+                        $if          = preg_replace('/^va_pa_/i', 'attribute_pa_', $if);
+                        $meta_keys[] = $if;
                     }
 
+                    // Build condition
                     $function = "{$prefix}{$condition}";
-                    if( method_exists( __CLASS__, $function ) ) {
-                        $temp_where = self::$function( $if, $value, $then );
-                        if( $temp_where ) {
-                            $inner_where .= $key2 > 0 && $inner_where ? " AND ({$temp_where})" : "({$temp_where})";
+                    if (method_exists(__CLASS__, $function)) {
+                        $temp_where = self::$function($if, $value, $then);
+                        if ($temp_where) {
+                            $filter_cfo = isset($filter['cfo']) ? strtoupper($filter['cfo']) : 'AND';
+                            $filter_conditions[] = [
+                                'condition' => $temp_where,
+                                'cfo' => $filter_cfo
+                            ];
                         }
                     }
                 }
             }
 
-            if( $inner_where ) {
-                $where .= $key1 > 0 && $where ? " OR ({$inner_where})" : "({$inner_where})";
+            // Build inner WHERE for group
+            if (!empty($filter_conditions)) {
                 $inner_where = '';
+                foreach ($filter_conditions as $index => $filter_condition) {
+                    if ($index === 0) {
+                        $inner_where = "({$filter_condition['condition']})";
+                    } else {
+                        // Use the CFO from the current filter (not the previous one)
+                        $operator = $filter_condition['cfo'];
+                        $inner_where .= " {$operator} ({$filter_condition['condition']})";
+                    }
+                }
+
+                // If there's only 1 group and only 1 row inside → ignore group CFO
+                if (count($filter_mappings) === 1 && count($filter_conditions) === 1) {
+                    $group_cfo = '';
+                }
+
+                $group_conditions[] = [
+                    'condition' => $inner_where,
+                    'cfo' => $group_cfo
+                ];
+            }
+        }
+
+        // Build final WHERE
+        if (!empty($group_conditions)) {
+            foreach ($group_conditions as $index => $group_condition) {
+                if ($index === 0) {
+                    // First group, no operator needed
+                    $where = "({$group_condition['condition']})";
+                } else {
+                    // Use the CFO of the current group (not previous!)
+                    $operator = $group_condition['cfo'];
+                    $where .= " {$operator} ({$group_condition['condition']})";
+                }
             }
         }
 
@@ -440,6 +493,7 @@ class Rex_Product_Filter {
             'meta_keys'   => $meta_keys
         ];
     }
+
 
     /**
      * Checks if a given column is a date-related column.
@@ -527,17 +581,16 @@ class Rex_Product_Filter {
             $acf_attributes = Rex_Feed_Attributes::get_acf_fields();
         }
 
-        elseif( in_array( $column, $meta_table_attr, true )
-            || ( !empty( $acf_attributes[ 'ACF Attributes' ] ) && array_key_exists( $column, $acf_attributes[ 'ACF Attributes' ] ) )
-            || preg_match( '/^va_pa_/i', $column )
-        ) {
-            return 'postmeta_';
-        }
-        elseif( in_array( $column, $term_rel_table_attr, true )
+        if(in_array( $column, $term_rel_table_attr, true )
             || preg_match( '/^pa_/i', $column )
             || ( !empty( $acf_attributes[ 'ACF Taxonomies' ] ) && array_key_exists( $column, $acf_attributes[ 'ACF Taxonomies' ] ) )
         ) {
             return 'postterm_';
+        } elseif(in_array( $column, $meta_table_attr, true )
+            || ( !empty( $acf_attributes[ 'ACF Attributes' ] ) && array_key_exists( $column, $acf_attributes[ 'ACF Attributes' ] ) )
+            || preg_match( '/^va_pa_/i', $column )
+        ) {
+            return 'postmeta_';
         }
         return 'post_';
     }
@@ -636,18 +689,39 @@ class Rex_Product_Filter {
      * @param $taxonomy
      * @return mixed
      */
-    private static function get_term_id( $slug, $taxonomy, $condition, $then ) {
-        $empty_array = ['is_empty', 'is_not_empty'];
-        if('product_shipping_class' === $taxonomy && !in_array($condition, $empty_array, true)){
-            $term = get_term_by( 'name', $slug, $taxonomy );
-        }else if('product_shipping_class' === $taxonomy && in_array($condition, $empty_array, true)){
-            return self::get_product_ids_on_shipping_class($condition, $then);
-        }else if('shipping_cost' === $taxonomy){
-            return self::handle_shipping_cost_filter_by_terms($slug, $condition, $then);
-        }else{
-            $term = get_term_by( 'slug', $slug, $taxonomy );
+    private static function get_term_id( $slug, $taxonomy, $condition = null, $then = null ) {
+        // Early return if essential parameters are missing
+        if (empty($slug) || empty($taxonomy)) {
+            return null;
         }
-        return !empty( $term->term_id ) ? $term->term_id : null;
+
+        $empty_array = ['is_empty', 'is_not_empty'];
+        
+        // Handle special cases for product shipping class
+        if ('product_shipping_class' === $taxonomy) {
+            if ($condition !== null && !in_array($condition, $empty_array, true)) {
+                $term = get_term_by('name', $slug, $taxonomy);
+            } elseif (in_array($condition, $empty_array, true) && method_exists(__CLASS__, 'get_product_ids_on_shipping_class')) {
+                return self::get_product_ids_on_shipping_class($condition, $then);
+            } else {
+                return null;
+            }
+        }
+        // Handle shipping cost taxonomy
+        elseif ('shipping_cost' === $taxonomy && method_exists(__CLASS__, 'handle_shipping_cost_filter_by_terms')) {
+            return self::handle_shipping_cost_filter_by_terms($slug, $condition, $then);
+        }
+        // Default term lookup by slug
+        else {
+            $term = get_term_by('slug', $slug, $taxonomy);
+        }
+
+        // Safely return term ID or null
+        if (!is_wp_error($term) && $term && isset($term->term_id)) {
+            return $term->term_id;
+        }
+
+        return null;
     }
 
     /**

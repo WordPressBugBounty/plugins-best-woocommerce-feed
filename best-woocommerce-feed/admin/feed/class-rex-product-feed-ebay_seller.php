@@ -94,8 +94,37 @@ class Rex_Product_Feed_Ebay_seller extends Rex_Product_Feed_Abstract_Generator {
         $this->ebaySellerInit($this->config['feed_config']);
 
         // Generate feed for both simple and variable products.
-        $this->generate_product_feed();
-        $this->feed = $this->returnFinalProduct();
+
+        $should_regenerate = true;
+        // Use the helper to check if we should regenerate
+        $should_regenerate = Rex_Feed_Generator_Helper::wpfm_should_regenerate_feed(
+            $this->id,
+            $this->batch,
+            $this->bypass,
+            $this->products,
+            $this->feed
+        );
+
+        if ($should_regenerate) {
+            // Generate feed for both simple and variable products
+            $this->generate_product_feed();
+            $this->feed = $this->returnFinalProduct();
+
+            // Cache the feed using the helper
+            Rex_Feed_Generator_Helper::wpfm_cache_feed(
+                $this->id,
+                $this->batch,
+                $this->bypass,
+                $this->products,
+                $this->feed
+            );
+        }
+        
+        // Update timestamp in the last batch
+        if ($this->batch >= $this->tbatch && $this->bypass) {
+            Rex_Feed_Generator_Helper::wpfm_update_feed_timestamp($this->id);
+        }
+
         $this->feed_format = 'csv';
         if ($this->batch >= $this->tbatch ) {
             $this->save_feed($this->feed_format);

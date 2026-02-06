@@ -4,34 +4,38 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitdab208890daae241c9fe61a233ce8552
+class ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e
 {
     public static $files = array (
+        'ff3063ba1525be89739a1851bfba6fcb' => __DIR__ . '/..' . '/coderexltd/telemetry/src/helpers.php',
         'db1766888a4f96ab813d6f6a38125eb9' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
-        'P' => 
+        'P' =>
         array (
-            'PostHog\\' => 8,
             'PhilipNewcomer\\WP_Ajax_Helper\\' => 30,
         ),
-        'A' => 
+        'C' =>
+        array (
+            'CodeRex\\Telemetry\\' => 18,
+        ),
+        'A' =>
         array (
             'Appsero\\' => 8,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'PostHog\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/posthog/posthog-php/lib',
-        ),
-        'PhilipNewcomer\\WP_Ajax_Helper\\' => 
+        'PhilipNewcomer\\WP_Ajax_Helper\\' =>
         array (
             0 => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components',
         ),
-        'Appsero\\' => 
+        'CodeRex\\Telemetry\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/coderexltd/telemetry/src',
+        ),
+        'Appsero\\' =>
         array (
             0 => __DIR__ . '/..' . '/appsero/client/src',
         ),
@@ -41,28 +45,24 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
         'Appsero\\Client' => __DIR__ . '/..' . '/appsero/client/src/Client.php',
         'Appsero\\Insights' => __DIR__ . '/..' . '/appsero/client/src/Insights.php',
         'Appsero\\License' => __DIR__ . '/..' . '/appsero/client/src/License.php',
+        'CodeRex\\Telemetry\\Client' => __DIR__ . '/..' . '/coderexltd/telemetry/src/Client.php',
+        'CodeRex\\Telemetry\\Drivers\\DriverInterface' => __DIR__ . '/..' . '/coderexltd/telemetry/src/Drivers/DriverInterface.php',
+        'CodeRex\\Telemetry\\Drivers\\OpenPanelDriver' => __DIR__ . '/..' . '/coderexltd/telemetry/src/Drivers/OpenPanelDriver.php',
+        'CodeRex\\Telemetry\\EventDispatcher' => __DIR__ . '/..' . '/coderexltd/telemetry/src/EventDispatcher.php',
+        'CodeRex\\Telemetry\\Helpers\\Utils' => __DIR__ . '/..' . '/coderexltd/telemetry/src/Helpers/Utils.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'LukeSnowden\\GoogleShoppingFeed\\Containers\\GoogleShopping' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Containers/GoogleShopping.php',
         'LukeSnowden\\GoogleShoppingFeed\\Exceptions\\MissingIdentifierException' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Exceptions/MissingIdentifierException.php',
         'LukeSnowden\\GoogleShoppingFeed\\Feed' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Feed.php',
         'LukeSnowden\\GoogleShoppingFeed\\Item' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Item.php',
         'LukeSnowden\\GoogleShoppingFeed\\Node' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Node.php',
+        'PFM_First_Feed_Banner' => __DIR__ . '/../..' . '/admin/class-pfm-first-feed-banner.php',
         'PhilipNewcomer\\WP_Ajax_Helper\\Frontend' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components/Frontend.php',
         'PhilipNewcomer\\WP_Ajax_Helper\\Handler' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components/Handler.php',
         'PhilipNewcomer\\WP_Ajax_Helper\\Responder' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components/Responder.php',
         'PhilipNewcomer\\WP_Ajax_Helper\\Utility' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components/Utility.php',
         'PhilipNewcomer\\WP_Ajax_Helper\\Validations' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components/Validations.php',
         'PhilipNewcomer\\WP_Ajax_Helper\\Validator' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components/Validator.php',
-        'PostHog\\Client' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Client.php',
-        'PostHog\\Consumer' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer.php',
-        'PostHog\\Consumer\\File' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer/File.php',
-        'PostHog\\Consumer\\ForkCurl' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer/ForkCurl.php',
-        'PostHog\\Consumer\\LibCurl' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer/LibCurl.php',
-        'PostHog\\Consumer\\Socket' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer/Socket.php',
-        'PostHog\\HttpClient' => __DIR__ . '/..' . '/posthog/posthog-php/lib/HttpClient.php',
-        'PostHog\\HttpResponse' => __DIR__ . '/..' . '/posthog/posthog-php/lib/HttpResponse.php',
-        'PostHog\\PostHog' => __DIR__ . '/..' . '/posthog/posthog-php/lib/PostHog.php',
-        'PostHog\\QueueConsumer' => __DIR__ . '/..' . '/posthog/posthog-php/lib/QueueConsumer.php',
         'RexFeed\\Google\\AccessToken\\Revoke' => __DIR__ . '/../..' . '/includes/library/google/apiclient/src/AccessToken/Revoke.php',
         'RexFeed\\Google\\AccessToken\\Verify' => __DIR__ . '/../..' . '/includes/library/google/apiclient/src/AccessToken/Verify.php',
         'RexFeed\\Google\\AuthHandler\\AuthHandlerFactory' => __DIR__ . '/../..' . '/includes/library/google/apiclient/src/AuthHandler/AuthHandlerFactory.php',
@@ -944,8 +944,10 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
         'RexTheme\\ZapCoIl\\Item' => __DIR__ . '/../..' . '/admin/feed/zap_co_il/Item.php',
         'RexTheme\\ZapCoIl\\Node' => __DIR__ . '/../..' . '/admin/feed/zap_co_il/Node.php',
         'Rex_Feed_Abstract_Template' => __DIR__ . '/../..' . '/admin/feed-templates/abstract-rex-feed-template.php',
+        'Rex_Feed_Abstract_Validator' => __DIR__ . '/../..' . '/admin/feed-validator/abstract-rex-feed-validator.php',
         'Rex_Feed_Attributes' => __DIR__ . '/../..' . '/admin/class-rex-feed-attributes.php',
         'Rex_Feed_Discount_Rules_Asana_Plugins' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-discount-rules-asana-plugins.php',
+        'Rex_Feed_Generator_Helper' => __DIR__ . '/../..' . '/admin/class-rex-feed-generator-helper.php',
         'Rex_Feed_Google_Shopping_Api' => __DIR__ . '/../..' . '/admin/api/class-rex-feed-google-shopping-api.php',
         'Rex_Feed_Handle_Google_Product' => __DIR__ . '/../..' . '/admin/api-data-handlers/class-rex-feed-google-product-data-handler.php',
         'Rex_Feed_Merchants' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-merchants.php',
@@ -1112,6 +1114,7 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
         'Rex_Feed_Template_Nextag' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-nextag.php',
         'Rex_Feed_Template_Okazii' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-okazii.php',
         'Rex_Feed_Template_Onbuy' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-onbuy.php',
+        'Rex_Feed_Template_Openai' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-openai.php',
         'Rex_Feed_Template_Otto' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-otto.php',
         'Rex_Feed_Template_Pepperjam' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-pepperjam.php',
         'Rex_Feed_Template_Pinterest' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-pinterest.php',
@@ -1172,6 +1175,16 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
         'Rex_Feed_Template_Zalando_stock_update' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-zalando-stock-update.php',
         'Rex_Feed_Template_Zap_co_il' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-zap-co-il.php',
         'Rex_Feed_Template_Zbozi' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-zbozi.php',
+        'Rex_Feed_Validation_Results' => __DIR__ . '/../..' . '/admin/feed-validator/class-rex-feed-validation-results.php',
+        'Rex_Feed_Validator_Facebook' => __DIR__ . '/../..' . '/admin/feed-validator/class-rex-feed-validator-facebook.php',
+        'Rex_Feed_Validator_Factory' => __DIR__ . '/../..' . '/admin/feed-validator/class-rex-feed-validator-factory.php',
+        'Rex_Feed_Validator_Google' => __DIR__ . '/../..' . '/admin/feed-validator/class-rex-feed-validator-google.php',
+        'Rex_Feed_Validator_Instagram' => __DIR__ . '/../..' . '/admin/feed-validator/class-rex-feed-validator-instagram.php',
+        'Rex_Feed_Validator_Loader' => __DIR__ . '/../..' . '/admin/feed-validator/class-rex-feed-validator-loader.php',
+        'Rex_Feed_Validator_OpenAI' => __DIR__ . '/../..' . '/admin/feed-validator/class-rex-feed-validator-openai.php',
+        'Rex_Feed_Validator_Pinterest' => __DIR__ . '/../..' . '/admin/feed-validator/class-rex-feed-validator-pinterest.php',
+        'Rex_Feed_Validator_TikTok' => __DIR__ . '/../..' . '/admin/feed-validator/class-rex-feed-validator-tiktok.php',
+        'Rex_Feed_Validator_Yandex' => __DIR__ . '/../..' . '/admin/feed-validator/class-rex-feed-validator-yandex.php',
         'Rex_Google_Merchant_Settings_Api' => __DIR__ . '/../..' . '/admin/class-rex-google-merchant-content-api.php',
         'Rex_Product_Appsero_Data' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-appsero-data.php',
         'Rex_Product_CPT' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-cpt.php',
@@ -1239,6 +1252,7 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
         'Rex_Product_Glami_Data_Retriever' => __DIR__ . '/../..' . '/admin/feed/glami/class-free-glami-data-retriever.php',
         'Rex_Product_Marktplaats_Data_Retriever' => __DIR__ . '/../..' . '/admin/feed/marktplaats/marktplaats-data-retriever.php',
         'Rex_Product_Metabox' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-metabox.php',
+        'Rex_Product_Telemetry' => __DIR__ . '/../..' . '/includes/class-rex-product-telemetry.php',
         'Rex_Sooqr_Product_Data_Retriever' => __DIR__ . '/../..' . '/admin/feed/sooqr/class-rex-sooqr-product-data-retriever.php',
         'Rex_Spartoo_Product_Data_Retriever' => __DIR__ . '/../..' . '/admin/feed/spartoo/class-rex-spartoo-product-data-retriever.php',
         'Rex_Yandex_Product_Data_Retriever' => __DIR__ . '/../..' . '/admin/feed/yandex/class-rex-yandex-product-data-retriever.php',
@@ -1247,9 +1261,9 @@ class ComposerStaticInitdab208890daae241c9fe61a233ce8552
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitdab208890daae241c9fe61a233ce8552::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitdab208890daae241c9fe61a233ce8552::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitdab208890daae241c9fe61a233ce8552::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e::$classMap;
 
         }, null, ClassLoader::class);
     }

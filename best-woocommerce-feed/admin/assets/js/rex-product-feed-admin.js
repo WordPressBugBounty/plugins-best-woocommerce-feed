@@ -400,6 +400,33 @@
         $(".post-type-product-feed #wpcontent").append('<div id="body-overlay"></div>');
         $(".post-type-product-feed #wpcontent").append('<div class="clear"></div>');
         $("#rex_feed_product_settings").addClass("show-settings");
+
+        // Variation options checkboxes exclusivity
+        const variationCheckboxes = $('#rex_feed_variations, #rex_feed_default_variation, #rex_feed_cheapest_variation, #rex_feed_highest_variation, #rex_feed_first_variation, #rex_feed_last_variation');
+
+        // Function to enforce exclusivity
+        function enforceExclusivity(clickedCheckbox) {
+            if ($(clickedCheckbox).is(':checked')) {
+                variationCheckboxes.not(clickedCheckbox).prop('checked', false).removeAttr('checked');
+            }
+        }
+
+        // Attach change event listener
+        variationCheckboxes.on('change', function () {
+            enforceExclusivity(this);
+        });
+
+        // Initial check on page load to handle pre-checked boxes
+        let lastChecked = null;
+        variationCheckboxes.each(function() {
+            if ($(this).is(':checked')) {
+                lastChecked = this;
+            }
+        });
+
+        if (lastChecked) {
+            enforceExclusivity(lastChecked);
+        }
     });
 
 
@@ -465,7 +492,7 @@
 
     $(document).on("click", ".rex-feed-custom-filter__delete", rex_feed_remove_feed_filter_section);
 
-    $(document).on("click", "div.flex-table-or-button-area span.custom-table-row-add", rex_feed_add_or_condition);
+    $(document).on("click", "div.flex-table-or-button-area button.custom-table-row-add,button.custom-table-row-and", rex_feed_add_or_condition);
 
     $(document).on("click", "span#rex_filters_changes_close, span#rex_settings_changes_close", function () {
         $( this ).parent().parent().parent().hide();
@@ -623,6 +650,7 @@
     $(document).on("change", "select.sanitize-dropdown, select.default-sanitize-dropdown", rex_feed_update_multiple_filter_counter);
 
     $(document).on("change", "#rex_feed_cats_check_all_btn, #rex_feed_tags_check_all_btn, #rex_feed_brands_check_all_btn", rex_feed_check_uncheck_all_tax);
+    $(document).on("change", ".rex_feed_cats, .rex_feed_tags, .rex_feed_brands", rex_feed_sync_check_all_tax);
 
     $(document).on("change", "select.attr-dropdown, select.attr-val-dropdown", rex_feed_auto_select_google_shipping_tax);
 
@@ -1277,6 +1305,22 @@
             feed_config: $("form").serialize(),
         };
 
+        // Explicitly check and append variation settings if they are checked
+        const variationSettings = [
+            'rex_feed_variations',
+            'rex_feed_default_variation',
+            'rex_feed_cheapest_variation',
+            'rex_feed_highest_variation',
+            'rex_feed_first_variation',
+            'rex_feed_last_variation'
+        ];
+
+        variationSettings.forEach(function(setting) {
+            if ($('#' + setting).is(':checked') && $payload.feed_config.indexOf(setting + '=yes') === -1) {
+                $payload.feed_config += '&' + setting + '=yes';
+            }
+        });
+
         var batches = total_batch;
         console.log("Total Batch: " + batches);
         console.log("Total Product(s): " + product);
@@ -1310,6 +1354,12 @@
                     $("#wpfm-feed-clock").stopwatch().stopwatch("stop");
                     $("#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn").removeClass("disabled");
                     $(document).off("click", "#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn", get_product_number);
+                    
+                    // Set flag to auto-trigger validation after page reload
+                    if (typeof(sessionStorage) !== "undefined") {
+                        sessionStorage.setItem('rex_feed_just_generated_' + $("#post_ID").val(), 'true');
+                    }
+                    
                     $("#publish").trigger("click");
                 } else if (response.msg == "failForInvalidEntry") {
                     alert("Please set proper values for the mandatory field like Shipping Id, Who made, When made, Taxonomy Id.");
@@ -1387,13 +1437,28 @@
         };
         wpAjaxHelperRequest("rexfeed-google-merchant-settings", payload)
             .success(function (response) {
-                console.log("Woohoo!");
                 $("#rex_feed_config_heading .inside .rex-loading-spinner").css("display", "none");
-                location.reload();
+                
+                // Show success message
+                if (response.data && response.data.message) {
+                    alert(response.data.message);
+                }
+                
+                // Only reload if credentials changed or not authorized
+                if (response.data && response.data.needs_auth) {
+                    location.reload(true);
+                }
             })
             .error(function (response) {
-                console.log("Uh, oh!");
+                console.log("Error saving credentials:", response);
                 $("#rex_feed_config_heading .inside .rex-loading-spinner").css("display", "none");
+                var errorMessage = 'Failed to save credentials. ';
+                if (response.responseJSON && response.responseJSON.data && response.responseJSON.data.message) {
+                    errorMessage += response.responseJSON.data.message;
+                } else {
+                    errorMessage += 'Please check your Client ID, Client Secret, and Merchant ID.';
+                }
+                alert(errorMessage);
             });
     }
 
@@ -1469,8 +1534,38 @@
 
     function reset_form(event) {
         event.preventDefault();
+        if (!confirm(rex_wpfm_admin_translate_strings.reset_credentials_confirm)) {
+            return;
+        }
+        
+        $("#rex_feed_config_heading .inside .rex-loading-spinner").css("display", "flex");
+        
+        // Clear the form fields
         $(this).closest("form").find("input[type=text]").not(":disabled").val("");
         $(this).closest("form").find("button[type=submit]").prop("disabled", false);
+        
+        // Make AJAX request to clear stored credentials and tokens
+        var payload = {
+            reset_credentials: true
+        };
+        
+        wpAjaxHelperRequest("rexfeed-reset-google-credentials", payload)
+            .success(function (response) {
+                console.log("Credentials reset successfully");
+                $("#rex_feed_config_heading .inside .rex-loading-spinner").css("display", "none");
+                location.reload();
+            })
+            .error(function (response) {
+                console.log("Error resetting credentials:", response);
+                $("#rex_feed_config_heading .inside .rex-loading-spinner").css("display", "none");
+                var errorMessage = rex_wpfm_admin_translate_strings.reset_credentials_error;
+                if (response.responseJSON && response.responseJSON.data && response.responseJSON.data.message) {
+                    errorMessage += response.responseJSON.data.message;
+                } else {
+                    errorMessage += rex_wpfm_admin_translate_strings.please_try_again;
+                }
+                alert(errorMessage);
+            });
     }
 
     /**
@@ -2041,7 +2136,8 @@
             map_name: default_name,
             cat_map: default_value,
             hash: "wpfm_google_product_category_default",
-            feed_id: $('#post_ID').val()
+            feed_id: $('#post_ID').val(),
+            track: 'no'
         };
 
         wpAjaxHelperRequest( 'rexfeed-save-category-mapping', $payload )
@@ -2115,12 +2211,35 @@
                     if ( 'ready' === event_type ) {
                         rexfeed_set_init_form_data();
                     }
+
+                    $('.rex-custom-filter-dropdown__menu').css('display', 'none');
+                    updateRemoveButtons();
+
                 }
             })
             .error(function (response) {
                 console.log("Failed to load!");
             });
     }
+
+    function updateRemoveButtons() {
+        const $firstGroup = $('.rex-or-markup-area[data-row-id="0"]');
+        if ($firstGroup.length) {
+            // ✅ Only consider rows that are visible (not display:none)
+            const $rows = $firstGroup.find('.flex-table-group-and-or-box-content').filter(function () {
+                return $(this).css("display") !== "none";
+            });
+
+            if ($rows.length === 1) {
+                // Hide remove button for the only visible row
+                $rows.find('.remove-field.delete-row.delete-condition').hide();
+            } else {
+                // Show remove button if more than one visible row
+                $rows.find('.remove-field.delete-row.delete-condition').show();
+            }
+        }
+    }
+
 
     function rex_feed_remove_feed_filter_section() {
         $(this).parent().parent().parent().parent().fadeOut();
@@ -2131,15 +2250,97 @@
     }
 
     function rex_feed_add_or_condition() {
+        // 1️⃣ Get the previous row's data-row-id and increment it
         let newRowId = $(this).parent().prev().attr("data-row-id");
         newRowId = parseInt(newRowId) + 1;
-
-        const new_row = $(this).parent().siblings(":first").clone().insertAfter($(this).parent().prev()).show().attr("data-row-id", newRowId).children().next().attr("data-row-id", 0);
-
-        $(new_row).find("select").select2();
-
+    
+        // 2️⃣ Determine if this is AND or OR condition
+        const selectedValue = $(this).hasClass("custom-table-row-and") ? "AND" : "OR";
+    
+        // 3️⃣ Clone the first sibling `.flex-table-and-box.or-markup` and insert it
+        const new_row = $(this)
+            .parent()
+            .siblings(":first")
+            .clone()
+            .insertAfter($(this).parent().prev())
+            .show()
+            .attr("data-row-id", newRowId); // set parent data-row-id
+    
+        // 4️⃣ Reset ALL nested `.flex-table-group-and-or-box-content` inside clone
+        new_row.find(".flex-table-group-and-or-box-content").attr("data-row-id", 0);
+    
+        // 5️⃣ Re-init Select2 dropdowns
+        new_row.find("select").each(function () {
+            if ($(this).hasClass("select2-hidden-accessible")) {
+                $(this).select2('destroy');
+            }
+            $(this).select2();
+        });
+    
+        // 6️⃣ Update custom dropdown options (set AND/OR correctly)
+        new_row.find(".rex-custom-filter-dropdown").each(function () {
+            const dropdown = $(this);
+    
+            dropdown.find(".rex-custom-filter-dropdown__option").each(function () {
+                const opt = $(this);
+                const checkmark = opt.find(".rex-custom-filter-dropdown__checkmark");
+    
+                if (opt.data("value") === selectedValue) {
+                    opt.addClass("rex-custom-filter-dropdown__option--selected");
+                    checkmark.show();
+                } else {
+                    opt.removeClass("rex-custom-filter-dropdown__option--selected");
+                    checkmark.hide();
+                }
+            });
+    
+            // Update visible text
+            dropdown.find(".rex-custom-filter-dropdown__text").text(selectedValue);
+        });
+    
+        addCustomFilterOuterHiddenSelectInputField(new_row, newRowId, selectedValue);
         updateCustomFilterOrConditionAttr(new_row, newRowId);
     }
+    
+    
+    function addCustomFilterOuterHiddenSelectInputField(row, newRowId, value) {
+        const $row = $(row);
+    
+        // Remove any existing hidden input for this row to avoid duplicates
+        $row.find(`input[type="hidden"][name^="outerff[${newRowId}]"]`).remove();
+    
+        // Create new hidden input
+        const hiddenInput = $('<input>', {
+            type: 'hidden',
+            name: `outerff[${newRowId}][ocfo]`,
+            value: value
+        });
+    
+        // Append it to the row
+        $row.append(hiddenInput);
+    }
+function addCustomFilterOuterHiddenSelectInputField(row, newRowId, value) {
+    const $row = $(row);
+
+    // Remove any existing hidden input for this row to avoid duplicates
+    $row.find(`input[type="hidden"][name^="ff[${newRowId}]"]`).remove();
+
+    // Create new hidden input
+    const hiddenInput = $('<input>', {
+        type: 'hidden',
+        name: `ff[${newRowId}][cfo]`,
+        value: value
+    });
+
+    // Append it to the row
+    $row.append(hiddenInput);
+}
+    
+    
+    
+
+
+
 
     /**
      * Gets feed id from URL parameter
@@ -2385,6 +2586,34 @@
             $("input.rex_feed_brands").prop("checked", true);
         } else {
             $("input.rex_feed_brands").prop("checked", false);
+        }
+    }
+
+    
+    /**
+     * @desc Synchronize Check All button state based on individual items
+     * @since 7.4.45
+     */
+    function rex_feed_sync_check_all_tax() {
+        let $this = $(this);
+        let button_id = "";
+        let item_class = "";
+
+        if ($this.hasClass("rex_feed_cats")) {
+            button_id = "rex_feed_cats_check_all_btn";
+            item_class = "rex_feed_cats";
+        } else if ($this.hasClass("rex_feed_tags")) {
+            button_id = "rex_feed_tags_check_all_btn";
+            item_class = "rex_feed_tags";
+        } else if ($this.hasClass("rex_feed_brands")) {
+            button_id = "rex_feed_brands_check_all_btn";
+            item_class = "rex_feed_brands";
+        }
+
+        if (button_id) {
+            let total = $("input." + item_class).length;
+            let checked = $("input." + item_class + ":checked").length;
+            $("#" + button_id).prop("checked", total === checked);
         }
     }
 
@@ -2706,31 +2935,40 @@
     function rex_close_filter_drawer(e) {
         e.preventDefault();
         const custom_filter = $("#rex-feed-config-filter");
-        const filter_visibility = 'undefined' !== typeof custom_filter.get(0) ? window.getComputedStyle(custom_filter.get(0)).display : 'none';
+        const filter_visibility =
+            typeof custom_filter.get(0) !== "undefined"
+                ? window.getComputedStyle(custom_filter.get(0)).display
+                : "none";
+    
         let valid = true;
-
-        $( 'section#rex_filter_changes_save_warning_popup' ).hide();
-
-        if ("none" !== filter_visibility) {
+        $("section#rex_filter_changes_save_warning_popup").hide();
+    
+        if (filter_visibility !== "none") {
             $(custom_filter)
                 .children()
-                .find("select.select2-hidden-accessible")
+                .find("select.select2-hidden-accessible:visible")
                 .each(function (_index, value) {
                     let selected_val = $(value).find("option:selected").val();
                     if (!selected_val) {
                         valid = false;
-                        return;
+                        return false; // break
                     }
                 });
         }
-
+    
         if (!valid) {
-            alert("Please set the required field(s) in the `Custom Filter` section. Remove the `Custom Filter` section if you don't want to use it.");
+            alert(
+                "Please set the required field(s) in the `Custom Filter` section. Remove the `Custom Filter` section if you don't want to use it."
+            );
         } else {
+            $(custom_filter)
+            .find("select.select2-hidden-accessible:hidden")
+            .prop("disabled", true);
             $(".post-type-product-feed #wpcontent #body-overlay").remove();
             $("#rex_feed_product_filters").removeClass("show-filters");
         }
     }
+    
 
     /**
      * Perform restoration for filter drawer
@@ -3032,30 +3270,247 @@
     /**
      * Ts .Custom filter row add
      */
-    $(document).on("click", ".add-condition", function () {
-        const parent = $(this).parent().parent().parent().children(":last");
+    $(document).on("click", ".add-condition, .add-and-condition, .add-or-condition", function () {
+        // Get the last filter row in this group
+        const parent = $(this).closest(".flex-table-and-box-area").children(".flex-table-group-and-or-box-content:last, .flex-table-and-box-content:last");
         const parentId = $(parent).attr("data-row-id");
         let newRowId = parseInt(parentId) + 1;
 
-        const new_row = $(parent).siblings("div.flex-table-row:first").clone().insertAfter(parent).attr("data-row-id", newRowId).show().children();
+        // Determine AND/OR selection
+        const selectedValue = $(this).hasClass("add-or-condition") ? "OR" : "AND";
 
-        $(new_row).find("select").select2();
+        // Clone the first row/template
+        const get_element = $(this).closest(".flex-table-and-box-area").children(".flex-table-group-and-or-box-content:first, .flex-table-and-box-content:first");
 
-        updateCustomFilterAndConditionAttr(new_row, $(parent).parent().attr("data-row-id"), newRowId);
+        // Destroy select2 on template to avoid conflicts
+        get_element.find("select").each(function () {
+            if ($(this).hasClass("select2-hidden-accessible")) {
+                $(this).select2("destroy");
+            }
+        });
+
+        // Clone the template
+        const cloned_element = get_element.clone();
+        get_element.find("select").select2();
+        cloned_element.find("select")
+            .val(null) // clears value
+            .trigger("change") // notify Select2
+            .select2(); // reinit if needed
+        cloned_element.find("input, textarea").val('');
+        cloned_element.find(".rex-custom-filter-dropdown").removeAttr("style");
+
+        // Update dropdowns in cloned element
+        cloned_element.find(".rex-custom-filter-dropdown").each(function () {
+            const dropdown = $(this);
+
+            // Set selected option and checkmark
+            dropdown.find(".rex-custom-filter-dropdown__option").each(function () {
+                const option = $(this);
+                const checkmark = option.find(".rex-custom-filter-dropdown__checkmark");
+
+                if (option.data("value") === selectedValue) {
+                    option.addClass("rex-custom-filter-dropdown__option--selected");
+                    checkmark.show();
+                } else {
+                    option.removeClass("rex-custom-filter-dropdown__option--selected");
+                    checkmark.hide();
+                }
+            });
+
+            // Update displayed text
+            dropdown.find(".rex-custom-filter-dropdown__text").text(selectedValue);
+        });
+
+        const new_row = cloned_element.insertAfter(parent).attr("data-row-id", newRowId);
+
+        new_row.find("select").select2();
+
+        createHiddenInputFieldForCustomSelect(
+            new_row,
+            $(parent).closest(".rex-or-markup-area").attr("data-row-id"),
+            newRowId,
+            selectedValue
+        );
+        updateCustomFilterAndConditionAttr(
+            new_row,
+            $(parent).closest(".rex-or-markup-area").attr("data-row-id"),
+            newRowId
+        );
+        updateRemoveButtons();
     });
+
+
+    
+    function createHiddenInputFieldForCustomSelect($row, parentRow, newRowId, value) {
+
+        $row.find('input[type="hidden"][name^="ff"]').remove();
+
+        const hiddenInput = $('<input>', {
+            type: 'hidden',
+            name: `ff[${parentRow}][${newRowId}][cfo]`,
+            value: value
+        });
+    
+        // Append to the row
+        $row.append(hiddenInput);
+    }
+
+
+
+    $(document).on("click", ".group-add-and-condition, .group-add-or-condition", function () {
+
+        const parent = $(this).closest(".flex-table-and-box-btn-area").siblings(".flex-table-group-and-or-box-content:last");
+        const parentId = $(parent).attr("data-row-id");
+        let newRowId = parseInt(parentId) + 1;
+
+        const selectedValue = $(this).hasClass("group-add-or-condition") ? "OR" : "AND";
+
+        const firstElement = $(this).closest(".flex-table-and-box-btn-area").siblings(".flex-table-group-and-or-box-content:first");
+
+        firstElement.find("select").each(function () {
+            if ($(this).hasClass("select2-hidden-accessible")) {
+                $(this).select2("destroy");
+            }
+        });
+        
+        firstElement.find("input, textarea").val('');
+
+        const cloned_element = firstElement.clone(false, false);
+
+        cloned_element.find(".rex-custom-filter-dropdown").each(function () {
+            const dropdown = $(this);
+
+            dropdown.find(".rex-custom-filter-dropdown__option")
+                .removeClass("rex-custom-filter-dropdown__option--selected")
+                .find(".rex-custom-filter-dropdown__checkmark").hide();
+
+            const option = dropdown.find(`.rex-custom-filter-dropdown__option[data-value="${selectedValue}"]`);
+            option.addClass("rex-custom-filter-dropdown__option--selected");
+            option.find(".rex-custom-filter-dropdown__checkmark").show();
+
+            dropdown.find(".rex-custom-filter-dropdown__text").text(selectedValue);
+        });
+
+        cloned_element.insertAfter(parent).attr("data-row-id", newRowId).show();
+
+        cloned_element.find("select").each(function () {
+            $(this).val("").select2();
+        });
+
+        firstElement.find("select").each(function () {
+            $(this).val("").select2();
+        });
+
+        createHiddenInputFieldForCustomSelect(
+            cloned_element,
+            $(parent).closest(".rex-or-markup-area").attr("data-row-id"),
+            newRowId,
+            selectedValue
+        );
+        updateCustomFilterAndConditionAttr(
+            cloned_element,
+            $(parent).closest(".rex-or-markup-area").attr("data-row-id"),
+            newRowId
+        );
+    });
+
+    
+    
+    // Dropdown toggle
+    $(document).on('click', '.rex-custom-filter-dropdown__selected', function() {
+        $(this).siblings('.rex-custom-filter-dropdown__menu').toggle();
+    });
+
+    // Dropdown option select
+    $(document).on('click', '.rex-custom-filter-dropdown__option', function() {
+        const $option = $(this);
+        const selectedValue = $option.data('value'); // Get the value of clicked option
+        const $dropdown = $option.closest('.rex-custom-filter-dropdown');
+    
+        // Update the visible text in the dropdown
+        $dropdown.find('.rex-custom-filter-dropdown__text').text(selectedValue);
+    
+        // Remove selected class from all options
+        $dropdown.find('.rex-custom-filter-dropdown__option')
+            .removeClass('rex-custom-filter-dropdown__option--selected');
+    
+        // Add selected class to clicked option
+        $option.addClass('rex-custom-filter-dropdown__option--selected');
+    
+        // Hide all checkmarks
+        $dropdown.find('.rex-custom-filter-dropdown__checkmark').hide();
+    
+        // Show checkmark only for the clicked (selected) option
+        $option.find('.rex-custom-filter-dropdown__checkmark').show();
+    
+        // Close the dropdown menu
+        $dropdown.find('.rex-custom-filter-dropdown__menu').hide();
+
+        let hiddenInput = null;
+
+        // Check first, second, and third parent for the hidden input
+        for (let i = 1; i <= 3; i++) {
+            hiddenInput = $option.parents().eq(i - 1).find('input[type="hidden"][name^="ff"]');
+            if (hiddenInput.length) {
+                hiddenInput.val(selectedValue);
+                return;
+            }
+        }
+    });
+    
+    // Remove row
+    $(document).on('click', '.delete-row', function() {
+        const $row = $(this).closest('.flex-table-and-box-content');
+        $row.remove();
+    });
+
+    // Close dropdown when clicking outside
+    $(document).click(function(e) {
+        if (!$(e.target).closest('.rex-custom-filter-dropdown').length) {
+            $('.rex-custom-filter-dropdown__menu').hide();
+        }
+    });
+
+
+    
 
     /**
      * Delete a flex-table-row from custom filter
      */
     $(document).on("click", "div.rex-feed-custom-filter div.flex-row span.delete-row", function () {
-        const parent = $(this).parent().parent();
+        const row = $(this).closest(".flex-table-group-and-or-box-content");
+        const group = row.closest(".rex-or-markup-area");
+        const allGroups = $(".rex-or-markup-area");
 
-        if ($(parent).siblings().length > 1) {
-            $(parent).remove();
+        const visibleRowsInGroup = group.find(".flex-table-group-and-or-box-content").filter(function () {
+            return $(this).css("display") !== "none";
+        });
+
+        const isLastRowInGroup = visibleRowsInGroup.length === 1;
+        const isNotLastGroup = allGroups.length > 1;
+
+        if (isLastRowInGroup) {
+            if (isNotLastGroup) {
+                group.remove();
+            } else {
+                row.remove();
+            }
         } else {
-            $(parent).parent().remove();
+            row.remove();
+            const newFirstRow = group.find(".flex-table-group-and-or-box-content").filter(function () {
+                return $(this).css("display") !== "none";
+            }).first();
+
+            if (newFirstRow.length) {
+                newFirstRow.find(".rex-custom-filter-dropdown").hide();
+                newFirstRow.siblings(".flex-table-group-and-or-box-content").find(".rex-custom-filter-dropdown").show();
+            }
         }
+        updateRemoveButtons();
     });
+
+
+    
 
     $( document ).on( 'change', '.rex-custom-filter-if', function () {
         const selectedValue = $( this ).find( 'option:selected' ).val();
@@ -3082,6 +3537,10 @@
         let feed_merchant = $(this).find(":selected").val();
         if (feed_merchant === "facebook") {
             $("#rex_feed_feed_format").val("csv").trigger("change");
+        }
+
+        if (feed_merchant === "openai") {
+            $("#rex_feed_feed_format").val("json").trigger("change");
         }
 
     });
@@ -3314,7 +3773,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
-
     
  
     const productList = document.getElementById("rex-settings__merchant-lists");
@@ -3391,11 +3849,8 @@ document.addEventListener("DOMContentLoaded", () => {
         // Initialize the display of products when the page loads (show all initially)
         toggleContentVisibility();
     }
-
-
-    
-
 });
+
 
 
 

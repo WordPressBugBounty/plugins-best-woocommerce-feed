@@ -18,6 +18,102 @@
 class Rex_Feed_Scheduler {
 
     /**
+     * Constructor - attach hooks to detect pro plugin activation/installation
+     * and ensure custom scheduler is registered when pro becomes active.
+     * @since 7.4.55
+     */
+    public function __construct() {
+        // When any plugin is activated, check if it's the pro plugin and register schedulers
+        add_action( 'activated_plugin', [ $this, 'on_plugin_activated' ], 10, 2 );
+
+        // When plugins are installed/updated via the updater, catch plugin installs
+        add_action( 'upgrader_process_complete', [ $this, 'on_upgrader_process_complete' ], 10, 2 );
+
+        // On init, try to register the custom scheduler if pro is active but scheduler not present yet
+        add_action( 'init', [ $this, 'maybe_register_custom_scheduler' ] );
+    }
+
+    /**
+     * Fired when any plugin is activated. If the pro plugin was activated, (re-)register schedulers.
+     *
+     * @param string $plugin Plugin file path being activated (eg. "plugin-folder/plugin-file.php").
+     * @param bool $network_wide Whether the plugin is activated network wide.
+     * @return void
+     * @since 7.4.55
+     */
+    public function on_plugin_activated( $plugin, $network_wide ) {
+        // Adjust this check to match your pro plugin's main file path if different.
+        $pro_plugin_basename = 'best-woocommerce-feed-pro/best-woocommerce-feed-pro.php';
+
+        if ( isset( $plugin ) && $plugin === $pro_plugin_basename ) {
+            // Pro plugin activated — ensure custom scheduler is registered
+            $this->maybe_register_custom_scheduler();
+        }
+    }
+
+    /**
+     * Fired after an upgrader action completes. Used to detect plugin installs via the WP upgrader.
+     *
+     * @param WP_Upgrader $upgrader_object Upgrader instance.
+     * @param array $options Array of bulk item update data.
+     * @return void
+     * @since 7.4.55
+     */
+    public function on_upgrader_process_complete( $upgrader_object, $options ) {
+        if ( empty( $options ) || ! is_array( $options ) ) {
+            return;
+        }
+
+        // Check installed plugins list (available for bulk installs)
+        if ( ! empty( $options['plugins'] ) && is_array( $options['plugins'] ) ) {
+            $pro_plugin_basename = 'best-woocommerce-feed-pro/best-woocommerce-feed-pro.php';
+            if ( in_array( $pro_plugin_basename, $options['plugins'], true ) ) {
+                $this->maybe_register_custom_scheduler();
+            }
+        }
+    }
+
+    /**
+     * Register the custom recurring Action Scheduler job only when the pro plugin is active
+     * and the job is not already scheduled. This avoids relying solely on free plugin activation.
+     *
+     * @return void
+     * @since 7.4.55
+     */
+    public function maybe_register_custom_scheduler() {
+        if ( ! function_exists( 'as_has_scheduled_action' ) || ! function_exists( 'as_schedule_recurring_action' ) ) {
+            return;
+        }
+
+        // Only register custom schedule if pro features are active (filter) or pro plugin exists
+        if ( ! apply_filters( 'wpfm_is_premium_activate', false ) ) {
+            return;
+        }
+
+        $custom_schedule = as_has_scheduled_action( CUSTOM_SCHEDULE_HOOK, null, 'wpfm' );
+        if ( ! $custom_schedule ) {
+            $now = new DateTime( 'now', wp_timezone() );
+            $now->modify( '+1 hour' );
+            $now->setTime( (int) $now->format( 'H' ), 0, 0 );
+            $next_full_hour = $now->getTimestamp();
+
+            as_schedule_recurring_action(
+                $next_full_hour,
+                /**
+                 * Apply a filter to set the interval for the custom cron job in seconds.
+                 *
+                 * @param int $interval The interval in seconds for the custom cron job.
+                 * @return int The modified interval in seconds.
+                 */
+                apply_filters( 'rexfeed_custom_cron_interval', 3600 ),
+                CUSTOM_SCHEDULE_HOOK,
+                [],
+                'wpfm'
+            );
+        }
+    }
+
+    /**
      * Deregister previous cron schedules with core WP_CRON
      *
      * @return void
@@ -131,30 +227,6 @@ class Rex_Feed_Scheduler {
 					WEEKLY_SCHEDULE_HOOK, [], 'wpfm'
                 );
             }
-
-            if(apply_filters( 'wpfm_is_premium_activate', false )){
-                $custom_schedule = as_has_scheduled_action( CUSTOM_SCHEDULE_HOOK, null, 'wpfm' );
-
-                if( !$custom_schedule) {
-                    $now = new DateTime( 'now', wp_timezone() );
-
-                    $now->modify( '+1 hour' );
-                    $now->setTime( (int) $now->format('H'), 0, 0 );
-                    $next_full_hour = $now->getTimestamp();
-                    as_schedule_recurring_action(
-                        $next_full_hour,
-                        /**
-                         * Apply a filter to set the interval for the custom cron job in seconds.
-                         *
-                         * @param int $interval The interval in seconds for the custom cron job.
-                         * @return int The modified interval in seconds.
-                         */
-                        apply_filters( 'rexfeed_custom_cron_interval', 3600 ),
-                        CUSTOM_SCHEDULE_HOOK, [], 'wpfm'
-                    );
-                }
-            }
-
         }
     }
 
@@ -486,12 +558,20 @@ class Rex_Feed_Scheduler {
         $include_out_of_stock        = get_post_meta( $feed_id, '_rex_feed_include_out_of_stock', true ) ?: get_post_meta( $feed_id, 'rex_feed_include_out_of_stock', true );
         $include_variations          = get_post_meta( $feed_id, '_rex_feed_variations', true ) ?: get_post_meta( $feed_id, 'rex_feed_variations', true );
         $include_variations          = 'yes' === $include_variations;
+        $include_default_variation   = get_post_meta( $feed_id, '_rex_feed_default_variation', true ) ?: get_post_meta( $feed_id, 'rex_feed_default_variation', true );
+        $include_default_variation   = 'yes' === $include_default_variation;
+        $include_highest_variation   = get_post_meta( $feed_id, '_rex_feed_highest_variation', true ) ?: get_post_meta( $feed_id, 'rex_feed_highest_variation', true );
+        $include_highest_variation   = 'yes' === $include_highest_variation;
+        $include_cheapest_variation  = get_post_meta( $feed_id, '_rex_feed_cheapest_variation', true ) ?: get_post_meta( $feed_id, 'rex_feed_cheapest_variation', true );
+        $include_cheapest_variation  = 'yes' === $include_cheapest_variation;
         $variable_product            = get_post_meta( $feed_id, '_rex_feed_variable_product', true ) ?: get_post_meta( $feed_id, 'rex_feed_variable_product', true );
         $variable_product            = 'yes' === $variable_product;
         $parent_product              = get_post_meta( $feed_id, '_rex_feed_parent_product', true ) ?: get_post_meta( $feed_id, 'rex_feed_parent_product', true );
         $parent_product              = 'yes' === $parent_product;
         $exclude_hidden_products     = get_post_meta( $feed_id, '_rex_feed_hidden_products', true ) ?: get_post_meta( $feed_id, 'rex_feed_hidden_products', true );
         $exclude_hidden_products     = 'yes' === $exclude_hidden_products;
+        $exclude_simple_products     = get_post_meta( $feed_id, '_rex_feed_exclude_simple_products', true ) ?: get_post_meta( $feed_id, 'rex_feed_exclude_simple_products', true );
+        $exclude_simple_products     = 'yes' === $exclude_simple_products;
         $append_variations           = get_post_meta( $feed_id, '_rex_feed_variation_product_name', true ) ?: get_post_meta( $feed_id, 'rex_feed_variation_product_name', true );
         $append_variations           = 'yes' === $append_variations;
         $wpml                        = get_post_meta( $feed_id, '_rex_feed_wpml_language', true ) ?: get_post_meta( $feed_id, 'rex_feed_wpml_language', true );
@@ -559,16 +639,21 @@ class Rex_Feed_Scheduler {
                 'products_scope' => $product_scope,
                 'cats'           => $terms_array,
                 'tags'           => $terms_array,
+                'brands'         => $terms_array,
             ),
             'feed_filter'                 => $feed_filter,
             'feed_rules'                  => $feed_rules,
             'product_condition'           => $product_condition,
             'include_variations'          => $include_variations,
+            'include_default_variation'   => $include_default_variation,
+            'include_highest_variation'   => $include_highest_variation,
+            'include_cheapest_variation'  => $include_cheapest_variation,
             'include_out_of_stock'        => $include_out_of_stock,
             'include_zero_price_products' => $include_zero_price_products,
             'variable_product'            => $variable_product,
             'parent_product'              => $parent_product,
             'exclude_hidden_products'     => $exclude_hidden_products,
+            'exclude_simple_products'     => $exclude_simple_products,
             'wpml_language'               => $wpml,
             'analytics'                   => $analytics,
             'analytics_params'            => $analytics_params,

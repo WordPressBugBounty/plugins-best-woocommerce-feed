@@ -740,10 +740,7 @@ class Rex_Product_Data_Retriever {
                 }
 
                 if(
-                    $this->analytics_switcher &&
-                    !empty( $this->analytics_params[ 'utm_source' ] ) &&
-                    !empty( $this->analytics_params[ 'utm_medium' ] ) &&
-                    !empty( $this->analytics_params[ 'utm_campaign' ] )
+                    $this->analytics_switcher
                 ) {
                     if( is_array( $rule ) && in_array( 'decode_url', $rule, true ) ) {
                         $permalink = add_query_arg( array_filter( $this->analytics_params ), urldecode( $permalink ) );
@@ -774,10 +771,7 @@ class Rex_Product_Data_Retriever {
 				}
                 $permalink = $_pr->get_permalink();
                 if (
-                    $this->analytics_switcher &&
-                    !empty( $this->analytics_params[ 'utm_source' ] ) &&
-                    !empty( $this->analytics_params[ 'utm_medium' ] ) &&
-                    !empty( $this->analytics_params[ 'utm_campaign' ] )
+                    $this->analytics_switcher
                 ) {
                     if ( is_array( $rule ) && in_array( 'decode_url', $rule, true ) ) {
                         $permalink = add_query_arg( array_filter( $this->analytics_params ), urldecode( $permalink ) );
@@ -1340,9 +1334,16 @@ class Rex_Product_Data_Retriever {
         elseif ( $this->product->is_type( 'variable' ) ) {
             $product_price = rexfeed_get_variable_parent_product_price( $this->product, $type );
         }
-        elseif ( $this->product->is_type( 'bundle' ) ) {
-            $product_price = $this->product->get_bundle_price();
-        }
+		elseif ( $this->product->is_type( 'bundle' ) ) {
+			$regular_price = get_post_meta( $this->product->get_id(), '_regular_price', true );
+			$sale_price    = get_post_meta( $this->product->get_id(), '_sale_price', true );
+
+			if ( $type === '_sale_price' && ! empty( $sale_price ) ) {
+				$product_price = $sale_price;
+			} else {
+				$product_price = $regular_price;
+			}
+		}
         else {
             $method        = "get{$type}";
             $product_price = $this->product->$method();
@@ -1608,13 +1609,7 @@ class Rex_Product_Data_Retriever {
 		if ( $this->product && !is_wp_error( $this->product ) ) {
 			$key = str_replace( 'bwf_attr_pa_', '', $key );
 
-			if ( 'WC_Product_Variation' === get_class( $this->product ) ) {
-				$var_id = $this->product->get_parent_id();
-				$var_pr = wc_get_product( $var_id );
-				$value  = $var_pr ? $var_pr->get_attribute( $key ) : '';
-			} else {
-				$value = $this->product->get_attribute( $key );
-			}
+			$value = $this->product->get_attribute( $key );
 
 			if ( !empty( $value ) ) {
 				$value = trim( $value );
@@ -2182,32 +2177,60 @@ class Rex_Product_Data_Retriever {
 	 * @param string $sep Optional. Separate items using this.
 	 * @return string
 	 */
-	protected function get_product_subcategory( $sep = ' > ' ) {
-		if ( $this->product && !is_wp_error( $this->product ) ) {
-			if ( 'WC_Product_Variation' === get_class( $this->product ) ) {
-				$product_id = $this->product->get_parent_id();
-			} else {
-				$product_id = $this->product->get_id();
-			}
+    protected function get_product_subcategory( $sep = ' > ' ) {
+        if ( ! $this->product || is_wp_error( $this->product ) ) {
+            return '';
+        }
 
-			$terms = get_the_terms( $product_id, 'product_cat' );
+        // Handle variable product
+        $product_id = ( 'WC_Product_Variation' === get_class( $this->product ) )
+            ? $this->product->get_parent_id()
+            : $this->product->get_id();
 
-			if ( is_array( $terms ) && !empty( $terms ) ) {
-				rsort( $terms );
-				$terms = array_reverse( $terms );
-			}
+        $terms = get_the_terms( $product_id, 'product_cat' );
 
-			if ( empty( $terms ) || is_wp_error( $terms ) ) {
-				return '';
-			}
-			$term_names = array();
-			foreach ( $terms as $term ) {
-				$term_names[] = $term->name;
-			}
-			return join( $sep, $term_names );
-		}
-		return '';
-	}
+        if ( empty( $terms ) || is_wp_error( $terms ) ) {
+            return '';
+        }
+
+        // Group terms by their top-level ancestor
+        $grouped = [];
+
+        foreach ( $terms as $term ) {
+            $chain = [];
+            $current = $term;
+
+            // Walk up hierarchy to get all parents
+            while ( $current && ! is_wp_error( $current ) ) {
+                array_unshift( $chain, $current->name );
+                if ( $current->parent == 0 ) {
+                    break;
+                }
+                $current = get_term( $current->parent, 'product_cat' );
+            }
+
+            // Determine the top-level ancestor
+            $top = reset( $chain );
+            if ( ! isset( $grouped[ $top ] ) ) {
+                $grouped[ $top ] = [];
+            }
+
+            // Merge all names in order (avoid duplicates)
+            foreach ( $chain as $name ) {
+                if ( ! in_array( $name, $grouped[ $top ], true ) ) {
+                    $grouped[ $top ][] = $name;
+                }
+            }
+        }
+
+        // Build readable output: each top-level chain separated by comma
+        $output = [];
+        foreach ( $grouped as $chain ) {
+            $output[] = implode( $sep, $chain );
+        }
+
+        return implode( ', ', $output );
+    }
 
 	/**
 	 * Retrieve a product's tags as a list with specified format.
@@ -2357,48 +2380,52 @@ class Rex_Product_Data_Retriever {
 	 *
 	 * @return string
 	 */
-	protected function get_the_term_list_with_path( $id, $taxonomy, $sep = '' ) {
-		wpfm_switch_site_lang( $this->feed->wpml_language, $this->feed->wcml_currency );
-		$terms = wp_get_post_terms(
-			$id,
-			$taxonomy,
-			array(
-				'hide_empty' => false,
-				'orderby'    => 'term_id',
-			)
-		);
+    protected function get_the_term_list_with_path( $id, $taxonomy, $sep = ' > ' ) {
+        wpfm_switch_site_lang( $this->feed->wpml_language, $this->feed->wcml_currency );
 
-		if ( empty( $terms ) || is_wp_error( $terms ) ) {
-			return '';
-		}
+        $terms = wp_get_post_terms(
+            $id,
+            $taxonomy,
+            array(
+                'hide_empty' => false,
+                'orderby'    => 'term_id',
+            )
+        );
 
-		$terms_id = array();
-		foreach ( $terms as $term ) {
-			$terms_id[] = $term->term_id;
-		}
+        if ( empty( $terms ) || is_wp_error( $terms ) ) {
+            return '';
+        }
 
-		$output = array();
+        $all_names = array();
 
-		foreach ( $terms as $term ) {
-			$term_names   = array();
-			$term->name   = htmlspecialchars_decode( $term->name );
-			$term_names[] = $term->name;
+        foreach ( $terms as $term ) {
+            $chain = array();
+            $current = $term;
 
-			$term_name_arr = $this->get_cat_names_array( $id, $taxonomy, $term->term_id, $term_names );
+            // Walk up parent hierarchy to build the full path for this term
+            while ( $current && ! is_wp_error( $current ) && $current->parent != 0 ) {
+                $parent = get_term( $current->parent, $taxonomy );
+                if ( is_wp_error( $parent ) || ! $parent ) {
+                    break;
+                }
+                array_unshift( $chain, htmlspecialchars_decode( $parent->name ) );
+                $current = $parent;
+            }
 
-			if ( !empty( array_diff( $term_name_arr, $term_names ) ) ) {
-				foreach ( $term_name_arr as $t_name ) {
-					$temp     = array();
-					$temp[]   = $term->name;
-					$temp[]   = $t_name;
-					$output[] = implode( $sep, $temp );
-				}
-			} elseif ( ( ( 0 === $term->parent ) || ( is_array( $terms_id ) && !in_array( $term->parent, $terms_id ) ) ) && ( is_array( $term_name_arr ) ) ) {
-				$output[] = implode( $sep, $term_name_arr );
-			}
-		}
-		return implode( ', ', $output );
-	}
+            // Add this term itself
+            $chain[] = htmlspecialchars_decode( $term->name );
+
+            // Merge all unique category names in sequence
+            foreach ( $chain as $name ) {
+                if ( ! in_array( $name, $all_names, true ) ) {
+                    $all_names[] = $name;
+                }
+            }
+        }
+
+        return implode( $sep, $all_names );
+    }
+
 
 	/**
 	 * Get category names' array
@@ -2973,30 +3000,54 @@ class Rex_Product_Data_Retriever {
 	 * @return string
 	 */
 	protected function maybe_add_prefix_suffix( $val, $rule ) {
-		$prefix = $rule[ 'prefix' ];
-		$suffix = $rule[ 'suffix' ];
+		$prefix        = $rule[ 'prefix' ] ?? '';
+		$suffix        = $rule[ 'suffix' ] ?? '';
+		$feed_currency = $this->get_feed_currency();
 
-		if ( !empty( $prefix ) ) {
-			$val = $val ? $prefix . $val : '';
-            if(wpfm_is_curcy_active()  && isset($this->curcy_currency)){
-                $val = $val ? $this->curcy_currency.' ' .$val : '';
-            }
-            //return $val;
+		// Define price-related meta keys
+		$price_meta_keys = [
+			'price',
+			'current_price',
+			'sale_price',
+			'price_with_tax',
+			'current_price_with_tax',
+			'sale_price_with_tax',
+			'price_excl_tax',
+			'current_price_excl_tax',
+			'sale_price_excl_tax',
+			'price_db',
+			'current_price_db',
+			'sale_price_db',
+		];
+
+		// Check if current attribute is a price field
+		$is_price_field = false;
+		if ( isset( $rule['attr'] ) && in_array( $rule['attr'], $price_meta_keys, true ) ) {
+			$is_price_field = true;
+		} elseif ( isset( $rule['meta_key'] ) && in_array( $rule['meta_key'], $price_meta_keys, true ) ) {
+			$is_price_field = true;
 		}
 
-		if ( !empty( $suffix ) ) {
-            if(wpfm_is_curcy_active()  && isset($this->curcy_currency)){
-                $val =  $val ? $val .' '. $this->curcy_currency : '';
-            }else{
-                $val = $val ? $val . $suffix : '';
-            }
-            //return $val;
-		}
+		// For price fields: only add feed currency suffix/prefix
+		if ( $is_price_field && !empty( $feed_currency ) ) {
+			if ( !empty( $prefix ) ) {
+				$val = $val ? $feed_currency . ' ' . $val : '';
+			} elseif ( !empty( $suffix ) ) {
+				$val = $val ? $val . ' ' . $feed_currency : '';
+			} else {
+				// If no prefix or suffix is defined, add currency as suffix by default
+				$val = $val ? $val . ' ' . $feed_currency : '';
+			}
+		} else {
+			// For non-price fields: add user-defined prefix/suffix
+			if ( !empty( $prefix ) ) {
+				$val = $val ? $prefix . $val : '';
+			}
 
-        if(wpfm_is_curcy_active()  && isset($this->curcy_currency)  && str_contains($rule['attr'], 'price')){
-            //return $val ? $val .' '. $this->curcy_currency : '';
-            $val = $val ? $val .' '. $this->curcy_currency : '';
-        }
+			if ( !empty( $suffix ) ) {
+				$val = $val ? $val . $suffix : '';
+			}
+		}
 
 		return $val;
 	}
@@ -3043,7 +3094,7 @@ class Rex_Product_Data_Retriever {
 			case 'remove_special':
 				return filter_var( $val, FILTER_SANITIZE_STRING ); //phpcs:ignore
 			case 'cdata':
-				return $val && '' !== $val ? "<![CDATA[{$val}]]>" : $val;
+				return $val && '' !== $val ? "<![CDATA[ {$val} ]]>" : $val;
 			case 'cdata_without_space':
 				return $val ? "CDATA$val" : $val;
 			case 'remove_underscore':
@@ -3096,7 +3147,7 @@ class Rex_Product_Data_Retriever {
 	 */
 	protected function tab_replace( $val ) {
 		if ( 'text' === $this->feed_format ) {
-			return preg_replace( '/[ ]{2,}|[\t]|[\n]/', ' ', trim( $val ) );
+			return preg_replace( '/[ ]{2,}|[\t]|[\n]/', ' ', trim( (string) $val ) );
 		}
 		return $val;
 	}
@@ -3212,6 +3263,8 @@ class Rex_Product_Data_Retriever {
 	private function add_class_no_class_cost( $shipping_methods = array(), $rule = array() ) {
 		if ( !is_wp_error( $this->product ) && $this->product && !empty( $shipping_methods ) ) {
 			$methods = count( $shipping_methods );
+			$feed_currency = $this->get_feed_currency(); // Get feed currency once.
+
 			for ( $index = 0; $index < $methods; $index++ ) {
 				if ( isset( $shipping_methods[ $index ][ 'instance' ] ) && !is_wp_error( $shipping_methods[ $index ][ 'instance' ] ) && is_array( $shipping_methods[ $index ][ 'instance' ] ) && isset( $shipping_methods[ $index ][ 'price' ] ) ) {
 					if ( !empty( $shipping_methods[ $index ][ 'instance' ] ) ) {
@@ -3223,11 +3276,42 @@ class Rex_Product_Data_Retriever {
 						}
 					}
 					unset( $shipping_methods[ $index ][ 'instance' ] );
+
+                    // Define price-related meta keys for conditional suffix handling
+                    $price_meta_keys = [
+                        'price',
+                        'current_price',
+                        'sale_price',
+                        'price_with_tax',
+                        'current_price_with_tax',
+                        'sale_price_with_tax',
+                        'price_excl_tax',
+                        'current_price_excl_tax',
+                        'sale_price_excl_tax',
+                        'price_db',
+                        'current_price_db',
+                        'sale_price_db',
+                        'shipping_price'
+                    ];
+
+                    $current_suffix = $rule['suffix'] ?? '';
+
+                    // Prevent currency suffix if it's a Google merchant and a price-related attribute
+                    if ( 'google' === $this->feed->merchant && in_array( $rule['meta_key'], $price_meta_keys, true ) ) {
+                        $current_suffix = '';
+                    }
+
 					if ( isset( $rule[ 'prefix' ] ) ) {
 						$shipping_methods[ $index ][ 'price' ] = $rule[ 'prefix' ] . $shipping_methods[ $index ][ 'price' ];
 					}
-					if ( isset( $rule[ 'suffix' ] ) ) {
-						$shipping_methods[ $index ][ 'price' ] = $shipping_methods[ $index ][ 'price' ] . $rule[ 'suffix' ];
+					if ( !empty( $current_suffix ) ) {
+						$shipping_methods[ $index ][ 'price' ] = $shipping_methods[ $index ][ 'price' ] . $current_suffix;
+					}
+
+					if ( ! empty( $feed_currency ) ) {
+						if ( strpos( $shipping_methods[ $index ][ 'price' ], $feed_currency ) === false ) {
+							$shipping_methods[ $index ][ 'price' ] = $shipping_methods[ $index ][ 'price' ] . ' ' . $feed_currency;
+						}
 					}
 				}
 			}
@@ -3289,6 +3373,7 @@ class Rex_Product_Data_Retriever {
 			$value = $this->maybe_limit( $value, isset( $rule[ 'limit' ] ) ? $rule[ 'limit' ] : '' );
 
 			$value = $this->tab_replace( $value );
+
 		}
 		return $value;
 	}
@@ -3302,6 +3387,31 @@ class Rex_Product_Data_Retriever {
      */
     public function is_wcml_active() {
         return $this->wcml;
+    }
+
+    /**
+     * Get the effective currency for the feed based on active currency plugins.
+     *
+     * @return string The currency code.
+     * @since 7.4.59
+     */
+    public function get_feed_currency() {
+        if ( defined( 'WOOCS_VERSION' ) && !empty( $this->woocs_currency ) ) {
+            return $this->woocs_currency;
+        }
+        if ( wpfm_is_curcy_active() && !empty( $this->curcy_currency ) ) {
+            return $this->curcy_currency;
+        }
+        if ( wpfm_is_aelia_active() && !empty( $this->aelia_currency ) ) {
+            return $this->aelia_currency;
+        }
+        if ( wpfm_is_wmc_active() && !empty( $this->wmc_currency ) ) {
+            return $this->wmc_currency;
+        }
+        if ( wpfm_is_wcml_active() && !empty( $this->wcml_currency ) ) {
+            return $this->wcml_currency;
+        }
+        return '';
     }
 
     /**

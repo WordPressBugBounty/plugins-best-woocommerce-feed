@@ -58,6 +58,61 @@
             "install-path": "../appsero/client"
         },
         {
+            "name": "coderexltd/telemetry",
+            "version": "dev-master",
+            "version_normalized": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/CODEREXLTD/coderex-telemetry.git",
+                "reference": "3b52b7c0e494142bbee800e7b5f0c94d6f79c473"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/CODEREXLTD/coderex-telemetry/zipball/3b52b7c0e494142bbee800e7b5f0c94d6f79c473",
+                "reference": "3b52b7c0e494142bbee800e7b5f0c94d6f79c473",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.5",
+                "phpunit/phpunit": "^9.5"
+            },
+            "time": "2025-12-22T04:32:00+00:00",
+            "default-branch": true,
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "CodeRex\\Telemetry\\": "src/"
+                },
+                "files": [
+                    "src/helpers.php"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "CodeRex\\Telemetry\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Code Rex",
+                    "email": "support@coderex.co"
+                }
+            ],
+            "description": "Privacy-first telemetry SDK for Code Rex WordPress plugins",
+            "support": {
+                "source": "https://github.com/CODEREXLTD/coderex-telemetry/tree/master",
+                "issues": "https://github.com/CODEREXLTD/coderex-telemetry/issues"
+            },
+            "install-path": "../coderexltd/telemetry"
+        },
+        {
             "name": "philipnewcomer/wp-ajax-helper",
             "version": "1.0.1",
             "version_normalized": "1.0.1.0",
@@ -109,62 +164,6 @@
                 "source": "https://github.com/philipnewcomer/wp-ajax-helper/tree/1.0.1"
             },
             "install-path": "../philipnewcomer/wp-ajax-helper"
-        },
-        {
-            "name": "posthog/posthog-php",
-            "version": "2.1.1",
-            "version_normalized": "2.1.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/PostHog/posthog-php.git",
-                "reference": "2d426999b35fd164591b1ab8af46699e3a30d8cb"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/PostHog/posthog-php/zipball/2d426999b35fd164591b1ab8af46699e3a30d8cb",
-                "reference": "2d426999b35fd164591b1ab8af46699e3a30d8cb",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "php": ">=7.1"
-            },
-            "require-dev": {
-                "overtrue/phplint": "^3.0",
-                "phpunit/phpunit": "^9.0",
-                "squizlabs/php_codesniffer": "^3.6"
-            },
-            "time": "2022-01-21T13:59:53+00:00",
-            "bin": [
-                "bin/posthog"
-            ],
-            "type": "library",
-            "installation-source": "dist",
-            "autoload": {
-                "psr-4": {
-                    "PostHog\\": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "PostHog <hey@posthog.com>",
-                    "homepage": "https://posthog.com/"
-                }
-            ],
-            "description": "PostHog PHP Library",
-            "homepage": "https://github.com/PostHog/posthog-php",
-            "keywords": [
-                "posthog"
-            ],
-            "support": {
-                "issues": "https://github.com/PostHog/posthog-php/issues",
-                "source": "https://github.com/PostHog/posthog-php/tree/2.1.1"
-            },
-            "install-path": "../posthog/posthog-php"
         }
     ],
     "dev": false,

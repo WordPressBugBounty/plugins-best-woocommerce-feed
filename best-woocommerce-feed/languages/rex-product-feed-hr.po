@@ -11,13 +11,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-03-18T06:10:17+00:00\n"
-"PO-Revision-Date: 2025-08-20 09:15+0000\n"
+"PO-Revision-Date: 2025-10-14 10:16+0000\n"
 "X-Generator: Loco https://localise.biz/\n"
 "X-Domain: rex-product-feed\n"
 "Language: hr\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10 >= 2 && "
 "n%10<=4 &&(n%100<10||n%100 >= 20)? 1 : 2;\n"
-"X-Loco-Version: 2.8.0; wp-6.8.2; php-8.3.8"
+"X-Loco-Version: 2.8.0; wp-6.8.3; php-8.3.17"
 
 #. Plugin Name of the plugin
 #: admin/partials/setup-wizard.php:135
@@ -234,8 +234,8 @@ msgid ""
 msgstr ""
 "Ovo su popis atributa koje biste trebali uključiti za svoje proizvode u feed "
 "proizvoda. Mapirati ćemo podatke o proizvodu vaše trgovine kao vrijednosti "
-"atributa u ovom odjeljku. % Međutim, većina njih je već mapirana i ne morate "
-"ih mijenjati."
+"atributa u ovom odjeljku. %s Međutim, većina njih je već mapirana i ne "
+"morate ih mijenjati."
 
 #: admin/class-rex-product-feed-admin.php:312
 msgid "Publish To Generate The Product Feed"

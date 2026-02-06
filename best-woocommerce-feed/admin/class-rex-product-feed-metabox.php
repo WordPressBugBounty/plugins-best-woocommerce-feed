@@ -31,6 +31,7 @@ class Rex_Product_Metabox
 	    add_action( 'add_meta_boxes', array( $this, 'rex_feed_product_settings_section' ) );
 	    add_action( 'add_meta_boxes', array( $this, 'rex_feed_product_filters_section' ) );
 	    add_action( 'add_meta_boxes', array( $this, 'rex_feed_feed_file_section' ) );
+        add_action( 'add_meta_boxes', array( $this, 'rex_feed_validation_section' ) );
 
         if ( $post_type === 'product-feed' ) {
             $this->rex_feed_trigger_based_review_helper();
@@ -421,6 +422,42 @@ class Rex_Product_Metabox
     public function rex_feed_generate_upgrade_notice_section()
     {
         require_once plugin_dir_path( __FILE__ ) . 'partials/rex-feed-upgrade-to-pro-notice-section.php';
+    }
+
+    //  ==================================================
+
+    /**
+     * Adding metabox for feed validation section.
+     *
+     * @since 7.4.58
+     */
+    public function rex_feed_validation_section()
+    {
+        // Only show on existing feeds (not new)
+        $data    = function_exists( 'rex_feed_get_sanitized_get_post' ) ? rex_feed_get_sanitized_get_post() : [];
+        $data    = isset( $data['get'] ) ? $data['get'] : [];
+        $post_id = isset( $data['post'] ) ? absint( $data['post'] ) : 0;
+
+        if ( $post_id > 0 && get_post_type( $post_id ) === 'product-feed' ) {
+            add_meta_box(
+                $this->prefix . 'validation',
+                __( 'Feed Validation', 'rex-product-feed' ),
+                array( $this, 'rex_feed_generate_validation_section' ),
+                'product-feed',
+                'normal',
+                'core'
+            );
+        }
+    }
+
+    /**
+     * Generates feed validation section.
+     *
+     * @since 7.4.58
+     */
+    public function rex_feed_generate_validation_section()
+    {
+        require_once plugin_dir_path( __FILE__ ) . 'partials/rex-feed-validation-results.php';
     }
 
     //  ==================================================

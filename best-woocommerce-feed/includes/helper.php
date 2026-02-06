@@ -1032,3 +1032,64 @@ if ( !function_exists( 'rexfeed_get_trp_url_slug' ) ) {
 		return $trp_settings[ 'url-slugs' ][ $language ] ?? '';
     }
 }
+
+
+if( !function_exists('has_cfo_key')) {
+    /**
+     * Check if a condition/group has a CFO key.
+     *
+     * @param array $data
+     * @return bool
+     */
+    function has_cfo_key(array $data) {
+        foreach ($data as $key => $value) {
+            if ($key === 'cfo') {
+                return true;
+            }
+
+            if (is_array($value) && has_cfo_key($value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+if( !function_exists('convert_old_to_new_structure')) {
+    /**
+     * Convert old structure to new structure
+     * @param array $old_structure
+     * @return array
+     */
+    function convert_old_to_new_structure($old_structure)
+    {
+        $new_structure = [];
+
+        foreach ($old_structure as $key => $group) {
+            if (is_numeric($key)) {
+                $new_group = [];
+                $filter_count = 0;
+
+                foreach ($group as $filter_key => $filter) {
+                    if (is_numeric($filter_key)) {
+                        $new_group[$filter_count] = $filter;
+                        if ($filter_count > 0) {
+                            $new_group[$filter_count]['cfo'] = 'AND';
+                        }
+
+                        $filter_count++;
+                    }
+                }
+
+                if (!empty($new_group)) {
+                    $new_group['cfo'] = 'OR';
+                    $new_structure[$key] = $new_group;
+                }
+            } else {
+                $new_structure[$key] = $group;
+            }
+        }
+
+        return $new_structure;
+    }
+}

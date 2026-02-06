@@ -46,15 +46,16 @@ class  Rex_Feed_Handle_Google_Product {
 	 *
 	 * @param Product $google_product The Google product object to set the price for.
 	 * @param float $value The price value to be set.
+	 * @param string $currency The currency code to use (optional, defaults to WooCommerce currency).
 	 *
 	 * @return void
 	 *
 	 * @since 7.4.20
 	 */
-	public static function set_price( Product &$google_product, float $value ) {
+	public static function set_price( Product &$google_product, float $value, string $currency = '' ) {
 		$price = new Price();
 		$price->setValue( $value );
-		$price->setCurrency( get_option( 'woocommerce_currency' ) );
+		$price->setCurrency( !empty( $currency ) ? $currency : get_option( 'woocommerce_currency' ) );
 		$google_product->setPrice( $price );
 	}
 
@@ -66,16 +67,17 @@ class  Rex_Feed_Handle_Google_Product {
 	 *
 	 * @param Product $google_product The Google product object to set the sale price for.
 	 * @param float $value The sale price value to be set.
+	 * @param string $currency The currency code to use (optional, defaults to WooCommerce currency).
 	 *
 	 * @return void
 	 *
 	 * @since 7.4.20
 	 */
-	public static function set_sale_price( Product &$google_product, float $value ) {
+	public static function set_sale_price( Product &$google_product, float $value, string $currency = '' ) {
 		if ( $value > 0 ) {
 			$price = new Price();
 			$price->setValue( $value );
-			$price->setCurrency( get_option( 'woocommerce_currency' ) );
+			$price->setCurrency( !empty( $currency ) ? $currency : get_option( 'woocommerce_currency' ) );
 			$google_product->setSalePrice( $price );
 		}
 	}

@@ -91,8 +91,8 @@ class Node
         }
 
         if ($this->cdata && ! preg_match("#^<!\[CDATA#i", $this->value)) {
-            $this->value = "<![CDATA[{$this->value}]]>";
+            $this->value = "<![CDATA[ {$this->value} ]]>";
         }
-        $parent->addChild($this->name, htmlspecialchars($this->value), $this->_namespace);
+        $parent->addChild($this->name, htmlspecialchars($this->value ?? ''), $this->_namespace);
     }
 }

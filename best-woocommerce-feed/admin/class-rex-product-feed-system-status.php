@@ -257,6 +257,9 @@ class Rex_Feed_System_Status {
 
 		if ( !empty( $active_plugins ) ) {
 			foreach ( $active_plugins as $key => $plugin ) {
+				if($plugin['name'] === 'Product Feed Manager for WooCommerce'){
+					continue;
+				}
 				$slug = !empty( $plugin[ 'plugin' ] ) ? $plugin[ 'plugin' ] : '';
 				$slug = explode( '/', $slug );
 

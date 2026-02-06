@@ -14,8 +14,8 @@
  * @wordpress-plugin
  * Plugin Name:       Product Feed Manager for WooCommerce
  * Plugin URI:        https://rextheme.com
- * Description:       Generate and maintain your WooCommerce product feed for Google Shopping, Social Catalogs, Yandex, Idealo, Vivino, Pinterest, eBay MIP, BestPrice, Skroutz, Fruugo, Bonanza & 180+ Merchants.
- * Version:           7.4.50
+ * Description:       Generate and maintain your WooCommerce product feed for Google Shopping, Social Catalogs, Yandex, Idealo, Vivino, Pinterest, eBay MIP, BestPrice, Skroutz, Fruugo, Bonanza & 200+ Merchants.
+ * Version:           7.4.64
  * Author:            RexTheme
  * Author URI:        https://rextheme.com
  * License:           GPL-2.0+
@@ -24,22 +24,23 @@
  * Domain Path:       /languages
  *
  * WP Requirement & Test
- * Requires at least: 5.0
- * Tested up to: 6.8.2
+ * Requires at least: 6.7
+ * Tested up to: 6.9
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce
  *
  * WC Requirement & Test
  * WC requires at least: 5.6.0
- * WC tested up to: 10.1.2
+ * WC tested up to: 10.3.6
  */
 
-// If this file is called directly, abort.
+use CodeRex\Telemetry\Client;
+
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 if( !defined( 'WPFM_VERSION' ) ) {
-    define( 'WPFM_VERSION', '7.4.50' );
+    define( 'WPFM_VERSION', '7.4.64' );
 }
 if ( !defined( 'WPFM__FILE__' ) ) {
 	define( 'WPFM__FILE__', __FILE__ );
@@ -263,8 +264,14 @@ register_deactivation_hook( __FILE__, 'deactivate_rex_product_feed' );
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
+
 require plugin_dir_path( __FILE__ ) . 'includes/class-rex-product-feed.php';
 require plugin_dir_path( __FILE__ ) . 'includes/helper.php';
+// Include and initialize the PFM first feed banner
+if ( is_admin() ) {
+	require_once plugin_dir_path( __FILE__ ) . 'admin/class-pfm-first-feed-banner.php';
+	new PFM_First_Feed_Banner();
+}
 
 
 /**
@@ -292,12 +299,21 @@ run_rex_product_feed();
  */
 function appsero_init_tracker_bwfm() {
 	$client = new Appsero\Client( '5fab4a18-aaf4-4565-816a-47858011d96f', 'Product Feed Manager for WooCommerce', __FILE__ );
-
-	// Active insights
-	$client->insights()->init();
+    $client->insights()->init();
 }
-
 appsero_init_tracker_bwfm();
+
+function init_coderex_telemetry() {
+    $api_key = '1aa16c66-3002-402c-b043-87aaa3dd26b4';
+    $api_secret = 'sec_3a27bf9b64279c58cb0e';
+    $telemetry = new Client(
+            $api_key,
+            $api_secret,
+            'Product Feed Manager for WooCommerce',
+            __FILE__
+    );
+}
+init_coderex_telemetry();
 
 
 /**

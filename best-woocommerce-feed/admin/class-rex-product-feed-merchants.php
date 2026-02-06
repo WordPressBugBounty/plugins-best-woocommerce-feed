@@ -44,7 +44,7 @@ class Rex_Feed_Merchants {
 			),
 			'tiktok'  => array(
 				'free'           => true,
-				'name'           => 'TikTok Ads',
+				'name'           => 'TikTok Ads Catalog',
 				'formats'        => array( 'xml', 'csv', 'tsv' ),
 				'csv_separators' => array( 'comma', 'semi_colon' ),
 			),
@@ -1096,6 +1096,11 @@ class Rex_Feed_Merchants {
                 'name'    => 'MediaMarkt',
                 'formats' => array( 'xml', 'csv'),
             ),
+			'openai'                         => array(
+				'free'    => true,
+				'name'    => 'OpenAI Commerce',
+				'formats' => array( 'json', 'xml', 'csv', 'tsv' ),
+			),
 		);
 
 		$merchants[ 'popular' ]        = $popular;

@@ -46,19 +46,20 @@ class Rex_Feed_Template_Facebook extends Rex_Feed_Abstract_Template {
 				'condition'                => 'Condition [condition]',
 			),
 
-			'Availability & Price'        => array(
-				'availability'              => 'Stock Status [availability]',
-				"availability_date"         => "Availability Date[availability_date]",
-				'price'                     => 'Regular Price [price]',
-				'sale_price'                => 'Sale Price [sale_price]',
-				'sale_price_effective_date' => 'Sale Price Effective Date [sale_price_effective_date]',
-				"cost_of_goods_sold"        => "Cost of Goods Sold[cost_of_goods_sold]",
-				"expiration_date"           => "Expiration Date[expiration_date]",
-				"inventory"                 => "Facebook Inventory[inventory]",
-				"override"                  => "Facebook Override[override]",
-			),
-
-			'Unique Product Identifiers'  => array(
+		'Availability & Price'        => array(
+			'availability'              => 'Stock Status [availability]',
+			"availability_date"         => "Availability Date[availability_date]",
+			'price'                     => 'Regular Price [price]',
+			'regular_price'             => 'Regular Price [regular_price]',
+			'sale_price'                => 'Sale Price [sale_price]',
+			'sale_price_effective_date' => 'Sale Price Effective Date [sale_price_effective_date]',
+			"cost_of_goods_sold"        => "Cost of Goods Sold[cost_of_goods_sold]",
+			"expiration_date"           => "Expiration Date[expiration_date]",
+			"inventory"                 => "Facebook Inventory[inventory]",
+			"override"                  => "Facebook Override[override]",
+		),			
+		
+		'Unique Product Identifiers'  => array(
 				'brand'             => 'Manufacturer [brand]',
 				'gtin'              => 'GTIN [gtin]',
 				'mpn'               => 'MPN [mpn]',

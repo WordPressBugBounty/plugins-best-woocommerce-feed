@@ -248,6 +248,43 @@ abstract class Rex_Product_Feed_Abstract_Generator
      * @var      Rex_Product_Feed_Abstract_Generator $variations
      */
     protected $variations;
+
+    /**
+     * Default variation include/exclude
+     *
+     * @var      Rex_Product_Feed_Abstract_Generator $default_variation
+     */
+    protected $default_variation;
+
+    /**
+     * Default variation include/exclude
+     *
+     * @var      Rex_Product_Feed_Abstract_Generator $highest_variation
+     */
+    protected $highest_variation;
+
+
+    /**
+     * Default variation include/exclude
+     *
+     * @var      Rex_Product_Feed_Abstract_Generator $cheapest_variation
+     */
+    protected $cheapest_variation;
+
+    /**
+     * First variation include/exclude
+     *
+     * @var      Rex_Product_Feed_Abstract_Generator $first_variation
+     */
+    protected $first_variation;
+
+    /**
+     * Last variation include/exclude
+     *
+     * @var      Rex_Product_Feed_Abstract_Generator $last_variation
+     */
+    protected $last_variation;
+
     /**
      * parent product include/exclude
      *
@@ -275,6 +312,11 @@ abstract class Rex_Product_Feed_Abstract_Generator
      * @var Rex_Product_Feed_Abstract_Generator $exclude_hidden_products
      */
     protected $exclude_hidden_products;
+    /**
+     *
+     * @var Rex_Product_Feed_Abstract_Generator $exclude_simple_products
+     */
+    protected $exclude_simple_products;
     /**
      *
      * @var Rex_Product_Feed_Abstract_Generator $rex_feed_skip_product
@@ -482,12 +524,18 @@ abstract class Rex_Product_Feed_Abstract_Generator
             $this->feed_filters            = !empty( $config[ 'feed_filter' ] ) ? $config[ 'feed_filter' ] : [];
             $this->feed_rules              = !empty( $config[ 'feed_rules' ] ) ? $config[ 'feed_rules' ] : [];
             $this->variations              = !empty( $config[ 'include_variations' ] ) ? $config[ 'include_variations' ] : '';
+            $this->default_variation       = !empty( $config[ 'include_default_variation' ] ) ? $config[ 'include_default_variation' ] : '';
+            $this->highest_variation       = !empty( $config[ 'include_highest_variation' ] ) ? $config[ 'include_highest_variation' ] : '';
+            $this->cheapest_variation      = !empty( $config[ 'include_cheapest_variation' ] ) ? $config[ 'include_cheapest_variation' ] : '';
+            $this->first_variation         = !empty( $config[ 'include_first_variation' ] ) ? $config[ 'include_first_variation' ] : '';
+            $this->last_variation          = !empty( $config[ 'include_last_variation' ] ) ? $config[ 'include_last_variation' ] : '';
             $this->parent_product          = !empty( $config[ 'parent_product' ] ) ? $config[ 'parent_product' ] : '';
             $this->variable_product        = !empty( $config[ 'variable_product' ] ) ? $config[ 'variable_product' ] : '';
             $this->append_variation        = !empty( $config[ 'append_variations' ] ) ? $config[ 'append_variations' ] : '';
             $this->include_out_of_stock    = !empty( $config[ 'include_out_of_stock' ] ) && $config[ 'include_out_of_stock' ] === 'yes';
             $this->include_zero_priced     = !empty( $config[ 'include_zero_price_products' ] ) && $config[ 'include_zero_price_products' ] === 'yes';
             $this->exclude_hidden_products = !empty( $config[ 'exclude_hidden_products' ] ) ? $config[ 'exclude_hidden_products' ] : '';
+            $this->exclude_simple_products = !empty( $config[ 'exclude_simple_products' ] ) ? $config[ 'exclude_simple_products' ] : '';
             $this->feed_separator          = !empty( $config[ 'feed_separator' ] ) ? $config[ 'feed_separator' ] : '';
             $this->rex_feed_skip_product   = !empty( $config[ 'skip_product' ] ) ? $config[ 'skip_product' ] : false;
             $this->rex_feed_skip_row       = !empty( $config[ 'skip_row' ] ) ? $config[ 'skip_row' ] : false;
@@ -592,25 +640,41 @@ abstract class Rex_Product_Feed_Abstract_Generator
          *
          * This method applies the 'rexfeed_fetch_variation_products' filter hook to allow customization
          * of the list of variation products fetched for the feed based on specific conditions.
+         * Includes support for all variation filters: all variations, default, highest, and cheapest.
          *
-         * @param array $variations The array of variation products to be fetched for the feed.
+         * @param bool $fetch_variations Whether to fetch variation products for the feed.
          * @param int $feed_id The ID of the feed being processed.
-         * @return array The filtered array of variation products to be fetched for the feed.
+         * @return bool The filtered value determining whether to fetch variation products.
          *
          * @since 7.4.5
          */
-        if ( apply_filters( 'rexfeed_fetch_variation_products', $this->variations, $this->id ) && 'skroutz' !== $this->merchant ) {
+        $should_fetch_variations = $this->variations || $this->default_variation || $this->highest_variation || $this->cheapest_variation || $this->first_variation || $this->last_variation;
+        if ( apply_filters( 'rexfeed_fetch_variation_products', $should_fetch_variations, $this->id ) && 'skroutz' !== $this->merchant ) {
             $post_types[] = 'product_variation';
         }
 
         if ( $this->custom_filter_option ) {
-            foreach ( $this->feed_filters as $filters ) {
-                foreach( $filters as $filter ) {
-                    $if = $filter[ 'if' ];
+            foreach ( $this->feed_filters as $group_key => $filters ) {
+                // Skip if it's an empty filter group
+                if (isset($filters[$group_key]) && empty($filters[$group_key]['if']) && empty($filters[$group_key]['condition']) && empty($filters[$group_key]['value']) && empty($filters[$group_key]['then'])) {
+                    continue;
+                }
 
-                    if ( $if === 'product_cats' || $if === 'product_tags' || $if === 'product_brands' ) {
-                        unset( $post_types[ 1 ] );
-                        $this->custom_filter_var_exclude = true;
+                foreach( $filters as $filter_key => $filter ) {
+                    // Skip the 'cfo' key as it's not a filter condition
+                    if ($filter_key === 'cfo' || !is_numeric($filter_key)) {
+                        continue;
+                    }
+
+                    // Ensure $filter is an array and has the required keys
+                    if (is_array($filter) && isset($filter['if'])) {
+                        $if = $filter['if'];
+
+                        if ( $if === 'product_cats' || $if === 'product_tags' || $if === 'product_brands' ) {
+                            unset( $post_types[ 1 ] );
+                            $this->custom_filter_var_exclude = true;
+                            break 2; // Break out of both loops since we found what we're looking for
+                        }
                     }
                 }
             }
@@ -844,16 +908,22 @@ abstract class Rex_Product_Feed_Abstract_Generator
         wp_parse_str( $config, $feed_configs );
 	    $include_variable_product    = isset( $feed_configs[ 'rex_feed_variable_product' ] ) ? esc_attr( $feed_configs[ 'rex_feed_variable_product' ] ) : '';
 	    $include_variations          = isset( $feed_configs[ 'rex_feed_variations' ] ) ? esc_attr( $feed_configs[ 'rex_feed_variations' ] ) : '';
+		$include_default_variation   = isset( $feed_configs[ 'rex_feed_default_variation' ] ) ? esc_attr( $feed_configs[ 'rex_feed_default_variation' ] ) : '';
+        $include_highest_variation   = isset( $feed_configs[ 'rex_feed_highest_variation' ] ) ? esc_attr( $feed_configs[ 'rex_feed_highest_variation' ] ) : '';
+        $include_cheapest_variation  = isset( $feed_configs[ 'rex_feed_cheapest_variation' ] ) ? esc_attr( $feed_configs[ 'rex_feed_cheapest_variation' ] ) : '';
+        $include_first_variation     = isset( $feed_configs[ 'rex_feed_first_variation' ] ) ? esc_attr( $feed_configs[ 'rex_feed_first_variation' ] ) : '';
+        $include_last_variation      = isset( $feed_configs[ 'rex_feed_last_variation' ] ) ? esc_attr( $feed_configs[ 'rex_feed_last_variation' ] ) : '';
 	    $include_parent              = isset( $feed_configs[ 'rex_feed_parent_product' ] ) ? esc_attr( $feed_configs[ 'rex_feed_parent_product' ] ) : '';
 	    $include_variations_name     = isset( $feed_configs[ 'rex_feed_variation_product_name' ] ) ? esc_attr( $feed_configs[ 'rex_feed_variation_product_name' ] ) : '';
 	    $exclude_hidden_products     = isset( $feed_configs[ 'rex_feed_hidden_products' ] ) ? esc_attr( $feed_configs[ 'rex_feed_hidden_products' ] ) : '';
+	    $exclude_simple_products     = isset( $feed_configs[ 'rex_feed_exclude_simple_products' ] ) ? esc_attr( $feed_configs[ 'rex_feed_exclude_simple_products' ] ) : '';
 	    $rex_feed_skip_product       = isset( $feed_configs[ 'rex_feed_skip_product' ] ) ? esc_attr( $feed_configs[ 'rex_feed_skip_product' ] ) : '';
 	    $rex_feed_skip_row           = isset( $feed_configs[ 'rex_feed_skip_row' ] ) ? esc_attr( $feed_configs[ 'rex_feed_skip_row' ] ) : '';
 	    $include_out_of_stock        = isset( $feed_configs[ 'rex_feed_include_out_of_stock' ] ) ? esc_attr( $feed_configs[ 'rex_feed_include_out_of_stock' ] ) : '';
 	    $include_zero_priced         = isset( $feed_configs[ 'rex_feed_include_zero_price_products' ] ) ? esc_attr( $feed_configs[ 'rex_feed_include_zero_price_products' ] ) : '';
 	    $this->feed_separator        = isset( $feed_configs[ 'rex_feed_separator' ] ) ? esc_attr( $feed_configs[ 'rex_feed_separator' ] ) : '';
-	    $this->aelia_currency        = isset( $feed_configs[ 'rex_feed_aelia_currency' ] ) ? esc_attr( $feed_configs[ 'rex_feed_aelia_currency' ] ) : 'USD';
-        $this->curcy_currency        = isset( $feed_configs[ 'rex_feed_curcy_currency' ] ) ? esc_attr( $feed_configs[ 'rex_feed_curcy_currency' ] ) : 'USD';
+	    $this->aelia_currency        = ! empty( $feed_configs[ 'rex_feed_aelia_currency' ] ) ? esc_attr( $feed_configs[ 'rex_feed_aelia_currency' ] ) : $wc_currency;
+        $this->curcy_currency        = ! empty( $feed_configs[ 'rex_feed_curcy_currency' ] ) ? esc_attr( $feed_configs[ 'rex_feed_curcy_currency' ] ) : $wc_currency;
 	    $custom_filter_option        = isset( $feed_configs[ 'rex_feed_custom_filter_option_btn' ] ) ? esc_attr( $feed_configs[ 'rex_feed_custom_filter_option_btn' ] ) : 'removed';
 	    $this->feed_country          = isset( $feed_configs[ 'rex_feed_feed_country' ] ) ? esc_attr( $feed_configs[ 'rex_feed_feed_country' ] ) : '';
 	    $this->custom_wrapper        = isset( $feed_configs[ 'rex_feed_custom_wrapper' ] ) ? esc_attr( $feed_configs[ 'rex_feed_custom_wrapper' ] ) : '';
@@ -883,9 +953,15 @@ abstract class Rex_Product_Feed_Abstract_Generator
         $this->variable_product        = 'yes' === $include_variable_product;
         $this->include_out_of_stock    = 'yes' === $include_out_of_stock;
         $this->variations              = 'yes' === $include_variations;
+        $this->default_variation       = 'yes' === $include_default_variation;
+        $this->highest_variation       = 'yes' === $include_highest_variation;
+        $this->cheapest_variation      = 'yes' === $include_cheapest_variation;
+        $this->first_variation         = 'yes' === $include_first_variation;
+        $this->last_variation          = 'yes' === $include_last_variation;
         $this->parent_product          = 'yes' === $include_parent;
         $this->append_variation        = 'yes' === $include_variations_name;
         $this->exclude_hidden_products = 'yes' === $exclude_hidden_products;
+        $this->exclude_simple_products = 'yes' === $exclude_simple_products;
         $this->rex_feed_skip_product   = 'yes' === $rex_feed_skip_product;
         $this->rex_feed_skip_row       = 'yes' === $rex_feed_skip_row;
         $this->include_zero_priced     = 'yes' === $include_zero_priced;
@@ -938,6 +1014,7 @@ abstract class Rex_Product_Feed_Abstract_Generator
         }
 
         $filter_data = Rex_Product_Feed_Data_Handle::get_filter_drawer_data( $feed_configs );
+
         if( !empty( $filter_data ) ) {
             Rex_Product_Feed_Data_Handle::save_filter_drawer_data( $this->id, $filter_data );
         }
@@ -1167,6 +1244,11 @@ abstract class Rex_Product_Feed_Abstract_Generator
         $data     = new $retriever_class( $product, $this, $product_meta_keys );
         $all_data = $data->get_all_data();
 
+        // TikTok requires condition values to be lowercase (new, refurbished, used)
+        if ( 'tiktok' === $this->merchant && !empty( $all_data['condition'] ) ) {
+            $all_data['condition'] = strtolower( $all_data['condition'] );
+        }
+
         if ( $this->merchant === 'pinterest' && ( $this->feed_format === 'csv' ) ) {
             return $this->additional_img_link_pinterest( $all_data );
         }
@@ -1257,6 +1339,9 @@ abstract class Rex_Product_Feed_Abstract_Generator
                 $log->info( __( 'Completed feed generation job.', 'rex-product-feed' ), array( 'source' => 'WPFM', ) );
                 $log->info( '**************************************************', array( 'source' => 'WPFM', ) );
             }
+            
+            // Trigger validation after feed completion
+            do_action( 'rex_feed_after_feed_updated', $this->id );
         }
 
         update_post_meta( $this->id, '_rex_feed_feed_format', $this->feed_format );
@@ -1317,12 +1402,12 @@ abstract class Rex_Product_Feed_Abstract_Generator
                 }
 
                 if ( (int) $this->batch > 1 && file_exists( $file ) ) {
-                    $header       = strtok( $this->feed, "\n" );
-                    $saved        = file_get_contents( $file );
-                    $saved_header = strtok( $saved, "\n" );
-
-                    if( false !== strpos( $saved_header, $header ) ) {
-                        $this->feed = substr( $this->feed, strpos( $this->feed, "\n" ) + 1 );
+                    // Remove the header row from batches 2+ to avoid duplicate headers
+                    $feed_lines = explode( "\n", $this->feed );
+                    if ( count( $feed_lines ) > 0 ) {
+                        // Remove first line (header)
+                        array_shift( $feed_lines );
+                        $this->feed = implode( "\n", $feed_lines );
                     }
                 }
 
@@ -1392,6 +1477,42 @@ abstract class Rex_Product_Feed_Abstract_Generator
 
             return wpfm_generate_csv_feed( $this->feed, $file, $this->feed_separator, $this->batch );
         }
+        elseif ( $format === 'json' ) {
+            $file = trailingslashit( $path ) . "{$feed_file_name}.json";
+
+            if( $this->batch === $this->tbatch ) {
+                if( 'publish' === $publish_btn ) {
+                    $this->delete_prev_feed_file( "{$feed_file_name}.{$format}", $prev_feed_name, $path );
+                }
+                update_post_meta( $this->id, $feed_file_meta_key, $baseurl . "/rex-feed/{$feed_file_name}.json" );
+            }
+
+            if ( file_exists( $file ) ) {
+                if ( $this->batch === 1 ) {
+                    file_put_contents( $file, $this->feed );
+                } else {
+                    // For batched JSON, we need to merge the arrays
+                    $existing_content = file_get_contents( $file );
+                    $existing_data = json_decode( $existing_content, true );
+                    $new_data = json_decode( $this->feed, true );
+                    
+                    if ( is_array( $existing_data ) && is_array( $new_data ) ) {
+                        // Merge products arrays if they exist
+                        if ( isset( $existing_data['products'] ) && isset( $new_data['products'] ) ) {
+                            $existing_data['products'] = array_merge( $existing_data['products'], $new_data['products'] );
+                        } else {
+                            $existing_data = array_merge( $existing_data, $new_data );
+                        }
+                        file_put_contents( $file, json_encode( $existing_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
+                    } else {
+                        file_put_contents( $file, $this->feed, FILE_APPEND );
+                    }
+                }
+            } else {
+                file_put_contents( $file, $this->feed );
+            }
+            return 'true';
+        }
         else {
             $file = trailingslashit( $path ) . "{$feed_file_name}.xml";
             update_post_meta( $this->id, $feed_file_meta_key, $baseurl . "/rex-feed/{$feed_file_name}.xml" );
@@ -1442,7 +1563,7 @@ abstract class Rex_Product_Feed_Abstract_Generator
             'google', 'facebook', 'tiktok', 'twitter', 'pinterest', 'ciao', 'daisycon', 'instagram', 'liveintent',
             'google_shopping_actions', 'google_express', 'doofinder', 'emarts', 'epoq', 'google_local_products_inventory',
             'google_merchant_promotion', 'google_manufacturer_center', 'bing_image', 'rss', 'criteo', 'adcrowd',
-            'google_local_inventory_ads', 'compartner', 'bing'
+            'google_local_inventory_ads', 'compartner', 'bing', 'openai', 'google_css_center', 'temu_seller_center'
         ];
 
         if ( in_array( $this->merchant, $google_merchants ) ) {
@@ -1849,4 +1970,322 @@ abstract class Rex_Product_Feed_Abstract_Generator
      * @return string
      **/
     abstract public function footer_replace();
+
+    /**
+     * Check if variation should be included based on selected variation filter.
+     *
+     * This method centralizes variation filtering logic for all feed types.
+     * It checks which variation filter is active (default, highest, cheapest, or all)
+     * and determines if the current variation should be included in the feed.
+     *
+     * @param WC_Product $product The variation product being processed.
+     * @param int $productId The product ID of the variation.
+     *
+     * @return bool True if variation should be included in feed, false otherwise.
+     *
+     * @since 7.4.55
+     */
+    protected function should_include_variation( $product, $productId ) {
+        if ( $this->default_variation ) {
+            return $this->is_default_variation( $product, $productId );
+        } elseif ( $this->highest_variation ) {
+            return $this->is_highest_variation( $product, $productId );
+        } elseif ( $this->cheapest_variation ) {
+            return $this->is_cheapest_variation( $product, $productId );
+        } elseif ( $this->first_variation ) {
+            return $this->is_first_variation( $product, $productId );
+        } elseif ( $this->last_variation ) {
+            return $this->is_last_variation( $product, $productId );
+        } elseif ( $this->variations ) {
+            // Include all variations
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Check if variation is the default variation.
+     *
+     * Determines if the current variation is the default variation of its parent variable product.
+     *
+     * @param WC_Product $product The variation product.
+     * @param int $productId The product ID.
+     *
+     * @return bool True if this is the default variation, false otherwise.
+     *
+     * @since 7.4.55
+     */
+    protected function is_default_variation( $product, $productId ) {
+        $parent_id = $product->get_parent_id();
+        $parent_product = wc_get_product( $parent_id );
+        
+        if ( ! $parent_product || ! $parent_product->is_type( 'variable' ) ) {
+            return false;
+        }
+        
+        $default_variation_id = $this->get_default_variation_id( $parent_product );
+        
+        return $default_variation_id && $default_variation_id == $productId;
+    }
+
+    /**
+     * Check if variation is the highest priced variation.
+     *
+     * Determines if the current variation has the highest price among all variations of its parent product.
+     * If multiple variations have the same highest price, returns the first one found.
+     *
+     * @param WC_Product $product The variation product.
+     * @param int $productId The product ID.
+     *
+     * @return bool True if this is the highest priced variation, false otherwise.
+     *
+     * @since 7.4.55
+     */
+    protected function is_highest_variation( $product, $productId ) {
+        $parent_id = $product->get_parent_id();
+        $parent_product = wc_get_product( $parent_id );
+        
+        if ( ! $parent_product ) {
+            return false;
+        }
+        
+        $variations = $this->exclude_hidden_products 
+            ? $parent_product->get_children( true ) 
+            : $parent_product->get_children();
+        
+        $highest_price = 0;
+        $highest_variation_id = null;
+        
+        foreach ( $variations as $variation ) {
+            $variation_product = wc_get_product( $variation );
+            if ( $this->is_out_of_stock( $variation_product ) ) {
+                $variation_price = (float) $variation_product->get_price();
+                // Use strict comparison (>) to ensure we get the first variation if multiple have the same price
+                if ( $variation_price > $highest_price ) {
+                    $highest_price = $variation_price;
+                    $highest_variation_id = $variation;
+                }
+            }
+        }
+        
+        return $highest_variation_id && $highest_variation_id == $productId;
+    }
+
+    /**
+     * Check if variation is the cheapest priced variation.
+     *
+     * Determines if the current variation has the cheapest price among all variations of its parent product.
+     * If multiple variations have the same cheapest price, returns the first one found.
+     *
+     * @param WC_Product $product The variation product.
+     * @param int $productId The product ID.
+     *
+     * @return bool True if this is the cheapest priced variation, false otherwise.
+     *
+     * @since 7.4.55
+     */
+    protected function is_cheapest_variation( $product, $productId ) {
+        $parent_id = $product->get_parent_id();
+        $parent_product = wc_get_product( $parent_id );
+        
+        if ( ! $parent_product ) {
+            return false;
+        }
+        
+        $variations = $this->exclude_hidden_products 
+            ? $parent_product->get_children( true ) 
+            : $parent_product->get_children();
+        
+        $cheapest_price = PHP_FLOAT_MAX;
+        $cheapest_variation_id = null;
+        
+        foreach ( $variations as $variation ) {
+            $variation_product = wc_get_product( $variation );
+            if ( $this->is_out_of_stock( $variation_product ) ) {
+                $variation_price = (float) $variation_product->get_price();
+                // Use strict comparison (<) to ensure we get the first variation if multiple have the same price
+                if ( $variation_price > 0 && $variation_price < $cheapest_price ) {
+                    $cheapest_price = $variation_price;
+                    $cheapest_variation_id = $variation;
+                }
+            }
+        }
+        
+        return $cheapest_variation_id && $cheapest_variation_id == $productId;
+    }
+
+    /**
+     * Check if variation is the first variation.
+     *
+     * Determines if the current variation is the first variation of its parent variable product.
+     *
+     * @param WC_Product $product The variation product.
+     * @param int $productId The product ID.
+     *
+     * @return bool True if this is the first variation, false otherwise.
+     *
+     * @since 7.4.56
+     */
+    protected function is_first_variation( $product, $productId ) {
+        $parent_id = $product->get_parent_id();
+        $parent_product = wc_get_product( $parent_id );
+        
+        if ( ! $parent_product ) {
+            return false;
+        }
+        
+        $variations = $this->exclude_hidden_products 
+            ? $parent_product->get_children( true ) 
+            : $parent_product->get_children();
+        
+        if ( empty( $variations ) ) {
+            return false;
+        }
+        
+        // Get the first variation ID from the array
+        $first_variation_id = reset( $variations );
+        
+        return $first_variation_id && $first_variation_id == $productId;
+    }
+
+    /**
+     * Check if variation is the last variation.
+     *
+     * Determines if the current variation is the last variation of its parent variable product.
+     *
+     * @param WC_Product $product The variation product.
+     * @param int $productId The product ID.
+     *
+     * @return bool True if this is the last variation, false otherwise.
+     *
+     * @since 7.4.56
+     */
+    protected function is_last_variation( $product, $productId ) {
+        $parent_id = $product->get_parent_id();
+        $parent_product = wc_get_product( $parent_id );
+        
+        if ( ! $parent_product ) {
+            return false;
+        }
+        
+        $variations = $this->exclude_hidden_products 
+            ? $parent_product->get_children( true ) 
+            : $parent_product->get_children();
+        
+        if ( empty( $variations ) ) {
+            return false;
+        }
+        
+        // Get the last variation ID from the array
+        $last_variation_id = end( $variations );
+        
+        return $last_variation_id && $last_variation_id == $productId;
+    }
+
+    /**
+     * Get default variation ID for a variable product.
+     *
+     * This method attempts to find the default variation for a variable product using multiple strategies:
+     * 1. First tries WooCommerce's get_default_attributes() method
+     * 2. Falls back to post meta if needed
+     * 3. Uses WooCommerce's find_matching_product_variation() method
+     * 4. Manual attribute matching if automatic matching fails
+     * 5. Falls back to first in-stock variation if no defaults are set
+     *
+     * @param WC_Product_Variable $parent_product The variable product to get default variation from.
+     *
+     * @return int|false The variation ID if found, false otherwise.
+     *
+     * @since 7.4.55
+     */
+    protected function get_default_variation_id( $parent_product ) {
+        if ( ! $parent_product || ! $parent_product->is_type( 'variable' ) ) {
+            return false;
+        }
+
+        // Step 1: Try to get default attributes from the product
+        $default_attributes = $parent_product->get_default_attributes();
+        
+        // Step 2: If empty, try getting from post meta directly
+        if ( empty( $default_attributes ) ) {
+            $default_attributes = get_post_meta( $parent_product->get_id(), '_default_attributes', true );
+        }
+
+        // Get all variations (respecting hidden product settings)
+        $variations = $this->exclude_hidden_products 
+            ? $parent_product->get_children( true ) // true = visible only
+            : $parent_product->get_children();
+
+        if ( empty( $variations ) ) {
+            return false;
+        }
+
+        $default_variation_id = false;
+
+        // Step 3: If we have default attributes, try to find matching variation
+        if ( ! empty( $default_attributes ) && is_array( $default_attributes ) ) {
+            // Try WooCommerce's built-in method first
+            $data_store = WC_Data_Store::load( 'product' );
+            if ( method_exists( $data_store, 'find_matching_product_variation' ) ) {
+                $default_variation_id = $data_store->find_matching_product_variation( $parent_product, $default_attributes );
+            }
+            
+            // Step 4: If that didn't work, try manual matching
+            if ( ! $default_variation_id ) {
+                foreach ( $variations as $variation_id ) {
+                    $variation = wc_get_product( $variation_id );
+                    
+                    if ( ! $variation || ! $this->is_out_of_stock( $variation ) ) {
+                        continue;
+                    }
+                    
+                    // Get variation attributes
+                    $variation_attributes = $variation->get_variation_attributes();
+                    $match = true;
+                    
+                    // Check if all default attributes match this variation
+                    foreach ( $default_attributes as $attr_key => $attr_value ) {
+                        $variation_attr_key = 'attribute_' . $attr_key;
+                        
+                        // Skip if variation doesn't have this attribute set (any value allowed)
+                        if ( ! isset( $variation_attributes[ $variation_attr_key ] ) || 
+                             $variation_attributes[ $variation_attr_key ] === '' ) {
+                            continue;
+                        }
+                        
+                        // Compare values (case-insensitive)
+                        if ( strtolower( $variation_attributes[ $variation_attr_key ] ) !== strtolower( $attr_value ) ) {
+                            $match = false;
+                            break;
+                        }
+                    }
+                    
+                    if ( $match ) {
+                        $default_variation_id = $variation_id;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Step 5: If still no default found, use first in-stock variation as fallback
+        if ( ! $default_variation_id ) {
+            foreach ( $variations as $variation_id ) {
+                $variation = wc_get_product( $variation_id );
+                
+                if ( $variation && $this->is_out_of_stock( $variation ) ) {
+                    $default_variation_id = $variation_id;
+                    break;
+                }
+            }
+            
+            // Last resort: use first variation regardless of stock status
+            if ( ! $default_variation_id && ! empty( $variations ) ) {
+                $default_variation_id = $variations[0];
+            }
+        }
+
+        return $default_variation_id;
+    }
 }

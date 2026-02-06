@@ -20,6 +20,7 @@ class Rex_Product_Feed_Deactivator {
     public static function deactivate() {
         self::deregister_background_schedulers();
         self::update_feed_status();
+        do_action( 'rex_product_feed_deactivated' );
     }
 
     /**
@@ -36,6 +37,7 @@ class Rex_Product_Feed_Deactivator {
             as_unschedule_action( HOURLY_SCHEDULE_HOOK, [], 'wpfm' );
             as_unschedule_action( DAILY_SCHEDULE_HOOK, [], 'wpfm' );
             as_unschedule_action( WEEKLY_SCHEDULE_HOOK, [], 'wpfm' );
+			as_unschedule_action( CUSTOM_SCHEDULE_HOOK, [], 'wpfm' );
         }
     }
 

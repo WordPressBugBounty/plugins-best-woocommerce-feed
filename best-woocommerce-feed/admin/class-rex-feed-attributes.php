@@ -353,8 +353,14 @@ class Rex_Feed_Attributes {
 	 */
 	public static function get_acf_fields() {
 		$acf_attributes = wpfm_get_cached_data( 'acf_attributes' );
-		if ( !is_array( $acf_attributes ) || empty( $acf_attributes ) ) {
+		if ( !is_array( $acf_attributes ) ) {
+			$acf_attributes = array();
+		}
+		if ( empty( $acf_attributes ) ) {
 			global $wpdb;
+            if ( !isset($acf_attributes['ACF Attributes']) ) {
+                $acf_attributes['ACF Attributes'] = array();
+            }
             $query = "SELECT child.post_excerpt AS `key`, child.post_title AS `value` FROM %1s AS child ";
             $query .= "JOIN %1s AS parent ON child.post_parent = parent.ID ";
             $query .= "WHERE parent.post_status=%s AND parent.post_type=%s ";
@@ -365,7 +371,7 @@ class Rex_Feed_Attributes {
 
 			if ( is_array( $data ) && !empty( $data ) ) {
 				foreach( $data as $item ) {
-					if ( !empty( $item[ 'key' ] ) && !empty( $item[ 'value' ] ) ) {
+            if ( is_array($item) && !empty( $item[ 'key' ] ) && !empty( $item[ 'value' ] ) ) {
 						if ( !array_key_exists( $item[ 'key' ], self::get_primary_attributes() ) ) {
 							$acf_attributes[ 'ACF Attributes' ][ $item[ 'key' ] ] = $item[ 'value' ];
 						}
@@ -395,18 +401,48 @@ class Rex_Feed_Attributes {
 	public static function get_acf_taxonomy_fields() {
 		$acf_taxonomies = wpfm_get_cached_data( 'acf_taxonomies' );
 		if ( !is_array( $acf_taxonomies ) || empty( $acf_taxonomies ) ) {
+			$acf_taxonomies = array();
 			global $wpdb;
 			$query = $wpdb->prepare( "SELECT `post_content` AS `settings` FROM %1s WHERE `post_type`=%s AND `post_status`=%s GROUP BY `post_content`", [ $wpdb->posts, 'acf-taxonomy', 'publish' ] );
 			$data  = $wpdb->get_results( $query, ARRAY_A );
 
-			if ( is_array( $data ) && !empty( $data ) ) {
-				foreach( $data as $item ) {
-					$settings = @unserialize($item[ 'settings' ]);
-					if ( is_array( $settings[ 'object_type' ] ) && !empty( $settings[ 'object_type' ] ) && in_array( 'product', $settings[ 'object_type' ] ) && !empty( $settings[ 'taxonomy' ] ) ) {
-						$acf_taxonomies[ 'ACF Taxonomies' ][ $settings[ 'taxonomy' ] ] = $settings[ 'labels' ][ 'menu_name' ] ?? $settings[ 'taxonomy' ];
+
+			if ( empty( $acf_taxonomies ) || ! is_array( $acf_taxonomies ) ) {
+				$acf_taxonomies = array();
+			}
+
+			if ( ! isset( $acf_taxonomies['ACF Taxonomies'] ) || ! is_array( $acf_taxonomies['ACF Taxonomies'] ) ) {
+				$acf_taxonomies['ACF Taxonomies'] = array();
+			}
+
+
+			if ( is_array( $data ) && ! empty( $data ) ) {
+				foreach ( $data as $item ) {
+
+					$settings = maybe_unserialize( $item['settings'] );
+
+					if (
+						is_array( $settings ) &&
+						isset( $settings['object_type'] ) &&
+						is_array( $settings['object_type'] ) &&
+						in_array( 'product', $settings['object_type'], true ) &&
+						! empty( $settings['taxonomy'] )
+					) {
+
+						$label = $settings['taxonomy'];
+
+						if ( isset( $settings['labels'] )
+							&& is_array( $settings['labels'] )
+							&& isset( $settings['labels']['menu_name'] ) ) {
+							$label = $settings['labels']['menu_name'];
+						}
+
+						// This line was causing the warning because the array was false
+						$acf_taxonomies['ACF Taxonomies'][ $settings['taxonomy'] ] = $label;
 					}
 				}
 			}
+
 			wpfm_set_cached_data( 'acf_taxonomies', $acf_taxonomies );
 		}
 		return is_array( $acf_taxonomies ) && !empty( $acf_taxonomies ) ? $acf_taxonomies : [];
@@ -561,7 +597,11 @@ class Rex_Feed_Attributes {
 					if ( 'labels' === $kk ) {
 						foreach ( $vv as $kw => $kv ) {
 							if ( 'singular_name' === $kw ) {
-								$attr_name_clean = ucfirst( $kv );
+								if('product_brand' === $attr_name){
+									$attr_name_clean = ucfirst( $kv ) . ' (WooCommerce)';
+								}else{
+									$attr_name_clean = ucfirst( $kv );
+								}
 							}
 						}
 					}
@@ -612,11 +652,11 @@ class Rex_Feed_Attributes {
 
 			if ( is_array( $data ) && !empty( $data ) ) {
 				foreach ( $data as $value ) {
-					if ( !empty( $inner_value[ 'name' ] ) && is_string( $inner_value[ 'name' ] ) ) {
+					if ( is_object($value) && isset($value->name) ) {
 						$value_display = str_replace( '_', ' ', $value->name );
 					}
 					else {
-						$value_display = is_string( $value->name ) ? $value->name : '';
+						$value_display = '';
 					}
                     $value_display                                    = trim( $value_display );
                     $attributes[ "custom_attributes_{$value->name}" ] = ucfirst( $value_display );

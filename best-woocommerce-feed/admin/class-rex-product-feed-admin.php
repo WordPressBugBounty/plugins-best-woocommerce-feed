@@ -150,6 +150,13 @@ class Rex_Product_Feed_Admin {
             wp_enqueue_style( $this->plugin_name . '-wpfm-vendor', WPFM_PLUGIN_ASSETS_FOLDER . 'css/vendor.min.css', array(), $this->version );
             wp_enqueue_style( $this->plugin_name . '-select2', WPFM_PLUGIN_ASSETS_FOLDER . 'css/select2.min.css', array(), $this->version );
 
+            /**
+             * Enqueue feed validation styles.
+             *
+             * @since 7.4.58
+             */
+            wp_enqueue_style( $this->plugin_name . '-validation', WPFM_PLUGIN_ASSETS_FOLDER . 'css/rex-feed-validation.css', array(), $this->version );
+
             $_get = rex_feed_get_sanitized_get_post();
             $_get = !empty( $_get[ 'get' ] ) ? $_get[ 'get' ] : array();
 
@@ -213,6 +220,7 @@ class Rex_Product_Feed_Admin {
                 'rex_wpfm_ajax',
                 array(
                     'ajax_url'             => admin_url( 'admin-ajax.php' ),
+                    'admin_url'            => admin_url(),
                     'ajax_nonce'           => wp_create_nonce( 'rex-wpfm-ajax' ),
                     'is_premium'           => apply_filters( 'wpfm_is_premium', false ),
                     'feed_id'              => get_the_ID(),
@@ -278,10 +286,27 @@ class Rex_Product_Feed_Admin {
                 $this->plugin_name,
                 'rex_wpfm_admin_translate_strings',
                 array(
-                    'google_cat_map_btn'    => __( 'Configure Category Mapping', 'rex-product-feed' ),
-                    'optimize_pr_title_btn' => __( 'Optimize Product Title', 'rex-product-feed' ),
+                    'google_cat_map_btn'         => __( 'Configure Category Mapping', 'rex-product-feed' ),
+                    'optimize_pr_title_btn'      => __( 'Optimize Product Title', 'rex-product-feed' ),
+                    'reset_credentials_confirm'  => __( 'Are you sure you want to reset? This will clear all saved credentials and revoke authorization.', 'rex-product-feed' ),
+                    'reset_credentials_error'    => __( 'An error occurred while resetting credentials. ', 'rex-product-feed' ),
+                    'please_try_again'           => __( 'Please try again.', 'rex-product-feed' ),
                 )
             );
+
+            /**
+             * Enqueue feed validation scripts.
+             *
+             * @since 7.4.58
+             */
+            wp_enqueue_script(
+                $this->plugin_name . '-validation',
+                WPFM_PLUGIN_ASSETS_FOLDER . 'js/rex-feed-validation.js',
+                array( 'jquery' ),
+                $this->version,
+                true
+            );
+
             wp_enqueue_script(
                 'jquery-cookie',
                 WPFM_PLUGIN_ASSETS_FOLDER . 'js/js.cookie.min.js',
@@ -312,64 +337,12 @@ class Rex_Product_Feed_Admin {
                     $this->plugin_name . '-on-boarding',
                     'rexOnboardingJs',
                     [
-                        'feed_title' => [
-                            'title' => __( 'Give A Name To This Feed', 'rex-product-feed' ),
-                            'desc'  => __( "You may give any name. It's just to help you save settings for this feed generation and help you distinguish between other feeds you generate in the future.", 'rex-product-feed' ),
-                        ],
-                        'merchant_name_type' => [
-                            'title' => __( 'Select Merchant And Feed Type', 'rex-product-feed' ),
-                            'desc'  => __( 'Here, you can change the merchant/marketplace and choose the file type when the product feed is generated. Please select Feed Merchant to move forward.', 'rex-product-feed' ),
-                        ],
-                        'config_table' => [
-                            'title' => __( 'Feed Attributes & Product Data Mapping', 'rex-product-feed' ),
-                            'desc'  => sprintf( __( 'These are the list of attributes that you are supposed to include for your products in the product feed. We will be mapping your store product data as the values of the attributes in this section. %s However, most of these are already mapped, and you do not need to make any changes to them.', 'rex-product-feed' ), '<br><br>' ),
-                        ],
-                        'feed_publish' => [
-                            'title' => __( 'Publish To Generate The Product Feed', 'rex-product-feed' ),
-                            'desc'  => sprintf(
-                                __( 'Once you have mapped the attribute values, you can click on Publish and the feed will be generated. %s **This tour will end if you click on the Publish button and the feed will start generating. %s - You can view the generated feed once the feed generation is completed. %s - Click on the Next to skip feed generation for now and  to learn more options to configure the feed. %s', 'rex-product-feed' ),
-                                '<br><br><b><em>', '</b><br><br>', '<br>', '</em>'
-                            )
-                        ],
-                        'additional_feed_attr' => [
-                            'title' => __( 'Add More Attributes To Your Feed', 'rex-product-feed' ),
-                            'desc'  => sprintf(
-                                __( 'You can also include more attributes for your products using these buttons. %s The "Add New Attribute" will let you choose from other available attributes for your selected merchant and then you can map the value with a product data. %s The "Add New Custom Attribute" will let you name an attribute title yourself and then map the value with a product data.', 'rex-product-feed' ),
-                                '<br><br>', '<br><br>'
-                            )
-                        ],
-                        'product_filter' => [
-                            'title' => __( 'Use Advanced Filters', 'rex-product-feed' ),
-                            'desc'  => sprintf(
-                                __( 'Click on this Product Filter button to: %s - Use All Featured Products Filter %s - Category Filter %s - Tag Filter %s - Custom Filter %s - Product Filter (Pro) %s - Product Rule (Pro)', 'rex-product-feed' ),
-                                '<br><br>', '<br>', '<br>', '<br>', '<br>', '<br>'
-                            )
-                        ],
-                        'filter_tab_close' => [
-                            'title' => __( 'Product Filter Close Button', 'rex-product-feed' ),
-                            'desc'  => __( 'Once you make any changes, click on the Close button to get back to the Attributes section.', 'rex-product-feed' ),
-                        ],
-                        'feed_settings' => [
-                            'title' => __( 'Feed Settings Option', 'rex-product-feed' ),
-                            'desc'  => sprintf(
-                                __( 'Click on the Feed Settings button to: %s - Schedule Feed Update %s - Include Out of Stock Products %s - Include Product with No Price %s - Include/ Exclude Product Type %s - Skip Products/ Attributes With Empty Values %s - Track Campaign With UTM Parameters', 'rex-product-feed' ),
-                                '<br><br>', '<br>', '<br>', '<br>', '<br>', '<br>'
-                            )
-                        ],
-                        'settings_tab_close' => [
-                            'title' => __( 'Close The Settings Drawer', 'rex-product-feed' ),
-                            'desc'  => __( 'Once you make any changes, click on the Close button to get back to the Attributes section.', 'rex-product-feed' ),
-                        ],
-                        'tour_end_feed_publish' => [
-                            'title' => __( 'Publish Feed', 'rex-product-feed' ),
-                            'desc'  => sprintf(
-                                __( 'Click on the publish button to start generating the feed. %s - Once you click on the Publish button, this tour will end. %s - You will see a feed loading bar once the feed generation starts. %s - Once the feed generation is completed, you can view or download the generated feed. %s - Once the feed is generated, you can click on the View/ Download button to view the feed or to download the generated feed', 'rex-product-feed' ),
-                                '<br><br>', '<br>', '<br>', '<br>'
-                            ),
-                            'next_button' => __( 'Finish Tour', 'rex-product-feed' )
-                        ],
                         'next_button' => [ 'title' => __( 'Next', 'rex-product-feed' ) ],
                         'prev_button' => [ 'title' => __( 'Previous', 'rex-product-feed' ) ],
+                        'done_button' => [ 'title' => __( 'Done', 'rex-product-feed' ) ],
+                        'publish_button' => [ 'title' => __( 'Publish', 'rex-product-feed' ) ],
+                        'skip_button_text' => [ 'title' => __( 'Skip Tour', 'rex-product-feed' ) ],
+                        'step1_bg_image' => plugins_url('admin/assets/icon/first-step-bg.png', WPFM__FILE__ ),
                     ]
                 );
             }

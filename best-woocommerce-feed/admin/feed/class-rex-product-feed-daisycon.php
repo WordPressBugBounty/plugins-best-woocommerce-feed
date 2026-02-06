@@ -101,14 +101,12 @@ class Rex_Product_Feed_Daisycon extends Rex_Product_Feed_Abstract_Generator {
                         $variations = $product->get_children();
                     }
 
-                    if( $variations ) {
-                        foreach ($variations as $variation) {
-                            if($this->variations) {
-                                $variation_product = wc_get_product( $variation );
-                                if ( $this->is_out_of_stock( $variation_product ) ) {
-                                    $variation_products[] = $variation;
-                                    $this->add_to_feed( $variation_product, $product_meta_keys, 'variation' );
-                                }
+                    if ($variations) {
+                        foreach ($variations as $variation_id) {
+                            $variation_product = wc_get_product($variation_id);
+                            if ($variation_product && $this->should_include_variation($variation_product, $variation_id)) {
+                                $variation_products[] = $variation_id;
+                                $this->add_to_feed($variation_product, $product_meta_keys, 'variation');
                             }
                         }
                     }
@@ -116,15 +114,20 @@ class Rex_Product_Feed_Daisycon extends Rex_Product_Feed_Abstract_Generator {
             }
 
             if ( $this->is_out_of_stock( $product ) ) {
-                if ( $product->is_type( 'simple' ) || $product->is_type( 'external' ) || $product->is_type( 'composite' ) || $product->is_type( 'bundle' ) ) {
+                if ( $product->is_type( 'simple' ) || $product->is_type( 'external' ) || $product->is_type( 'composite' ) || $product->is_type( 'bundle' ) || $product->is_type('yith_bundle') || $product->is_type('yith-composite')) {
+                   if ( $this->exclude_simple_products ) {
+                        continue;
+                    }
                     $simple_products[] = $productId;
                     $this->add_to_feed( $product, $product_meta_keys );
                 }
 
                 if ( $this->product_scope === 'all' || $this->product_scope === 'product_filter' || $this->custom_filter_option ) {
                     if ( $product->get_type() === 'variation' ) {
-                        $variation_products[] = $productId;
-                        $this->add_to_feed( $product, $product_meta_keys, 'variation' );
+						if ($this->should_include_variation($product, $productId)) {
+							$variation_products[] = $productId;
+							$this->add_to_feed($product, $product_meta_keys, 'variation');
+						}
                     }
                 }
 
