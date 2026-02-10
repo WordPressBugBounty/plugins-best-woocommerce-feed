@@ -570,6 +570,11 @@ abstract class Rex_Feed_Abstract_Validator {
                 // Strip CDATA if present and trim whitespace
                 $clean_value = $this->strip_cdata( $value );
                 
+                // Ensure clean_value is a string before using strpos
+                if ( ! is_string( $clean_value ) ) {
+                    continue;
+                }
+
                 // Skip validation if CDATA markers are still present or if value is empty
                 if (strpos($clean_value, '<![CDATA[') === false && strpos($clean_value, ']]>') === false && !$this->is_empty_value($clean_value)) {
                     if ( ! filter_var( $clean_value, FILTER_VALIDATE_URL ) ) {
