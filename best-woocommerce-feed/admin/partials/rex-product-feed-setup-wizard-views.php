@@ -9,263 +9,291 @@
 ?>
 
 <!DOCTYPE html>
-<html style="background-color: #EDF3FD;" lang="en" xmlns="http://www.w3.org/1999/xhtml" <?php language_attributes(); ?>>
-
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width"/>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title><?php esc_html_e( 'Product Feed - Setup Wizard', 'rex-product-feed' ); ?></title>
-    <?php do_action( 'admin_enqueue_scripts' ); ?>
-    <?php do_action( 'admin_print_styles' ); ?>
-    <?php do_action( 'admin_head' ); ?>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php esc_html_e('Product Feed Manager - Setup Wizard', 'rex-product-feed'); ?></title>
+    <?php
+    do_action('admin_enqueue_scripts');
+    do_action('admin_print_styles');
+    do_action('admin_head');
+    ?>
     <script type="text/javascript">
-        addLoadEvent = function (func) {
-            if (typeof jQuery != "undefined") jQuery(document).ready(func);
-            else if (typeof wpOnload != 'function') {
-                wpOnload = func;
-            } else {
-                var oldonload = wpOnload;
-                wpOnload = function () {
-                    oldonload();
-                    func();
-                }
-            }
-        };
-        var ajaxurl = '<?php echo admin_url( 'admin-ajax.php', 'relative' ); ?>';
-        var pagenow = '';
+        var ajaxurl = '<?php echo admin_url('admin-ajax.php', 'relative'); ?>';
+        var wpvrNonce = '<?php echo wp_create_nonce('rex-product-feed'); ?>';
     </script>
 </head>
-
 <body>
-<div class="wpfm-setup-wizard__container">
-    <div class="setup-wizard__inner-container">
-        <div id="wizardContainer" style="height:100vh;">
-
+<div id="onboarding-app">
+    <!-- Sidebar (shared across merchant, create-feed, and complete steps) -->
+    <aside class="sidebar" id="main-sidebar">
+        <div class="sidebar-logo">
+            <img src="<?php echo WPFM_PLUGIN_ASSETS_FOLDER. 'icon/setup-wizard-images/pfm.webp'; ?>" alt="Product Feed Manager Logo">
         </div>
-    </div>
+        <nav class="nav-steps">
+            <div class="nav-item" data-step="step-welcome">
+                <span class="nav-circle">1</span>
+                <?php esc_html_e('Welcome', 'rex-product-feed'); ?>
+            </div>
+            <div class="nav-item" data-step="step-select-merchant">
+                <span class="nav-circle">2</span>
+                <?php esc_html_e('Merchant', 'rex-product-feed'); ?>
+            </div>
+            <div class="nav-item" data-step="step-feed-settings">
+                <span class="nav-circle">3</span>
+                <?php esc_html_e('Feed Settings', 'rex-product-feed'); ?>
+            </div>
+            <div class="nav-item" data-step="step-attribute-mapping">
+                <span class="nav-circle">4</span>
+                <?php esc_html_e('Attribute Mapping', 'rex-product-feed'); ?>
+            </div>
+            <div class="nav-item" data-step="step-complete">
+                <span class="nav-circle">5</span>
+                <?php esc_html_e('Complete', 'rex-product-feed'); ?>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Welcome Step -->
+        <section class="step active full-width" id="step-welcome">
+            <div class="welcome-app">
+                <div class="welcome-wrapper">
+                    <div class="welcome-card">
+                        <div class="welcome-logo">
+                            <img src="<?php echo WPFM_PLUGIN_ASSETS_FOLDER. 'icon/setup-wizard-images/pfm.webp'; ?>" alt="Product Feed Manager Logo">
+                        </div>
+                        <div class="welcome-content">
+                            <p class="welcome-label"><?php esc_html_e('WELCOME', 'rex-product-feed'); ?></p>
+                            <h1><?php esc_html_e('Welcome to Product Feed Manager', 'rex-product-feed'); ?></h1>
+                            <p class="welcome-description"><?php esc_html_e('Create powerful product feeds for major shopping platforms in just a few steps. This wizard will help you set up and configure your first product feed.', 'rex-product-feed'); ?></p>
+                        </div>
+                        <button class="primary-btn" id="getStartedBtn"><?php esc_html_e('Get Started', 'rex-product-feed'); ?></button>
+                        <label class="consent">
+                            <input type="checkbox" checked id="consentCheckbox" />
+                            <span class="custom-checkbox"></span>
+                            <span class="consent-text"><?php esc_html_e('I agree to receive product updates and marketing communications from Product Feed Manager.', 'rex-product-feed'); ?></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Select Merchant Step -->
+        <section class="step" id="step-select-merchant">
+            <div class="exit"><?php esc_html_e('Exit', 'rex-product-feed'); ?></div>
+            <div class="card">
+                <!-- Search Box (Top) -->
+                <div class="search-box">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#76708c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" id="merchantSearch" placeholder="<?php esc_attr_e('Type at least 3 letters to search from 200+ merchants...', 'rex-product-feed'); ?>" />
+                </div>
+
+                <!-- Search Results -->
+                <div class="search-results-container" id="searchResultsContainer" style="display: none;">
+                    <div class="search-results-grid" id="searchResults">
+                        <!-- Search results will be dynamically populated here -->
+                    </div>
+                </div>
+
+                <!-- Popular Merchants Section -->
+                <div class="popular-section" id="popularSection">
+                    <h3 class="section-title"><?php esc_html_e('Popular Merchants', 'rex-product-feed'); ?></h3>
+                    <div class="popular-grid" id="popularGrid"></div>
+                    
+                    <!-- 200+ Merchants Info Banner -->
+                    <div class="merchants-info-banner">
+                        <div class="info-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3f04fe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="16" x2="12" y2="12"/>
+                                <line x1="12" y1="8" x2="12.01" y2="8"/>
+                            </svg>
+                        </div>
+                        <div class="info-content">
+                            <h4 class="info-title"><?php esc_html_e('200+ Merchants Available', 'rex-product-feed'); ?></h4>
+                            <p class="info-description"><?php esc_html_e('Search above to discover more merchants and find the perfect platform for your product feed', 'rex-product-feed'); ?></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-back" id="merchantBackBtn"><?php esc_html_e('Back', 'rex-product-feed'); ?></button>
+                    <button class="btn btn-continue" id="merchantContinueBtn" disabled><?php esc_html_e('Continue', 'rex-product-feed'); ?></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feed Settings Step (Renamed from Create Feed) -->
+        <section class="step" id="step-feed-settings">
+            <div class="exit"><?php esc_html_e('Exit', 'rex-product-feed'); ?></div>
+            <div class="card">
+                <form id="feedSettingsForm" novalidate>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10 9 9 9 8 9"/>
+                            </svg>
+                            <?php esc_html_e('Feed Name', 'rex-product-feed'); ?>
+                        </label>
+                        <input type="text" id="feedName" class="form-input" placeholder="<?php esc_attr_e('e.g., My Product Feed', 'rex-product-feed'); ?>" />
+                        <span class="form-hint"><?php esc_html_e('Give your feed a descriptive name for easy identification', 'rex-product-feed'); ?></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10"/>
+                                <polyline points="1 20 1 14 7 14"/>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                            </svg>
+                            <?php esc_html_e('Update Frequency', 'rex-product-feed'); ?>
+                        </label>
+                        <div class="select-wrapper">
+                            <select id="updateFrequency" class="form-select">
+                                <option value="no" selected><?php esc_html_e('No interval', 'rex-product-feed'); ?></option>
+                                <option value="hourly"><?php esc_html_e('Hourly', 'rex-product-feed'); ?></option>
+                                <option value="daily"><?php esc_html_e('Daily', 'rex-product-feed'); ?></option>
+                                <option value="weekly"><?php esc_html_e('Weekly', 'rex-product-feed'); ?></option>
+                            </select>
+                            <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#76708c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </div>
+                        <span class="form-hint"><?php esc_html_e('How often should the feed be automatically updated?', 'rex-product-feed'); ?></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                            <?php esc_html_e('Feed Format', 'rex-product-feed'); ?>
+                        </label>
+                        <div class="select-wrapper">
+                            <select id="feedFormat" class="form-select">
+                                <option value="xml" selected><?php esc_html_e('XML', 'rex-product-feed'); ?></option>
+                                <option value="csv"><?php esc_html_e('CSV', 'rex-product-feed'); ?></option>
+                            </select>
+                            <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#76708c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </div>
+                        <span class="form-hint"><?php esc_html_e('Choose the format for your product feed', 'rex-product-feed'); ?></span>
+                    </div>
+                </form>
+                <div class="nav-buttons">
+                    <button class="btn btn-back" id="feedBackBtn"><?php esc_html_e('Back', 'rex-product-feed'); ?></button>
+                    <button class="btn btn-continue" id="feedContinueBtn" disabled><?php esc_html_e('Continue', 'rex-product-feed'); ?></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Attribute Mapping Step -->
+        <section class="step" id="step-attribute-mapping">
+            <div class="exit"><?php esc_html_e('Exit', 'rex-product-feed'); ?></div>
+            <div class="card">
+                <div class="mapping-header">
+                    <h3 class="mapping-title"><?php esc_html_e('Product Attribute Mapping', 'rex-product-feed'); ?></h3>
+                    <p class="mapping-description"><?php esc_html_e('Review the default attribute mappings for your selected merchant. These mappings determine how your WooCommerce product data will be mapped to the feed.', 'rex-product-feed'); ?></p>
+                </div>
+                
+                <div class="mapping-table-wrapper">
+                    <table class="mapping-table">
+                        <thead>
+                            <tr>
+                                <th><?php esc_html_e('Merchant Attribute', 'rex-product-feed'); ?></th>
+                                <th><?php esc_html_e('Type', 'rex-product-feed'); ?></th>
+                                <th><?php esc_html_e('Mapped To', 'rex-product-feed'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody id="mappingTableBody">
+                            <tr class="loading-row">
+                                <td colspan="3" style="text-align: center; padding: 40px;">
+                                    <div style="display: inline-flex; align-items: center; gap: 12px; color: #666;">
+                                        <svg class="spinner" width="20" height="20" viewBox="0 0 50 50" style="animation: rotate 1s linear infinite;">
+                                            <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5" stroke-dasharray="31.4 31.4" stroke-linecap="round" style="animation: dash 1.5s ease-in-out infinite;"></circle>
+                                        </svg>
+                                        <?php esc_html_e('Loading mappings...', 'rex-product-feed'); ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-back" id="mappingBackBtn"><?php esc_html_e('Back', 'rex-product-feed'); ?></button>
+                    <button class="btn btn-publish" id="publishBtn" disabled><?php esc_html_e('Create Feed', 'rex-product-feed'); ?></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Complete Step -->
+        <section class="step" id="step-complete">
+            <div class="card complete-card">
+                <div class="success-content">
+                    <!-- Success Icon -->
+                    <div class="success-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#239654" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+
+                    <h1 class="success-title"><?php esc_html_e('Your Feed is Ready!', 'rex-product-feed'); ?></h1>
+                    <p class="success-desc"><?php esc_html_e('Your product feed has been generated and is ready to use.', 'rex-product-feed'); ?></p>
+
+                    <!-- Feed URL Section -->
+                    <div class="feed-url-section">
+                        <div class="feed-url-header">
+                            <span class="feed-url-label"><?php esc_html_e('Feed URL', 'rex-product-feed'); ?></span>
+                            <a href="#" class="edit-feed-link" id="editFeedLink">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                                <?php esc_html_e('Edit Feed', 'rex-product-feed'); ?>
+                            </a>
+                        </div>
+                        <div class="feed-url-row">
+                            <input type="text" class="feed-url-input" id="feedUrl" value="" readonly />
+                            <button class="icon-btn" id="copyBtn" title="<?php esc_attr_e('View feed', 'rex-product-feed'); ?>">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                    <polyline points="15 3 21 3 21 9"/>
+                                    <line x1="10" y1="14" x2="21" y2="3"/>
+                                </svg>
+                            </button>
+                            <button class="icon-btn" id="downloadBtn" title="<?php esc_attr_e('Download Feed', 'rex-product-feed'); ?>">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" id="createAnotherBtn"><?php esc_html_e('Create Another Feed', 'rex-product-feed'); ?></button>
+                    <button class="btn btn-primary" id="dashboardBtn"><?php esc_html_e('Go to Dashboard', 'rex-product-feed'); ?></button>
+                </div>
+            </div>
+        </section>
+    </main>
 </div>
-<?php
-wp_enqueue_media(); // add media
-wp_print_scripts(); // window.wp
-do_action( 'admin_footer' );
-
-    $current_date = date('Y-m-d H:i:s');
-    $start_date = '2025-12-31 00:00:00';
-    $end_date = '2026-01-12 23:59:59';
-    $discount_percentage = '';
-    $discount_price = '';
-    if ($current_date >= $start_date && $current_date <= $end_date) {
-        $discount_percentage = "Save 25%";
-        $discount_price = "$74.99";
-    }  else {
-        $discount_percentage = "";
-        $discount_price = "$99.99";
-    }
-
-    $setup_wizard_price = array(
-        'discount_price'        => $discount_price,
-        'discount_percentage_text' => $discount_percentage
-    );
-
-$data = array(
-    'stepOne' => array(
-        'step_text'           => __( "Welcome", "rex-product-feed" ),
-        'heading'             => __( "Hello, welcome to", "rex-product-feed" ),
-        'strong_heading'      => array(
-            __( "Product Feed Manager for WooCommerce", "rex-product-feed" ),
-        ),
-        'strong_description'  => __( "Product Feed Manager for WooCommerce,", "rex-product-feed" ),
-        'description'         => __( "Create accurate product feeds with your WooCommerce products in just a few clicks for any marketplace of your choice. Use our pre-defined merchant templates to generate flawless feeds for popular merchants" ),
-        'img_alt'             => __( "Preview video image ", "rex-product-feed" ),
-        'button_text'         => array(
-            __( "Let’s create your first feed", "rex-product-feed" ),
-            __( "Check the guide", "rex-product-feed" ),
-        ),
-        'pfm_feature_content' => array(
-            __( "Product Feed Manager Features", "rex-product-feed" ),
-            __( "Feed Management Made Easy With Product Feed Manager!", "rex-product-feed" ),
-        ),
-
-        'pfm_feature_heading' => array(
-            __( 'Extensive Filtering Options', 'rex-product-feed' ),
-            __( 'Feed Rules', 'rex-product-feed' ),
-            __( 'Track Facebook Pixel', 'rex-product-feed' ),
-            __( 'Combined Attributes', 'rex-product-feed' ),
-            __( 'Dynamic Pricing', 'rex-product-feed' ),
-            __( 'Multilingual Capabilities', 'rex-product-feed' ),
-            __( 'Google Product Categories', 'rex-product-feed' ),
-            __( 'Auto-sync With Google', 'rex-product-feed' ),
-        ),
-
-        'pfm_feature_description' => array(
-            __( 'Extensive Filtering Options For Exporting A Precised Feed', 'rex-product-feed' ),
-            __( 'Tailor Your Product Feed to Perfection with Feed Rules', 'rex-product-feed' ),
-            __( 'Track Facebook Pixel To Measure Feed Performance', 'rex-product-feed' ),
-            __( 'Customize Compelling Product Titles With Combined Attributes', 'rex-product-feed' ),
-            __( 'Manipulate Your Product Price Using Dynamic Pricing', 'rex-product-feed' ),
-            __( "Unleash Your Store's Global Potential with Multilingual Capabilities", 'rex-product-feed' ),
-            __( 'Merge your WooCommerce categories with Google Product Categories', 'rex-product-feed' ),
-            __( 'Sync Your WooCommerce Store With Google Merchant Center', 'rex-product-feed' )
-        ),
-
-        'pfm_feature_pro_heading' => array(
-            __( "Product Feed Manager ", "rex-product-feed" ),
-            __( "Pro Features", "rex-product-feed" ),
-        ),
-
-        'pfm_feature_pro_list_heading' => array(
-            __( 'Feed Rules', 'rex-product-feed' ),
-            __( 'WooCommerce JSON-LD Bug Fix', 'rex-product-feed' ),
-            __( 'Feed for Unlimited Products', 'rex-product-feed' ),
-            __( 'Specific Product Selection', 'rex-product-feed' ),
-            __( 'Google Dynamic Remarketing Pixel', 'rex-product-feed' ),
-            __( 'Google Review Feed', 'rex-product-feed' ),
-            __( 'Email Notification for Feed Generation Error', 'rex-product-feed' ),
-            __( 'Detailed Product Attributes (Size, Pattern, Material, Gender, etc)', 'rex-product-feed' ),
-
-        ),
-
-    ),
-
-    'stepTwo' => array(
-        'step_text'         => __( "Plugins & Merchants", "rex-product-feed" ),
-        'heading'           => __( "Necessary", "rex-product-feed" ),
-        'strong_heading'    => array(
-            __( "Plugins", "rex-product-feed" ),
-        ),
-        'label'             => __( " License Key", "rex-product-feed" ),
-        'button_text'       => array(
-            __( "Activate License", "rex-product-feed" ),
-            __( "Next", "rex-product-feed" ),
-        ),
-        'error_text'        => __( 'Please enter a valid one.', 'rex-product-feed' ),
-        'strong_error_text' => __( 'Invalid license key', 'rex-product-feed' ),
-        'success_text'      => __( 'Success', 'rex-product-feed' ),
-    ),
-
-    'stepThree' => array(
-        'step_text'                => __( "Done", "rex-product-feed" ),
-        'heading'                  => __( "Get", "rex-product-feed" ),
-        'testimonials_description' => array(
-            __( "From integration to post set up, the support over the first 2 months has been phenomenal, fast effective and reliable communication – if not the best, one of the best plugins i’ve used for a shopping feed on WordPress and being able to get bugs fixed effectively has been fantastic.", "rex-product-feed" ),
-            __( "The only plugin with all functions for Google Shopping.", "rex-product-feed" ),
-        ),
-        'testimonials_author'      => array(
-            __( "Samocpr" ),
-            __( "Ale320", "rex-product-feed" ),
-        ),
-        'button_text'              => array(
-            __( "Let’s create your first feed", "rex-product-feed" ),
-            __( "Upgrade To Pro", "rex-product-feed" ),
-        ),
-    ),
-
-    'stepFour' => array(
-        'step_text'      => __( "Select Merchant", "rex-product-feed" ),
-        'heading'        => __( "Select Your ", "rex-product-feed" ),
-        'strong_heading' => array(
-            __( "Favourite Merchant", "rex-product-feed" ),
-        ),
-        'button_text'    => array(
-            __( "Google Shopping", "rex-product-feed" ),
-            __( "Facebook", "rex-product-feed" ),
-            __( "Etsy", "rex-product-feed" ),
-            __( "Bing", "rex-product-feed" ),
-            __( "eBay", "rex-product-feed" ),
-        ),
-    ),
-);
-
-$necessary_plugins = array(
-    'woocommerce' => array(
-        'name'      => 'WooCommerce',
-        'slug'      => 'woocommerce',
-        'required'  => true,
-        'is_active' => is_plugin_active( 'woocommerce/woocommerce.php' ),
-        'url'       => 'https://wordpress.org/plugins/woocommerce/',
-        'img'       => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/icon-svg/wpfm_logo.png',
-    ),
-);
-$popular_merchants = [
-    'google' => [
-        'name' => 'Google',
-        'feed_url' => 'post-new.php?post_type=product-feed&rex_feed_merchant=google',
-        'logo_url' => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/google.webp',
-    ],
-    'facebook' => [
-        'name' => 'Facebook',
-        'feed_url' => 'post-new.php?post_type=product-feed&rex_feed_merchant=facebook',
-        'logo_url' => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/facebook.webp',
-    ],
-    'tiktok' => [
-        'name' => 'TikTok Ads',
-        'feed_url' => 'post-new.php?post_type=product-feed&rex_feed_merchant=tiktok',
-        'logo_url' => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/tiktok.webp',
-    ],
-    'twitter' => [
-        'name' => 'X (Twitter)',
-        'feed_url' => 'post-new.php?post_type=product-feed&rex_feed_merchant=twitter',
-        'logo_url' => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/x.webp',
-    ],
-    'instagram' => [
-        'name' => 'Instagram',
-        'feed_url' => 'post-new.php?post_type=product-feed&rex_feed_merchant=instagram',
-        'logo_url' => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/instagram.webp',
-    ],
-    'pinterest' => [
-        'name' => 'Pinterest',
-        'feed_url' => 'post-new.php?post_type=product-feed&rex_feed_merchant=pinterest',
-        'logo_url' => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/pinterest.webp',
-    ],
-    'snapchat' => [
-        'name' => 'Snapchat',
-        'feed_url' => 'post-new.php?post_type=product-feed&rex_feed_merchant=snapchat',
-        'logo_url' => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/snapchat.webp',
-    ],
-    'bing' => [
-        'name' => 'Bing',
-        'feed_url' => 'post-new.php?post_type=product-feed&rex_feed_merchant=bing',
-        'logo_url' => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/bing.webp',
-    ],
-    'yandex' => [
-        'name' => 'Yandex',
-        'feed_url' => 'post-new.php?post_type=product-feed&rex_feed_merchant=yandex',
-        'logo_url' => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/yendex.webp',
-    ],
-    'vivino' => [
-        'name' => 'Vivino',
-        'feed_url' => 'post-new.php?post_type=product-feed&rex_feed_merchant=vivino',
-        'logo_url' => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/vivino.webp',
-    ],
-];
-$all_merchants     = Rex_Feed_Merchants::get_merchants();
-$popular_merchant  = $all_merchants[ 'popular' ] ?? [];
-$pro_merchant      = $all_merchants[ 'pro_merchants' ] ?? [];
-$free_merchant     = $all_merchants[ 'free_merchants' ] ?? [];
-$merged_merchants  = array_merge( $popular_merchant, $pro_merchant, $free_merchant );
-?>
-
-<script type="text/javascript">
-    const rex_wpfm_wizard_translate_string = <?php echo wp_json_encode( $data ); ?>;
-    const logoUrl = <?php echo json_encode( esc_url( WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/pfm.webp' ) ); ?>;
-    const bannerUrl = <?php echo json_encode( esc_url( WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/welcome-image.webp' ) ); ?>;
-    const thumnailImage = <?php echo json_encode( esc_url( WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/youtube-thumbnill.webp' ) ); ?>;
-    const woocommerceUrl = <?php echo json_encode( esc_url( WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/woocommerce-logo.webp' ) ); ?>;
-    const yt_video = 'https://www.youtube.com/embed/shv3-tMqWWU?si=UJGuCek7eiszj19M&autoplay=1';
-    const necessary_plugins = <?php echo json_encode( $necessary_plugins ); ?>;
-    const popular_merchants = <?php echo json_encode( $popular_merchants ); ?>;
-    const all_merchants = <?php echo json_encode( $merged_merchants ); ?>;
-    const discount_information = <?php echo wp_json_encode($setup_wizard_price)?>;
-    const admin_url = '<?php echo admin_url(); ?>';
-</script>
-<script src="<?php echo WPFM_PLUGIN_ASSETS_FOLDER . 'js/setup-wizard/setup_wizard.js'; ?>'">
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var discountLabel = document.querySelector(".setup-wizard__discount-price-label");
-        if (discountLabel) discountLabel.style.setProperty("--discount-content", `"${discountLabel.getAttribute('data-discount') || ""}"`);
-    });
-</script>
+<?php wp_print_scripts(); ?>
+<?php do_action('admin_footer'); ?>
 </body>
-
 </html>

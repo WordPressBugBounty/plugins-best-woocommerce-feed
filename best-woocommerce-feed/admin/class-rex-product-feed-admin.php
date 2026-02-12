@@ -262,13 +262,13 @@ class Rex_Product_Feed_Admin {
             );
 
             //Setup Wizard start
-            wp_enqueue_script(
-                'rex-setup-wizard-manager',
-                WPFM_PLUGIN_ASSETS_FOLDER . 'js/library/setupwizard.bundle.js',
-                array('jquery'),
-                $this->version,
-                true
-            );
+//            wp_enqueue_script(
+//                'rex-setup-wizard-manager',
+//                WPFM_PLUGIN_ASSETS_FOLDER . 'js/library/setupwizard.bundle.js',
+//                array('jquery'),
+//                $this->version,
+//                true
+//            );
 
 
             //Setup Wizard end
@@ -368,13 +368,13 @@ class Rex_Product_Feed_Admin {
         }
 
         if('dashboard_page_wpfm-setup-wizard' === $screen->id){
-            wp_enqueue_script(
-                'rex-setup-wizard-manager',
-                WPFM_PLUGIN_ASSETS_FOLDER . 'js/library/setupwizard.bundle.js',
-                array('jquery'),
-                $this->version,
-                true
-            );
+//            wp_enqueue_script(
+//                'rex-setup-wizard-manager',
+//                WPFM_PLUGIN_ASSETS_FOLDER . 'js/library/setupwizard.bundle.js',
+//                array('jquery'),
+//                $this->version,
+//                true
+//            );
             wp_enqueue_style($this->plugin_name . '-style-css', WPFM_PLUGIN_ASSETS_FOLDER . 'css/style.css', array(), $this->version);
         }
 

@@ -1196,6 +1196,7 @@ return array(
     'Rex_Product_Feed_Rakuten' => $baseDir . '/admin/feed/class_rex_product_feed_rakuten.php',
     'Rex_Product_Feed_Rozetka' => $baseDir . '/admin/feed/class-rex-product-feed-rozetka.php',
     'Rex_Product_Feed_Setup_Wizard' => $baseDir . '/includes/class-rex-product-feed-setup-wizard.php',
+    'Rex_Product_Feed_Setup_Wizard_Ajax' => $baseDir . '/includes/class-rex-product-feed-setup-wizard-ajax.php',
     'Rex_Product_Feed_Shipping' => $baseDir . '/admin/class-rex-product-feed-shipping.php',
     'Rex_Product_Feed_Shopee' => $baseDir . '/admin/feed/class-rex-product-feed-shopee.php',
     'Rex_Product_Feed_Shopping' => $baseDir . '/admin/feed/class-rex-product-feed-shopping.php',

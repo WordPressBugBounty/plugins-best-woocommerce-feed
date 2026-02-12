@@ -283,6 +283,15 @@ abstract class Rex_Feed_Abstract_Template {
         }
     }
 
+    /**
+     * Get the merchant attributes.
+     * 
+     * @since    1.0.0
+     */
+    public function get_merchant_attributes() {
+        return $this->attributes;
+    }
+
 
     /**
      * Initialize Attributes

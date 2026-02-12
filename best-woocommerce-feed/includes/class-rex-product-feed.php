@@ -181,6 +181,7 @@ class Rex_Product_Feed {
 	    $rollback               = new Rex_Feed_Rollback();
 	    $appsero_data           = new Rex_Product_Appsero_Data();
 	    $scheduler              = new Rex_Feed_Scheduler();
+	    $setup_wizard_ajax      = new Rex_Product_Feed_Setup_Wizard_Ajax();
 
         /**
          * Initialize the Feed Validator system.

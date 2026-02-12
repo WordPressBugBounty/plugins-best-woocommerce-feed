@@ -1360,7 +1360,7 @@
                         sessionStorage.setItem('rex_feed_just_generated_' + $("#post_ID").val(), 'true');
                     }
                     
-                    $("#publish").trigger("click");
+                    // $("#publish").trigger("click");
                 } else if (response.msg == "failForInvalidEntry") {
                     alert("Please set proper values for the mandatory field like Shipping Id, Who made, When made, Taxonomy Id.");
                     rex_feed_feed_generation_error_helper();

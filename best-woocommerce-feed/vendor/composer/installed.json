@@ -64,12 +64,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/CODEREXLTD/coderex-telemetry.git",
-                "reference": "3b52b7c0e494142bbee800e7b5f0c94d6f79c473"
+                "reference": "d1a996fa145784835aa54ba0a1af0f4a24865acd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CODEREXLTD/coderex-telemetry/zipball/3b52b7c0e494142bbee800e7b5f0c94d6f79c473",
-                "reference": "3b52b7c0e494142bbee800e7b5f0c94d6f79c473",
+                "url": "https://api.github.com/repos/CODEREXLTD/coderex-telemetry/zipball/d1a996fa145784835aa54ba0a1af0f4a24865acd",
+                "reference": "d1a996fa145784835aa54ba0a1af0f4a24865acd",
                 "shasum": ""
             },
             "require": {
@@ -79,7 +79,7 @@
                 "mockery/mockery": "^1.5",
                 "phpunit/phpunit": "^9.5"
             },
-            "time": "2025-12-22T04:32:00+00:00",
+            "time": "2026-02-06T04:48:07+00:00",
             "default-branch": true,
             "type": "library",
             "installation-source": "dist",

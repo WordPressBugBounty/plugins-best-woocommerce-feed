@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e
+class ComposerStaticInit7a438acca09494bd70a29ad5c131d3b7
 {
     public static $files = array (
         'ff3063ba1525be89739a1851bfba6fcb' => __DIR__ . '/..' . '/coderexltd/telemetry/src/helpers.php',
@@ -12,30 +12,30 @@ class ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e
     );
 
     public static $prefixLengthsPsr4 = array (
-        'P' =>
+        'P' => 
         array (
             'PhilipNewcomer\\WP_Ajax_Helper\\' => 30,
         ),
-        'C' =>
+        'C' => 
         array (
             'CodeRex\\Telemetry\\' => 18,
         ),
-        'A' =>
+        'A' => 
         array (
             'Appsero\\' => 8,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'PhilipNewcomer\\WP_Ajax_Helper\\' =>
+        'PhilipNewcomer\\WP_Ajax_Helper\\' => 
         array (
             0 => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components',
         ),
-        'CodeRex\\Telemetry\\' =>
+        'CodeRex\\Telemetry\\' => 
         array (
             0 => __DIR__ . '/..' . '/coderexltd/telemetry/src',
         ),
-        'Appsero\\' =>
+        'Appsero\\' => 
         array (
             0 => __DIR__ . '/..' . '/appsero/client/src',
         ),
@@ -1232,6 +1232,7 @@ class ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e
         'Rex_Product_Feed_Rakuten' => __DIR__ . '/../..' . '/admin/feed/class_rex_product_feed_rakuten.php',
         'Rex_Product_Feed_Rozetka' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-rozetka.php',
         'Rex_Product_Feed_Setup_Wizard' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-setup-wizard.php',
+        'Rex_Product_Feed_Setup_Wizard_Ajax' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-setup-wizard-ajax.php',
         'Rex_Product_Feed_Shipping' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-shipping.php',
         'Rex_Product_Feed_Shopee' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-shopee.php',
         'Rex_Product_Feed_Shopping' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-shopping.php',
@@ -1261,9 +1262,9 @@ class ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit7a438acca09494bd70a29ad5c131d3b7::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit7a438acca09494bd70a29ad5c131d3b7::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit7a438acca09494bd70a29ad5c131d3b7::$classMap;
 
         }, null, ClassLoader::class);
     }

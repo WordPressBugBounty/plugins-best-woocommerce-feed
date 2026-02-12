@@ -812,6 +812,9 @@ abstract class Rex_Product_Feed_Abstract_Generator
     {
         $feed_rules = array();
         wp_parse_str( $info, $feed_rules );
+        if (!isset($feed_rules[ 'rex_feed_products' ])) {
+            return;
+        }
 
         $this->product_scope = $feed_rules[ 'rex_feed_products' ];
         if ( !empty( $feed_rules[ 'rex_feed_analytics_params_options' ] ) ) {

@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'rextheme/best-woocommerce-feed',
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
-        'reference' => 'c912255e7e1659312e4f88caeae5895552bbc192',
+        'pretty_version' => 'dev-develop',
+        'version' => 'dev-develop',
+        'reference' => 'e5f8a301068398b2fa2078c3aac7ee1230cf0dc4',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -22,7 +22,7 @@
         'coderexltd/telemetry' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '3b52b7c0e494142bbee800e7b5f0c94d6f79c473',
+            'reference' => 'd1a996fa145784835aa54ba0a1af0f4a24865acd',
             'type' => 'library',
             'install_path' => __DIR__ . '/../coderexltd/telemetry',
             'aliases' => array(
@@ -40,9 +40,9 @@
             'dev_requirement' => false,
         ),
         'rextheme/best-woocommerce-feed' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => 'c912255e7e1659312e4f88caeae5895552bbc192',
+            'pretty_version' => 'dev-develop',
+            'version' => 'dev-develop',
+            'reference' => 'e5f8a301068398b2fa2078c3aac7ee1230cf0dc4',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
