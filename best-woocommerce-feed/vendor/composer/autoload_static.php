@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit7a438acca09494bd70a29ad5c131d3b7
+class ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e
 {
     public static $files = array (
         'ff3063ba1525be89739a1851bfba6fcb' => __DIR__ . '/..' . '/coderexltd/telemetry/src/helpers.php',
@@ -12,30 +12,30 @@ class ComposerStaticInit7a438acca09494bd70a29ad5c131d3b7
     );
 
     public static $prefixLengthsPsr4 = array (
-        'P' => 
+        'P' =>
         array (
             'PhilipNewcomer\\WP_Ajax_Helper\\' => 30,
         ),
-        'C' => 
+        'C' =>
         array (
             'CodeRex\\Telemetry\\' => 18,
         ),
-        'A' => 
+        'A' =>
         array (
             'Appsero\\' => 8,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'PhilipNewcomer\\WP_Ajax_Helper\\' => 
+        'PhilipNewcomer\\WP_Ajax_Helper\\' =>
         array (
             0 => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components',
         ),
-        'CodeRex\\Telemetry\\' => 
+        'CodeRex\\Telemetry\\' =>
         array (
             0 => __DIR__ . '/..' . '/coderexltd/telemetry/src',
         ),
-        'Appsero\\' => 
+        'Appsero\\' =>
         array (
             0 => __DIR__ . '/..' . '/appsero/client/src',
         ),
@@ -855,13 +855,6 @@ class ComposerStaticInit7a438acca09494bd70a29ad5c131d3b7
         'RexTheme\\RexHeurekaAvailability\\Feed' => __DIR__ . '/../..' . '/admin/feed/rex-shopping-heureka-availability/Feed.php',
         'RexTheme\\RexHeurekaAvailability\\Item' => __DIR__ . '/../..' . '/admin/feed/rex-shopping-heureka-availability/Item.php',
         'RexTheme\\RexHeurekaAvailability\\Node' => __DIR__ . '/../..' . '/admin/feed/rex-shopping-heureka-availability/Node.php',
-        'RexTheme\\RexProductFeedManager\\Tracking\\AbstractEvent' => __DIR__ . '/../..' . '/admin/Tracking/AbstractEvent.php',
-        'RexTheme\\RexProductFeedManager\\Tracking\\Events\\AhaMomentEvents' => __DIR__ . '/../..' . '/admin/Tracking/Events/AhaMomentEvents.php',
-        'RexTheme\\RexProductFeedManager\\Tracking\\Events\\HabitMomentEvents' => __DIR__ . '/../..' . '/admin/Tracking/Events/HabitMomentEvents.php',
-        'RexTheme\\RexProductFeedManager\\Tracking\\Events\\SetupEvents' => __DIR__ . '/../..' . '/admin/Tracking/Events/SetupEvents.php',
-        'RexTheme\\RexProductFeedManager\\Tracking\\Events\\SignupEvents' => __DIR__ . '/../..' . '/admin/Tracking/Events/SignupEvents.php',
-        'RexTheme\\RexProductFeedManager\\Tracking\\PosthogClient' => __DIR__ . '/../..' . '/admin/Tracking/PosthogClient.php',
-        'RexTheme\\RexProductFeedManager\\Tracking\\Tracker' => __DIR__ . '/../..' . '/admin/Tracking/Tracker.php',
         'RexTheme\\RexShoppingBestprice\\Containers\\RexShopping' => __DIR__ . '/../..' . '/admin/feed/rex-shopping-bestprice/Containers/RexShopping.php',
         'RexTheme\\RexShoppingBestprice\\Feed' => __DIR__ . '/../..' . '/admin/feed/rex-shopping-bestprice/Feed.php',
         'RexTheme\\RexShoppingBestprice\\Item' => __DIR__ . '/../..' . '/admin/feed/rex-shopping-bestprice/Item.php',
@@ -1262,9 +1255,9 @@ class ComposerStaticInit7a438acca09494bd70a29ad5c131d3b7
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit7a438acca09494bd70a29ad5c131d3b7::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit7a438acca09494bd70a29ad5c131d3b7::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit7a438acca09494bd70a29ad5c131d3b7::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e::$classMap;
 
         }, null, ClassLoader::class);
     }

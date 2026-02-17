@@ -15,7 +15,7 @@
  * Plugin Name:       Product Feed Manager for WooCommerce
  * Plugin URI:        https://rextheme.com
  * Description:       Generate and maintain your WooCommerce product feed for Google Shopping, Social Catalogs, Yandex, Idealo, Vivino, Pinterest, eBay MIP, BestPrice, Skroutz, Fruugo, Bonanza & 200+ Merchants.
- * Version:           7.4.67
+ * Version:           7.4.68
  * Author:            RexTheme
  * Author URI:        https://rextheme.com
  * License:           GPL-2.0+
@@ -40,7 +40,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 if( !defined( 'WPFM_VERSION' ) ) {
-    define( 'WPFM_VERSION', '7.4.67' );
+    define( 'WPFM_VERSION', '7.4.68' );
 }
 if ( !defined( 'WPFM__FILE__' ) ) {
 	define( 'WPFM__FILE__', __FILE__ );
@@ -245,6 +245,10 @@ function activate_rex_product_feed() {
 		wp_die( 'Sorry, but this plugin requires the WooCommerce Plugin to be installed and active. <br><a href="' . admin_url( 'plugins.php' ) . '">&laquo; Return to Plugins</a>' );
 	} else {
         Rex_Product_Feed_Activator::activate();
+        
+        // Set activation time for usage duration tracking
+        update_option( 'rex_wpfm_activated_time', time() );
+        
         do_action('rex_product_feed_activated');
     }
 }
@@ -303,14 +307,25 @@ function appsero_init_tracker_bwfm() {
 }
 appsero_init_tracker_bwfm();
 
+/**
+ * Initialize CodeRex Telemetry
+ * 
+ * This must be called early to ensure activation hooks are registered properly.
+ *
+ * @return void
+ */
 function init_coderex_telemetry() {
     $api_key = '1aa16c66-3002-402c-b043-87aaa3dd26b4';
     $api_secret = 'sec_3a27bf9b64279c58cb0e';
-    $telemetry = new Client(
-            $api_key,
-            $api_secret,
-            'Product Feed Manager for WooCommerce',
-            __FILE__
+    
+    // Initialize the telemetry client
+    // The instance is automatically stored in a global variable and can be retrieved
+    // using coderex_telemetry( __FILE__ ) helper function
+    new Client(
+        $api_key,
+        $api_secret,
+        'Product Feed Manager for WooCommerce',
+        __FILE__
     );
 }
 init_coderex_telemetry();

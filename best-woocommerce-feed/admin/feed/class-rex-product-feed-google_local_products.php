@@ -26,7 +26,7 @@ class Rex_Product_Feed_Google_local_products extends Rex_Product_Feed_Abstract_G
      **/
     public function make_feed() {
         GoogleLocalProducts::$container = null;
-        GoogleLocalProducts::init(true, 'product', null,  '', 'products', false, '', '' );
+        GoogleLocalProducts::init(true, 'item', 'http://base.google.com/ns/1.0',  '2.0', 'rss', false, 'channel', ':g' );
         GoogleLocalProducts::title($this->title);
         GoogleLocalProducts::link($this->link);
         GoogleLocalProducts::description($this->desc);
@@ -199,6 +199,10 @@ class Rex_Product_Feed_Google_local_products extends Rex_Product_Feed_Abstract_G
         if( ( $this->rex_feed_skip_product && empty( array_keys($attributes, '') ) ) || !$this->rex_feed_skip_product ) {
             $item = GoogleLocalProducts::createItem();
 
+            if ( $product_type === 'variation' ) {
+                $check_item_group_id = 0;
+            }
+
             foreach ($attributes as $key => $value) {
                 if ( $this->rex_feed_skip_row && $this->feed_format === 'xml' ) {
                     if ( $value != '' ) {
@@ -208,6 +212,14 @@ class Rex_Product_Feed_Google_local_products extends Rex_Product_Feed_Abstract_G
                 else {
                     $item->$key($value); // invoke $key as method of $item object.
                 }
+
+                if ( $product_type === 'variation' && 'item_group_id' == $key ) {
+                    $check_item_group_id = 1;
+                }
+            }
+
+            if ( $product_type === 'variation' && $check_item_group_id === 0 ) {
+                $item->item_group_id( $product->get_parent_id() );
             }
         }
     }
@@ -232,7 +244,7 @@ class Rex_Product_Feed_Google_local_products extends Rex_Product_Feed_Abstract_G
 
     //replace footer of feed
     public function footer_replace() {
-	    $this->feed = str_replace('</products>', '', $this->feed);
+	    $this->feed = str_replace('</channel></rss>', '', $this->feed);
     }
 
 }

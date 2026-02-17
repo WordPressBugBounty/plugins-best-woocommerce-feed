@@ -263,7 +263,7 @@ class Rex_Feed_Validator_Loader {
             wp_send_json_error( array(
                 'message' => sprintf(
                     __( 'Validation is not available for %s feeds yet.', 'rex-product-feed' ),
-                    ucfirst( $merchant )
+                    ucwords(str_replace('_', ' ', $merchant))
                 ),
             ) );
         }

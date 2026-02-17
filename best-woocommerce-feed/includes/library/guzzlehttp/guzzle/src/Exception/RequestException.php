@@ -25,8 +25,13 @@ class RequestException extends TransferException implements RequestExceptionInte
      * @var array
      */
     private $handlerContext;
-    public function __construct(string $message, RequestInterface $request, ResponseInterface $response = null, \Throwable $previous = null, array $handlerContext = [])
-    {
+        public function __construct(
+            string $message,
+            RequestInterface $request,
+            ?ResponseInterface $response = null,
+            ?\Throwable $previous = null,
+            array $handlerContext = []
+        ) {
         // Set the code of the exception if the response is set and not future.
         $code = $response ? $response->getStatusCode() : 0;
         parent::__construct($message, $code, $previous);
@@ -50,8 +55,13 @@ class RequestException extends TransferException implements RequestExceptionInte
      * @param array                        $handlerContext Optional handler context
      * @param BodySummarizerInterface|null $bodySummarizer Optional body summarizer
      */
-    public static function create(RequestInterface $request, ResponseInterface $response = null, \Throwable $previous = null, array $handlerContext = [], BodySummarizerInterface $bodySummarizer = null) : self
-    {
+        public static function create(
+            RequestInterface $request,
+            ?ResponseInterface $response = null,
+            ?\Throwable $previous = null,
+            array $handlerContext = [],
+            ?BodySummarizerInterface $bodySummarizer = null
+        ) : self {
         if (!$response) {
             return new self('Error completing request', $request, null, $previous, $handlerContext);
         }

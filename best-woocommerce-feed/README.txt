@@ -6,7 +6,7 @@ Tags: Product Feed, WooCommerce Product Feed, Google Shopping Feed, Facebook Cat
 Requires at least: 6.7
 Tested up to:  6.9
 Requires PHP: 7.4
-Stable tag:  7.4.67
+Stable tag:  7.4.68
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -489,11 +489,12 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 = Product feed manager (Free) =
 
+= 7.4.68 (2026-02-17) =
+* Bug Fix: Google Local Products feed to generate valid RSS XML with proper Google attributes
+* Bug Fix: PHP 8.1+ deprecated warnings in Product Feed Manager by updating internal Google and Guzzle library parameters to explicitly nullable types
+
 = 7.4.67 (2026-02-16) =
 * Bug Fix: Feed generation progress bar remained stuck at 100%
-
-= 7.4.66 (2026-02-13) =
-* Enhancement: Implement a new onboarding flow
 
 = 7.4.65 (2026-02-10) =
 * Bug Fix: PHP Fatal Error caused by strpos() receiving an array instead of a string during feed updates
@@ -513,16 +514,6 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 = 7.4.63 (2026-01-16) =
 * Bug Fix: GMC Feed Rejection Issue Due to CDATA
-
-= 7.4.62 (2026-01-14) =
-* Bug Fix: CDATA issue for Google Merchants
-* Improvement: Product Attributes now include data from all product types (Simple, Variable, Grouped)
-
-= 7.4.61 (2026-01-12) =
-* Bug Fix: Broken product Cart, Checkout, Review, Product, and related URLs issue
-* Bug Fix: Currency prefix/ suffix display issue
-* Improvement: Enhanced OpenPanel integration to track feed settings
-
 
 👉 [Visit to view full changelog for the free version](https://rextheme.com/changelog/?plugin=product-feed-manager-for-woocommerce)
 

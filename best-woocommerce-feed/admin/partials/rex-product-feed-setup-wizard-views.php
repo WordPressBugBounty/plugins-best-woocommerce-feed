@@ -21,7 +21,7 @@
     ?>
     <script type="text/javascript">
         var ajaxurl = '<?php echo admin_url('admin-ajax.php', 'relative'); ?>';
-        var wpvrNonce = '<?php echo wp_create_nonce('rex-product-feed'); ?>';
+        var pfmNonce = '<?php echo wp_create_nonce('rex-product-feed'); ?>';
     </script>
 </head>
 <body>

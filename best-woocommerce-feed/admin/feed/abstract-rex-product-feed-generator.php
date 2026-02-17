@@ -1566,7 +1566,8 @@ abstract class Rex_Product_Feed_Abstract_Generator
             'google', 'facebook', 'tiktok', 'twitter', 'pinterest', 'ciao', 'daisycon', 'instagram', 'liveintent',
             'google_shopping_actions', 'google_express', 'doofinder', 'emarts', 'epoq', 'google_local_products_inventory',
             'google_merchant_promotion', 'google_manufacturer_center', 'bing_image', 'rss', 'criteo', 'adcrowd',
-            'google_local_inventory_ads', 'compartner', 'bing', 'openai', 'google_css_center', 'temu_seller_center'
+            'google_local_inventory_ads', 'compartner', 'bing', 'openai', 'google_css_center', 'temu_seller_center',
+            'google_local_products'
         ];
 
         if ( in_array( $this->merchant, $google_merchants ) ) {

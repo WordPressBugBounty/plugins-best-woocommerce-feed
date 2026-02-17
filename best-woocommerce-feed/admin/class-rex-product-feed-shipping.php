@@ -357,6 +357,21 @@ class Rex_Product_Feed_Shipping {
      * @since 7.4.15
      */
     protected function set_shipping_price() {
+        /**
+         * Filter to skip shipping calculation during feed generation.
+         * 
+         * Useful for stores using vendor-based shipping (WCFM, Dokan) or custom shipping logic
+         * that doesn't require WooCommerce cart-based calculation.
+         *
+         * @since 7.4.16
+         * @param bool $skip_calculation Whether to skip shipping calculation. Default false.
+         * 
+         * @example add_filter('wpfm_skip_shipping_calculation', '__return_true');
+         */
+        if ( apply_filters( 'wpfm_skip_shipping_calculation', false ) ) {
+            return;
+        }
+
         if ( !is_object( self::$product ) || empty( self::$shipping_methods ) ) {
             return "";
         }

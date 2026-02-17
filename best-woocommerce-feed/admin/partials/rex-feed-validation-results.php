@@ -50,7 +50,7 @@ $total_issues   = $total_errors + $total_warnings + $total_info;
             <?php
             printf(
                 esc_html__( 'Validation is not available for %s feeds yet. More merchant validators will be added in future updates.', 'rex-product-feed' ),
-                '<strong>' . esc_html( ucfirst( $merchant ) ) . '</strong>'
+                '<strong>' . esc_html(ucwords(str_replace('_', ' ', $merchant)) ) . '</strong>'
             );
             ?>
         </div>

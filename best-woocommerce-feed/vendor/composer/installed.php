@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'rextheme/best-woocommerce-feed',
-        'pretty_version' => 'dev-develop',
-        'version' => 'dev-develop',
-        'reference' => 'e5f8a301068398b2fa2078c3aac7ee1230cf0dc4',
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
+        'reference' => 'cf93366855408f14f92653badcccb0e98f79ff63',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -20,14 +20,12 @@
             'dev_requirement' => false,
         ),
         'coderexltd/telemetry' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => 'd1a996fa145784835aa54ba0a1af0f4a24865acd',
+            'pretty_version' => 'dev-enhancement/add-lifecycle-event-function',
+            'version' => 'dev-enhancement/add-lifecycle-event-function',
+            'reference' => '9f2c2689691a9a6ec2fa2ad83fe4f4f737d39c39',
             'type' => 'library',
             'install_path' => __DIR__ . '/../coderexltd/telemetry',
-            'aliases' => array(
-                0 => '9999999-dev',
-            ),
+            'aliases' => array(),
             'dev_requirement' => false,
         ),
         'philipnewcomer/wp-ajax-helper' => array(
@@ -40,9 +38,9 @@
             'dev_requirement' => false,
         ),
         'rextheme/best-woocommerce-feed' => array(
-            'pretty_version' => 'dev-develop',
-            'version' => 'dev-develop',
-            'reference' => 'e5f8a301068398b2fa2078c3aac7ee1230cf0dc4',
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
+            'reference' => 'cf93366855408f14f92653badcccb0e98f79ff63',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

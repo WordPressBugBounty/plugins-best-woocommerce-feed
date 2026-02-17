@@ -431,12 +431,67 @@
 
 
     $(document).on("click", ".feed-settings .wpfm-switcher.disabled, .rexfeed-pro-disabled, .single-merchant.wpfm-pro .single-merchant__button", function (e) {
-        e.preventDefault()
+        e.preventDefault();
+        
+        // Track paywall hit event
+        var feature_name = 'Unknown Feature';
+        
+        // Try to extract feature name from nearby elements
+        if ($(this).closest('.single-merchant').length) {
+            feature_name = $(this).closest('.single-merchant').find('.title').first().text().trim() || 'Pro Feature';
+        } else if ($(this).attr('id')) {
+            feature_name = $(this).attr('id').replace(/_/g, ' ');
+        } else if ($(this).siblings('label').length) {
+            feature_name = $(this).siblings('label').text().trim();
+        }
+        
+        // Track the paywall hit event
+        var payload = {
+            action: 'rex_feed_track_paywall_hit',
+            feature_name: feature_name,
+            nonce: rex_wpfm_ajax.ajax_nonce
+        };
+        
+        $.ajax({
+            url: rex_wpfm_ajax.ajax_url,
+            type: 'POST',
+            data: payload
+        });
+        
         $("#rex_premium_feature_popup").show();
     });
     
     $(document).on("click", "#rex_premium_feature_close", function () {
         $("#rex_premium_feature_popup").hide();
+    });
+    
+    // Track upgrade button clicks
+    $(document).on("click", ".rex-premium-feature__btn, a[href*='pricing'], .wpfm-pro-cta", function (e) {
+        var button_text = $(this).text().trim() || 'Upgrade Link';
+        var button_location = 'unknown';
+        
+        // Determine button location
+        if ($(this).hasClass('rex-premium-feature__btn')) {
+            button_location = 'premium_feature_popup';
+        } else if ($(this).hasClass('wpfm-pro-cta')) {
+            button_location = 'settings_page';
+        } else if ($(this).closest('.features-btn-area').length) {
+            button_location = 'features_section';
+        }
+        
+        // Track the upgrade clicked event
+        var payload = {
+            action: 'rex_feed_track_upgrade_clicked',
+            button_text: button_text,
+            button_location: button_location,
+            nonce: rex_wpfm_ajax.ajax_nonce
+        };
+        
+        $.ajax({
+            url: rex_wpfm_ajax.ajax_url,
+            type: 'POST',
+            data: payload
+        });
     });
     
     $(document).on("click", "#rex-pr-filter-btn", function () {

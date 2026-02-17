@@ -18,7 +18,7 @@ class FulfilledPromise implements PromiseInterface
         }
         $this->value = $value;
     }
-    public function then(callable $onFulfilled = null, callable $onRejected = null)
+    public function then(?callable $onFulfilled = null, ?callable $onRejected = null)
     {
         // Return itself if there is no onFulfilled function.
         if (!$onFulfilled) {

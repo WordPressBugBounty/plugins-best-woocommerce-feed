@@ -198,9 +198,9 @@ class Rex_Product_Feed {
 		 // Date format: YYYY-MM-DD HH:MM:SS
         if ( !defined( 'REX_PRODUCT_FEED_PRO_VERSION' ) && 'no' === get_option( 'rexfeed_hide_happy_new_year_deal_notification_bar', 'no' ) ) {
             new Rex_Feed_Sales_Notification_Bar(
-				'happy_new_year_deal_2025',
-				'2025-12-31 00:00:00',
-				'2026-01-12 23:59:59'
+				'valentines_deal_2026',
+				'2026-02-03 00:00:00',
+				'2026-02-18 23:59:59'
 			);
         }
 

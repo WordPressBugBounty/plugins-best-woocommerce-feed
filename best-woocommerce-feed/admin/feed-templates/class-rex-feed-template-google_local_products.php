@@ -25,20 +25,40 @@ class Rex_Feed_Template_Google_local_products extends Rex_Feed_Abstract_Template
 	 */
 	protected function init_atts() {
 		$this->attributes = array(
-			'Required Information' => array(
-				'Sales_Rank'  => 'Rank',
-				'itemid'      => 'Product Id [id]',
+			'Required Information'    => array(
+				'id'          => 'Product Id [id]',
 				'title'       => 'Product Title [title]',
 				'description' => 'Product Description [description]',
-				'Image_URL'   => 'Image URL',
-				'price'       => 'Regular Price [price]',
-				'store_code'  => 'Store code',
+				'image_link'  => 'Image Link [image_link]',
 			),
-
-			'Optional'             => array(
-				'product_url' => 'Item URL',
-				'sale_price'  => 'Sale Price',
-
+			'Recommended Information' => array(
+				'gtin'                        => 'GTIN [gtin]',
+				'brand'                       => 'Brand [brand]',
+				'condition'                   => 'Condition [condition]',
+				'energy_efficiency_class'     => 'Energy Efficiency Class',
+				'min_energy_efficiency_class' => 'Min Energy Efficiency Class',
+				'max_energy_efficiency_class' => 'Max Energy Efficiency Class',
+				'excluded_destination'        => 'Excluded Destination [excluded_destination]',
+			),
+			'Optional'                => array(
+				'link'                      => 'Product URL [link]',
+				'price'                     => 'Price [price]',
+				'sale_price'                => 'Sale Price [sale_price]',
+				'sale_price_effective_date' => 'Sale Price Effective Date [sale_price_effective_date]',
+				'unit_pricing_measure'      => 'Unit Pricing Measure [unit_pricing_measure]',
+				'unit_pricing_base_measure' => 'Unit Pricing Base Measure [unit_pricing_base_measure]',
+				'pickup_method'             => 'Pickup Method [pickup_method]',
+				'pickup_sla'                => 'Pickup SLA [pickup_sla]',
+				'link_template'             => 'Link Template [link_template]',
+				'mobile_link_template'      => 'Mobile Link Template [mobile_link_template]',
+				'ads_redirect'              => 'Ads Redirect [ads_redirect]',
+			),
+			'Apparel Items'           => array(
+				'item_group_id' => 'Item Group ID [item_group_id]',
+				'color'         => 'Color [color]',
+				'size'          => 'Size [size]',
+				'gender'        => 'Gender [gender]',
+				'age_group'     => 'Age Group [age_group]',
 			),
 		);
 	}
@@ -51,17 +71,7 @@ class Rex_Feed_Template_Google_local_products extends Rex_Feed_Abstract_Template
 	protected function init_default_template_mappings() {
 		$this->template_mappings = array(
 			array(
-				'attr'     => 'Sales_Rank',
-				'type'     => 'static',
-				'meta_key' => '',
-				'st_value' => '',
-				'prefix'   => '',
-				'suffix'   => '',
-				'escape'   => 'default',
-				'limit'    => 0,
-			),
-			array(
-				'attr'     => 'itemid',
+				'attr'     => 'id',
 				'type'     => 'meta',
 				'meta_key' => 'id',
 				'st_value' => '',
@@ -80,7 +90,6 @@ class Rex_Feed_Template_Google_local_products extends Rex_Feed_Abstract_Template
 				'escape'   => 'default',
 				'limit'    => 0,
 			),
-
 			array(
 				'attr'     => 'description',
 				'type'     => 'meta',
@@ -92,7 +101,7 @@ class Rex_Feed_Template_Google_local_products extends Rex_Feed_Abstract_Template
 				'limit'    => 0,
 			),
 			array(
-				'attr'     => 'Image_URL',
+				'attr'     => 'image_link',
 				'type'     => 'meta',
 				'meta_key' => 'featured_image',
 				'st_value' => '',
@@ -102,19 +111,29 @@ class Rex_Feed_Template_Google_local_products extends Rex_Feed_Abstract_Template
 				'limit'    => 0,
 			),
 			array(
-				'attr'     => 'price',
+				'attr'     => 'gtin',
 				'type'     => 'meta',
-				'meta_key' => 'price',
+				'meta_key' => '',
 				'st_value' => '',
 				'prefix'   => '',
-				'suffix'   => ' ' . get_option( 'woocommerce_currency' ),
+				'suffix'   => '',
 				'escape'   => 'default',
 				'limit'    => 0,
 			),
 			array(
-				'attr'     => 'store_code',
+				'attr'     => 'brand',
 				'type'     => 'static',
 				'meta_key' => '',
+				'st_value' => '',
+				'prefix'   => '',
+				'suffix'   => '',
+				'escape'   => 'default',
+				'limit'    => 0,
+			),
+			array(
+				'attr'     => 'condition',
+				'type'     => 'meta',
+				'meta_key' => 'condition',
 				'st_value' => '',
 				'prefix'   => '',
 				'suffix'   => '',

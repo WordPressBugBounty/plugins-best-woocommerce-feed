@@ -6,18 +6,27 @@ class Rex_Product_Telemetry {
      * Rex_Product_Telemetry constructor.
      *
      * Initialize telemetry hooks for the plugin.
+     * Note: plugin_activated and plugin_deactivated events are now
+     * automatically tracked by the coderex-telemetry package.
      *
      * @since 1.0.0
      */
     public function __construct() {
-        add_action( 'best-woocommerce-feed_tracker_optin', array( $this, 'track_plugin_activation' ));
+        add_action( 'rex_product_feed_activated', array( $this, 'track_plugin_activation' ));
         add_action( 'transition_post_status', array( $this, 'track_first_feed_published' ), 10, 3);
-        add_action( 'rex_product_feed_feed_created', array( $this, 'track_feed_created' ), 10, 2);
         add_action('current_screen', array( $this, 'track_page_view' ) );
         add_action('rex_product_feed_advanced_feature_used', array( $this, 'track_advanced_feature_used' ), 10, 2);
         add_action('rex_product_feed_custom_filter_used', array( $this, 'track_advanced_feature_used' ), 10, 2);
         add_action('rex_product_feed_deactivated', array( $this, 'track_plugin_deactivation' ) );
+        
+        // AJAX handlers for tracking events
+        add_action( 'wp_ajax_rex_feed_track_paywall_hit', array( $this, 'ajax_track_paywall_hit' ) );
+        add_action( 'wp_ajax_rex_feed_track_upgrade_clicked', array( $this, 'ajax_track_upgrade_clicked' ) );
+        add_action( 'wp_ajax_rex_feed_track_setup_started', array( $this, 'ajax_track_setup_started' ) );
+        add_action( 'wp_ajax_rex_feed_track_setup_completed', array( $this, 'ajax_track_setup_completed' ) );
+        add_action( 'wp_ajax_rex_feed_save_optin_preference', array( $this, 'ajax_save_optin_preference' ) );
     }
+
 
     /**
      * Track plugin activation
@@ -44,15 +53,31 @@ class Rex_Product_Telemetry {
      * @since 1.0.0
      */
     public function track_plugin_deactivation() {
+        // Calculate usage duration
+        $activation_time = get_option( 'rex_wpfm_activated_time', 0 );
+        $usage_duration = 'Not available';
+        if ( $activation_time > 0 ) {
+            $duration_seconds = time() - $activation_time;
+            $usage_duration = $this->format_duration( $duration_seconds );
+        }
+
+        // Get last core action
+        $last_core_action = get_option( 'best-woocommerce-feed_last_core_action', '' );
+
+        // Track deactivation event
         coderex_telemetry_track(
             WPFM__FILE__,
             'plugin_deactivated',
             array(
-                'plugin_version' => defined('WPFM_VERSION') ? WPFM_VERSION : 'unknown',
-                'deactivation_time' => current_time( 'mysql' ),
+                'usage_duration' => $usage_duration,
+                'last_core_action' => $last_core_action,
             )
         );
+
+        // Clean up activation time option
+        delete_option( 'rex_wpfm_activated_time' );
     }
+
 
     /**
      * Track the first published feed
@@ -84,6 +109,9 @@ class Rex_Product_Telemetry {
             );
             do_action('rex_product_feed_feed_created', $post->ID, $feed_data);
             if (1 === $total_feeds) {
+                // Update last core action
+                coderex_telemetry_update_last_action( WPFM__FILE__, 'first_feed_generated' );
+
                 coderex_telemetry_track(
                     WPFM__FILE__,
                     'first_feed_generated',
@@ -95,8 +123,24 @@ class Rex_Product_Telemetry {
                         'schedule_type' => $schedule
                     )
                 );
+
+                // Also track first_strike (first successful value moment)
+                coderex_telemetry_update_last_action( WPFM__FILE__, 'first_strike' );
+
+                coderex_telemetry_track(
+                    WPFM__FILE__,
+                    'first_strike',
+                    array(
+                        'format'        => $feed_format,
+                        'merchant'      => $merchant,
+                        'feed_title'    => $post->post_title,
+                        'time'          => current_time('mysql'),
+                    )
+                );
             }
         } else if ($new_status === 'publish' && $old_status === 'publish') {
+            // Update last core action
+            coderex_telemetry_update_last_action( WPFM__FILE__, 'feed_updated' );
             coderex_telemetry_track(
                 WPFM__FILE__,
                 'feed_updated',
@@ -121,6 +165,9 @@ class Rex_Product_Telemetry {
      * @since 1.0.0
      */
     public function track_feed_created( $feed_id, $config ) {
+        // Update last core action
+        coderex_telemetry_update_last_action( WPFM__FILE__, 'feed_created' );
+
         coderex_telemetry_track(
             WPFM__FILE__,
             'feed_generated',
@@ -144,6 +191,9 @@ class Rex_Product_Telemetry {
      * @since 1.0.0
      */
     public function track_advanced_feature_used( $feed_id, $feature_data = array() ) {
+        // Update last core action
+        coderex_telemetry_update_last_action( WPFM__FILE__, 'advanced_feature_used' );
+
         coderex_telemetry_track(
             WPFM__FILE__,
             'advanced_feature_used',
@@ -210,6 +260,171 @@ class Rex_Product_Telemetry {
                 'time' => current_time( 'mysql' ),
             )
         );
+    }
+
+    /**
+     * AJAX handler to track paywall hit event
+     *
+     * Tracks when a free user attempts to access a pro-only feature.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function ajax_track_paywall_hit() {
+        // Verify nonce
+        check_ajax_referer( 'rex-wpfm-ajax', 'nonce' );
+
+        $feature_name = isset( $_POST['feature_name'] ) ? sanitize_text_field( $_POST['feature_name'] ) : 'Unknown Feature';
+
+        // Update last core action
+        coderex_telemetry_update_last_action( WPFM__FILE__, 'paywall_hit' );
+
+        // Track the paywall hit event
+        coderex_telemetry_track(
+            WPFM__FILE__,
+            'paywall_hit',
+            array(
+                'feature_name' => $feature_name,
+                'time' => current_time( 'mysql' ),
+            )
+        );
+
+        wp_send_json_success( array( 'message' => 'Event tracked' ) );
+    }
+
+    /**
+     * AJAX handler to track upgrade clicked event
+     *
+     * Tracks when a user clicks an upgrade link, button, or prompt.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function ajax_track_upgrade_clicked() {
+        // Verify nonce
+        check_ajax_referer( 'rex-wpfm-ajax', 'nonce' );
+
+        $button_text = isset( $_POST['button_text'] ) ? sanitize_text_field( $_POST['button_text'] ) : 'Upgrade Link';
+        $button_location = isset( $_POST['button_location'] ) ? sanitize_text_field( $_POST['button_location'] ) : 'unknown';
+
+        // Update last core action
+        coderex_telemetry_update_last_action( WPFM__FILE__, 'upgrade_clicked' );
+
+        // Track the upgrade clicked event
+        coderex_telemetry_track(
+            WPFM__FILE__,
+            'upgrade_clicked',
+            array(
+                'button_text' => $button_text,
+                'button_location' => $button_location,
+                'time' => current_time( 'mysql' ),
+            )
+        );
+
+        wp_send_json_success( array( 'message' => 'Event tracked' ) );
+    }
+
+    /**
+     * AJAX handler to track setup wizard started event
+     *
+     * Tracks when a user begins the setup wizard.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function ajax_track_setup_started() {
+        // Verify nonce
+        check_ajax_referer( 'rex-wpfm-ajax', 'nonce' );
+
+        // Update last core action
+        coderex_telemetry_update_last_action( WPFM__FILE__, 'setup_started' );
+
+        // Track the setup started event
+        coderex_telemetry_track(
+            WPFM__FILE__,
+            'setup_started',
+            array(
+                'time' => current_time( 'mysql' ),
+            )
+        );
+
+        wp_send_json_success( array( 'message' => 'Event tracked' ) );
+    }
+
+    /**
+     * AJAX handler to track setup wizard completed event
+     *
+     * Tracks when a user completes the setup wizard.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function ajax_track_setup_completed() {
+        // Verify nonce
+        check_ajax_referer( 'rex-wpfm-ajax', 'nonce' );
+
+        // Update last core action
+        coderex_telemetry_update_last_action( WPFM__FILE__, 'setup_completed' );
+
+        // Track the setup completed event
+        coderex_telemetry_track(
+            WPFM__FILE__,
+            'setup_completed',
+            array(
+                'time' => current_time( 'mysql' ),
+            )
+        );
+
+        wp_send_json_success( array( 'message' => 'Event tracked' ) );
+    }
+
+    /**
+     * AJAX handler to save opt-in preference
+     *
+     * Saves the user's opt-in preference to the database.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function ajax_save_optin_preference() {
+        // Verify nonce
+        check_ajax_referer( 'rex-wpfm-ajax', 'nonce' );
+        $is_checked = isset( $_POST['is_checked'] ) ? $_POST['is_checked'] : 'true';
+        $option_value = 'true' === $is_checked ? 'yes' : 'no';
+        update_option( 'best-woocommerce-feed_allow_tracking', $option_value);
+
+        wp_send_json_success( array( 
+            'message' => 'Preference saved',
+            'value' => $option_value
+        ) );
+    }
+
+    /**
+     * Format duration in seconds to human-readable format
+     *
+     * @param int $seconds Duration in seconds
+     * @return string Human-readable duration
+     * @since 7.4.64
+     */
+    private function format_duration( $seconds ) {
+        if ( $seconds < 60 ) {
+            return $seconds . ' seconds';
+        }
+
+        $minutes = floor( $seconds / 60 );
+        if ( $minutes < 60 ) {
+            return $minutes . ' minutes';
+        }
+
+        $hours = floor( $minutes / 60 );
+        if ( $hours < 24 ) {
+            $remaining_minutes = $minutes % 60;
+            return $hours . ' hours' . ( $remaining_minutes > 0 ? ', ' . $remaining_minutes . ' minutes' : '' );
+        }
+
+        $days = floor( $hours / 24 );
+        $remaining_hours = $hours % 24;
+        return $days . ' days' . ( $remaining_hours > 0 ? ', ' . $remaining_hours . ' hours' : '' );
     }
 }
 

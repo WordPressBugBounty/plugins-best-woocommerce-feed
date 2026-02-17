@@ -110,7 +110,8 @@ jQuery(document).ready(function ($) {
             type: 'POST',
             data: {
                 action: 'rexfeed-generate-feed',
-                payload: payload
+                payload: payload,
+                security: pfmNonce
             },
             success: function(response) {
                 console.log('Batch', currentBatch, 'response:', response);
@@ -158,7 +159,7 @@ jQuery(document).ready(function ($) {
                     format: feedData.format || '',
                     frequency: feedData.frequency || ''
                 },
-                security: wpvrNonce
+                security: pfmNonce
             },
             success: function(response) {
                 console.log('First strike tracked:', response);
@@ -267,7 +268,7 @@ jQuery(document).ready(function ($) {
                             data: {
                                 action: 'pfm_save_consent',
                                 consent: consentChecked ? '1' : '0',
-                                security: wpvrNonce
+                                security: pfmNonce
                             },
                             success: function(response) {                                
                                 if (consentChecked) {
@@ -713,7 +714,7 @@ jQuery(document).ready(function ($) {
                                 feed_format: feedData.format,
                                 update_frequency: feedData.frequency,
                                 mappings: JSON.stringify(currentMappings),
-                                security: wpvrNonce
+                                security: pfmNonce
                             },
                             success: function(response) {
                                 console.log('Feed creation response:', response);
