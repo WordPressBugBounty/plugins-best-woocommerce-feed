@@ -196,11 +196,11 @@ class Rex_Product_Feed {
 		//    	'2025-11-05 23:59:59'
         // );
 		 // Date format: YYYY-MM-DD HH:MM:SS
-        if ( !defined( 'REX_PRODUCT_FEED_PRO_VERSION' ) && 'no' === get_option( 'rexfeed_hide_happy_new_year_deal_notification_bar', 'no' ) ) {
+        if ( !defined( 'REX_PRODUCT_FEED_PRO_VERSION' ) && 'no' === get_option( 'rexfeed_hide_international_mother_language_day_2026_notification_bar', 'no' ) ) {
             new Rex_Feed_Sales_Notification_Bar(
-				'valentines_deal_2026',
-				'2026-02-03 00:00:00',
-				'2026-02-18 23:59:59'
+				'international_mother_language_day_2026',
+				'2026-02-20 00:00:00',
+				'2026-02-25 23:59:59'
 			);
         }
 

@@ -1362,7 +1362,8 @@ class Rex_Product_Data_Retriever {
          * @return string                    The modified product price.
          * @since 7.4.0
          */
-        return apply_filters( 'rex_feed_product_price_before_formatting', $product_price, $this->product, $type, $this );
+         return !defined( 'WOOCS_VERSION' ) ? apply_filters( 'rex_feed_product_price_before_formatting', $product_price, $this->product, $type, $this ) : $product_price;
+            
     }
 
     /**
@@ -1408,32 +1409,38 @@ class Rex_Product_Data_Retriever {
             case 'price_with_tax':
                 $_price        = $this->get_product_price();
                 $tax_rate_id   = Rex_Product_Feed_Tax::get_wc_tax_rate_id( $this->product, $this->feed_country );
-                $product_price = Rex_Product_Feed_Tax::get_price_with_tax( $_price, $tax_rate_id );
+                // If prices include tax, return as is; otherwise add tax
+                $product_price = wc_prices_include_tax() ? $_price : Rex_Product_Feed_Tax::get_price_with_tax( $_price, $tax_rate_id );
                 break;
             case 'current_price_with_tax':
                 $_price        = $this->get_product_price( '_price' );
                 $tax_rate_id   = Rex_Product_Feed_Tax::get_wc_tax_rate_id( $this->product, $this->feed_country );
-                $product_price = Rex_Product_Feed_Tax::get_price_with_tax( $_price, $tax_rate_id );
+                // If prices include tax, return as is; otherwise add tax
+                $product_price = wc_prices_include_tax() ? $_price : Rex_Product_Feed_Tax::get_price_with_tax( $_price, $tax_rate_id );
                 break;
             case 'sale_price_with_tax':
                 $_price        = $this->get_product_price( '_sale_price' );
                 $tax_rate_id   = Rex_Product_Feed_Tax::get_wc_tax_rate_id( $this->product, $this->feed_country );
-                $product_price = Rex_Product_Feed_Tax::get_price_with_tax( $_price, $tax_rate_id );
+                // If prices include tax, return as is; otherwise add tax
+                $product_price = wc_prices_include_tax() ? $_price : Rex_Product_Feed_Tax::get_price_with_tax( $_price, $tax_rate_id );
                 break;
             case 'price_excl_tax':
                 $_price        = $this->get_product_price();
                 $tax_rate_id   = Rex_Product_Feed_Tax::get_wc_tax_rate_id( $this->product, $this->feed_country );
-                $product_price = Rex_Product_Feed_Tax::get_price_without_tax( $_price, $tax_rate_id );
+                // If prices include tax, remove tax; otherwise return as is
+                $product_price = wc_prices_include_tax() ? Rex_Product_Feed_Tax::get_price_without_tax( $_price, $tax_rate_id ) : $_price;
                 break;
             case 'current_price_excl_tax':
                 $_price        = $this->get_product_price( '_price' );
                 $tax_rate_id   = Rex_Product_Feed_Tax::get_wc_tax_rate_id( $this->product, $this->feed_country );
-                $product_price = Rex_Product_Feed_Tax::get_price_without_tax( $_price, $tax_rate_id );
+                // If prices include tax, remove tax; otherwise return as is
+                $product_price = wc_prices_include_tax() ? Rex_Product_Feed_Tax::get_price_without_tax( $_price, $tax_rate_id ) : $_price;
                 break;
             case 'sale_price_excl_tax':
                 $_price        = $this->get_product_price( '_sale_price' );
                 $tax_rate_id   = Rex_Product_Feed_Tax::get_wc_tax_rate_id( $this->product, $this->feed_country );
-                $product_price = Rex_Product_Feed_Tax::get_price_without_tax( $_price, $tax_rate_id );
+                // If prices include tax, remove tax; otherwise return as is
+                $product_price = wc_prices_include_tax() ? Rex_Product_Feed_Tax::get_price_without_tax( $_price, $tax_rate_id ) : $_price;
                 break;
             case 'price_db':
                 $type = '_regular_price';
@@ -1778,7 +1785,47 @@ class Rex_Product_Data_Retriever {
                     $attr_val = $end_date && '' !== $end_date ? gmdate( $format, (int)$end_date ) : $end_date;
                 }
             }
-        }
+        } elseif('woo_discount_rules_price_include_tax' === $key ) {
+            $discounted_price = $discount_manage->calculateInitialAndDiscountedPrice( $this->product, 1 );
+            $discounted_price = !empty( $discounted_price[ 'discounted_price' ] ) ? $discounted_price[ 'discounted_price' ] : '';
+            
+            $_price = !empty( $discounted_price ) ? $discounted_price : $this->product->get_price();
+            
+            if ( !empty( $_price ) ) {
+                $tax_rate_id = Rex_Product_Feed_Tax::get_wc_tax_rate_id( $this->product, $this->feed_country );
+                
+                // Check if WooCommerce prices are entered inclusive of tax
+                $prices_include_tax = wc_prices_include_tax();
+                
+                if ( $prices_include_tax ) {
+                    // Price is already inclusive of tax, return as is
+                    $attr_val = $_price;
+                } else {
+                    // Price is exclusive of tax, add tax to it
+                    $attr_val = Rex_Product_Feed_Tax::get_price_with_tax( $_price, $tax_rate_id );
+                }
+            }
+		} elseif('woo_discount_rules_price_exclude_tax' === $key ) {
+            $discounted_price = $discount_manage->calculateInitialAndDiscountedPrice( $this->product, 1 );
+            $discounted_price = !empty( $discounted_price[ 'discounted_price' ] ) ? $discounted_price[ 'discounted_price' ] : '';
+            
+            $_price = !empty( $discounted_price ) ? $discounted_price : $this->product->get_price();
+            
+            if ( !empty( $_price ) ) {
+                $tax_rate_id = Rex_Product_Feed_Tax::get_wc_tax_rate_id( $this->product, $this->feed_country );
+                
+                // Check if WooCommerce prices are entered inclusive of tax
+                $prices_include_tax = wc_prices_include_tax();
+                
+                if ( $prices_include_tax ) {
+                    // Price is inclusive of tax, remove tax from it
+                    $attr_val = Rex_Product_Feed_Tax::get_price_without_tax( $_price, $tax_rate_id );
+                } else {
+                    // Price is already exclusive of tax, return as is
+                    $attr_val = $_price;
+                }
+            }
+		}
         return $attr_val;
     }
 

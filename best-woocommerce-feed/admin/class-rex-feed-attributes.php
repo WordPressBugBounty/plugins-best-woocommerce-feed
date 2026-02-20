@@ -512,6 +512,8 @@ class Rex_Feed_Attributes {
 			'Woo Discount Rules' => array(
 				'woo_discount_rules_price'       => 'Woo Discount Rules - Price',
 				'woo_discount_rules_expire_date' => 'Woo Discount Rules - Expire Date',
+				'woo_discount_rules_price_include_tax' => 'Woo Discount Rules - Price Include Tax',
+				'woo_discount_rules_price_exclude_tax' => 'Woo Discount Rules - Price Exclude Tax',
 			),
 		);
 		asort( $attributes );

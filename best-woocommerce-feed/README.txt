@@ -6,7 +6,7 @@ Tags: Product Feed, WooCommerce Product Feed, Google Shopping Feed, Facebook Cat
 Requires at least: 6.7
 Tested up to:  6.9
 Requires PHP: 7.4
-Stable tag:  7.4.68
+Stable tag:  7.4.69
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,6 +20,7 @@ Generate accurate product feeds to list your WooCommerce products on any marketp
 
 No coding. No spreadsheets. Just results.
 
+<a href="https://rextheme.com/best-woocommerce-product-feed/">Upgrade to Pro with 30% OFF—limited-time International Mother Language Day offer!</a>
 
 [youtube https://youtu.be/shv3-tMqWWU?utm_source=repo&utm_medium=pfm_repo&utm_campaign=pfm-intro]
 
@@ -489,7 +490,12 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 = Product feed manager (Free) =
 
-= 7.4.68 (2026-02-17) =
+= 7.4.69 (2026-02-20) =
+* Bug Fix: FOX Currency Switcher Price Mismatch in Product Feeds
+* New: Added “Woo Discount Rules – Price Including Tax” Attribute
+* New: Added “Woo Discount Rules – Price Excluding Tax” Attribute
+
+= 7.4.68 (2026-02-18) =
 * Bug Fix: Google Local Products feed to generate valid RSS XML with proper Google attributes
 * Bug Fix: PHP 8.1+ deprecated warnings in Product Feed Manager by updating internal Google and Guzzle library parameters to explicitly nullable types
 

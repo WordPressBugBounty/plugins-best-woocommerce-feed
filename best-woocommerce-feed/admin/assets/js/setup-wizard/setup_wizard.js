@@ -9,7 +9,7 @@
     const { stepOne, stepTwo, stepThree, stepFour, stepFive } = steps;
     let merchantName = '';
     let ytVideosLink = yt_video;
-    let isToggleButtonChecked = true;
+    let isToggleButtonChecked = initial_optin_state;
     let discountPrice = discount_information;
     let adminUrl = admin_url;
 
@@ -411,6 +411,8 @@
                 
                   <div class="setup-wizard__pro-features-price">
                       <p class="setup-wizard__discount-price-label" data-discount="${discountPrice?.discount_percentage_text}">Starting at <span style="font-weight:600; color:#216DF0;">${discountPrice?.discount_price}</span>/year</p>
+                      <p style="text-decoration: line-through; color: #999;">Normally $99.99 /year</p>
+                      
                   </div>
 
                 <div class="setup-wizard__pro-feature-list-button-container">
@@ -422,6 +424,17 @@
                     </svg>
                   </a>
                 </div>
+              </div>
+              <!-- subscribe button -->
+              <div class="setup-wizard__subscribe-button-container">
+                  <!-- switcher -->
+                  <label class="setup-wizard__switch">
+                    <input type="checkbox" id="wpfm-toggle-button" ${ isToggleButtonChecked ? 'checked': ''}>
+                    <span class="setup-wizard__switch-slider setup-wizard__switch-round"></span>
+                  </label>
+                  <p>
+                    Opt-in to receive tips, discounts, and recommendations from the RexTheme team directly in your inbox.
+                  </p>
               </div>
             </section>
 
@@ -630,19 +643,6 @@
                           </div>
                       </div>
                     </div>
-
-                    <!-- subscribe button -->
-                    <div class="setup-wizard__subscribe-button-container">
-                      <!-- switcher -->
-                      <label class="setup-wizard__switch">
-                        <input type="checkbox" id="wpfm-toggle-button" ${ isToggleButtonChecked ? 'checked': ''}>
-                        <span class="setup-wizard__switch-slider setup-wizard__switch-round"></span>
-                      </label>
-                      <p>
-                        Opt-in to receive tips, discounts, and recommendations from
-                        the RexTheme team directly in your inbox.
-                      </p>
-                    </div>
                   </section>
 
 
@@ -664,6 +664,18 @@
             
           ],
         });
+
+        // Track setup wizard started only if consent is granted
+        if (isToggleButtonChecked) {
+            $.ajax({
+                url: window.rex_wpfm_ajax.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'rex_feed_track_setup_started',
+                    nonce: window.rex_wpfm_ajax.ajax_nonce
+                }
+            });
+        }
     }
 
     /**
@@ -702,6 +714,17 @@
      */
     $(document).on('click', '.lets-create-first-feed', function (e) {
         e.preventDefault();
+        // Track setup completed only if consent is granted and this is the last step
+        if ($( this ).hasClass( 'last-step' ) && isToggleButtonChecked) {
+            $.ajax({
+                url: window.rex_wpfm_ajax.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'rex_feed_track_setup_completed',
+                    nonce: window.rex_wpfm_ajax.ajax_nonce
+                }
+            });
+        }
         if( isToggleButtonChecked && $( this ).hasClass( 'last-step' ) ){
             createContact()
         }
@@ -731,6 +754,23 @@
 
     $(document).on("click", "#wpfm-toggle-button", () => {
         isToggleButtonChecked = !isToggleButtonChecked;
+        
+        // Save preference to database
+        $.ajax({
+            url: window.rex_wpfm_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'rex_feed_save_optin_preference',
+                nonce: window.rex_wpfm_ajax.ajax_nonce,
+                is_checked: isToggleButtonChecked
+            },
+            success: function(response) {
+                console.log('Opt-in preference saved:', response.data.value);
+            },
+            error: function(error) {
+                console.error('Failed to save opt-in preference:', error);
+            }
+        });
     });
 
 

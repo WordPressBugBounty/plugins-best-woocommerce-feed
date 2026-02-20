@@ -87,13 +87,21 @@ class Rex_Feed_Sales_Notification_Bar
             return; // Don't show if dismissed within last 24 hours
         }
 
-        $btn_link = esc_url( 'https://rextheme.com/best-woocommerce-product-feed/pricing/' );
+        
+        $base_url = 'https://rextheme.com/best-woocommerce-product-feed/pricing/';
 
+        $utm_params = array(
+            'utm_source'   => 'website',
+            'utm_medium'   => 'plugin-ban-pfm',
+            'utm_campaign' => 'mlday26',
+        );
+
+        $btn_link = add_query_arg( $utm_params, $base_url );
 
         // Get actual dimensions
 
-        $img_url  = plugin_dir_url(__FILE__) . 'assets/icon/banner-images/heart.webp';
-        $img_path = plugin_dir_path(__FILE__) . 'assets/icon/banner-images/heart.webp';
+        $img_url  = plugin_dir_url(__FILE__) . 'assets/icon/banner-images/in-mother-lan.webp';
+        $img_path = plugin_dir_path(__FILE__) . 'assets/icon/banner-images/in-mother-lan.webp';
         $img_size = getimagesize($img_path);
         $img_width  = $img_size[0];
         $img_height = $img_size[1];
@@ -113,31 +121,35 @@ class Rex_Feed_Sales_Notification_Bar
                                 aria-label="<?php esc_attr_e('Close banner', 'rex-product-feed'); ?>"
                                 id="wpfm-promo-banner__cross-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 9 9" fill="none">
-                                <path d="M7.77482 0.75L0.75 7.75" stroke="#C6C5FF" stroke-width="1.5" stroke-linecap="round"/>
-                                <path d="M7.77482 7.75L0.75 0.75" stroke="#C6C5FF" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M7.77482 0.75L0.75 7.75" stroke="#7E7E7E" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M7.77482 7.75L0.75 0.75" stroke="#7E7E7E" stroke-width="1.5" stroke-linecap="round"/>
                             </svg>
                         </button>
 
                         <!-- Banner Title + Timer -->
                         <div class="wpfm-regular-promotional-banner-title">
 
-                            <div class="wpfm-badge-content">
 
-                                <div class="wpfm-banner-title">
-                                    <div class="heart-icon">
-                                        <figure class="wpfm-banner-img black-friday">
-                                            <img src="<?php echo esc_url($img_url); ?>" alt="valentines day"  width="<?php echo esc_attr($img_width); ?>"
-                                            height="<?php echo esc_attr($img_height); ?>" />
-                                        </figure>
-                                    </div>
+                            <div class="wpfm-badge-content-img-area">
 
-                                    <h2 id="banner-flash-title">
-                                        <?php echo esc_html__('Valentine\'s Day Discount', 'rex-product-feed'); ?>
-                                    </h2>
+                                <div class="heart-icon">
+                                    <figure class="wpfm-banner-img black-friday">
+                                        <img src="<?php echo esc_url($img_url); ?>" alt="international mother language day"  width="<?php echo esc_attr($img_width); ?>"
+                                        height="<?php echo esc_attr($img_height); ?>" />
+                                    </figure>
                                 </div>
 
-                                <div class="wpfm-title wpfm-banner-offer">
-                                    <?php echo esc_html__('Get 30% OFF', 'rex-product-feed'); ?>
+                                <div class="wpfm-badge-content">
+
+                                    <div class="wpfm-banner-title">
+                                        <h2 id="banner-flash-title">
+                                            <?php echo esc_html__('Int. Mother Language Day', 'rex-product-feed'); ?>
+                                        </h2>
+                                    </div>
+
+                                    <div class="wpfm-title wpfm-banner-offer">
+                                        <?php echo esc_html__('Get 30% OFF', 'rex-product-feed'); ?>
+                                    </div>
                                 </div>
                             </div>
 
@@ -173,7 +185,7 @@ class Rex_Feed_Sales_Notification_Bar
                             <span class="arrow-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10">
                                     <path d="M10 0.78V9.22C10 9.65 9.65 10 9.22 10C8.79 10 8.44 9.65 8.44 9.22V2.66L1.33 9.77C1.19 9.92 0.99 10 0.78 10C0.35 10 0 9.65 0 9.22C0 9.01 0.08 8.81 0.23 8.67L7.33 1.56H0.78C0.35 1.56 0 1.21 0 0.78C0 0.35 0.35 0 0.78 0H9.22C9.65 0 10 0.35 10 0.78Z"
-                                        fill="#000"/>
+                                        fill="#fff"/>
                                 </svg>
                             </span>
                         </a>
@@ -230,11 +242,11 @@ class Rex_Feed_Sales_Notification_Bar
                     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-                    // Update numbers
-                    if (daysEl) daysEl.textContent = days;
-                    if (hoursEl) hoursEl.textContent = hours;
-                    if (minutesEl) minutesEl.textContent = minutes;
-                    if (secondsEl) secondsEl.textContent = seconds;
+                    // Update numbers (pad single digits with leading zero)
+                    if (daysEl) daysEl.textContent = days < 10 ? '0' + days : days;
+                    if (hoursEl) hoursEl.textContent = hours < 10 ? '0' + hours : hours;
+                    if (minutesEl) minutesEl.textContent = minutes < 10 ? '0' + minutes : minutes;
+                    if (secondsEl) secondsEl.textContent = seconds < 10 ? '0' + seconds : seconds;
 
                     // Update labels (singular/plural)
                     if (daysLabel) daysLabel.textContent = (days === 0 || days === 1) ? 'DAY' : 'DAYS';
@@ -295,15 +307,6 @@ class Rex_Feed_Sales_Notification_Bar
         $plugin_dir_url = plugin_dir_url(__FILE__ );
         ?>
          <style type="text/css">
-
-            @font-face {
-                font-family: 'Grand Hotel';
-                src: url(<?php echo "{$plugin_dir_url}assets/fonts/GrandHotel-Regular.woff2"; ?>) format('woff2');
-                font-weight: normal;
-                font-style: normal;
-                font-display: swap;
-            }
-
             @font-face {
                 font-family: 'Inter';
                 src: url(<?php echo "{$plugin_dir_url}assets/fonts/campaign-font/Inter-Bold.woff2"; ?>) format('woff2');
@@ -329,7 +332,7 @@ class Rex_Feed_Sales_Notification_Bar
             }
 
         .wpfm-regular-promotional-banner {
-            background: #201CFE;
+            background: #000000;
             padding: 10px 0;
             position: relative;
             z-index: 2;
@@ -338,7 +341,7 @@ class Rex_Feed_Sales_Notification_Bar
         }
 
         .wpfm-regular-promotional-banner-container {
-            max-width: 740px;
+            max-width: 830px;
             margin: 0 auto;
             padding: 0 15px;
         }
@@ -350,17 +353,23 @@ class Rex_Feed_Sales_Notification_Bar
             gap: 24px;
         }
 
+        .wpfm-regular-promotional-banner-content .wpfm-badge-content-img-area {
+            display: flex;
+            align-items: center;
+            gap: 33px;
+        }
+
     .wpfm-regular-promotional-banner-content .wpfm-banner-title {
         display: flex;
         align-items: center;
         gap: 5px;
-        margin-bottom: 5px;
+        margin-bottom: 3px;
         line-height: 1.1;
         animation: slideInLeft 0.8s ease-out;
     }
 
     .wpfm-regular-promotional-banner-content .heart-icon {
-        animation: heartbeat 1.5s infinite;
+        margin-bottom: -17px;
     }
 
     .wpfm-regular-promotional-banner-content .heart-icon figure{
@@ -368,18 +377,19 @@ class Rex_Feed_Sales_Notification_Bar
     }
 
     .wpfm-regular-promotional-banner-content .wpfm-banner-title h2 {
-        font-family: 'Grand Hotel';
-        color: #FF6DE7;
-        font-size: 18px;
-        font-weight: 400;
-        line-height: 1.1;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 1.7;
+        letter-spacing: -0.32px;
+        color: #FFF;
         margin: 0;
     }
 
     .wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-title {
         display: flex;
         align-items: center;
-        gap: 80px;
+        gap: 65px;
     }
 
     .wpfm-regular-promotional-banner-content .linno-banner.closing {
@@ -389,7 +399,7 @@ class Rex_Feed_Sales_Notification_Bar
 /* CLOSE BUTTON */
 .wpfm-regular-promotional-banner-content .wpfm-close-btn {
     position: absolute;
-    top: 38px;
+    top: 36px;
     right: 40px;
     border: none;
     display: flex;
@@ -435,8 +445,8 @@ class Rex_Feed_Sales_Notification_Bar
     cursor: pointer;
     transition: all 0.3s ease-in-out;
     border-radius: 4px;
-    background: #FF6DE7;
-    color: #000;
+    background: #211cfd;
+    color: #fff;
     font-family: "Inter", sans-serif;
     font-size: 15px;
     font-weight: 600;
@@ -461,8 +471,8 @@ class Rex_Feed_Sales_Notification_Bar
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: #1E1BC5;
-    padding: 6px 13px;
+    background-color: #292929;
+    padding: 6px 11px;
     text-align: center;
     color: #fff;
 }
@@ -479,7 +489,7 @@ class Rex_Feed_Sales_Notification_Bar
         font-family: "Inter", sans-serif;
         font-size: 20px;
         font-weight: 800;
-        line-height: 1.5;
+        line-height: 1.1;
         margin-bottom: 6px;
         color: #FFF;
     }
@@ -536,18 +546,31 @@ class Rex_Feed_Sales_Notification_Bar
         }
 
         .wpfm-regular-promotional-banner-container {
-            max-width: 650px;
+            max-width: 710px;
         }
 
         .wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-title {
             gap: 40px;
         }
-    }   
+
+        .wpfm-regular-promotional-banner-content .wpfm-badge-content-img-area {
+            gap: 20px;
+        }
+
+        .wpfm-regular-promotional-banner-content .wpfm-close-btn {
+            top: 32px;
+            right: 14px;
+        } 
+    }  
 
     @media only screen and (max-width: 991px) {
 
         .wpfm-regular-promotional-banner-container {
-            max-width: 600px;
+            max-width: 670px;
+        }
+
+        .wpfm-regular-promotional-banner-content .wpfm-banner-title h2 {
+            font-size: 14px;
         }
 
         .wpfm-regular-promotional-banner-content .wpfm-title {
@@ -560,8 +583,8 @@ class Rex_Feed_Sales_Notification_Bar
         }
 
         .wpfm-regular-promotional-banner-content .wpfm-close-btn {
-            top: 34px;
-            right: 20px;
+            top: 32px;
+            right: 3px;
         }
 
         .wpfm-regular-promotional-banner-content .wpfm-badge {
@@ -580,6 +603,10 @@ class Rex_Feed_Sales_Notification_Bar
             text-align: center;
             gap: 30px;
             padding: 30px 0;
+        }
+
+        .wpfm-regular-promotional-banner-content .heart-icon {
+            margin-bottom: 0px;
         }
 
         .wpfm-regular-promotional-banner-content .wpfm-title {
