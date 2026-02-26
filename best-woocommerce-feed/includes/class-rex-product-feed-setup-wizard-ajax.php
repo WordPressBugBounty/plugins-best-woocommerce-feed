@@ -43,7 +43,12 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         }
 
         $consent = isset($_POST['consent']) ? sanitize_text_field($_POST['consent']) : '0';
-        update_option('best-woocommerce-feed_allow_tracking', '1' === $consent ? 'yes' : 'no');
+        $is_consent_given = '1' === $consent;
+        update_option('best-woocommerce-feed_allow_tracking', $is_consent_given ? 'yes' : 'no');
+
+        if ( $is_consent_given ) {
+            Rex_Product_Feed_Create_Contact::create_contact_for_current_user();
+        }
         
         wp_send_json_success( array( 'message' => __('Consent saved.', 'rex-product-feed') ), 200 );
     }
@@ -66,15 +71,7 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         }
 
         update_option('rex_feed_setup_wizard_started', true);
-        if ( function_exists( 'coderex_telemetry_track' ) && defined( 'WPFM__FILE__' ) ) {
-            coderex_telemetry_track(
-                WPFM__FILE__,
-                'setup_started',
-                array(
-                    'time' => current_time('mysql'),
-                )
-            );
-        }
+        do_action( 'rex_product_feed_setup_started' );
 
         wp_send_json_success( array( 'message' => 'Setup start tracked' ), 200 );
     }
@@ -90,22 +87,7 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
             return;
         }
 
-        // Check if tracking is allowed
-        $tracking_allowed = get_option('best-woocommerce-feed_allow_tracking', 'no');
-        if ( 'yes' !== $tracking_allowed ) {
-            wp_send_json_success( array( 'message' => 'Tracking not allowed' ), 200 );
-            return;
-        }
-
-        if ( function_exists( 'coderex_telemetry_track' ) && defined( 'WPFM__FILE__' ) ) {
-            coderex_telemetry_track(
-                WPFM__FILE__,
-                'setup_completed',
-                array(
-                    'time' => current_time('mysql'),
-                )
-            );
-        }
+        do_action( 'rex_product_feed_setup_completed' );
 
         wp_send_json_success( array( 'message' => 'Setup completed tracked' ), 200 );
     }
@@ -121,33 +103,10 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
             return;
         }
 
-        // Check if tracking is allowed
-        $tracking_allowed = get_option('best-woocommerce-feed_allow_tracking', 'no');
-        if ( 'yes' !== $tracking_allowed ) {
-            wp_send_json_success( array( 'message' => 'Tracking not allowed' ), 200 );
-            return;
-        }
-
         $nonce = isset($_POST['security']) ? sanitize_text_field($_POST['security']) : '';
         if ( !wp_verify_nonce( $nonce, 'rex-product-feed' ) ) {
             wp_send_json_error( array( 'message' => 'Invalid nonce' ), 400 );
             return;
-        }
-
-        $feed_data = isset($_POST['feed_data']) ? $_POST['feed_data'] : array();
-        
-        if ( function_exists( 'coderex_telemetry_track' ) && defined( 'WPFM__FILE__' ) ) {
-            coderex_telemetry_track(
-                WPFM__FILE__,
-                'first_strike_completed',
-                array(
-                    'feed_name' => isset($feed_data['name']) ? sanitize_text_field($feed_data['name']) : '',
-                    'merchant' => isset($feed_data['merchant']) ? sanitize_text_field($feed_data['merchant']) : '',
-                    'format' => isset($feed_data['format']) ? sanitize_text_field($feed_data['format']) : '',
-                    'frequency' => isset($feed_data['frequency']) ? sanitize_text_field($feed_data['frequency']) : '',
-                    'time' => current_time('mysql'),
-                )
-            );
         }
 
         wp_send_json_success( array( 'message' => 'First strike tracked' ), 200 );
@@ -387,7 +346,7 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
             // Set default settings
             update_post_meta( $feed_id, '_rex_feed_variations', 'yes' );
             update_post_meta( $feed_id, '_rex_feed_variable_product', 'yes' );
-            update_post_meta( $feed_id, '_rex_feed_parent_product', 'no' );
+            update_post_meta( $feed_id, '_rex_feed_parent_product', 'yes' );
             update_post_meta( $feed_id, '_rex_feed_include_out_of_stock', 'no' );
             update_post_meta( $feed_id, '_rex_feed_include_zero_price_products', 'no' );
             update_post_meta( $feed_id, '_rex_feed_hidden_products', 'no' );
@@ -459,13 +418,21 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
             wp_send_json_error(array('message' => 'No payload provided'), 400);
             return;
         }
+
+        $products_scope = ! empty( $payload['products']['products_scope'] )
+            ? sanitize_text_field( $payload['products']['products_scope'] )
+            : 'all';
+
+        if ( ! empty( $payload['feed_config'] ) ) {
+            $payload['feed_config'] = $this->normalize_feed_config( $payload['feed_config'], $products_scope );
+        }
         
         // If feed_config is not in payload or is empty, read from post meta
         if ( empty($payload['feed_config']) && !empty($payload['info']['post_id']) ) {
             $feed_id = intval($payload['info']['post_id']);
             $feed_config = get_post_meta( $feed_id, '_rex_feed_feed_config', true );
             if ( !empty($feed_config) && is_array($feed_config) ) {
-                $payload['feed_config'] = $feed_config;
+                $payload['feed_config'] = $this->normalize_feed_config( $feed_config, $products_scope );
                 error_log( 'PFM Setup Wizard - Loaded feed_config from post meta: ' . count($feed_config) . ' mappings' );
             } else {
                 error_log( 'PFM Setup Wizard - No feed_config found in post meta for feed ID: ' . $feed_id );
@@ -474,12 +441,45 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         
         // Load the main AJAX class
         require_once plugin_dir_path(__FILE__) . '../admin/class-rex-product-feed-ajax.php';
-        
+
         // Call the generate_feed method with payload
         $result = Rex_Product_Feed_Ajax::generate_feed($payload);
         
         // Return the result
         echo wp_json_encode($result);
         wp_die();
+    }
+
+    /**
+     * Normalize feed config to query string expected by core feed generator.
+     *
+     * @param mixed  $feed_config    Feed config as query string or mappings array.
+     * @param string $products_scope Product scope.
+     *
+     * @return string
+     */
+    private function normalize_feed_config( $feed_config, $products_scope = 'all' ) {
+        if ( is_array( $feed_config ) ) {
+            $normalized = array(
+                'fc'                => $feed_config,
+                'rex_feed_products' => $products_scope,
+            );
+
+            return http_build_query( $normalized, '', '&' );
+        }
+
+        $feed_config = (string) $feed_config;
+        if ( '' === $feed_config ) {
+            return '';
+        }
+
+        $parsed = array();
+        wp_parse_str( $feed_config, $parsed );
+
+        if ( ! isset( $parsed['rex_feed_products'] ) || '' === $parsed['rex_feed_products'] ) {
+            $parsed['rex_feed_products'] = $products_scope;
+        }
+
+        return http_build_query( $parsed, '', '&' );
     }
 }

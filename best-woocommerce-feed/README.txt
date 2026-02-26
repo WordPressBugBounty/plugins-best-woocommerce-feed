@@ -6,7 +6,7 @@ Tags: Product Feed, WooCommerce Product Feed, Google Shopping Feed, Facebook Cat
 Requires at least: 6.7
 Tested up to:  6.9
 Requires PHP: 7.4
-Stable tag:  7.4.69
+Stable tag:  7.4.70
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,7 +20,7 @@ Generate accurate product feeds to list your WooCommerce products on any marketp
 
 No coding. No spreadsheets. Just results.
 
-<a href="https://rextheme.com/best-woocommerce-product-feed/">Upgrade to Pro with 30% OFF—limited-time International Mother Language Day offer!</a>
+<a href="https://rextheme.com/best-woocommerce-product-feed/">Upgrade to Pro with 20% OFF!</a>
 
 [youtube https://youtu.be/shv3-tMqWWU?utm_source=repo&utm_medium=pfm_repo&utm_campaign=pfm-intro]
 
@@ -490,6 +490,10 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 = Product feed manager (Free) =
 
+= 7.4.70 (2026-02-26) =
+* Bug Fix: Feed generation issue for variable product
+* Enhancement: Add custom feed option on onboarding
+
 = 7.4.69 (2026-02-20) =
 * Bug Fix: FOX Currency Switcher Price Mismatch in Product Feeds
 * New: Added “Woo Discount Rules – Price Including Tax” Attribute
@@ -501,6 +505,10 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 = 7.4.67 (2026-02-16) =
 * Bug Fix: Feed generation progress bar remained stuck at 100%
+
+
+= 7.4.66 (2026-02-13) =
+* Enhancement: Implement a new onboarding flow
 
 = 7.4.65 (2026-02-10) =
 * Bug Fix: PHP Fatal Error caused by strpos() receiving an array instead of a string during feed updates

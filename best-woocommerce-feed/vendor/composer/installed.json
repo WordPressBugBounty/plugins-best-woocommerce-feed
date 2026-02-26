@@ -58,18 +58,18 @@
             "install-path": "../appsero/client"
         },
         {
-            "name": "coderexltd/telemetry",
-            "version": "dev-enhancement/add-lifecycle-event-function",
-            "version_normalized": "dev-enhancement/add-lifecycle-event-function",
+            "name": "linno/telemetry",
+            "version": "dev-master",
+            "version_normalized": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/CODEREXLTD/coderex-telemetry.git",
-                "reference": "9f2c2689691a9a6ec2fa2ad83fe4f4f737d39c39"
+                "url": "https://github.com/CODEREXLTD/linno-telemetry.git",
+                "reference": "c1eab6b560dd29c78d6f147d3c9cca0e4c4c8ff8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CODEREXLTD/coderex-telemetry/zipball/9f2c2689691a9a6ec2fa2ad83fe4f4f737d39c39",
-                "reference": "9f2c2689691a9a6ec2fa2ad83fe4f4f737d39c39",
+                "url": "https://api.github.com/repos/CODEREXLTD/linno-telemetry/zipball/c1eab6b560dd29c78d6f147d3c9cca0e4c4c8ff8",
+                "reference": "c1eab6b560dd29c78d6f147d3c9cca0e4c4c8ff8",
                 "shasum": ""
             },
             "require": {
@@ -79,12 +79,13 @@
                 "mockery/mockery": "^1.5",
                 "phpunit/phpunit": "^9.5"
             },
-            "time": "2026-02-16T07:26:38+00:00",
+            "time": "2026-02-24T07:10:20+00:00",
+            "default-branch": true,
             "type": "library",
             "installation-source": "dist",
             "autoload": {
                 "psr-4": {
-                    "CodeRex\\Telemetry\\": "src/"
+                    "Linno\\Telemetry\\": "src/"
                 },
                 "files": [
                     "src/helpers.php"
@@ -92,7 +93,7 @@
             },
             "autoload-dev": {
                 "psr-4": {
-                    "CodeRex\\Telemetry\\Tests\\": "tests/"
+                    "Linno\\Telemetry\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -100,16 +101,16 @@
             ],
             "authors": [
                 {
-                    "name": "Code Rex",
-                    "email": "support@coderex.co"
+                    "name": "Linno",
+                    "email": "support@linno.co"
                 }
             ],
-            "description": "Privacy-first telemetry SDK for Code Rex WordPress plugins",
+            "description": "Privacy-first telemetry SDK for Linno WordPress plugins",
             "support": {
-                "source": "https://github.com/CODEREXLTD/coderex-telemetry/tree/enhancement/add-lifecycle-event-function",
-                "issues": "https://github.com/CODEREXLTD/coderex-telemetry/issues"
+                "source": "https://github.com/CODEREXLTD/linno-telemetry/tree/master",
+                "issues": "https://github.com/CODEREXLTD/linno-telemetry/issues"
             },
-            "install-path": "../coderexltd/telemetry"
+            "install-path": "../linno/telemetry"
         },
         {
             "name": "philipnewcomer/wp-ajax-helper",

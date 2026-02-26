@@ -55,6 +55,8 @@
         </nav>
     </aside>
 
+    <div class="exit" id="wizardExit"><?php esc_html_e('Exit setup wizard', 'rex-product-feed'); ?></div>
+
     <!-- Main Content Area -->
     <main class="main-content">
         <!-- Welcome Step -->
@@ -66,11 +68,10 @@
                             <img src="<?php echo WPFM_PLUGIN_ASSETS_FOLDER. 'icon/setup-wizard-images/pfm.webp'; ?>" alt="Product Feed Manager Logo">
                         </div>
                         <div class="welcome-content">
-                            <p class="welcome-label"><?php esc_html_e('WELCOME', 'rex-product-feed'); ?></p>
                             <h1><?php esc_html_e('Welcome to Product Feed Manager', 'rex-product-feed'); ?></h1>
                             <p class="welcome-description"><?php esc_html_e('Create powerful product feeds for major shopping platforms in just a few steps. This wizard will help you set up and configure your first product feed.', 'rex-product-feed'); ?></p>
                         </div>
-                        <button class="primary-btn" id="getStartedBtn"><?php esc_html_e('Get Started', 'rex-product-feed'); ?></button>
+                        <button class="primary-btn" id="getStartedBtn" data-loading-text="<?php esc_attr_e('Please wait...', 'rex-product-feed'); ?>"><?php esc_html_e('Get Started', 'rex-product-feed'); ?></button>
                         <label class="consent">
                             <input type="checkbox" checked id="consentCheckbox" />
                             <span class="custom-checkbox"></span>
@@ -82,7 +83,6 @@
         </section>
         <!-- Select Merchant Step -->
         <section class="step" id="step-select-merchant">
-            <div class="exit"><?php esc_html_e('Exit', 'rex-product-feed'); ?></div>
             <div class="card">
                 <!-- Search Box (Top) -->
                 <div class="search-box">
@@ -102,21 +102,26 @@
 
                 <!-- Popular Merchants Section -->
                 <div class="popular-section" id="popularSection">
-                    <h3 class="section-title"><?php esc_html_e('Popular Merchants', 'rex-product-feed'); ?></h3>
+                    <h3 class="section-title"><?php esc_html_e('Which sales channel do you want to launch first?', 'rex-product-feed'); ?></h3>
                     <div class="popular-grid" id="popularGrid"></div>
                     
                     <!-- 200+ Merchants Info Banner -->
                     <div class="merchants-info-banner">
                         <div class="info-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3f04fe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
-                                <line x1="12" y1="16" x2="12" y2="12"/>
-                                <line x1="12" y1="8" x2="12.01" y2="8"/>
+                            <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20.76 9.96997V14.46C20.76 18.95 18.97 20.75 14.47 20.75H9.08002C8.50002 20.75 7.96998 20.72 7.47998 20.65" stroke="#75718B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2.79004 14.27V9.96997" stroke="#75718B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M11.78 10.75C13.61 10.75 14.96 9.26005 14.78 7.43005L14.11 0.75H9.44001L8.77003 7.43005C8.59003 9.26005 9.95004 10.75 11.78 10.75Z" stroke="#75718B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M18.0801 10.75C20.1001 10.75 21.5801 9.10998 21.3801 7.09998L21.1 4.34998C20.74 1.74998 19.7401 0.75 17.1201 0.75H14.0701L14.7701 7.76001C14.9501 9.41001 16.4301 10.75 18.0801 10.75Z" stroke="#75718B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5.42004 10.75C7.07004 10.75 8.56003 9.41001 8.72003 7.76001L8.94006 5.55005L9.42004 0.75H6.37005C3.75005 0.75 2.75007 1.74998 2.39007 4.34998L2.11004 7.09998C1.91004 9.10998 3.40004 10.75 5.42004 10.75Z" stroke="#75718B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8.75 17.75C8.75 18.5 8.53998 19.2101 8.16998 19.8101C7.97998 20.1301 7.74998 20.42 7.47998 20.65C7.44998 20.69 7.42 20.72 7.38 20.75C6.68 21.38 5.76 21.75 4.75 21.75C3.53 21.75 2.43997 21.2 1.71997 20.34C1.69997 20.31 1.67002 20.29 1.65002 20.26C1.53002 20.12 1.42002 19.9701 1.33002 19.8101C0.960017 19.2101 0.75 18.5 0.75 17.75C0.75 16.49 1.33 15.36 2.25 14.63C2.42 14.49 2.59998 14.37 2.78998 14.27C3.36998 13.94 4.04 13.75 4.75 13.75C5.75 13.75 6.64998 14.11 7.34998 14.72C7.46998 14.81 7.57999 14.92 7.67999 15.03C8.33999 15.75 8.75 16.7 8.75 17.75Z" stroke="#75718B" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6.23999 17.73H3.26001" stroke="#75718B" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4.75 16.27V19.26" stroke="#75718B" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                         </div>
                         <div class="info-content">
                             <h4 class="info-title"><?php esc_html_e('200+ Merchants Available', 'rex-product-feed'); ?></h4>
-                            <p class="info-description"><?php esc_html_e('Search above to discover more merchants and find the perfect platform for your product feed', 'rex-product-feed'); ?></p>
+                            <p class="info-description"><?php esc_html_e('Search above to discover your preferred merchant.', 'rex-product-feed'); ?></p>
                         </div>
                     </div>
                 </div>
@@ -130,7 +135,6 @@
 
         <!-- Feed Settings Step (Renamed from Create Feed) -->
         <section class="step" id="step-feed-settings">
-            <div class="exit"><?php esc_html_e('Exit', 'rex-product-feed'); ?></div>
             <div class="card">
                 <form id="feedSettingsForm" novalidate>
                     <div class="form-group">
@@ -200,7 +204,6 @@
 
         <!-- Attribute Mapping Step -->
         <section class="step" id="step-attribute-mapping">
-            <div class="exit"><?php esc_html_e('Exit', 'rex-product-feed'); ?></div>
             <div class="card">
                 <div class="mapping-header">
                     <h3 class="mapping-title"><?php esc_html_e('Product Attribute Mapping', 'rex-product-feed'); ?></h3>
@@ -256,28 +259,29 @@
                     <div class="feed-url-section">
                         <div class="feed-url-header">
                             <span class="feed-url-label"><?php esc_html_e('Feed URL', 'rex-product-feed'); ?></span>
-                            <a href="#" class="edit-feed-link" id="editFeedLink">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                </svg>
-                                <?php esc_html_e('Edit Feed', 'rex-product-feed'); ?>
-                            </a>
                         </div>
                         <div class="feed-url-row">
                             <input type="text" class="feed-url-input" id="feedUrl" value="" readonly />
                             <button class="icon-btn" id="copyBtn" title="<?php esc_attr_e('View feed', 'rex-product-feed'); ?>">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                                    <polyline points="15 3 21 3 21 9"/>
-                                    <line x1="10" y1="14" x2="21" y2="3"/>
+                                <span class="icon-tooltip"><?php esc_html_e('View Feed', 'rex-product-feed'); ?></span>
+                                <svg width="23" height="20" viewBox="0 0 23 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M15.0355 9.60039C15.0355 11.7168 13.3253 13.427 11.2089 13.427C9.09254 13.427 7.38232 11.7168 7.38232 9.60039C7.38232 7.484 9.09254 5.77379 11.2089 5.77379C13.3253 5.77379 15.0355 7.484 15.0355 9.60039Z" stroke="#75718B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M11.209 18.44C14.9822 18.44 18.4988 16.2167 20.9465 12.3687C21.9085 10.8616 21.9085 8.32837 20.9465 6.82125C18.4988 2.97327 14.9822 0.75 11.209 0.75C7.43586 0.75 3.91924 2.97327 1.4715 6.82125C0.509501 8.32837 0.509501 10.8616 1.4715 12.3687C3.91924 16.2167 7.43586 18.44 11.209 18.44Z" stroke="#75718B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <button class="icon-btn" id="editFeedLink" type="button" title="<?php esc_attr_e('Edit Feed', 'rex-product-feed'); ?>">
+                                <span class="icon-tooltip"><?php esc_html_e('Edit Feed', 'rex-product-feed'); ?></span>
+                                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12.378 2.39855L2.1713 12.6052C1.77798 12.9985 1.40434 13.7655 1.32568 14.3162L0.775033 18.21C0.578373 19.626 1.56166 20.6093 2.97762 20.4126L6.87145 19.862C7.4221 19.7833 8.18912 19.4096 8.58244 19.0163L18.7891 8.80966C20.5394 7.05939 21.385 5.01412 18.7891 2.41821C16.1932 -0.197368 14.1479 0.628607 12.378 2.39855Z" stroke="#75718B" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M10.9224 3.85386C11.7877 6.94142 14.2066 9.38001 17.3138 10.2453" stroke="#75718B" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                             </button>
                             <button class="icon-btn" id="downloadBtn" title="<?php esc_attr_e('Download Feed', 'rex-product-feed'); ?>">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                    <polyline points="7 10 12 15 17 10"/>
-                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                <span class="icon-tooltip"><?php esc_html_e('Download Feed', 'rex-product-feed'); ?></span>
+                                <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7.05566 9.85398L10.0903 12.8886L13.125 9.85398" stroke="#75718B" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M10.0903 0.75V12.8057" stroke="#75718B" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M19.7166 10.4467C19.7166 15.6862 16.1604 19.93 10.2333 19.93C4.30624 19.93 0.75 15.6862 0.75 10.4467" stroke="#75718B" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                             </button>
                         </div>

@@ -7,6 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'PhilipNewcomer\\WP_Ajax_Helper\\' => array($vendorDir . '/philipnewcomer/wp-ajax-helper/src/components'),
-    'CodeRex\\Telemetry\\' => array($vendorDir . '/coderexltd/telemetry/src'),
+    'Linno\\Telemetry\\' => array($vendorDir . '/linno/telemetry/src'),
     'Appsero\\' => array($vendorDir . '/appsero/client/src'),
 );

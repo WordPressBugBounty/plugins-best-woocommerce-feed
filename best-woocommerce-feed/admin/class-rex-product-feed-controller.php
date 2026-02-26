@@ -27,8 +27,15 @@ class Rex_Product_Feed_Controller {
 	 * @param string $status Feed status.
 	 */
     public static function update_feed_status( $feed_id, $status ) {
+        $prev_status = get_post_meta( $feed_id, '_rex_feed_status', true ) ?: get_post_meta( $feed_id, 'rex_feed_status', true );
+
         delete_post_meta( $feed_id, 'rex_feed_status' );
         update_post_meta( $feed_id, '_rex_feed_status', $status );
+
+        if ( 'completed' === $status && in_array( $prev_status, array( 'processing', 'In queue' ), true ) && 'publish' === get_post_status( $feed_id ) ) {
+            do_action( 'rex_product_feed_feed_published', $feed_id, 'automatic' );
+        }
+
         if ( 'completed' === $status ) {
             $is_scheduled_run = (
                 ( function_exists( 'as_get_scheduled_actions' ) && did_action( 'action_scheduler_run_queue' ) ) ||

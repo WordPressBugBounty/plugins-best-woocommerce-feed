@@ -393,6 +393,10 @@ class Rex_Product_Telemetry {
         $option_value = 'true' === $is_checked ? 'yes' : 'no';
         update_option( 'best-woocommerce-feed_allow_tracking', $option_value);
 
+        if ( 'yes' === $option_value ) {
+            Rex_Product_Feed_Create_Contact::create_contact_for_current_user();
+        }
+
         wp_send_json_success( array( 
             'message' => 'Preference saved',
             'value' => $option_value

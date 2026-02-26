@@ -13,7 +13,7 @@ jQuery(document).ready(function ($) {
         { id: 'facebook', name: 'Facebook Catalog', img: assetsUrl + 'facebook.webp', isPro: false },
         { id: 'tiktok', name: 'TikTok Ads Catalog', img: assetsUrl + 'tiktok.webp', isPro: false },
         { id: 'instagram', name: 'Instagram (by Facebook)', img: assetsUrl + 'instagram.webp', isPro: false },
-        { id: 'yandex', name: 'Yandex', img: assetsUrl + 'yendex.webp', isPro: false }
+        { id: 'custom', name: 'Create Custom Feed', img: assetsUrl + 'custom.webp', isPro: false }
     ];
 
     // All other merchants (pre-loaded from PHP via wp_localize_script)
@@ -38,15 +38,21 @@ jQuery(document).ready(function ($) {
     var selectedMerchantId = null;
     var selectedMerchantName = null;
     var feedData = {};
+    var isWelcomeStepSubmitting = false;
 
     // Helper function to convert mappings array to serialized form string
     // The form expects fields named fc[index][field]
     function serializeMappings(mappings) {
-        if (!mappings || !Array.isArray(mappings) || mappings.length === 0) {
-            return '';
-        }
-        
         var params = [];
+
+        // Force-enable parent products and variations in generated feed config
+        params.push('rex_feed_parent_product=' + encodeURIComponent('yes'));
+        params.push('rex_feed_variations=' + encodeURIComponent('yes'));
+        params.push('rex_feed_variable_product=' + encodeURIComponent('yes'));
+
+        if (!mappings || !Array.isArray(mappings) || mappings.length === 0) {
+            return params.join('&');
+        }
         
         // Convert each mapping to form field format using 'fc' structure
         mappings.forEach(function(mapping, index) {
@@ -195,6 +201,7 @@ jQuery(document).ready(function ($) {
     function navigateTo(stepId) {
         // Add step- prefix to stepId for consistency
         var fullStepId = 'step-' + stepId;
+        var $wizardExit = $('#wizardExit');
 
         // Show/Hide Sidebar
         if (fullStepId === 'step-welcome') {
@@ -203,6 +210,12 @@ jQuery(document).ready(function ($) {
         } else {
             $('#main-sidebar').css('display', 'flex');
             $('#onboarding-app').addClass('sidebar-visible');
+        }
+
+        if (fullStepId === 'step-welcome' || fullStepId === 'step-complete') {
+            $wizardExit.hide();
+        } else {
+            $wizardExit.show();
         }
 
         // Toggle Active Step
@@ -259,6 +272,34 @@ jQuery(document).ready(function ($) {
                 mount: function (container, context) {
                     navigateTo('welcome');
                     $('#getStartedBtn').off('click').on('click', function () {
+                        if (isWelcomeStepSubmitting) {
+                            return;
+                        }
+
+                        isWelcomeStepSubmitting = true;
+
+                        var $getStartedBtn = $(this);
+                        var originalBtnText = $getStartedBtn.text();
+                        var loadingText = $getStartedBtn.data('loading-text') || 'Please wait...';
+
+                        $getStartedBtn
+                            .prop('disabled', true)
+                            .addClass('is-loading')
+                            .text(loadingText);
+
+                        function goToNextStep() {
+                            try {
+                                context.goNext();
+                            } catch (e) {
+                                isWelcomeStepSubmitting = false;
+                                $getStartedBtn
+                                    .prop('disabled', false)
+                                    .removeClass('is-loading')
+                                    .text(originalBtnText);
+                                console.log('Failed to move to next step:', e);
+                            }
+                        }
+
                         var consentChecked = $('#consentCheckbox').is(':checked');
                         
                         // Save consent preference
@@ -287,12 +328,12 @@ jQuery(document).ready(function ($) {
                                     });
                                 }
                                 
-                                context.goNext();
+                                goToNextStep();
                             },
                             error: function(xhr, status, error) {
                                 console.log('Failed to save consent:', error);
                                 // Continue anyway
-                                context.goNext();
+                                goToNextStep();
                             }
                         });
                     });
@@ -366,52 +407,86 @@ jQuery(document).ready(function ($) {
                             return m.name.toLowerCase().includes(searchTerm);
                         });
 
+                        // Always add custom feed to search results
+                        var customFeed = popularMerchants.find(function(m) { return m.id === 'custom'; });
+                        if (customFeed) {
+                            // Prevent duplicate custom feed
+                            var alreadyIncluded = results.some(function(m) { return m.id === 'custom'; });
+                            if (!alreadyIncluded) {
+                                results.push(customFeed);
+                            }
+                        }
+
                         $searchResults.empty();
                         $searchResultsContainer.show();
                         $popularSection.hide();
 
                         if (results.length === 0) {
-                            $searchResults.html('<div class="search-empty">No merchants found. Try a different search term.</div>');
+                            // Show custom feed card if nothing else found
+                            if (customFeed) {
+                                var cardClasses = 'result-card';
+                                var isSelected = customFeed.id === selectedMerchantId;
+                                if (isSelected) cardClasses += ' selected';
+                                var $card = $('<div class="' + cardClasses + '" data-id="' + customFeed.id + '"></div>');
+                                var $img = $('<img class="merchant-logo" src="' + customFeed.img + '" alt="' + customFeed.name + '">');
+                                var $name = $('<div class="merchant-name">' + customFeed.name + '</div>');
+                                var $check = $('<div class="merchant-check">' +
+                                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                                    '<polyline points="20 6 9 17 4 12"/>' +
+                                    '</svg>' +
+                                    '</div>');
+                                $card.append($img, $name, $check);
+                                $searchResults.append($card);
+                                $card.on('click', function () {
+                                    selectedMerchantId = customFeed.id;
+                                    selectedMerchantName = customFeed.name;
+                                    $('.popular-card, .result-card').removeClass('selected');
+                                    $(this).addClass('selected');
+                                    $continueBtn.prop('disabled', false);
+                                });
+                            }
                             return;
                         }
 
                         results.forEach(function (m) {
                             var isSelected = m.id === selectedMerchantId;
                             var isDisabled = m.isPro && !isPremiumUser;
-                            
                             var cardClasses = 'result-card';
                             if (isSelected) cardClasses += ' selected';
                             if (isDisabled) cardClasses += ' disabled';
-                            
                             var $card = $('<div class="' + cardClasses + '" data-id="' + m.id + '"></div>');
-
-                            // Create monogram avatar
-                            var firstLetter = m.name.charAt(0).toUpperCase();
-                            var colorClass = 'monogram-color-' + getMonogramColor(m.name);
-                            var $monogram = $('<div class="merchant-monogram ' + colorClass + '">' + firstLetter + '</div>');
-
-                            var $name = $('<div class="merchant-name">' + m.name + '</div>');
-                            
-                            $card.append($monogram, $name);
-                            
-                            // Add pro badge only if user doesn't have premium and merchant is pro
-                            if (m.isPro && !isPremiumUser) {
-                                var $badge = $('<span class="merchant-badge">Pro</span>');
-                                $card.append($badge);
-                            }
-                            
-                            // Add check mark for selection (only if not disabled)
-                            if (!isDisabled) {
+                            if (m.id === 'custom') {
+                                var $img = $('<img class="merchant-logo" src="' + m.img + '" alt="' + m.name + '">');
+                                var $name = $('<div class="merchant-name">' + m.name + '</div>');
                                 var $check = $('<div class="merchant-check">' +
                                     '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
                                     '<polyline points="20 6 9 17 4 12"/>' +
                                     '</svg>' +
                                     '</div>');
-                                $card.append($check);
+                                $card.append($img, $name, $check);
+                            } else {
+                                // Create monogram avatar
+                                var firstLetter = m.name.charAt(0).toUpperCase();
+                                var colorClass = 'monogram-color-' + getMonogramColor(m.name);
+                                var $monogram = $('<div class="merchant-monogram ' + colorClass + '">' + firstLetter + '</div>');
+                                var $name = $('<div class="merchant-name">' + m.name + '</div>');
+                                $card.append($monogram, $name);
+                                // Add pro badge only if user doesn't have premium and merchant is pro
+                                if (m.isPro && !isPremiumUser) {
+                                    var $badge = $('<span class="merchant-badge">Pro</span>');
+                                    $card.append($badge);
+                                }
+                                // Add check mark for selection (only if not disabled)
+                                if (!isDisabled) {
+                                    var $check = $('<div class="merchant-check">' +
+                                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                                        '<polyline points="20 6 9 17 4 12"/>' +
+                                        '</svg>' +
+                                        '</div>');
+                                    $card.append($check);
+                                }
                             }
-                            
                             $searchResults.append($card);
-
                             // Only allow click if not disabled
                             if (!isDisabled) {
                                 $card.on('click', function () {
@@ -519,6 +594,73 @@ jQuery(document).ready(function ($) {
                     var merchantAttributes = {};
                     var wcAttributes = {};
 
+                    // Reset custom dropdown artifacts on each mount
+                    $('.custom-attr-dropdown-container').remove();
+                    $('.mapping-table-wrapper').css('margin-bottom', '32px');
+
+                    // Custom feed dropdown logic
+                    if (feedData.merchant_slug === 'custom') {
+                        // Add native dropdown UI for custom feed
+                        var $customAttrDropdown = $('<div class="custom-attr-dropdown-container" style="display:flex;align-items:center;justify-content:flex-start;width:auto;margin-top:0;margin-bottom:12px;"></div>');
+                        var $dropdown = $('<select class="mapping-select custom-attr-dropdown" id="addCustomAttrBtn" aria-label="Add New Attribute" style="width:auto;min-width:220px;max-width:280px;"></select>');
+                        $dropdown.append('<option value="" selected disabled>Add New Attribute</option>');
+                        $dropdown.append('<option value="attribute">New Attribute</option>');
+                        $dropdown.append('<option value="custom">Custom Attribute</option>');
+                        $customAttrDropdown.append($dropdown);
+
+                        // Keep dropdown outside wrapper with controlled spacing
+                        var $wrapper = $('.mapping-table-wrapper');
+                        if ($wrapper.length) {
+                            $wrapper.css('margin-bottom', '8px');
+                            $wrapper.after($customAttrDropdown);
+                        }
+
+                        // Add row on selection
+                        $dropdown.on('change', function() {
+                            var type = $(this).val();
+                            if (!type) {
+                                return;
+                            }
+                            var newRow;
+                            if (type === 'attribute') {
+                                // Prepopulate with last row's data if exists
+                                var metaKey = '';
+                                if (currentMappings.length > 0) {
+                                    var lastRow = currentMappings[currentMappings.length - 1];
+                                    metaKey = lastRow.meta_key || '';
+                                }
+                                newRow = {
+                                    label: 'New Attribute',
+                                    type: 'meta', // ensure type is meta for select
+                                    meta_key: metaKey,
+                                    filter: 'Default',
+                                    char_limit: '',
+                                };
+                            } else if (type === 'custom') {
+                                // Custom: mimic admin.js approach
+                                var filterVal = 'Default';
+                                var charLimitVal = '255';
+                                var stValue = '';
+                                if (currentMappings.length > 0) {
+                                    var lastRow = currentMappings[currentMappings.length - 1];
+                                    filterVal = lastRow.filter || 'Default';
+                                    charLimitVal = lastRow.char_limit || '255';
+                                    stValue = lastRow.st_value || '';
+                                }
+                                newRow = {
+                                    label: '', // user will enter custom attribute name
+                                    type: 'Custom',
+                                    st_value: stValue,
+                                    filter: filterVal,
+                                    char_limit: charLimitVal,
+                                };
+                            }
+                            currentMappings.push(newRow);
+                            renderMappingsTable();
+                            $(this).val('');
+                        });
+                    }
+
                     // Load template mappings
                     $.ajax({
                         url: ajaxurl,
@@ -556,54 +698,51 @@ jQuery(document).ready(function ($) {
                         
                         currentMappings.forEach(function(mapping, index) {
                             var $row = $('<tr data-index="' + index + '"></tr>');
-                            
-                            // Attribute column - dropdown
+                            // Attribute column
                             var $attrCell = $('<td></td>');
-                            var $attrSelect = $('<select class="mapping-select attr-select" data-field="attr">');
-                            
-                            // Build merchant attribute options
-                            if (typeof merchantAttributes === 'object') {
-                                // If merchantAttributes is grouped (has nested objects)
-                                var hasGroups = false;
-                                $.each(merchantAttributes, function(key, value) {
-                                    if (typeof value === 'object' && value !== null) {
-                                        hasGroups = true;
-                                        return false; // break
-                                    }
-                                });
-                                
-                                if (hasGroups) {
-                                    // Grouped attributes
-                                    $.each(merchantAttributes, function(group, attrs) {
-                                        if (typeof attrs === 'object' && attrs !== null) {
-                                            var $optgroup = $('<optgroup label="' + group + '">');
-                                            $.each(attrs, function(key, label) {
-                                                var selected = key === mapping.attr ? ' selected' : '';
-                                                $optgroup.append('<option value="' + key + '"' + selected + '>' + label + '</option>');
-                                            });
-                                            $attrSelect.append($optgroup);
+                            if (mapping.type === 'Custom') {
+                                var $attrInput = $('<input type="text" class="mapping-input attr-input" data-field="label" value="' + (mapping.label || '') + '" placeholder="Attribute Name">');
+                                $attrCell.append($attrInput);
+                            } else {
+                                var $attrSelect = $('<select class="mapping-select attr-select" data-field="attr">');
+                                if (typeof merchantAttributes === 'object') {
+                                    var hasGroups = false;
+                                    $.each(merchantAttributes, function(key, value) {
+                                        if (typeof value === 'object' && value !== null) {
+                                            hasGroups = true;
+                                            return false; // break
                                         }
                                     });
-                                } else {
-                                    // Flat attributes
-                                    $.each(merchantAttributes, function(key, label) {
-                                        var selected = key === mapping.attr ? ' selected' : '';
-                                        $attrSelect.append('<option value="' + key + '"' + selected + '>' + label + '</option>');
-                                    });
+                                    if (hasGroups) {
+                                        $.each(merchantAttributes, function(group, attrs) {
+                                            if (typeof attrs === 'object' && attrs !== null) {
+                                                var $optgroup = $('<optgroup label="' + group + '">');
+                                                $.each(attrs, function(key, label) {
+                                                    var selected = key === mapping.attr ? ' selected' : '';
+                                                    $optgroup.append('<option value="' + key + '"' + selected + '>' + label + '</option>');
+                                                });
+                                                $attrSelect.append($optgroup);
+                                            }
+                                        });
+                                    } else {
+                                        $.each(merchantAttributes, function(key, label) {
+                                            var selected = key === mapping.attr ? ' selected' : '';
+                                            $attrSelect.append('<option value="' + key + '"' + selected + '>' + label + '</option>');
+                                        });
+                                    }
                                 }
+                                $attrCell.append($attrSelect);
                             }
-                            $attrCell.append($attrSelect);
-                            
-                            // Type column - dropdown
+                            // Type column
                             var $typeCell = $('<td></td>');
                             var $typeSelect = $('<select class="mapping-select type-select" data-field="type">');
                             $typeSelect.append('<option value="meta"' + (mapping.type === 'meta' ? ' selected' : '') + '>Attribute</option>');
                             $typeSelect.append('<option value="static"' + (mapping.type === 'static' ? ' selected' : '') + '>Static</option>');
                             $typeCell.append($typeSelect);
-                            
-                            // Value column - dropdown or input based on type
+                            // Value column
                             var $valueCell = $('<td></td>');
-                            if (mapping.type === 'meta') {
+                            if (mapping.type === 'meta' || (mapping.type === 'Custom' && (!mapping.st_value || mapping.st_value === '') ) ) {
+                                // Show dropdown for meta or for custom row if type is meta (default)
                                 var $valueSelect = $('<select class="mapping-select value-select" data-field="meta_key">');
                                 $.each(wcAttributes, function(group, attrs) {
                                     var $optgroup = $('<optgroup label="' + group + '">');
@@ -614,11 +753,11 @@ jQuery(document).ready(function ($) {
                                     $valueSelect.append($optgroup);
                                 });
                                 $valueCell.append($valueSelect);
-                            } else {
-                                var $valueInput = $('<input type="text" class="mapping-input value-input" data-field="st_value" value="' + (mapping.st_value || '') + '" placeholder="Enter static value">');
+                            } else if (mapping.type === 'static' || (mapping.type === 'Custom' && mapping.st_value && mapping.st_value !== '')) {
+                                // Show text input for static or for custom row if type is static
+                                var $valueInput = $('<input type="text" class="mapping-input value-input" data-field="st_value" value="' + (mapping.st_value || '') + '" placeholder="Enter static value" autocomplete="off">');
                                 $valueCell.append($valueInput);
                             }
-                            
                             $row.append($attrCell, $typeCell, $valueCell);
                             $mappingTableBody.append($row);
                         });
@@ -630,31 +769,53 @@ jQuery(document).ready(function ($) {
                         var index = $row.data('index');
                         var newType = $(this).val();
                         var $valueCell = $row.find('td').eq(2);
-                        
+
                         // Update mapping
                         currentMappings[index].type = newType;
-                        
-                        // Re-render value cell
+
+                        // Re-render value cell for custom attribute row
                         $valueCell.empty();
-                        if (newType === 'meta') {
-                            var $valueSelect = $('<select class="mapping-select value-select" data-field="meta_key">');
-                            $.each(wcAttributes, function(group, attrs) {
-                                var $optgroup = $('<optgroup label="' + group + '">');
-                                $.each(attrs, function(key, label) {
-                                    $optgroup.append('<option value="' + key + '">' + label + '</option>');
+                        if (currentMappings[index].type === 'Custom') {
+                            if (newType === 'meta') {
+                                var $valueSelect = $('<select class="mapping-select value-select" data-field="meta_key">');
+                                $.each(wcAttributes, function(group, attrs) {
+                                    var $optgroup = $('<optgroup label="' + group + '">');
+                                    $.each(attrs, function(key, label) {
+                                        $optgroup.append('<option value="' + key + '">' + label + '</option>');
+                                    });
+                                    $valueSelect.append($optgroup);
                                 });
-                                $valueSelect.append($optgroup);
-                            });
-                            $valueCell.append($valueSelect);
-                            currentMappings[index].meta_key = $valueSelect.val();
-                            currentMappings[index].st_value = '';
+                                $valueCell.append($valueSelect);
+                                currentMappings[index].meta_key = $valueSelect.val();
+                                currentMappings[index].st_value = '';
+                            } else {
+                                var $valueInput = $('<input type="text" class="mapping-input value-input" data-field="st_value" placeholder="Enter static value">');
+                                $valueCell.append($valueInput);
+                                currentMappings[index].st_value = '';
+                                currentMappings[index].meta_key = '';
+                            }
                         } else {
-                            var $valueInput = $('<input type="text" class="mapping-input value-input" data-field="st_value" placeholder="Enter static value">');
-                            $valueCell.append($valueInput);
-                            currentMappings[index].st_value = '';
-                            currentMappings[index].meta_key = '';
+                            // Non-custom row logic (unchanged)
+                            if (newType === 'meta') {
+                                var $valueSelect = $('<select class="mapping-select value-select" data-field="meta_key">');
+                                $.each(wcAttributes, function(group, attrs) {
+                                    var $optgroup = $('<optgroup label="' + group + '">');
+                                    $.each(attrs, function(key, label) {
+                                        $optgroup.append('<option value="' + key + '">' + label + '</option>');
+                                    });
+                                    $valueSelect.append($optgroup);
+                                });
+                                $valueCell.append($valueSelect);
+                                currentMappings[index].meta_key = $valueSelect.val();
+                                currentMappings[index].st_value = '';
+                            } else {
+                                var $valueInput = $('<input type="text" class="mapping-input value-input" data-field="st_value" placeholder="Enter static value">');
+                                $valueCell.append($valueInput);
+                                currentMappings[index].st_value = '';
+                                currentMappings[index].meta_key = '';
+                            }
                         }
-                        
+
                         feedData.mappings = currentMappings;
                     });
 

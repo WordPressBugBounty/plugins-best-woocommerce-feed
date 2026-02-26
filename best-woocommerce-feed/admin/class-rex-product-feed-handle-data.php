@@ -511,7 +511,7 @@ class Rex_Product_Feed_Data_Handle {
         // Send settings options data to OpenPanel via action hook.
         $features    = [];
         $feature_map = [
-            'rex_feed_schedule'                    => 'Schedule Feed: ' . $data['rex_feed_schedule'],
+            // 'rex_feed_schedule'                    => 'Schedule Feed: ' . $data['rex_feed_schedule'],
             'rex_feed_include_out_of_stock'        => 'Include Out of Stock Products',
             'rex_feed_variable_product'            => 'Variable Product',
             'rex_feed_variations'                  => 'Include Variations',

@@ -290,7 +290,6 @@ class Rex_Product_Feed_Ajax {
     public static function generate_feed( $config ) {
         try {
             $merchant = Rex_Product_Feed_Factory::build( $config );
-
             if( $config[ 'info' ][ 'batch' ] === $config[ 'info' ][ 'total_batch' ] ) {
                 Rex_Product_Feed_Controller::update_feed_status( $config[ 'info' ][ 'post_id' ], 'completed' );
                 update_post_meta( $config[ 'info' ][ 'post_id' ], '_rex_mas_last_sync', time() );

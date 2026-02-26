@@ -378,7 +378,7 @@ a,
   opacity: 0.5;
 }
 .wpfm-setup-wizard__container .setup-wizard__checkbox-container input[type=checkbox] + label:hover {
-  border-color: #3F04FE;
+  border-color: #201cfe;
 }
 .wpfm-setup-wizard__container .setup-wizard__logo {
   padding: 30px 0;
@@ -1284,7 +1284,7 @@ a,
   }
 }
 .wpfm-setup-wizard__container .setup-wizard__inner-container .setup-wizard__features-section-container .setup-wizard__pro-features-section-container .setup-wizard__pro-features-price .setup-wizard__pro-features-price-amount {
-  color: #3F04FE;
+  color: #201cfe;
   font-size: 24px;
   font-style: normal;
   font-weight: 700;
@@ -1301,7 +1301,7 @@ a,
   top: -21px;
   display: block;
   border-radius: 16px 16px 16px 0px;
-  background: #3f04fe;
+  background: #201cfe;
   font-size: 13px;
   color: #ffffff;
   font-weight: 600;

@@ -15,7 +15,7 @@
  * Plugin Name:       Product Feed Manager for WooCommerce
  * Plugin URI:        https://rextheme.com
  * Description:       Generate and maintain your WooCommerce product feed for Google Shopping, Social Catalogs, Yandex, Idealo, Vivino, Pinterest, eBay MIP, BestPrice, Skroutz, Fruugo, Bonanza & 200+ Merchants.
- * Version:           7.4.69
+ * Version:           7.4.70
  * Author:            RexTheme
  * Author URI:        https://rextheme.com
  * License:           GPL-2.0+
@@ -34,13 +34,11 @@
  * WC tested up to: 10.3.6
  */
 
-use CodeRex\Telemetry\Client;
-
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 if( !defined( 'WPFM_VERSION' ) ) {
-    define( 'WPFM_VERSION', '7.4.69' );
+    define( 'WPFM_VERSION', '7.4.70' );
 }
 if ( !defined( 'WPFM__FILE__' ) ) {
 	define( 'WPFM__FILE__', __FILE__ );
@@ -294,41 +292,6 @@ function run_rex_product_feed() {
 	rex_check_dependency();
 }
 run_rex_product_feed();
-
-
-/**
- * Initialize the tracker
- *
- * @return void
- */
-function appsero_init_tracker_bwfm() {
-	$client = new Appsero\Client( '5fab4a18-aaf4-4565-816a-47858011d96f', 'Product Feed Manager for WooCommerce', __FILE__ );
-    $client->insights()->init();
-}
-appsero_init_tracker_bwfm();
-
-/**
- * Initialize CodeRex Telemetry
- * 
- * This must be called early to ensure activation hooks are registered properly.
- *
- * @return void
- */
-function init_coderex_telemetry() {
-    $api_key = '1aa16c66-3002-402c-b043-87aaa3dd26b4';
-    $api_secret = 'sec_3a27bf9b64279c58cb0e';
-    
-    // Initialize the telemetry client
-    // The instance is automatically stored in a global variable and can be retrieved
-    // using coderex_telemetry( __FILE__ ) helper function
-    new Client(
-        $api_key,
-        $api_secret,
-        'Product Feed Manager for WooCommerce',
-        __FILE__
-    );
-}
-init_coderex_telemetry();
 
 
 /**

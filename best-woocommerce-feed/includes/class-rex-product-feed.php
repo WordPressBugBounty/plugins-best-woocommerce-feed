@@ -139,7 +139,7 @@ class Rex_Product_Feed {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-rex-product-feed-public.php';
 		require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-setup-wizard.php';
 		require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-create-contact.php';
-        require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-telemetry.php';
+        require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-linno-telemetry.php';
 
 		/**
 		 * Load the Feed Validator system.

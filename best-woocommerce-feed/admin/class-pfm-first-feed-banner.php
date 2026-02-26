@@ -184,7 +184,7 @@ class PFM_First_Feed_Banner {
             .pfm-feed-encourage-banner {
                 position: relative;
                 padding: 16px 46px 16px 20px;
-                border: 1px solid #3F04FE;
+                border: 1px solid #201cfe;
                 border-radius: 4px;
                 background: #fff;
                 margin: 35px 20px 0 0;
@@ -213,11 +213,11 @@ class PFM_First_Feed_Banner {
                 color: #3c434a;
             }
             .pfm-feed-encourage-banner__text a {
-                color: #3F04FE;
+                color: #201cfe;
                 text-decoration: none;
                 font-weight: 500;
                 font-style: normal;
-                border-bottom: 1px solid #3F04FE;
+                border-bottom: 1px solid #201cfe;
             }
             .pfm-feed-encourage-banner__close {
                 position: absolute;

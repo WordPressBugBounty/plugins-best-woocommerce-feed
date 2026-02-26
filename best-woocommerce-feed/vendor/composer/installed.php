@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'rextheme/best-woocommerce-feed',
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
-        'reference' => '34560b81a2735f9dcb25fd0d9507a11c0674e878',
+        'pretty_version' => 'dev-develop',
+        'version' => 'dev-develop',
+        'reference' => '730e439e85632ce99eee21ec727d904c71a97b64',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -19,13 +19,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'coderexltd/telemetry' => array(
-            'pretty_version' => 'dev-enhancement/add-lifecycle-event-function',
-            'version' => 'dev-enhancement/add-lifecycle-event-function',
-            'reference' => '9f2c2689691a9a6ec2fa2ad83fe4f4f737d39c39',
+        'linno/telemetry' => array(
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
+            'reference' => 'c1eab6b560dd29c78d6f147d3c9cca0e4c4c8ff8',
             'type' => 'library',
-            'install_path' => __DIR__ . '/../coderexltd/telemetry',
-            'aliases' => array(),
+            'install_path' => __DIR__ . '/../linno/telemetry',
+            'aliases' => array(
+                0 => '9999999-dev',
+            ),
             'dev_requirement' => false,
         ),
         'philipnewcomer/wp-ajax-helper' => array(
@@ -38,9 +40,9 @@
             'dev_requirement' => false,
         ),
         'rextheme/best-woocommerce-feed' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => '34560b81a2735f9dcb25fd0d9507a11c0674e878',
+            'pretty_version' => 'dev-develop',
+            'version' => 'dev-develop',
+            'reference' => '730e439e85632ce99eee21ec727d904c71a97b64',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

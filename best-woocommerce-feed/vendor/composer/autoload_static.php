@@ -4,10 +4,10 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e
+class ComposerStaticInit978a6166a9b5478c3020d5cccd729501
 {
     public static $files = array (
-        'ff3063ba1525be89739a1851bfba6fcb' => __DIR__ . '/..' . '/coderexltd/telemetry/src/helpers.php',
+        'aed659f3655c497c30e044c41fa917c6' => __DIR__ . '/..' . '/linno/telemetry/src/helpers.php',
         'db1766888a4f96ab813d6f6a38125eb9' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/functions.php',
     );
 
@@ -16,9 +16,9 @@ class ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e
         array (
             'PhilipNewcomer\\WP_Ajax_Helper\\' => 30,
         ),
-        'C' =>
+        'L' =>
         array (
-            'CodeRex\\Telemetry\\' => 18,
+            'Linno\\Telemetry\\' => 16,
         ),
         'A' =>
         array (
@@ -31,9 +31,9 @@ class ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e
         array (
             0 => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components',
         ),
-        'CodeRex\\Telemetry\\' =>
+        'Linno\\Telemetry\\' =>
         array (
-            0 => __DIR__ . '/..' . '/coderexltd/telemetry/src',
+            0 => __DIR__ . '/..' . '/linno/telemetry/src',
         ),
         'Appsero\\' =>
         array (
@@ -45,12 +45,16 @@ class ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e
         'Appsero\\Client' => __DIR__ . '/..' . '/appsero/client/src/Client.php',
         'Appsero\\Insights' => __DIR__ . '/..' . '/appsero/client/src/Insights.php',
         'Appsero\\License' => __DIR__ . '/..' . '/appsero/client/src/License.php',
-        'CodeRex\\Telemetry\\Client' => __DIR__ . '/..' . '/coderexltd/telemetry/src/Client.php',
-        'CodeRex\\Telemetry\\Drivers\\DriverInterface' => __DIR__ . '/..' . '/coderexltd/telemetry/src/Drivers/DriverInterface.php',
-        'CodeRex\\Telemetry\\Drivers\\OpenPanelDriver' => __DIR__ . '/..' . '/coderexltd/telemetry/src/Drivers/OpenPanelDriver.php',
-        'CodeRex\\Telemetry\\EventDispatcher' => __DIR__ . '/..' . '/coderexltd/telemetry/src/EventDispatcher.php',
-        'CodeRex\\Telemetry\\Helpers\\Utils' => __DIR__ . '/..' . '/coderexltd/telemetry/src/Helpers/Utils.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'Linno\\Telemetry\\Client' => __DIR__ . '/..' . '/linno/telemetry/src/Client.php',
+        'Linno\\Telemetry\\Consent' => __DIR__ . '/..' . '/linno/telemetry/src/Consent.php',
+        'Linno\\Telemetry\\Deactivation' => __DIR__ . '/..' . '/linno/telemetry/src/Deactivation.php',
+        'Linno\\Telemetry\\Drivers\\DriverInterface' => __DIR__ . '/..' . '/linno/telemetry/src/Drivers/DriverInterface.php',
+        'Linno\\Telemetry\\Drivers\\OpenPanelDriver' => __DIR__ . '/..' . '/linno/telemetry/src/Drivers/OpenPanelDriver.php',
+        'Linno\\Telemetry\\EventDispatcher' => __DIR__ . '/..' . '/linno/telemetry/src/EventDispatcher.php',
+        'Linno\\Telemetry\\Helpers\\Utils' => __DIR__ . '/..' . '/linno/telemetry/src/Helpers/Utils.php',
+        'Linno\\Telemetry\\Queue' => __DIR__ . '/..' . '/linno/telemetry/src/Queue.php',
+        'Linno\\Telemetry\\TriggerManager' => __DIR__ . '/..' . '/linno/telemetry/src/TriggerManager.php',
         'LukeSnowden\\GoogleShoppingFeed\\Containers\\GoogleShopping' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Containers/GoogleShopping.php',
         'LukeSnowden\\GoogleShoppingFeed\\Exceptions\\MissingIdentifierException' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Exceptions/MissingIdentifierException.php',
         'LukeSnowden\\GoogleShoppingFeed\\Feed' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Feed.php',
@@ -1218,6 +1222,7 @@ class ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e
         'Rex_Product_Feed_Ibud' => __DIR__ . '/../..' . '/admin/feed/class_rex_product_feed_ibud.php',
         'Rex_Product_Feed_Idealo' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed_idealo.php',
         'Rex_Product_Feed_Lesitedumif' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-lesitedumif.php',
+        'Rex_Product_Feed_Linno_Telemetry' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-linno-telemetry.php',
         'Rex_Product_Feed_Loader' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-loader.php',
         'Rex_Product_Feed_Marktplaats' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-marktplaats.php',
         'Rex_Product_Feed_Mirakl' => __DIR__ . '/../..' . '/admin/feed/class_rex_product_feed_mirakl.php',
@@ -1255,9 +1260,9 @@ class ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInite29d6a7c0b8176efd500eb30f0d9f28e::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit978a6166a9b5478c3020d5cccd729501::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit978a6166a9b5478c3020d5cccd729501::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit978a6166a9b5478c3020d5cccd729501::$classMap;
 
         }, null, ClassLoader::class);
     }
