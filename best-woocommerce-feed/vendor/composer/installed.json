@@ -64,12 +64,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/CODEREXLTD/linno-telemetry.git",
-                "reference": "c1eab6b560dd29c78d6f147d3c9cca0e4c4c8ff8"
+                "reference": "73c3c72c49a2bf16065abcfe5b53c18f17c3db8e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CODEREXLTD/linno-telemetry/zipball/c1eab6b560dd29c78d6f147d3c9cca0e4c4c8ff8",
-                "reference": "c1eab6b560dd29c78d6f147d3c9cca0e4c4c8ff8",
+                "url": "https://api.github.com/repos/CODEREXLTD/linno-telemetry/zipball/73c3c72c49a2bf16065abcfe5b53c18f17c3db8e",
+                "reference": "73c3c72c49a2bf16065abcfe5b53c18f17c3db8e",
                 "shasum": ""
             },
             "require": {
@@ -79,7 +79,7 @@
                 "mockery/mockery": "^1.5",
                 "phpunit/phpunit": "^9.5"
             },
-            "time": "2026-02-24T07:10:20+00:00",
+            "time": "2026-02-27T06:23:03+00:00",
             "default-branch": true,
             "type": "library",
             "installation-source": "dist",

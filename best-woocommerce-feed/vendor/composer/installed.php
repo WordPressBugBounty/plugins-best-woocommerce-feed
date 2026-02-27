@@ -3,7 +3,7 @@
         'name' => 'rextheme/best-woocommerce-feed',
         'pretty_version' => 'dev-develop',
         'version' => 'dev-develop',
-        'reference' => '730e439e85632ce99eee21ec727d904c71a97b64',
+        'reference' => '6625752d8872e298ee3a2c2c42246cd1ca690ab8',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -22,7 +22,7 @@
         'linno/telemetry' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'c1eab6b560dd29c78d6f147d3c9cca0e4c4c8ff8',
+            'reference' => '73c3c72c49a2bf16065abcfe5b53c18f17c3db8e',
             'type' => 'library',
             'install_path' => __DIR__ . '/../linno/telemetry',
             'aliases' => array(
@@ -42,7 +42,7 @@
         'rextheme/best-woocommerce-feed' => array(
             'pretty_version' => 'dev-develop',
             'version' => 'dev-develop',
-            'reference' => '730e439e85632ce99eee21ec727d904c71a97b64',
+            'reference' => '6625752d8872e298ee3a2c2c42246cd1ca690ab8',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
