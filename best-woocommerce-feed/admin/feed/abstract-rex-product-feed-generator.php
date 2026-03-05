@@ -978,7 +978,7 @@ abstract class Rex_Product_Feed_Abstract_Generator
      */
     protected function save_feed_meta( $config ) {
         if( !$this->bypass ) {
-            Rex_Product_Feed_Controller::update_feed_status( $this->id, 'processing' );
+            Rex_Product_Feed_Controller::update_feed_status( $this->id, 'processing', false );
         }
 
         $feed_configs = array();
@@ -1335,7 +1335,7 @@ abstract class Rex_Product_Feed_Abstract_Generator
 
         if ( $this->batch === $this->tbatch ) {
             if( !$this->bypass ) {
-                Rex_Product_Feed_Controller::update_feed_status( $this->id, 'completed' );
+                Rex_Product_Feed_Controller::update_feed_status( $this->id, 'completed', true );
             }
             if ( $this->is_logging_enabled ) {
                 $log = wc_get_logger();

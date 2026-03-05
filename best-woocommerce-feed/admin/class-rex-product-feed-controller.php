@@ -26,13 +26,13 @@ class Rex_Product_Feed_Controller {
 	 * @param string $feed_id Feed ID.
 	 * @param string $status Feed status.
 	 */
-    public static function update_feed_status( $feed_id, $status ) {
+    public static function update_feed_status( $feed_id, $status, $is_last_batch = true ) {
         $prev_status = get_post_meta( $feed_id, '_rex_feed_status', true ) ?: get_post_meta( $feed_id, 'rex_feed_status', true );
 
         delete_post_meta( $feed_id, 'rex_feed_status' );
         update_post_meta( $feed_id, '_rex_feed_status', $status );
 
-        if ( 'completed' === $status && in_array( $prev_status, array( 'processing', 'In queue' ), true ) && 'publish' === get_post_status( $feed_id ) ) {
+        if ( 'completed' === $status && in_array( $prev_status, array( 'processing', 'In queue' ), true ) && 'publish' === get_post_status( $feed_id ) && $is_last_batch ) {
             do_action( 'rex_product_feed_feed_published', $feed_id, 'automatic' );
         }
 

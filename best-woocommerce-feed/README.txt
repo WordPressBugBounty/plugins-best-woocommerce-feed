@@ -6,7 +6,7 @@ Tags: Product Feed, WooCommerce Product Feed, Google Shopping Feed, Facebook Cat
 Requires at least: 6.7
 Tested up to:  6.9
 Requires PHP: 7.4
-Stable tag:  7.4.71
+Stable tag:  7.4.72
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,7 +20,7 @@ Generate accurate product feeds to list your WooCommerce products on any marketp
 
 No coding. No spreadsheets. Just results.
 
-<a href="https://rextheme.com/best-woocommerce-product-feed/">Upgrade to Pro with 20% OFF!</a>
+<a href="https://rextheme.com/best-woocommerce-product-feed/">Upgrade to Pro — up to 50% OFF!</a>
 
 [youtube https://youtu.be/shv3-tMqWWU?utm_source=repo&utm_medium=pfm_repo&utm_campaign=pfm-intro]
 
@@ -490,6 +490,9 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 = Product feed manager (Free) =
 
+= 7.4.72 (2026-03-05) =
+* Enhancement: Update telemetry events
+
 = 7.4.71 (2026-02-27) =
 * Enhancement: Update telemetry events
 
@@ -505,32 +508,6 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 = 7.4.68 (2026-02-18) =
 * Bug Fix: Google Local Products feed to generate valid RSS XML with proper Google attributes
 * Bug Fix: PHP 8.1+ deprecated warnings in Product Feed Manager by updating internal Google and Guzzle library parameters to explicitly nullable types
-
-= 7.4.67 (2026-02-16) =
-* Bug Fix: Feed generation progress bar remained stuck at 100%
-
-
-= 7.4.66 (2026-02-13) =
-* Enhancement: Implement a new onboarding flow
-
-= 7.4.65 (2026-02-10) =
-* Bug Fix: PHP Fatal Error caused by strpos() receiving an array instead of a string during feed updates
-
-= 7.4.64 (2026-01-29) =
-* New: Feed Validator for OpenAI Commerce 
-* New: Feed Validator for Instagram Product 
-* New: Feed Validator for TikTok Catalog
-* New: Feed Validator for Yandex
-* New: Feed Validator for Pinterest Catalog
-* Bug Fix: Invalid column structure in Google Local Inventory TEXT feeds
-* Bug Fix: Brand filter “Check All” checkbox state sync issue
-* Bug Fix: “View Report” fatal error caused by invalid Merchant settings
-* Bug Fix: Incorrect Google Merchant authorization status for invalid credentials
-* Bug Fix: Scheduled feeds ignoring selected currency with Aelia Currency Switcher
-* Bug Fix: Separated currency and user-defined prefix/suffix for price and non-price fields
-
-= 7.4.63 (2026-01-16) =
-* Bug Fix: GMC Feed Rejection Issue Due to CDATA
 
 👉 [Visit to view full changelog for the free version](https://rextheme.com/changelog/?plugin=product-feed-manager-for-woocommerce)
 

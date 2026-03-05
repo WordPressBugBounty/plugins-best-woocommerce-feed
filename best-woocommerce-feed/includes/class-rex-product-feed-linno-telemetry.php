@@ -25,7 +25,7 @@ class Rex_Product_Feed_Linno_Telemetry {
      * Bootstrap telemetry hooks.
      */
     public function __construct() {
-        add_action( 'init', array( $this, 'init_client' ), 1 );
+        $this->init_client();
         add_action( 'transition_post_status', array( $this, 'maybe_track_manual_publish' ), 10, 3 );
     }
 
@@ -35,6 +35,7 @@ class Rex_Product_Feed_Linno_Telemetry {
      * @return void
      */
     public function init_client() {
+        global $telemetry_client;
         if ( ! class_exists( 'Linno\\Telemetry\\Client' ) || ! defined( 'WPFM__FILE__' ) ) {
             return;
         }
@@ -92,8 +93,11 @@ class Rex_Product_Feed_Linno_Telemetry {
 
         $first_strike_tracked = get_option( 'rex_feed_first_strike_tracked', 'no' );
         if ( 'yes' !== $first_strike_tracked ) {
-            update_option( 'rex_feed_first_strike_tracked', 'yes' );
             do_action( 'rex_product_feed_first_strike', $post->ID );
+            global $telemetry_client;
+            if ( is_object( $telemetry_client ) && method_exists( $telemetry_client, 'has_sent_event' ) && $telemetry_client->has_sent_event( 'first_strike' ) ) {
+                update_option( 'rex_feed_first_strike_tracked', 'yes' );
+            }
         }
     }
 

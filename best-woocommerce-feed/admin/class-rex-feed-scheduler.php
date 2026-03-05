@@ -306,7 +306,7 @@ class Rex_Feed_Scheduler {
             ] );
 
             if( !empty( $scheduled_actions ) ) {
-                Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'processing' );
+                Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'processing', false );
             }
 
             try {
@@ -314,7 +314,7 @@ class Rex_Feed_Scheduler {
                 $merchant = Rex_Product_Feed_Factory::build( $payload, true );
                 $merchant->make_feed();
                 if( empty( $scheduled_actions ) ) {
-                    Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'completed' );
+                    Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'completed', true );
                 }
             }
             catch( Exception $e ) {
@@ -416,7 +416,7 @@ class Rex_Feed_Scheduler {
                                 if( !$is_scheduled ) {
                                     $scheduled = function_exists( 'as_schedule_single_action' ) && as_schedule_single_action( time(), 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
                                     if( 1 === $current_batch && !is_wp_error( $scheduled ) && $scheduled ) {
-                                        Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'In queue' );
+                                        Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'In queue', false );
                                     }
                                 }
                                 $offset += $per_batch;
