@@ -100,8 +100,8 @@ class Rex_Feed_Sales_Notification_Bar
 
         // Get actual dimensions
 
-        $img_url  = plugin_dir_url(__FILE__) . 'assets/icon/banner-images/in-mother-lan.webp';
-        $img_path = plugin_dir_path(__FILE__) . 'assets/icon/banner-images/in-mother-lan.webp';
+        $img_url  = plugin_dir_url(__FILE__) . 'assets/icon/banner-images/ramadan-kareem.webp';
+        $img_path = plugin_dir_path(__FILE__) . 'assets/icon/banner-images/ramadan-kareem.webp';
         $img_size = getimagesize($img_path);
         $img_width  = $img_size[0];
         $img_height = $img_size[1];
@@ -134,7 +134,7 @@ class Rex_Feed_Sales_Notification_Bar
 
                                 <div class="heart-icon">
                                     <figure class="wpfm-banner-img black-friday">
-                                        <img src="<?php echo esc_url($img_url); ?>" alt="international mother language day"  width="<?php echo esc_attr($img_width); ?>"
+                                        <img src="<?php echo esc_url($img_url); ?>" alt="Ramadan Kareem"  width="<?php echo esc_attr($img_width); ?>"
                                         height="<?php echo esc_attr($img_height); ?>" />
                                     </figure>
                                 </div>
@@ -143,12 +143,12 @@ class Rex_Feed_Sales_Notification_Bar
 
                                     <div class="wpfm-banner-title">
                                         <h2 id="banner-flash-title">
-                                            <?php echo esc_html__('Int. Mother Language Day', 'rex-product-feed'); ?>
+                                            <?php echo esc_html__('Ramadan Kareem, Save Big', 'rex-product-feed'); ?>
                                         </h2>
                                     </div>
 
                                     <div class="wpfm-title wpfm-banner-offer">
-                                        <?php echo esc_html__('Get 30% OFF', 'rex-product-feed'); ?>
+                                        <?php echo esc_html__('Up to 50% Off', 'rex-product-feed'); ?>
                                     </div>
                                 </div>
                             </div>
@@ -180,8 +180,8 @@ class Rex_Feed_Sales_Notification_Bar
                         target="_blank"
                         class="wpfm-regular-promotional-banner-link"
                         role="button"
-                        aria-label="<?php esc_attr_e('Get 30% OFF on Product Feed Manager', 'rex-product-feed'); ?>">
-                            <?php esc_html_e('Get 30% OFF', 'rex-product-feed'); ?>
+                        aria-label="<?php esc_attr_e('Claim Your Deal on Product Feed Manager', 'rex-product-feed'); ?>">
+                            <?php esc_html_e('Claim Your Deal', 'rex-product-feed'); ?>
                             <span class="arrow-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10">
                                     <path d="M10 0.78V9.22C10 9.65 9.65 10 9.22 10C8.79 10 8.44 9.65 8.44 9.22V2.66L1.33 9.77C1.19 9.92 0.99 10 0.78 10C0.35 10 0 9.65 0 9.22C0 9.01 0.08 8.81 0.23 8.67L7.33 1.56H0.78C0.35 1.56 0 1.21 0 0.78C0 0.35 0.35 0 0.78 0H9.22C9.65 0 10 0.35 10 0.78Z"
@@ -332,7 +332,7 @@ class Rex_Feed_Sales_Notification_Bar
             }
 
         .wpfm-regular-promotional-banner {
-            background: #000000;
+           background: radial-gradient(41.22% 84.27% at 50.55% 15.73%, #1d3a10 0, #0e1b09 100%);
             padding: 10px 0;
             position: relative;
             z-index: 2;
@@ -357,6 +357,7 @@ class Rex_Feed_Sales_Notification_Bar
             display: flex;
             align-items: center;
             gap: 33px;
+            line-height: 1;
         }
 
     .wpfm-regular-promotional-banner-content .wpfm-banner-title {
@@ -368,8 +369,10 @@ class Rex_Feed_Sales_Notification_Bar
         animation: slideInLeft 0.8s ease-out;
     }
 
-    .wpfm-regular-promotional-banner-content .heart-icon {
-        margin-bottom: -17px;
+    .wpfm-regular-promotional-banner-content .heart-icon img {
+        width: 100%;
+        height: auto;
+        max-width: 53px;
     }
 
     .wpfm-regular-promotional-banner-content .heart-icon figure{
@@ -421,7 +424,7 @@ class Rex_Feed_Sales_Notification_Bar
     font-weight: 700;
     line-height: 1;
     letter-spacing: -0.084px;
-    color: #FFF;
+    color: #24ec2c;
     margin: 0;
 }
 
@@ -471,10 +474,12 @@ class Rex_Feed_Sales_Notification_Bar
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: #292929;
     padding: 6px 11px;
     text-align: center;
     color: #fff;
+    border: 1px solid #2d5d1a;
+    background: rgba(29, 58, 16, .4);
+  
 }
 
     .wpfm-regular-promotional-banner-content .wpfm-timer-box:first-child {
@@ -546,7 +551,11 @@ class Rex_Feed_Sales_Notification_Bar
         }
 
         .wpfm-regular-promotional-banner-container {
-            max-width: 710px;
+            max-width: 760px;
+        }
+
+        .wpfm-regular-promotional-banner-content .wpfm-banner-title h2{
+            font-size: 15px;
         }
 
         .wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-title {
@@ -554,7 +563,7 @@ class Rex_Feed_Sales_Notification_Bar
         }
 
         .wpfm-regular-promotional-banner-content .wpfm-badge-content-img-area {
-            gap: 20px;
+            gap: 16px;
         }
 
         .wpfm-regular-promotional-banner-content .wpfm-close-btn {
@@ -570,7 +579,11 @@ class Rex_Feed_Sales_Notification_Bar
         }
 
         .wpfm-regular-promotional-banner-content .wpfm-banner-title h2 {
-            font-size: 14px;
+            font-size: 13px;
+        }
+
+        .wpfm-regular-promotional-banner-content .wpfm-timer-box {
+            padding: 5px 8px;
         }
 
         .wpfm-regular-promotional-banner-content .wpfm-title {
@@ -592,7 +605,7 @@ class Rex_Feed_Sales_Notification_Bar
         }
 
         .wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-title {
-            gap: 30px;
+            gap: 15px;
         }
     }
 

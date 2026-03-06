@@ -271,7 +271,16 @@ jQuery(document).ready(function ($) {
                 canGoBack: false,
                 mount: function (container, context) {
                     navigateTo('welcome');
-                    $('#getStartedBtn').off('click').on('click', function () {
+
+                    // Reset state when re-mounting (e.g. navigating back from Step 2)
+                    isWelcomeStepSubmitting = false;
+                    var $getStartedBtn = $('#getStartedBtn');
+                    $getStartedBtn
+                        .prop('disabled', false)
+                        .removeClass('is-loading')
+                        .text('Get Started');
+
+                    $getStartedBtn.off('click').on('click', function () {
                         if (isWelcomeStepSubmitting) {
                             return;
                         }

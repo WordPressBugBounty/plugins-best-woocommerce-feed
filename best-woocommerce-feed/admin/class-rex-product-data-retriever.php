@@ -641,7 +641,7 @@ class Rex_Product_Data_Retriever {
 				} else {
                     if ( $this->is_children() ) {
                         $_product     = wc_get_product( $this->product );
-                        $attr_summary = $_product->get_attribute_summary();
+                        $attr_summary = is_a( $_product, 'WC_Product_Variation' ) ? $_product->get_attribute_summary() : null;
                         return ! empty( $attr_summary ) ? $this->product->get_title() . ' - ' . trim( preg_replace( '/[^,]*:/', '', $attr_summary ) ) : $this->product->get_name();
                     } else {
                         return $this->product->get_name();
