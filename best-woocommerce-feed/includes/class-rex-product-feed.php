@@ -196,11 +196,11 @@ class Rex_Product_Feed {
 		//    	'2025-11-05 23:59:59'
         // );
 		 // Date format: YYYY-MM-DD HH:MM:SS
-        if ( !defined( 'REX_PRODUCT_FEED_PRO_VERSION' ) && 'no' === get_option( 'rexfeed_hide_ramadan_kareem_2026_notification_bar', 'no' ) ) {
+        if ( !defined( 'REX_PRODUCT_FEED_PRO_VERSION' ) && 'no' === get_option( 'rexfeed_hide_eid_ul_fitr_2026_notification_bar', 'no' ) ) {
             new Rex_Feed_Sales_Notification_Bar(
-				'Ramadan_kareem_2026',
-				'2026-03-04 00:00:00',
-				'2026-03-16 23:59:59'
+				'Eid_ul_fitr_2026',
+				'2026-03-16 00:00:00',
+				'2026-03-24 23:59:59'
 			);
         }
 

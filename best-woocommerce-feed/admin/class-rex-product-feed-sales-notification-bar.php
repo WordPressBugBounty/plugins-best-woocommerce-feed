@@ -83,8 +83,8 @@ class Rex_Feed_Sales_Notification_Bar
         // Check if banner was dismissed within last 24 hours
         $dismissed_option = $this->occasion . '_dismissed';
         $dismissed_time = get_option($dismissed_option, 0);
-        if ($dismissed_time && (time() - $dismissed_time) < 86400) {
-            return; // Don't show if dismissed within last 24 hours
+        if ($dismissed_time && (time() - $dismissed_time) < 432000) {
+            return; // Don't show if dismissed within last 5 days
         }
 
         
@@ -93,7 +93,7 @@ class Rex_Feed_Sales_Notification_Bar
         $utm_params = array(
             'utm_source'   => 'website',
             'utm_medium'   => 'plugin-ban-pfm',
-            'utm_campaign' => 'mlday26',
+            'utm_campaign' => 'eidoffer2026',
         );
 
         $btn_link = add_query_arg( $utm_params, $base_url );
@@ -134,7 +134,7 @@ class Rex_Feed_Sales_Notification_Bar
 
                                 <div class="heart-icon">
                                     <figure class="wpfm-banner-img black-friday">
-                                        <img src="<?php echo esc_url($img_url); ?>" alt="Ramadan Kareem"  width="<?php echo esc_attr($img_width); ?>"
+                                        <img src="<?php echo esc_url($img_url); ?>" alt="Eid-Ul-Fitr"  width="<?php echo esc_attr($img_width); ?>"
                                         height="<?php echo esc_attr($img_height); ?>" />
                                     </figure>
                                 </div>
@@ -143,7 +143,7 @@ class Rex_Feed_Sales_Notification_Bar
 
                                     <div class="wpfm-banner-title">
                                         <h2 id="banner-flash-title">
-                                            <?php echo esc_html__('Ramadan Kareem, Save Big', 'rex-product-feed'); ?>
+                                            <?php echo esc_html__('Eid Mubarak, Save Big', 'rex-product-feed'); ?>
                                         </h2>
                                     </div>
 
