@@ -45,6 +45,7 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         $consent = isset($_POST['consent']) ? sanitize_text_field($_POST['consent']) : '0';
         $is_consent_given = '1' === $consent;
         update_option('best-woocommerce-feed_allow_tracking', $is_consent_given ? 'yes' : 'no');
+        do_action( 'rex_product_feed_consent_updated', $is_consent_given );
 
         if ( $is_consent_given ) {
             Rex_Product_Feed_Create_Contact::create_contact_for_current_user();

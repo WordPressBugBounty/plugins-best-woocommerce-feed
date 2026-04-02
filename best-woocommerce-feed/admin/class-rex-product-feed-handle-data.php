@@ -126,7 +126,7 @@ class Rex_Product_Feed_Data_Handle {
                 'feature' => $feature_name,
             ] );
 
-            update_post_meta( $feed_id, '_rex_feed_products', $data[ 'rex_feed_products' ] );
+            update_post_meta( $feed_id, '_rex_feed_products', $data[ 'rex_feed_products' ] );            
         }
         if( isset( $data[ 'rex_feed_feed_rules_button' ] ) ) {
             update_post_meta( $feed_id, '_rex_feed_feed_rules_button', $data[ 'rex_feed_feed_rules_button' ] );
@@ -141,7 +141,6 @@ class Rex_Product_Feed_Data_Handle {
             update_post_meta( $feed_id, '_rex_feed_product_condition', $data[ 'product_filter_condition' ] );
         }
 
-
         if( isset( $data[ 'fr' ] ) ) {
             reset( $data[ 'fr' ] );
             $key = key( $data[ 'fr' ] );
@@ -151,6 +150,7 @@ class Rex_Product_Feed_Data_Handle {
                 'feature' => 'Feed rules',
             ] );
         }
+
         if( isset( $data[ 'ff' ] ) ) {
             reset( $data[ 'ff' ] );
             $key = key( $data[ 'ff' ] );
@@ -212,7 +212,6 @@ class Rex_Product_Feed_Data_Handle {
         else {
             wp_set_object_terms( $feed_id, array(), 'product_brand' );
         }
-
     }
 
     /**

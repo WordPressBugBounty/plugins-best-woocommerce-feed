@@ -1,6 +1,6 @@
 <?php
 
-use Linno\Telemetry\Client;
+use LinnoSDK\Telemetry\Client;
 
 /**
  * Linno telemetry integration for Product Feed Manager.
@@ -8,18 +8,11 @@ use Linno\Telemetry\Client;
 class Rex_Product_Feed_Linno_Telemetry {
 
     /**
-     * Linno API key.
+     * PostHog project API key.
      *
      * @var string
      */
-    private $api_key = '1aa16c66-3002-402c-b043-87aaa3dd26b4';
-
-    /**
-     * Linno API secret.
-     *
-     * @var string
-     */
-    private $api_secret = 'sec_3a27bf9b64279c58cb0e';
+    private $posthog_api_key = 'phc_h9bEsVUzRaHIJmF3sHWFdjM1mLHdntzXnebp5FRwlLr';
 
     /**
      * Bootstrap telemetry hooks.
@@ -27,6 +20,8 @@ class Rex_Product_Feed_Linno_Telemetry {
     public function __construct() {
         $this->init_client();
         add_action( 'transition_post_status', array( $this, 'maybe_track_manual_publish' ), 10, 3 );
+        add_action( 'rex_product_feed_feed_published', array( $this, 'maybe_track_aha' ) );
+        add_action( 'rex_product_feed_consent_updated', array( $this, 'handle_consent_updated' ) );
     }
 
     /**
@@ -36,37 +31,39 @@ class Rex_Product_Feed_Linno_Telemetry {
      */
     public function init_client() {
         global $telemetry_client;
-        if ( ! class_exists( 'Linno\\Telemetry\\Client' ) || ! defined( 'WPFM__FILE__' ) ) {
+        if ( ! class_exists( 'LinnoSDK\\Telemetry\\Client' ) || ! defined( 'WPFM__FILE__' ) ) {
             return;
         }
 
         Client::set_text_domain( 'rex-product-feed' );
 
         $telemetry_client = new Client(
-            $this->api_key,
-            $this->api_secret,
-            'Product Feed Manager for WooCommerce',
-            WPFM__FILE__
-        );
-
-        $telemetry_client->define_triggers(
             array(
-                'setup'        => 'rex_product_feed_setup_completed',
-                'first_strike' => 'rex_product_feed_first_strike',
-                'kui'          => array(
-                    'feed_published' => array(
-                        'hook'      => 'rex_product_feed_feed_published',
-                        'threshold' => array(
-                            'count'  => 2,
-                            'period' => 'week',
-                        ),
-                        'callback'  => array( $this, 'build_kui_payload' ),
-                    ),
+                'pluginFile'    => WPFM__FILE__,
+                'slug'          => 'product-feed-manager',
+                'pluginName'    => 'Product Feed Manager for WooCommerce',
+                'version'       => WPFM_VERSION,
+                'driver'        => 'posthog',
+                'driver_config' => array(
+                    'host'    => 'https://eu.i.posthog.com',
+                    'api_key' => $this->posthog_api_key,
                 ),
             )
         );
 
-        $telemetry_client->init();
+        $telemetry_client->define_triggers(
+            array(
+                'onboarding'   => 'rex_product_feed_setup_completed',
+                'feature_used' => array(
+                    'category_mapping'  => array(
+                        'hook' => 'wpfm_category_mapping_saved',
+                    ),
+                    'feed_filter_rules' => array(
+                        'hook' => 'wpfm_filter_rules_applied',
+                    ),
+                ),
+            )
+        );
     }
 
     /**
@@ -90,15 +87,6 @@ class Rex_Product_Feed_Linno_Telemetry {
         if ( ! $this->is_setup_wizard_create_request() ) {
             do_action( 'rex_product_feed_feed_published', $post->ID, 'manual' );
         }
-
-        $first_strike_tracked = get_option( 'rex_feed_first_strike_tracked', 'no' );
-        if ( 'yes' !== $first_strike_tracked ) {
-            do_action( 'rex_product_feed_first_strike', $post->ID );
-            global $telemetry_client;
-            if ( is_object( $telemetry_client ) && method_exists( $telemetry_client, 'has_sent_event' ) && $telemetry_client->has_sent_event( 'first_strike' ) ) {
-                update_option( 'rex_feed_first_strike_tracked', 'yes' );
-            }
-        }
     }
 
     /**
@@ -117,20 +105,55 @@ class Rex_Product_Feed_Linno_Telemetry {
     }
 
     /**
-     * Build KUI event payload.
+     * Handle consent state change from the setup wizard.
      *
-     * @param int    $feed_id Feed ID.
-     * @param string $source  Trigger source.
+     * @param bool $is_consent_given Whether the user has given consent.
+     *
+     * @return void
+     */
+    public function handle_consent_updated( $is_consent_given ) {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'set_optin_state' ) ) {
+            return;
+        }
+        $telemetry_client->set_optin_state( $is_consent_given ? 'yes' : 'no' );
+    }
+
+    /**
+     * Track AHA milestone with once-only deduplication.
+     *
+     * The SDK's aha/kui trigger with no threshold fires on every hook call.
+     * We guard with has_sent_event/mark_event_sent for cross-request dedup.
+     *
+     * @param int $post_id Feed post ID.
+     *
+     * @return void
+     */
+    public function maybe_track_aha( $post_id ) {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'has_sent_event' ) ) {
+            return;
+        }
+        $event_key = 'aha_reached_first_feed_generated';
+        if ( $telemetry_client->has_sent_event( $event_key ) ) {
+            return;
+        }
+        $properties = $this->build_aha_payload( (int) $post_id );
+        $telemetry_client->track_kui( 'first_feed_generated', $properties );
+        $telemetry_client->mark_event_sent( $event_key );
+    }
+
+    /**
+     * Build AHA event payload from feed post meta.
+     *
+     * @param int $post_id Feed post ID.
      *
      * @return array
      */
-    public function build_kui_payload( $feed_id, $source = 'manual' ) {
+    public function build_aha_payload( int $post_id ): array {
         return array(
-            'feed_id'   => (int) $feed_id,
-            'source'    => sanitize_text_field( (string) $source ),
-            'merchant'  => (string) get_post_meta( $feed_id, '_rex_feed_merchant', true ),
-            'format'    => (string) get_post_meta( $feed_id, '_rex_feed_feed_format', true ),
-            'published' => current_time( 'mysql' ),
+            'marketplace'   => (string) get_post_meta( $post_id, '_rex_feed_merchant', true ),
+            'product_count' => (int) get_post_meta( $post_id, '_rex_feed_products', true ),
         );
     }
 }

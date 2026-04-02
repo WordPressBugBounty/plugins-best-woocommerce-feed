@@ -6,7 +6,8 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'PostHog\\' => array($vendorDir . '/posthog/posthog-php/lib'),
     'PhilipNewcomer\\WP_Ajax_Helper\\' => array($vendorDir . '/philipnewcomer/wp-ajax-helper/src/components'),
-    'Linno\\Telemetry\\' => array($vendorDir . '/linno/telemetry/src'),
+    'LinnoSDK\\Telemetry\\' => array($vendorDir . '/linno/telemetry/src'),
     'Appsero\\' => array($vendorDir . '/appsero/client/src'),
 );

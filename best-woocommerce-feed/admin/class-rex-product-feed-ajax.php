@@ -428,6 +428,7 @@ class Rex_Product_Feed_Ajax {
             $category_map[ $map_name_hash ] = $map_array;
 
             update_option( 'rex-wpfm-category-mapping', $category_map );
+            do_action( 'wpfm_category_mapping_saved' );
 
             wp_send_json_success( [
                     'status'   => $status,

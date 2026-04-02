@@ -14,11 +14,12 @@ class ComposerStaticInit978a6166a9b5478c3020d5cccd729501
     public static $prefixLengthsPsr4 = array (
         'P' =>
         array (
+            'PostHog\\' => 8,
             'PhilipNewcomer\\WP_Ajax_Helper\\' => 30,
         ),
         'L' =>
         array (
-            'Linno\\Telemetry\\' => 16,
+            'LinnoSDK\\Telemetry\\' => 19,
         ),
         'A' =>
         array (
@@ -27,11 +28,15 @@ class ComposerStaticInit978a6166a9b5478c3020d5cccd729501
     );
 
     public static $prefixDirsPsr4 = array (
+        'PostHog\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/posthog/posthog-php/lib',
+        ),
         'PhilipNewcomer\\WP_Ajax_Helper\\' =>
         array (
             0 => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components',
         ),
-        'Linno\\Telemetry\\' =>
+        'LinnoSDK\\Telemetry\\' =>
         array (
             0 => __DIR__ . '/..' . '/linno/telemetry/src',
         ),
@@ -46,15 +51,17 @@ class ComposerStaticInit978a6166a9b5478c3020d5cccd729501
         'Appsero\\Insights' => __DIR__ . '/..' . '/appsero/client/src/Insights.php',
         'Appsero\\License' => __DIR__ . '/..' . '/appsero/client/src/License.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'Linno\\Telemetry\\Client' => __DIR__ . '/..' . '/linno/telemetry/src/Client.php',
-        'Linno\\Telemetry\\Consent' => __DIR__ . '/..' . '/linno/telemetry/src/Consent.php',
-        'Linno\\Telemetry\\Deactivation' => __DIR__ . '/..' . '/linno/telemetry/src/Deactivation.php',
-        'Linno\\Telemetry\\Drivers\\DriverInterface' => __DIR__ . '/..' . '/linno/telemetry/src/Drivers/DriverInterface.php',
-        'Linno\\Telemetry\\Drivers\\OpenPanelDriver' => __DIR__ . '/..' . '/linno/telemetry/src/Drivers/OpenPanelDriver.php',
-        'Linno\\Telemetry\\EventDispatcher' => __DIR__ . '/..' . '/linno/telemetry/src/EventDispatcher.php',
-        'Linno\\Telemetry\\Helpers\\Utils' => __DIR__ . '/..' . '/linno/telemetry/src/Helpers/Utils.php',
-        'Linno\\Telemetry\\Queue' => __DIR__ . '/..' . '/linno/telemetry/src/Queue.php',
-        'Linno\\Telemetry\\TriggerManager' => __DIR__ . '/..' . '/linno/telemetry/src/TriggerManager.php',
+        'LinnoSDK\\Telemetry\\Client' => __DIR__ . '/..' . '/linno/telemetry/src/Client.php',
+        'LinnoSDK\\Telemetry\\Consent' => __DIR__ . '/..' . '/linno/telemetry/src/Consent.php',
+        'LinnoSDK\\Telemetry\\Deactivation' => __DIR__ . '/..' . '/linno/telemetry/src/Deactivation.php',
+        'LinnoSDK\\Telemetry\\Drivers\\DriverInterface' => __DIR__ . '/..' . '/linno/telemetry/src/Drivers/DriverInterface.php',
+        'LinnoSDK\\Telemetry\\Drivers\\NullDriver' => __DIR__ . '/..' . '/linno/telemetry/src/Drivers/NullDriver.php',
+        'LinnoSDK\\Telemetry\\Drivers\\OpenPanelDriver' => __DIR__ . '/..' . '/linno/telemetry/src/Drivers/OpenPanelDriver.php',
+        'LinnoSDK\\Telemetry\\Drivers\\PostHogDriver' => __DIR__ . '/..' . '/linno/telemetry/src/Drivers/PostHogDriver.php',
+        'LinnoSDK\\Telemetry\\EventDispatcher' => __DIR__ . '/..' . '/linno/telemetry/src/EventDispatcher.php',
+        'LinnoSDK\\Telemetry\\Helpers\\Utils' => __DIR__ . '/..' . '/linno/telemetry/src/Helpers/Utils.php',
+        'LinnoSDK\\Telemetry\\Queue' => __DIR__ . '/..' . '/linno/telemetry/src/Queue.php',
+        'LinnoSDK\\Telemetry\\TriggerManager' => __DIR__ . '/..' . '/linno/telemetry/src/TriggerManager.php',
         'LukeSnowden\\GoogleShoppingFeed\\Containers\\GoogleShopping' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Containers/GoogleShopping.php',
         'LukeSnowden\\GoogleShoppingFeed\\Exceptions\\MissingIdentifierException' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Exceptions/MissingIdentifierException.php',
         'LukeSnowden\\GoogleShoppingFeed\\Feed' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Feed.php',
@@ -67,6 +74,16 @@ class ComposerStaticInit978a6166a9b5478c3020d5cccd729501
         'PhilipNewcomer\\WP_Ajax_Helper\\Utility' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components/Utility.php',
         'PhilipNewcomer\\WP_Ajax_Helper\\Validations' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components/Validations.php',
         'PhilipNewcomer\\WP_Ajax_Helper\\Validator' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components/Validator.php',
+        'PostHog\\Client' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Client.php',
+        'PostHog\\Consumer' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer.php',
+        'PostHog\\Consumer\\File' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer/File.php',
+        'PostHog\\Consumer\\ForkCurl' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer/ForkCurl.php',
+        'PostHog\\Consumer\\LibCurl' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer/LibCurl.php',
+        'PostHog\\Consumer\\Socket' => __DIR__ . '/..' . '/posthog/posthog-php/lib/Consumer/Socket.php',
+        'PostHog\\HttpClient' => __DIR__ . '/..' . '/posthog/posthog-php/lib/HttpClient.php',
+        'PostHog\\HttpResponse' => __DIR__ . '/..' . '/posthog/posthog-php/lib/HttpResponse.php',
+        'PostHog\\PostHog' => __DIR__ . '/..' . '/posthog/posthog-php/lib/PostHog.php',
+        'PostHog\\QueueConsumer' => __DIR__ . '/..' . '/posthog/posthog-php/lib/QueueConsumer.php',
         'RexFeed\\Google\\AccessToken\\Revoke' => __DIR__ . '/../..' . '/includes/library/google/apiclient/src/AccessToken/Revoke.php',
         'RexFeed\\Google\\AccessToken\\Verify' => __DIR__ . '/../..' . '/includes/library/google/apiclient/src/AccessToken/Verify.php',
         'RexFeed\\Google\\AuthHandler\\AuthHandlerFactory' => __DIR__ . '/../..' . '/includes/library/google/apiclient/src/AuthHandler/AuthHandlerFactory.php',

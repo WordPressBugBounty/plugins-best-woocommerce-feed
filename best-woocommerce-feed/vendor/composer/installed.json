@@ -59,33 +59,33 @@
         },
         {
             "name": "linno/telemetry",
-            "version": "dev-master",
-            "version_normalized": "dev-master",
+            "version": "dev-posthog",
+            "version_normalized": "dev-posthog",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CODEREXLTD/linno-telemetry.git",
-                "reference": "3e5bb8833a00cf9ff2b94627aab4f3ad56560704"
+                "reference": "32e7975d19bf532f7762a76a34f150e050cb609a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CODEREXLTD/linno-telemetry/zipball/3e5bb8833a00cf9ff2b94627aab4f3ad56560704",
-                "reference": "3e5bb8833a00cf9ff2b94627aab4f3ad56560704",
+                "url": "https://api.github.com/repos/CODEREXLTD/linno-telemetry/zipball/32e7975d19bf532f7762a76a34f150e050cb609a",
+                "reference": "32e7975d19bf532f7762a76a34f150e050cb609a",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.4"
+                "php": ">=7.4",
+                "posthog/posthog-php": "^2.1"
             },
             "require-dev": {
                 "mockery/mockery": "^1.5",
                 "phpunit/phpunit": "^9.5"
             },
-            "time": "2026-03-04T19:09:03+00:00",
-            "default-branch": true,
+            "time": "2026-04-02T09:28:26+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
                 "psr-4": {
-                    "Linno\\Telemetry\\": "src/"
+                    "LinnoSDK\\Telemetry\\": "src/"
                 },
                 "files": [
                     "src/helpers.php"
@@ -93,7 +93,7 @@
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Linno\\Telemetry\\Tests\\": "tests/"
+                    "LinnoSDK\\Telemetry\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -107,7 +107,7 @@
             ],
             "description": "Privacy-first telemetry SDK for Linno WordPress plugins",
             "support": {
-                "source": "https://github.com/CODEREXLTD/linno-telemetry/tree/master",
+                "source": "https://github.com/CODEREXLTD/linno-telemetry/tree/posthog",
                 "issues": "https://github.com/CODEREXLTD/linno-telemetry/issues"
             },
             "install-path": "../linno/telemetry"
@@ -164,6 +164,62 @@
                 "source": "https://github.com/philipnewcomer/wp-ajax-helper/tree/1.0.1"
             },
             "install-path": "../philipnewcomer/wp-ajax-helper"
+        },
+        {
+            "name": "posthog/posthog-php",
+            "version": "2.1.1",
+            "version_normalized": "2.1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PostHog/posthog-php.git",
+                "reference": "2d426999b35fd164591b1ab8af46699e3a30d8cb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PostHog/posthog-php/zipball/2d426999b35fd164591b1ab8af46699e3a30d8cb",
+                "reference": "2d426999b35fd164591b1ab8af46699e3a30d8cb",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "overtrue/phplint": "^3.0",
+                "phpunit/phpunit": "^9.0",
+                "squizlabs/php_codesniffer": "^3.6"
+            },
+            "time": "2022-01-21T13:59:53+00:00",
+            "bin": [
+                "bin/posthog"
+            ],
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "PostHog\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PostHog <hey@posthog.com>",
+                    "homepage": "https://posthog.com/"
+                }
+            ],
+            "description": "PostHog PHP Library",
+            "homepage": "https://github.com/PostHog/posthog-php",
+            "keywords": [
+                "posthog"
+            ],
+            "support": {
+                "issues": "https://github.com/PostHog/posthog-php/issues",
+                "source": "https://github.com/PostHog/posthog-php/tree/2.1.1"
+            },
+            "install-path": "../posthog/posthog-php"
         }
     ],
     "dev": false,

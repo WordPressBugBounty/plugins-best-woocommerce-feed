@@ -1020,6 +1020,7 @@ abstract class Rex_Product_Feed_Abstract_Generator
 
         if( !empty( $filter_data ) ) {
             Rex_Product_Feed_Data_Handle::save_filter_drawer_data( $this->id, $filter_data );
+            do_action( 'wpfm_filter_rules_applied' );
         }
 
         $settings_data = Rex_Product_Feed_Data_Handle::get_settings_drawer_data( $feed_configs );
