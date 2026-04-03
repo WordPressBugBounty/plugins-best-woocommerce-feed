@@ -33,6 +33,7 @@ class Rex_Feed_Template_Google_local_inventory_ads extends Rex_Feed_Abstract_Tem
 				'condition'   => 'Condition',
 				'gtin'        => 'GTIN',
 				'brand'       => 'Product Brand',
+				'link_template' => 'Product Link Template',
 
 			),
 			'Recommended Information' => array(
@@ -123,16 +124,26 @@ class Rex_Feed_Template_Google_local_inventory_ads extends Rex_Feed_Abstract_Tem
 				'escape'   => 'default',
 				'limit'    => 0,
 			),
-			array(
-				'attr'     => 'brand',
-				'type'     => 'static',
-				'meta_key' => '',
-				'st_value' => '',
-				'prefix'   => '',
-				'suffix'   => '',
-				'escape'   => 'default',
-				'limit'    => 0,
-			),
+			   array(
+				   'attr'     => 'brand',
+				   'type'     => 'static',
+				   'meta_key' => '',
+				   'st_value' => '',
+				   'prefix'   => '',
+				   'suffix'   => '',
+				   'escape'   => 'default',
+				   'limit'    => 0,
+			   ),
+			   array(
+				   'attr'     => 'link_template',
+				   'type'     => 'meta',
+				   'meta_key' => 'link_template',
+				   'st_value' => '',
+				   'prefix'   => '',
+				   'suffix'   => '',
+				   'escape'   => 'default',
+				   'limit'    => 0,
+			   ),
 
 		);
 	}

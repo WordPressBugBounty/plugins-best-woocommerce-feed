@@ -464,6 +464,18 @@ class Rex_Product_Feed_Other extends Rex_Product_Feed_Abstract_Generator {
             'wrapper'          => false,
             'datetime'         => false,
         ),
+        "kelkoo_group"        => array(
+            'container'        => false,
+            'item_wrapper'     => 'product',
+            'items_wrapper'    => 'products',
+            'namespace'        => null,
+            'namespace_prefix' => '',
+            'stand_alone'      => false,
+            'version'          => '',
+            'wrapper_el'       => '',
+            'wrapper'          => false,
+            'datetime'         => false,
+        ),
         "billiger"            => array(
             'container'        => false,
             'item_wrapper'     => 'product',
@@ -1009,7 +1021,7 @@ class Rex_Product_Feed_Other extends Rex_Product_Feed_Abstract_Generator {
         RexShopping::$container = null;
         RexShopping::init($this->get_wrapper(), $item_wrapper, $this->get_namespace(),  $this->get_version(), $items_wrapper, $this->get_stand_alone(), $wrapper_el, $this->get_namespace_prefix() );
 
-        if( 'include' === $this->custom_xml_header ) {
+        if( 'include' === $this->custom_xml_header && $this->merchant !== 'kelkoo_group' ) {
             RexShopping::title( $this->title );
             RexShopping::link( $this->link );
             RexShopping::description( $this->desc );
@@ -1114,7 +1126,7 @@ class Rex_Product_Feed_Other extends Rex_Product_Feed_Abstract_Generator {
                     $this->add_to_feed( $variable_product, $product_meta_keys, 'variable' );
                 }
 
-                if( $this->product_scope === 'product_cat' || $this->product_scope === 'product_tag' || $this->custom_filter_var_exclude ) {
+                if( $this->should_process_parent_variations() || $this->product_scope === 'product_cat' || $this->product_scope === 'product_tag' || $this->custom_filter_var_exclude ) {
                     if ( $this->exclude_hidden_products ) {
                         $variations = $product->get_visible_children();
                     }

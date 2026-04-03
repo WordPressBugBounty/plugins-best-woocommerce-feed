@@ -6,7 +6,7 @@ Tags: Product Feed, WooCommerce Product Feed, Google Shopping Feed, Facebook Cat
 Requires at least: 6.7
 Tested up to:  6.9
 Requires PHP: 7.4
-Stable tag:  7.4.75
+Stable tag:  7.4.76
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -489,6 +489,16 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.4.76 (2026-04-03) =
+* Improvement: Compatibility of translated product slugs in feed URLs with TranslatePress Business
+* Bug Fix: Apply correct currency conversion (value + symbol) in feed when using Fox Currency Switcher
+* New: Add support for link_template attribute in Google Local Inventory Ads feed
+* Bug Fix: Remove unsupported header tags from KelkooGroup feed template to ensure compliance
+* Bug Fix: Prevent illegal string offset warnings by adding proper type checks in product data retriever
+* Bug Fix: Optimize feed validation to prevent memory exhaustion for large catalogs
+* Bug Fix: Allow Google feed to include only variation products when parent inclusion is disabled
+* Improvement: Minimize PFM frontend loading by preventing full plugin bootstrap
 
 = 7.4.75 (2026-04-02) =
 * Improvement: Update telemetry

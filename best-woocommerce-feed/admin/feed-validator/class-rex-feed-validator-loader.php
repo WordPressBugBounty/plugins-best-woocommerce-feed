@@ -126,6 +126,9 @@ class Rex_Feed_Validator_Loader {
         // Admin menu/UI integration
         add_filter( 'rex_feed_product_feed_tabs', array( $this, 'add_validation_tab' ) );
         add_action( 'rex_feed_after_feed_updated', array( $this, 'auto_clear_and_run_validation_on_feed_update' ), 10, 1 );
+
+        // Background validation — fires when the scheduled single event runs.
+        add_action( 'rex_feed_validate_scheduled', array( $this, 'run_validation' ), 10, 1 );
     }
 
     /**
@@ -155,8 +158,12 @@ class Rex_Feed_Validator_Loader {
             return;
         }
 
-        // Run validation
-        $this->run_validation( $feed_id );
+        // Schedule validation as a separate cron event so it runs in its own
+        // PHP process — the feed-generation process still holds the product
+        // batch in memory and running validation here would risk OOM.
+        if ( ! wp_next_scheduled( 'rex_feed_validate_scheduled', array( $feed_id ) ) ) {
+            wp_schedule_single_event( time() + 30, 'rex_feed_validate_scheduled', array( $feed_id ) );
+        }
     }
 
     /**
@@ -191,8 +198,15 @@ class Rex_Feed_Validator_Loader {
                 $product_data['attributes'],
                 $product_data['title']
             );
-            $all_errors = array_merge( $all_errors, $errors );
-            
+            // Use direct push instead of array_merge to avoid allocating a
+            // new array on every iteration.
+            if ( is_array( $errors ) && !empty( $errors ) ) {
+                foreach ( $errors as $error ) {
+                    $all_errors[] = $error;
+                }
+            }
+            unset( $errors );
+
             // Prevent memory exhaustion by truncating errors during processing
             if ( count( $all_errors ) > $max_errors_to_keep ) {
                 // Prioritize errors over warnings
@@ -205,18 +219,19 @@ class Rex_Feed_Validator_Loader {
                 $info_items = array_filter( $all_errors, function( $item ) {
                     return ( $item['severity'] ?? '' ) === 'info';
                 } );
-                
+
                 // Keep errors first, then warnings, then info
                 $all_errors = array_merge(
-                    array_slice( $error_items, 0, (int) ( $max_errors_to_keep * 0.6 ) ),
-                    array_slice( $warning_items, 0, (int) ( $max_errors_to_keep * 0.3 ) ),
-                    array_slice( $info_items, 0, (int) ( $max_errors_to_keep * 0.1 ) )
+                    array_slice( array_values( $error_items ),   0, (int) ( $max_errors_to_keep * 0.6 ) ),
+                    array_slice( array_values( $warning_items ), 0, (int) ( $max_errors_to_keep * 0.3 ) ),
+                    array_slice( array_values( $info_items ),    0, (int) ( $max_errors_to_keep * 0.1 ) )
                 );
-                
+
                 // Free memory
                 unset( $error_items, $warning_items, $info_items );
             }
         }
+        unset( $products_data );
 
         // Get summary
         $summary = $validator->get_validation_summary( $all_errors );
@@ -619,25 +634,22 @@ class Rex_Feed_Validator_Loader {
         $parsed_products = $this->get_products_data_from_feed_file( $feed_id, $feed_format );
         
         if ( ! empty( $parsed_products ) ) {
-            $processed_count = 0;
             foreach ( $parsed_products as $product_id => $attributes ) {
-                $product = wc_get_product( $product_id ); // Still need product object for display title
-                $product_title = $product ? $product->get_name() : ( $attributes['title'] ?? 'Product #' . $product_id );
-                $display_title = $product_title;
-
-                if ( $product && $product->is_type( 'variation' ) ) {
-                    $parent_product = wc_get_product( $product->get_parent_id() );
-                    $parent_title = $parent_product ? $parent_product->get_name() : $product_title;
-                    $display_title = sprintf( '%s - Variation | Child ID: #%d', $parent_title, $product_id );
-                }
+                // The feed file already contains the product title — use it
+                // directly instead of calling wc_get_product() for every item.
+                // Loading a WC product object per item fills the WP object
+                // cache and is the second-largest contributor to OOM on update.
+                $product_title = ! empty( $attributes['title'] )
+                    ? $attributes['title']
+                    : sprintf( 'Product #%d', $product_id );
 
                 $products_data[] = array(
                     'product_id' => $product_id,
-                    'title'      => $display_title,
+                    'title'      => $product_title,
                     'attributes' => $attributes,
                 );
-                $processed_count++;
             }
+            unset( $parsed_products );
             return $products_data;
         }
 
@@ -1052,107 +1064,100 @@ class Rex_Feed_Validator_Loader {
      * @return array Array of products: array( ID => attributes_array )
      */
     protected function parse_xml_feed_for_data( $feed_file ) {
-        $products_data = array();
+        $products_data    = array();
+        $max_products     = Rex_Feed_Validation_Results::MAX_STORED_ERRORS;
+        // Known product-level element names across all supported feed formats.
+        $product_elements = array( 'item', 'entry', 'product', 'offer' );
 
-        // Load XML file with LIBXML_NOCDATA to automatically strip CDATA wrappers
-        // This extracts the text content from <![CDATA[...]]> tags
+        // Use XMLReader so the file is parsed as a stream — only one product
+        // element is in memory at a time.  The previous simplexml_load_file()
+        // approach loaded the entire XML tree into memory first, which OOMed
+        // PHP for feeds with thousands of products.
+        $reader = new XMLReader();
         libxml_use_internal_errors( true );
-        $xml = simplexml_load_file( $feed_file, 'SimpleXMLElement', LIBXML_NOCDATA );
 
-        if ( $xml === false ) {
-            $errors = libxml_get_errors();
+        if ( ! $reader->open( $feed_file ) ) {
             libxml_clear_errors();
             libxml_use_internal_errors( false );
             return $products_data;
         }
 
-        // Register namespaces for Google Shopping feeds
-        $namespaces = $xml->getNamespaces( true );
-        
-        foreach ( $namespaces as $prefix => $ns ) {
-            if ( !empty( $prefix ) ) {
-                $xml->registerXPathNamespace( $prefix, $ns );
-            } elseif ( $ns === 'http://base.google.com/ns/1.0' ) {
-                // If Google namespace is default, still register 'g' for XPath convenience
-                $xml->registerXPathNamespace( 'g', $ns );
-            }
-        }
-        
-        // Common paths for product entries
-        $product_paths = array(
-            '//g:item',            // Google namespace (now registered)
-            '//item',              // RSS feed format
-            '//entry',             // Atom feed format
-            '//product',           // Generic XML format
-            '//offer',             // Yandex feed format
-        );
+        // Collect xmlns:* declarations from container/root elements so we can
+        // re-inject them into individual product XML strings if needed.
+        // (e.g. xmlns:g="http://base.google.com/ns/1.0" lives on <rss>, not <item>)
+        $root_ns = array();
 
-        // Try to find products using XPath
-        foreach ( $product_paths as $path ) {
-            $products = $xml->xpath( $path );
-            
-            if ( ! empty( $products ) ) {
-                foreach ( $products as $product ) {
-                    $id = $this->extract_id_from_xml_product( $product, $namespaces );
-                    
-                    if ( $id ) {
-                        // Get namespaces from the product element itself, not just root
-                        $product_namespaces = $product->getNamespaces( true );
-                        // Merge with root namespaces
-                        $all_namespaces = array_merge( $namespaces, $product_namespaces );
-                        
-                        $attributes = $this->extract_attributes_from_xml_product( $product, $all_namespaces );
-                        $products_data[ intval( $id ) ] = $attributes;
+        while ( $reader->read() ) {
+            if ( $reader->nodeType !== XMLReader::ELEMENT ) {
+                continue;
+            }
+
+            $local = strtolower( $reader->localName );
+
+            // Harvest namespace declarations from every start element we visit.
+            if ( $reader->hasAttributes ) {
+                $reader->moveToFirstAttribute();
+                do {
+                    $attr_name = $reader->name;
+                    if ( strpos( $attr_name, 'xmlns' ) === 0 ) {
+                        $prefix              = ( strpos( $attr_name, ':' ) !== false ) ? substr( $attr_name, 6 ) : '';
+                        $root_ns[ $prefix ]  = $reader->value;
                     }
+                } while ( $reader->moveToNextAttribute() );
+                $reader->moveToElement(); // restore position to the element
+            }
+
+            if ( ! in_array( $local, $product_elements, true ) ) {
+                continue;
+            }
+
+            // readOuterXml() returns the XML for this element plus its subtree.
+            // libxml re-declares any in-scope namespace inherited from ancestors,
+            // so the string is self-contained.  It also advances the reader past
+            // the closing tag.
+            $outer_xml = $reader->readOuterXml();
+            if ( empty( $outer_xml ) ) {
+                continue;
+            }
+
+            // Safety: inject any root-level namespace declarations that libxml
+            // may not have re-declared (e.g. older PHP/libxml versions).
+            foreach ( $root_ns as $prefix => $uri ) {
+                $decl = empty( $prefix ) ? 'xmlns' : 'xmlns:' . $prefix;
+                if ( strpos( $outer_xml, $decl . '=' ) === false ) {
+                    $outer_xml = preg_replace(
+                        '/^(<[^\s>\/]+)/',
+                        '$1 ' . $decl . '="' . htmlspecialchars( $uri, ENT_QUOTES, 'UTF-8' ) . '"',
+                        $outer_xml,
+                        1
+                    );
                 }
+            }
+
+            // Parse just this one product element — tiny memory footprint.
+            $node = @simplexml_load_string(
+                '<?xml version="1.0" encoding="UTF-8"?>' . $outer_xml,
+                'SimpleXMLElement',
+                LIBXML_NOCDATA
+            );
+
+            if ( $node !== false ) {
+                $ns = $node->getNamespaces( true );
+                $id = $this->extract_id_from_xml_product( $node, $ns );
+                if ( $id ) {
+                    $attributes                     = $this->extract_attributes_from_xml_product( $node, $ns );
+                    $products_data[ intval( $id ) ] = $attributes;
+                }
+            }
+
+            unset( $node, $outer_xml, $ns );
+
+            if ( count( $products_data ) >= $max_products ) {
                 break;
             }
         }
 
-        // If XPath didn't work, try direct children for common structures
-        if ( empty( $products_data ) ) {
-            // Check for channel/item structure (RSS)
-            if ( isset( $xml->channel ) && isset( $xml->channel->item ) ) {
-                foreach ( $xml->channel->item as $item ) {
-                    $id = $this->extract_id_from_xml_product( $item, $namespaces );
-                    if ( $id ) {
-                        // Get namespaces from the item element itself
-                        $item_namespaces = $item->getNamespaces( true );
-                        $all_namespaces = array_merge( $namespaces, $item_namespaces );
-                        
-                        $attributes = $this->extract_attributes_from_xml_product( $item, $all_namespaces );
-                        $products_data[ intval( $id ) ] = $attributes;
-                    }
-                }
-            }
-            // Check for direct items/products
-            elseif ( isset( $xml->item ) ) {
-                foreach ( $xml->item as $item ) {
-                    $id = $this->extract_id_from_xml_product( $item, $namespaces );
-                    if ( $id ) {
-                        $item_namespaces = $item->getNamespaces( true );
-                        $all_namespaces = array_merge( $namespaces, $item_namespaces );
-                        
-                        $attributes = $this->extract_attributes_from_xml_product( $item, $all_namespaces );
-                        $products_data[ intval( $id ) ] = $attributes;
-                    }
-                }
-            }
-            elseif ( isset( $xml->product ) ) {
-                foreach ( $xml->product as $product ) {
-                    $id = $this->extract_id_from_xml_product( $product, $namespaces );
-                    if ( $id ) {
-                        $product_namespaces = $product->getNamespaces( true );
-                        $all_namespaces = array_merge( $namespaces, $product_namespaces );
-                        
-                        $attributes = $this->extract_attributes_from_xml_product( $product, $all_namespaces );
-                        $products_data[ intval( $id ) ] = $attributes;
-                    }
-                }
-            }
-        }
-
-        // Reset libxml error handling to avoid affecting other code
+        $reader->close();
         libxml_clear_errors();
         libxml_use_internal_errors( false );
 
@@ -1484,8 +1489,11 @@ class Rex_Feed_Validator_Loader {
             return $products_data;
         }
 
-        // Read data rows
+        // Read data rows (cap at MAX_STORED_ERRORS products to prevent memory exhaustion)
         while ( ( $row = fgetcsv( $handle, 0, $delimiter ) ) !== false ) {
+            if ( count( $products_data ) >= Rex_Feed_Validation_Results::MAX_STORED_ERRORS ) {
+                break;
+            }
             if ( ! isset( $row[ $id_column_index ] ) ) {
                 continue;
             }
@@ -1552,13 +1560,22 @@ class Rex_Feed_Validator_Loader {
         if ( ! $feed_id ) {
             return;
         }
-        // Clear old validation results
+        // Clear old validation results so the template renders a clean slate
+        // on the next page load (the JS will then auto-trigger validation via
+        // a fresh AJAX request — see checkAutoTriggerValidation in JS).
         $results_handler = new Rex_Feed_Validation_Results( $feed_id );
         $results_handler->clear_results();
-        // Also clear transient batch errors
         delete_transient( 'rex_feed_validation_' . $feed_id );
-        // Auto-run validation
-        $this->run_validation( $feed_id );
+
+        // For WP-Cron scheduled generation there is no browser/JS to trigger
+        // the AJAX validation, so schedule a deferred cron event instead.
+        // For manual/UI generation, the JS checkAutoTriggerValidation handles
+        // it via AJAX in a separate PHP process (no scheduling needed here).
+        if ( wp_doing_cron() ) {
+            if ( ! wp_next_scheduled( 'rex_feed_validate_scheduled', array( $feed_id ) ) ) {
+                wp_schedule_single_event( time() + 30, 'rex_feed_validate_scheduled', array( $feed_id ) );
+            }
+        }
     }
 
     /**

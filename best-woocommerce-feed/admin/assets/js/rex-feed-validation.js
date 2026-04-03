@@ -187,15 +187,14 @@
 
                     if (response.success) {
                         self.showNotice('success', response.data.message);
-                        
-                        // Only reload if this is a manual validation (not auto-triggered)
-                        if (!isAutoValidation) {
-                            location.reload();
-                        } else {
-                            // For auto-validation, just load the results without reloading
-                            self.currentPage = 1;
-                            self.loadResults();
-                        }
+                        // Always reload: the PHP template only renders the results
+                        // table, summary cards, etc. when results exist.  If we
+                        // cleared results before validation ran (which we do on
+                        // every update), those DOM elements won't be on the page
+                        // yet, so calling loadResults() would silently fail.  A
+                        // full reload lets PHP re-render the complete UI with the
+                        // fresh data.
+                        location.reload();
                     } else {
                         self.showNotice('error', response.data.message || self.getTranslation('validation_failed'));
                     }

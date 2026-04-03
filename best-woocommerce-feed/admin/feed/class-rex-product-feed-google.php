@@ -185,7 +185,7 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 					$this->add_to_feed($variable_product, $product_meta_keys);
 				}
 
-				if ($this->product_scope === 'product_cat' || $this->product_scope === 'product_tag' || $this->product_scope === 'product_brand' || $this->custom_filter_var_exclude) {
+			if ($this->should_process_parent_variations() || $this->product_scope === 'product_cat' || $this->product_scope === 'product_tag' || $this->product_scope === 'product_brand' || $this->custom_filter_var_exclude) {
 					if ($this->exclude_hidden_products) {
 						$variations = $product->get_visible_children();
 					} else {

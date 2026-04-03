@@ -1474,16 +1474,33 @@ class Rex_Product_Feed_Actions {
             $to_currency = $feed_retriever_obj->woocs_currency ?? get_woocommerce_currency();
 
             try {
-                // Store the current currency
-                $current_currency = $WOOCS->current_currency ?? get_woocommerce_currency();
+                $currencies = $WOOCS->get_currencies();
 
-                // Set the currency to $to_currency
+                if ( empty( $currencies ) || ! isset( $currencies[ $to_currency ] ) ) {
+                    return $product_price;
+                }
+
+                // Store the current (frontend) currency and the default (base) currency
+                $current_currency = $WOOCS->current_currency ?? $WOOCS->default_currency;
+                $default_currency = $WOOCS->default_currency;
+
+                // woocs_exchange_value() assumes its input is in the base/default currency.
+                // However, $product_price may already be in the frontend currency because
+                // WOOCS hooks WooCommerce price filters. We must reverse-convert it back to
+                // the base currency first, then let WOOCS convert to the target currency.
+                $base_price = (float) $product_price;
+                if ( $current_currency !== $default_currency && isset( $currencies[ $current_currency ] ) ) {
+                    $current_rate = floatval( $currencies[ $current_currency ]['rate'] );
+                    if ( $current_rate > 0 ) {
+                        $base_price = $base_price / $current_rate;
+                    }
+                }
+
+                // Convert from base currency to the feed-selected target currency
                 $WOOCS->current_currency = $to_currency;
+                $converted_price = $WOOCS->woocs_exchange_value( $base_price );
 
-                // Convert the price to the active currency (USD in this case)
-                $converted_price = $WOOCS->woocs_exchange_value( $product_price );
-
-                // Restore the original currency
+                // Restore the original frontend currency
                 $WOOCS->current_currency = $current_currency;
 
                 return $converted_price;
@@ -1577,7 +1594,7 @@ class Rex_Product_Feed_Actions {
             if ($meta_key === 'link') {
                 $slug = function_exists('rexfeed_get_trp_url_slug') ? rexfeed_get_trp_url_slug($language) : '';
                 if (!empty($slug)) {
-                    if (function_exists('is_plugin_active') && is_plugin_active('translatepress-personal/index.php')) {
+                    if ( function_exists('is_plugin_active') && ( is_plugin_active('translatepress-personal/index.php') || is_plugin_active('translatepress-business/index.php') ) ) {
                         $parsed_url = parse_url($value);
                         if (isset($parsed_url['path'])) {
                             $path_parts = explode('/', trim($parsed_url['path'], '/'));

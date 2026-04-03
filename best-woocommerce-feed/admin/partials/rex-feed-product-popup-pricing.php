@@ -66,8 +66,8 @@
                         $discount_percentage = "Save 30%";
                         $discount_price = "$69.99";
                     } else {
-                        $discount_percentage = "Save 25%";
-                        $discount_price = "$99.99";
+                        $discount_percentage = "Save 20%";
+                        $discount_price = "$79.99";
                     }
                     ?>
 

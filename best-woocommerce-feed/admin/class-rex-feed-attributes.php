@@ -122,7 +122,7 @@ class Rex_Feed_Attributes {
 	 */
 
     public static function get_primary_attributes() {
-        $attributes = [
+		$attributes = [
             'id'                             => 'Product Id',
             'title'                          => 'Product Title',
             'description'                    => 'Product Description',
@@ -134,7 +134,8 @@ class Rex_Feed_Attributes {
             'product_cats_path_pipe'         => 'Product Categories Path (with separator "|")',
             'product_subcategory'            => 'Product Sub Categories Path (with separator ">")',
             'woo_product_brand'              => 'Product Brand (Woocommerce Brand)',
-            'link'                           => 'Product URL',
+			'link'                           => 'Product URL',
+			'link_template'                  => 'Product Link Template',
             'checkout_link'                  => 'Product Checkout URL',
             'cart_link'                      => 'Product Cart URL',
             'parent_url'                     => 'Parent Product URL',

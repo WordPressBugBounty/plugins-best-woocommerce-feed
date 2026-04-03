@@ -135,7 +135,7 @@ class Rex_Product_Feed_Google_local_products_inventory extends Rex_Product_Feed_
                     $this->add_to_feed( $variable_product, $product_meta_keys );
                 }
 
-                if( $this->product_scope === 'product_cat' || $this->product_scope === 'product_tag' || $this->custom_filter_var_exclude ) {
+                if( $this->should_process_parent_variations() || $this->product_scope === 'product_cat' || $this->product_scope === 'product_tag' || $this->custom_filter_var_exclude ) {
                     // Get all variations
                     $variations = $this->exclude_hidden_products ? 
                     $product->get_children() : // Since get_visible_children is undefined, fallback to get_children

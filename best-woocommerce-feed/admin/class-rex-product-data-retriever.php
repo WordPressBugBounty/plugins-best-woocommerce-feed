@@ -1115,6 +1115,18 @@ class Rex_Product_Data_Retriever {
                 return $this->pfm_get_id_or_sku($this->product);
             case 'group_item_skus':
                 return $this->pfm_get_group_item_skus();
+			case 'link_template':
+				// Google Merchant Center requires a per-product URL with a literal {store_code} placeholder.
+				// Reference: https://support.google.com/merchants/answer/13871172?sjid=12048843741396333297-NC
+				$product_link = $this->product->get_permalink();
+				if ( function_exists( 'wpfm_is_wpml_active' ) && wpfm_is_wpml_active() ) {
+					$product_link = apply_filters( 'wpml_permalink', $product_link, $this->feed->wpml_language );
+				}
+				// Always append ?store={store_code} or &store={store_code} as required
+				$parsed_url = parse_url( $product_link );
+				$separator = ( isset( $parsed_url['query'] ) && $parsed_url['query'] !== '' ) ? '&' : '?';
+				$link_template = $product_link . $separator . 'store={store_code}';
+				return $link_template;
 
             default:
 				return '';
@@ -1362,8 +1374,8 @@ class Rex_Product_Data_Retriever {
          * @return string                    The modified product price.
          * @since 7.4.0
          */
-         return !defined( 'WOOCS_VERSION' ) ? apply_filters( 'rex_feed_product_price_before_formatting', $product_price, $this->product, $type, $this ) : $product_price;
-            
+   
+		 return apply_filters( 'rex_feed_product_price_before_formatting', $product_price, $this->product, $type, $this ); 
     }
 
     /**
@@ -1912,7 +1924,7 @@ class Rex_Product_Data_Retriever {
 
 		if ( '' === $meta_value ) {
 			$pr_attr = get_post_meta( $pr_id, '_product_attributes', true );
-			if ( isset( $pr_attr[ $new_key ][ 'value' ] ) ) {
+			if ( is_array( $pr_attr ) && isset( $pr_attr[ $new_key ][ 'value' ] ) ) {
 				$meta_value = $pr_attr[ $new_key ][ 'value' ];
 				$meta_value = explode( '|', $meta_value );
 			}

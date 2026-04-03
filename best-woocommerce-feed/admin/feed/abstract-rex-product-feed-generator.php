@@ -2010,6 +2010,29 @@ abstract class Rex_Product_Feed_Abstract_Generator
     }
 
     /**
+     * Determine whether variable children should be traversed from parent products.
+     *
+     * Prevent duplicate variation rows when variation posts are already loaded
+     * in the main products query.
+     *
+     * @return bool
+     *
+     * @since 7.4.59
+     */
+    protected function should_process_parent_variations() {
+        if ( $this->variable_product ) {
+            return false;
+        }
+
+        $post_types = $this->products_args['post_type'] ?? [];
+        if ( ! is_array( $post_types ) ) {
+            $post_types = array( $post_types );
+        }
+
+        return ! in_array( 'product_variation', $post_types, true );
+    }
+
+    /**
      * Check if variation is the default variation.
      *
      * Determines if the current variation is the default variation of its parent variable product.

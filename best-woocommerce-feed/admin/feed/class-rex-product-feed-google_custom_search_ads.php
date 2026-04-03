@@ -132,7 +132,7 @@ class Rex_Product_Feed_Google_custom_search_ads extends Rex_Product_Feed_Abstrac
                     $this->add_to_feed( $variable_product, $product_meta_keys );
                 }
 
-                if( $this->product_scope === 'product_cat' || $this->product_scope === 'product_tag' || $this->custom_filter_var_exclude ) {
+                if( $this->should_process_parent_variations() || $this->product_scope === 'product_cat' || $this->product_scope === 'product_tag' || $this->custom_filter_var_exclude ) {
                     if ( $this->exclude_hidden_products ) {
                         $variations = $product->get_visible_children();
                     }
