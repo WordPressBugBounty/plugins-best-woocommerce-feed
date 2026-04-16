@@ -55,7 +55,8 @@ class Rex_Product_Feed_Setup_Wizard
             array_merge(
                 $merchants_data,
                 array(
-                    'assetsUrl' => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/'
+                    'assetsUrl'        => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/',
+                    'companionPlugins' => $this->get_companion_plugin_statuses(),
                 )
             )
         );
@@ -70,6 +71,36 @@ class Rex_Product_Feed_Setup_Wizard
     {
         require_once plugin_dir_path(__FILE__) . '../admin/partials/rex-product-feed-setup-wizard-views.php';
         exit();
+    }
+
+    /**
+     * Get installation/activation status of companion plugins (WPFunnels, Cart Lift)
+     *
+     * @since 7.4.14
+     * @return array  Keyed by plugin slug: 'not_installed' | 'installed' | 'active'
+     */
+    private function get_companion_plugin_statuses() {
+        if ( ! function_exists( 'is_plugin_active' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        $plugins = array(
+            'wpfunnels' => 'wpfunnels/wpfnl.php',
+            'cart-lift'  => 'cart-lift/cart-lift.php',
+        );
+
+        $statuses = array();
+        foreach ( $plugins as $slug => $file ) {
+            if ( is_plugin_active( $file ) ) {
+                $statuses[ $slug ] = 'active';
+            } elseif ( file_exists( WP_PLUGIN_DIR . '/' . $file ) ) {
+                $statuses[ $slug ] = 'installed';
+            } else {
+                $statuses[ $slug ] = 'not_installed';
+            }
+        }
+
+        return $statuses;
     }
 
     /**

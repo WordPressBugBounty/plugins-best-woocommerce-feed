@@ -204,7 +204,7 @@ jQuery(document).ready(function ($) {
         var $wizardExit = $('#wizardExit');
 
         // Show/Hide Sidebar
-        if (fullStepId === 'step-welcome') {
+        if (fullStepId === 'step-welcome' || fullStepId === 'step-complete') {
             $('#main-sidebar').hide();
             $('#onboarding-app').removeClass('sidebar-visible');
         } else {
@@ -951,7 +951,7 @@ jQuery(document).ready(function ($) {
             },
 
             // =====================
-            // STEP 5: Complete
+            // STEP 5: Complete (Upsell)
             // =====================
             {
                 id: 'complete',
@@ -962,74 +962,188 @@ jQuery(document).ready(function ($) {
                     navigateTo('complete');
                     fireSetupCompleted();
 
-                    // Use the actual feed URL returned from the server
-                    var feedUrl = feedData.feed_url || '';
+                    // Fire impression telemetry (non-blocking)
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: { action: 'pfm_track_companion_impression', security: pfmNonce }
+                    });
 
-                    $('#feedUrl').val(feedUrl);
+                    // Determine merchant display name
+                    var isCustom = (selectedMerchantId === 'custom' || !selectedMerchantId || !selectedMerchantName);
+                    var merchantDisplay;
+                    if (isCustom) {
+                        merchantDisplay = 'your desired merchant';
+                    } else {
+                        var name = selectedMerchantName || '';
+                        merchantDisplay = name.charAt(0).toUpperCase() + name.slice(1);
+                    }
 
-                    // Copy button - copies to clipboard and opens in new tab
-                    $('#copyBtn').off('click').on('click', function () {
-                        var $input = $('#feedUrl');
-                        var url = $input.val();
+                    // Set dynamic description text
+                    $('#completeUpsellDesc').html(
+                        'Nice \u2014 your products are heading to <strong>' + merchantDisplay + '</strong>. ' +
+                        'But more traffic doesn\'t automatically mean more profit. ' +
+                        'The real leverage is what happens at checkout. ' +
+                        'Here are two tools that turn clicks into revenue:'
+                    );
 
-                        // Copy to clipboard
-                        $input[0].select();
-                        $input[0].setSelectionRange(0, 99999); // For mobile devices
+                    // Set WPFunnels description with merchant name
+                    $('#wpfunnelsPluginDesc').html(
+                        'Replace your default checkout with a high-converting page. Add order bumps and upsells so every visitor from <strong>' + merchantDisplay + '</strong> is worth more.'
+                    );
 
-                        try {
-                            document.execCommand('copy');
-                            // Show feedback
-                            var $btn = $(this);
-                            var originalTitle = $btn.attr('title');
-                            $btn.attr('title', 'Copied!');
-                            setTimeout(function() {
-                                $btn.attr('title', originalTitle);
-                            }, 2000);
-                        } catch (err) {
-                            console.error('Failed to copy:', err);
+                    // Populate feed info card
+                    if (feedData.feed_url) {
+                        $('#feedUrlInput').val(feedData.feed_url);
+                        $('#feedViewLink').attr('href', feedData.feed_url);
+                        $('#feedEditLink').attr('href', feedData.edit_url || '#');
+                        $('#feedDownloadLink').attr('href', feedData.feed_url);
+                        var fmt = (feedData.format || 'xml').toUpperCase();
+                        $('#feedFormatBadge').text(fmt);
+                    }
+
+                    // Track how many plugins have been installed this session
+                    var installedPluginsCount = 0;
+
+                    // Swap the skip row with dashboard/create-another buttons
+                    function showFinalActions() {
+                        var $skipRow = $('.complete-skip-row');
+                        $skipRow.html(
+                            '<div class="upsell-final-actions">' +
+                            '<button class="btn btn-secondary" id="upsellCreateAnotherBtn">Create Another Feed</button>' +
+                            '<button class="btn btn-primary" id="upsellDashboardBtn">Go to Dashboard</button>' +
+                            '</div>'
+                        );
+                        $('#upsellCreateAnotherBtn').on('click', function() {
+                            window.location.href = 'post-new.php?post_type=product-feed';
+                        });
+                        $('#upsellDashboardBtn').on('click', function() {
+                            window.location.href = 'edit.php?post_type=product-feed';
+                        });
+                    }
+
+                    // Spinner HTML helper
+                    function spinnerHtml(text) {
+                        return '<span style="display:inline-flex;align-items:center;gap:8px;">' +
+                            '<svg class="spinner" width="15" height="15" viewBox="0 0 50 50" style="animation:rotate 1s linear infinite;">' +
+                            '<circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5" stroke-dasharray="31.4 31.4" stroke-linecap="round" style="animation:dash 1.5s ease-in-out infinite;"></circle>' +
+                            '</svg>' + text + '</span>';
+                    }
+
+                    // Disable all footer action buttons during install
+                    function lockFooterActions() {
+                        $('#skipForNowBtn, #upsellCreateAnotherBtn, #upsellDashboardBtn').prop('disabled', true);
+                    }
+
+                    // Re-enable footer action buttons after install
+                    function unlockFooterActions() {
+                        $('#skipForNowBtn, #upsellCreateAnotherBtn, #upsellDashboardBtn').prop('disabled', false);
+                    }
+
+                    // Generic plugin install handler
+                    function handlePluginInstall($btn, pluginSlug, originalHtml, successText) {
+                        if ($btn.hasClass('is-installing') || $btn.hasClass('is-installed')) return;
+                        $btn.addClass('is-installing').prop('disabled', true).html(spinnerHtml('Installing...'));
+                        lockFooterActions();
+
+                        $.ajax({
+                            url: ajaxurl,
+                            type: 'POST',
+                            data: {
+                                action: 'pfm_install_activate_plugin',
+                                plugin_slug: pluginSlug,
+                                security: pfmNonce
+                            },
+                            success: function(response) {
+                                $btn.removeClass('is-installing');
+                                if (response && response.success) {
+                                    $btn.addClass('is-installed').prop('disabled', true).html(successText);
+                                    installedPluginsCount++;
+                                    if (installedPluginsCount === 1) {
+                                        showFinalActions();
+                                    } else {
+                                        unlockFooterActions();
+                                    }
+                                } else {
+                                    $btn.prop('disabled', false).html(originalHtml);
+                                    unlockFooterActions();
+                                }
+                            },
+                            error: function() {
+                                $btn.removeClass('is-installing').prop('disabled', false).html(originalHtml);
+                                unlockFooterActions();
+                            }
+                        });
+                    }
+
+                    // Companion plugin statuses passed from PHP
+                    var companionPlugins = (typeof pfmMerchantsData !== 'undefined' && pfmMerchantsData.companionPlugins)
+                        ? pfmMerchantsData.companionPlugins
+                        : {};
+
+                    // Apply initial state to a plugin card button
+                    // status: 'not_installed' | 'installed' | 'active'
+                    function applyPluginStatus($btn, status, pluginSlug, installLabel, activateLabel) {
+                        if (status === 'active') {
+                            // Already active — show card with activated badge, disable button
+                            $btn.addClass('is-installed').prop('disabled', true).html('Already Activated \u2713');
+                            $btn.closest('.upsell-plugin-card').addClass('is-already-active');
+                            installedPluginsCount++;
+                        } else if (status === 'installed') {
+                            // Installed but not active — change button label to Activate
+                            $btn.html(activateLabel);
+                            $btn.off('click').on('click', function() {
+                                handlePluginInstall($(this), pluginSlug, activateLabel, 'Activated \u2713');
+                            });
                         }
+                        // 'not_installed' — leave default install button as-is
+                    }
 
-                        // Also open in new tab
-                        window.open(url, '_blank');
-                    });
+                    // WPFunnels install button
+                    var $wpfBtn = $('#installWpfunnelsBtn');
+                    var wpfInstallLabel = 'Install WPFunnels (Free) \u2192';
+                    var wpfActivateLabel = 'Activate WPFunnels \u2192';
+                    var wpfStatus = companionPlugins['wpfunnels'] || 'not_installed';
 
-                    // Download button
-                    $('#downloadBtn').off('click').on('click', function () {
-                        var url = $('#feedUrl').val();
-                        if (url) {
-                            var feedId = feedData.feed_id || 'feed';
-                            var feedFormat = feedData.format || 'xml';
-                            var a = document.createElement('a');
-                            a.href = url;
-                            a.download = 'feed-' + feedId + '.' + feedFormat;
-                            a.click();
-                        }
-                    });
+                    applyPluginStatus($wpfBtn, wpfStatus, 'wpfunnels', wpfInstallLabel, wpfActivateLabel);
 
-                    // Edit Feed link
-                    $('#editFeedLink').off('click').on('click', function (e) {
-                        e.preventDefault();
-                        if (feedData.edit_url) {
-                            window.location.href = feedData.edit_url;
-                        } else {
-                            console.log('Edit feed URL not available');
-                        }
-                    });
+                    if (wpfStatus === 'not_installed') {
+                        $wpfBtn.off('click').on('click', function() {
+                            handlePluginInstall($(this), 'wpfunnels', wpfInstallLabel, 'Installed \u2713');
+                        });
+                    }
 
-                    // Create Another Feed button
-                    $('#createAnotherBtn').off('click').on('click', function () {
-                        // Navigate to create new feed page
-                        window.location.href = 'post-new.php?post_type=product-feed';
-                    });
+                    // Cart Lift install button
+                    var $clBtn = $('#installCartLiftBtn');
+                    var clInstallLabel = 'Install Cart Lift (Free) \u2192';
+                    var clActivateLabel = 'Activate Cart Lift \u2192';
+                    var clStatus = companionPlugins['cart-lift'] || 'not_installed';
 
-                    // Go to Dashboard button
-                    $('#dashboardBtn').off('click').on('click', function () {
-                        // Navigate to the feeds list page
-                        window.location.href = 'edit.php?post_type=product-feed';
-                    });
+                    applyPluginStatus($clBtn, clStatus, 'cart-lift', clInstallLabel, clActivateLabel);
 
-                    $('.exit').off('click').on('click', function () {
-                        window.location.href = 'edit.php?post_type=product-feed';
+                    if (clStatus === 'not_installed') {
+                        $clBtn.off('click').on('click', function() {
+                            handlePluginInstall($(this), 'cart-lift', clInstallLabel, 'Installed \u2713');
+                        });
+                    }
+
+                    // If both were already active, show final actions immediately
+                    if (installedPluginsCount >= 1) {
+                        showFinalActions();
+                    }
+
+                    // Skip for now - fire AJAX then redirect
+                    $('#skipForNowBtn').off('click').on('click', function() {
+                        var $btn = $(this);
+                        $btn.prop('disabled', true).text('Please wait...');
+                        $.ajax({
+                            url: ajaxurl,
+                            type: 'POST',
+                            data: { action: 'pfm_skip_upsell', security: pfmNonce },
+                            complete: function() {
+                                window.location.href = 'edit.php?post_type=product-feed';
+                            }
+                        });
                     });
                 }
             }

@@ -6,7 +6,7 @@ Tags: Product Feed, WooCommerce Product Feed, Google Shopping Feed, Facebook Cat
 Requires at least: 6.7
 Tested up to:  6.9
 Requires PHP: 7.4
-Stable tag:  7.4.76
+Stable tag:  7.4.77
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,11 +18,11 @@ Generate WooCommerce product feeds for 200+ marketplaces. Sell on Google Shoppin
 
 Generate accurate product feeds to list your WooCommerce products on any marketplace with just a few clicks. 
 
-No coding. No spreadsheets. Just results.
-
 <a href="https://rextheme.com/best-woocommerce-product-feed/">Upgrade to Pro — 20% OFF!</a>
 
 [youtube https://youtu.be/shv3-tMqWWU?utm_source=repo&utm_medium=pfm_repo&utm_campaign=pfm-intro]
+
+📘 [Documentation](https://rextheme.com/docs-category/product-feed-manager/?utm_source=repo&utm_medium=pfm-documentation&utm_campaign=pfm-repo-to-doc/) | 🎥 [Video Tutorials](https://www.youtube.com/playlist?list=PLelDqLncNWcVCJ_VARq1W8SQypFLwyKq0) | 🌟 [All Features](https://rextheme.com/best-woocommerce-product-feed/features/?utm_source=pfm-repo&utm_medium=pfm-repo&utm_campaign=pfm-repo-features) | 🚀 [Live Demo](https://try.rextheme.com/pfm/)
 
 Reach thousands of buyers by listing your products on marketplaces like Google Shopping, Facebook, Instagram, TikTok, eBay and more.  
 
@@ -52,24 +52,28 @@ This gives you a proper feed with fewer rejections, better visibility, and a hig
 
 <h3>Why Use Product Feed Manager for WooCommerce? 🤔</h3>
 
-Building WooCommerce product feeds manually is slow and often causes errors.
-With Product Feed Manager, you can create perfect feeds in **3 easy steps**, without spending hours.
+Building WooCommerce product feeds manually is slow and often causes errors. So, stop wasting time fixing rejected feeds and losing ad spend. 
 
-1. Select Your Preferred Merchant.
-2. Configure Your Product Data
-3. Click on Publish to Generate The Feed
+With Product Feed Manager, you can:
+- **Get your products approved faster** – automatic attribute mapping and category matching prevent errors that usually block feeds. 
+- **Reach more customers across 200+ marketplaces** – Google, Meta, TikTok, Pinterest, and more, all supported out of the box. 
+- **Save hours of manual work** – generate perfect feeds in 3 simple steps, even for thousands of products. 
+- **Keep your ads accurate and up to date** – scheduled auto-sync ensures prices, availability, and stock levels are always correct. 
+- **Scale without server crashes** – batch processing handles large catalogs effortlessly. 
+
+### How It Works in 3 Steps
+
+1. **Select Your Marketplace** – Google, Facebook, TikTok, or any supported channel. 
+2. **We Your Product Data** – use pre-built templates or customize with filters, category mapping, and custom fields.
+3. **Publish & Sell** – feed is ready for submission, so your products start selling faster. 
+
+Use pre-configured templates for 200+ marketplaces or customize your feed with advanced options like Google auto-sync, filters, and dynamic attributes.
 
 Then submit the feed to your marketplace and start selling quickly.
 Use pre-configured templates for 200+ marketplaces or customize with features like:
 * Category mapping
 * Custom fields and product filters
 * Google auto-sync and more
-
-The process is simple and intuitive 🤩
-
-* [Read Step-by-Step](https://rextheme.com/docs-category/product-feed-manager/?utm_source=repo&utm_medium=pfm-documentation&utm_campaign=pfm-repo-to-doc/)
-* Check Out Our [Video Tutorials](https://www.youtube.com/playlist?list=PLelDqLncNWcVCJ_VARq1W8SQypFLwyKq0)
-* Checkout All Features [From here](https://rextheme.com/best-woocommerce-product-feed/features/?utm_source=pfm-repo&utm_medium=pfm-repo&utm_campaign=pfm-repo-features)
 
 <h3>🌟Generate WooCommerce Product Feeds For Google Shopping & Facebook Feed 🌟</h3>
 
@@ -489,6 +493,10 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.4.77 (2026-04-16) =
+* Improvement: Add upsell section for WPFunnels and Cart Lift on setup wizard
+* Improvement: Add new property for telemetry events of opt-in users
 
 = 7.4.76 (2026-04-03) =
 * Improvement: Compatibility of translated product slugs in feed URLs with TranslatePress Business

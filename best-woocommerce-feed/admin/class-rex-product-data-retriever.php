@@ -2036,6 +2036,7 @@ class Rex_Product_Data_Retriever {
 							} else {
 								$attr_val = $map_value;
 							}
+							update_post_meta( $this->feed->get_id(), '_' . 'rex_has_category_mapping_use', 'yes' );
 						}
 					}
 				}

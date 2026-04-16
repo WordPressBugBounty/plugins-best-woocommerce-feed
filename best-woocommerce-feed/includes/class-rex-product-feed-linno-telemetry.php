@@ -55,11 +55,27 @@ class Rex_Product_Feed_Linno_Telemetry {
             array(
                 'onboarding'   => 'rex_product_feed_setup_completed',
                 'feature_used' => array(
-                    'category_mapping'  => array(
-                        'hook' => 'wpfm_category_mapping_saved',
-                    ),
-                    'feed_filter_rules' => array(
-                        'hook' => 'wpfm_filter_rules_applied',
+                    'feed_generation'  => array(
+                        'hook' => 'rex_product_feed_feed_published',
+                        'callback'  => function( $feed_id ) {
+                            $properties = array(
+                                'category_mapping'      => 'no',
+                                'feed_filter_rules'     => 'no',
+                                'merchant'              => (string) get_post_meta( $feed_id, '_rex_feed_merchant', true ),
+                                'scheduled'             => get_post_meta( $feed_id, '_rex_feed_schedule', true ) ,
+                                'format'                => get_post_meta( $feed_id, '_rex_feed_feed_format', true ) ,
+                                'google_content_api'    => get_post_meta( $feed_id, '_rex_feed_is_google_content_api', true )
+                            );
+                            $google_product_category = get_post_meta( $feed_id, '_rex_feed_google_product_category', true );
+                            $feed_rules = get_post_meta( $feed_id, '_rex_feed_products', true );
+                            if ( $google_product_category ) {
+                                $properties['category_mapping'] = 'yes';
+                            }
+                            if ( $feed_rules && 'all' !== $feed_rules ) {
+                                $properties['feed_filter_rules'] = 'yes';
+                            }
+                            return $properties;
+                        },
                     ),
                 ),
             )

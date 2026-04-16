@@ -23,6 +23,9 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         add_action('wp_ajax_pfm_get_template_mappings', array($this, 'get_template_mappings'));
         add_action('wp_ajax_pfm_create_feed', array($this, 'create_feed'));
         add_action('wp_ajax_rexfeed-generate-feed', array($this, 'generate_feed'));
+        add_action('wp_ajax_pfm_install_activate_plugin', array($this, 'install_activate_plugin'));
+        add_action('wp_ajax_pfm_skip_upsell', array($this, 'skip_upsell'));
+        add_action('wp_ajax_pfm_track_companion_impression', array($this, 'track_companion_impression'));
     }
 
     /**
@@ -449,6 +452,130 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         // Return the result
         echo wp_json_encode($result);
         wp_die();
+    }
+
+    /**
+     * Install and activate a plugin from WordPress.org
+     *
+     * @since 7.4.14
+     */
+    public function install_activate_plugin() {
+        if ( ! current_user_can( 'install_plugins' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized user' ), 403 );
+            return;
+        }
+
+        $nonce = isset( $_POST['security'] ) ? sanitize_text_field( $_POST['security'] ) : '';
+        if ( ! wp_verify_nonce( $nonce, 'rex-product-feed' ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid nonce' ), 400 );
+            return;
+        }
+
+        $allowed_slugs = array( 'wpfunnels', 'cart-lift' );
+        $plugin_slug   = isset( $_POST['plugin_slug'] ) ? sanitize_text_field( $_POST['plugin_slug'] ) : '';
+
+        if ( empty( $plugin_slug ) || ! in_array( $plugin_slug, $allowed_slugs, true ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid plugin slug' ), 400 );
+            return;
+        }
+
+        // Fire telemetry event for the click
+        $telemetry_event = 'wpfunnels' === $plugin_slug
+            ? 'pfm_wizard_companion_install_wpfunnels'
+            : 'pfm_wizard_companion_install_cartlift';
+        do_action( 'product-feed-manager_telemetry_track', $telemetry_event, array( 'plugin' => $plugin_slug ) );
+
+        // Map slug → main plugin file (folder/file.php)
+        $plugin_files = array(
+            'wpfunnels' => 'wpfunnels/wpfnl.php',
+            'cart-lift'  => 'cart-lift/cart-lift.php',
+        );
+        $plugin_file = $plugin_files[ $plugin_slug ];
+
+        // If already active, return success immediately
+        if ( is_plugin_active( $plugin_file ) ) {
+            wp_send_json_success( array( 'message' => 'Plugin already active' ), 200 );
+            return;
+        }
+
+        // If installed but not active, just activate it
+        if ( file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ) ) {
+            $activated = activate_plugin( $plugin_file );
+            if ( is_wp_error( $activated ) ) {
+                wp_send_json_error( array( 'message' => $activated->get_error_message() ), 500 );
+                return;
+            }
+            wp_send_json_success( array( 'message' => 'Plugin activated' ), 200 );
+            return;
+        }
+
+        // Install from WordPress.org then activate
+        require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+        require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+        require_once ABSPATH . 'wp-admin/includes/class-wp-ajax-upgrader-skin.php';
+
+        $api = plugins_api( 'plugin_information', array(
+            'slug'   => $plugin_slug,
+            'fields' => array( 'sections' => false ),
+        ) );
+
+        if ( is_wp_error( $api ) ) {
+            wp_send_json_error( array( 'message' => $api->get_error_message() ), 500 );
+            return;
+        }
+
+        $skin     = new WP_Ajax_Upgrader_Skin();
+        $upgrader = new Plugin_Upgrader( $skin );
+        $result   = $upgrader->install( $api->download_link );
+
+        if ( is_wp_error( $result ) ) {
+            wp_send_json_error( array( 'message' => $result->get_error_message() ), 500 );
+            return;
+        }
+
+        if ( is_wp_error( $skin->result ) ) {
+            wp_send_json_error( array( 'message' => $skin->result->get_error_message() ), 500 );
+            return;
+        }
+
+        $activated = activate_plugin( $plugin_file );
+        if ( is_wp_error( $activated ) ) {
+            wp_send_json_error( array( 'message' => $activated->get_error_message() ), 500 );
+            return;
+        }
+
+        wp_send_json_success( array( 'message' => 'Plugin installed and activated' ), 200 );
+    }
+
+    /**
+     * Track upsell skip and return success (redirect happens client-side)
+     *
+     * @since 7.4.14
+     */
+    public function skip_upsell() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized user' ), 403 );
+            return;
+        }
+
+        do_action( 'product-feed-manager_telemetry_track', 'pfm_wizard_companion_skip', array() );
+        update_option( 'rex_feed_setup_wizard_upsell_skipped', true );
+        wp_send_json_success( array( 'message' => 'Skipped' ), 200 );
+    }
+
+    /**
+     * Track companion screen impression
+     *
+     * @since 7.4.14
+     */
+    public function track_companion_impression() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized user' ), 403 );
+            return;
+        }
+
+        do_action( 'product-feed-manager_telemetry_track', 'pfm_wizard_companion_impression', array() );
+        wp_send_json_success( array( 'message' => 'Impression tracked' ), 200 );
     }
 
     /**

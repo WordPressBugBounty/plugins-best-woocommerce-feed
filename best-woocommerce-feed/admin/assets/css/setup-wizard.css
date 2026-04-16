@@ -806,168 +806,385 @@ body {
 }
 
 /* =========================================
-   COMPLETE STEP
+   COMPLETE STEP (Upsell Layout)
    ========================================= */
 
-.complete-card {
-    padding: 48px 40px !important;
-}
-
-.success-content {
+.complete-upsell-app {
+    min-height: 100vh;
+    background: #f6f4ff;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-.success-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: #e8f5ee;
-    display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    padding: 60px 20px;
+}
+
+.complete-upsell-wrapper {
+    width: 100%;
+    max-width: 740px;
+}
+
+/* Header */
+.complete-upsell-header {
+    text-align: center;
     margin-bottom: 28px;
 }
 
-.success-title {
-    font-size: 26px;
+/* Feed info card */
+.feed-info-card {
+    background: white;
+    border: 1px solid #e8e1ff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-top: 16px;
+    margin-bottom: 24px;
+}
+
+.feed-info-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
     font-weight: 600;
+    color: #6b6b8a;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+}
+
+.feed-info-label svg {
+    flex-shrink: 0;
+    color: #201cfe;
+}
+
+.feed-info-format-badge {
+    background: #ede9fe;
+    color: #201cfe;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+}
+
+.feed-info-url-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.feed-info-url-input {
+    flex: 1;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 13px;
+    color: #374151;
+    background: #f8fafc;
+    outline: none;
+    min-width: 0;
+    font-family: monospace;
+}
+
+.feed-info-url-input:focus {
+    border-color: #201cfe;
+    background: white;
+}
+
+.feed-info-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.feed-info-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #6b6b8a;
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.feed-info-icon-btn:hover {
+    background: #f1f0ff;
+    border-color: #201cfe;
+    color: #201cfe;
+}
+
+
+.complete-upsell-title {
+    font-size: 26px;
+    font-weight: 700;
     color: #0e003c;
-    margin: 0 0 12px;
+    line-height: 1.35;
+    margin: 0 0 16px;
 }
 
-.success-desc {
-    font-size: 15px;
+.complete-upsell-title-blue {
+    color: #201cfe;
+}
+
+.complete-upsell-desc {
+    font-size: 14px;
     color: #76708c;
-    margin: 0 0 48px;
-    line-height: 1.6;
+    line-height: 1.7;
+    margin: 0;
 }
 
-.feed-url-section {
-    width: 100%;
-    max-width: 560px;
-    background: #fbfaff;
-    border: 1px solid #f1eeff;
+.complete-upsell-desc strong {
+    color: #0e003c;
+    font-weight: 600;
+}
+
+/* Plugin cards list */
+.upsell-plugins-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+/* Base plugin card */
+.upsell-plugin-card {
+    background: white;
+    border: 1px solid #e8e1ff;
     border-radius: 12px;
     padding: 24px;
-    margin-bottom: 48px;
-}
-
-.feed-url-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-}
-
-.feed-url-label {
-    font-size: 13px;
-    font-weight: 500;
-    color: #0e003c;
-}
-
-/* .edit-feed-link {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #201cfe;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.edit-feed-link:hover {
-    opacity: 0.8;
-} */
-
-.feed-url-row {
-    display: flex;
-    gap: 8px;
-}
-
-.feed-url-input {
-    flex: 1;
-    padding: 12px 14px;
-    border: 1px solid #e8e1ff;
-    border-radius: 8px;
-    font-family: Inter, sans-serif;
-    font-size: 14px;
-    color: #0e003c;
-    background: white;
-    outline: none;
-}
-
-
-.icon-btn {
     position: relative;
-    width: 44px;
-    height: 44px;
-    border: none;
-    border-radius: 12px;
-    background: #f6f6f7;
-    color: #75718B;
+}
+
+/* Featured / highlighted card */
+.upsell-plugin-featured {
+    border-color: #e8e1ff;
+    box-shadow: 0 4px 20px rgba(32, 28, 254, 0.06);
+}
+
+/* HIGHLY RECOMMENDED badge */
+.upsell-badge {
+    position: absolute;
+    top: 0;
+    right: 16px;
+    transform: translateY(-50%);
+    background: #201cfe;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+}
+
+/* Card header row (icon + titles) */
+.upsell-plugin-header-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.upsell-plugin-icon-wrap {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    background: #f6f4ff;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    transition: box-shadow 0.2s, border 0.2s, background 0.2s;
-    flex-shrink: 0;
-    outline: none;
-    padding: 0;
+    overflow: hidden;
 }
 
-.icon-btn svg {
-    stroke: #75718B;
-    transition: stroke 0.2s;
+.upsell-plugin-icon-img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
 }
 
-.icon-btn:hover,
-.icon-btn.active {
-    border: 1px solid #2d4fff;
-    box-shadow: 0 2px 8px rgba(45, 79, 255, 0.08);
-    background: #fff;
+.upsell-plugin-titles {
+    flex: 1;
 }
 
-.icon-btn:hover svg,
-.icon-btn:focus svg,
-.icon-btn.active svg {
-    stroke: #2d4fff !important;
-}
-.icon-btn:hover svg path,
-.icon-btn:focus svg path,
-.icon-btn.active svg path {
-    stroke: #2d4fff !important;
+.upsell-plugin-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0e003c;
+    margin: 0 0 4px;
 }
 
-.icon-tooltip {
-    visibility: hidden;
-    opacity: 0;
-    position: absolute;
-    top: -38px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #fff;
-    color: #2d4fff;
-    border: 1px solid #2d4fff;
-    border-radius: 6px;
-    padding: 4px 10px;
-    font-family: 'Roboto', Arial, sans-serif;
-    font-size: 12px;
-    font-weight: 400;
+.upsell-plugin-brand {
+    font-size: 13px;
+    color: #201cfe;
+    margin: 0;
+    font-weight: 500;
+}
+
+.upsell-plugin-desc {
+    font-size: 13px;
+    color: #76708c;
+    line-height: 1.6;
+    margin: 0 0 20px;
+}
+
+.upsell-plugin-desc strong {
+    color: #0e003c;
+    font-weight: 600;
+}
+
+/* Featured card footer (button + stats) */
+.upsell-plugin-footer-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: nowrap;
+}
+
+.upsell-install-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 28px;
+    font-size: 14px;
     white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(45, 79, 255, 0.08);
-    transition: opacity 0.2s, visibility 0.2s;
-    z-index: 10;
-    pointer-events: none;
+    flex-shrink: 0;
 }
 
-.icon-btn:hover .icon-tooltip,
-.icon-btn.active .icon-tooltip {
-    visibility: visible;
+.upsell-install-btn.is-installed,
+.upsell-install-btn.is-installed:disabled {
+    background: #239654;
+    color: white;
+    cursor: default;
     opacity: 1;
+}
+
+/* Card is already active — add green accent border */
+.upsell-plugin-card.is-already-active {
+    border-color: #239654;
+}
+
+.upsell-plugin-card.is-already-active .upsell-plugin-brand {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.upsell-plugin-card.is-already-active .upsell-plugin-brand::after {
+    content: 'Active';
+    font-size: 11px;
+    font-weight: 600;
+    color: #239654;
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    border-radius: 20px;
+    padding: 1px 8px;
+    line-height: 1.6;
+}
+
+.upsell-plugin-stats {
+    font-size: 12px;
+    color: #76708c;
+    line-height: 1.5;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+/* Cart Lift card - horizontal body row */
+.upsell-plugin-body-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.upsell-plugin-body-row .upsell-plugin-titles {
+    flex: 1;
+}
+
+.upsell-plugin-body-row .upsell-plugin-desc {
+    margin: 0;
+}
+
+.upsell-cartlift-action {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+/* Muted brand variant (Cart Lift) */
+.upsell-plugin-brand--muted {
+    color: #76708c;
+}
+
+/* Cart Lift install button — same shape as WPFunnels, secondary color */
+.upsell-secondary-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 28px;
+    font-family: Inter, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #201cfe;
+    background: white;
+    border: 1px solid #e8e1ff;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.upsell-secondary-btn:hover {
+    border-color: #201cfe;
+}
+
+.upsell-secondary-btn:disabled {
+    color: #76708c;
+    border-color: #e8e1ff;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.upsell-secondary-btn.is-installed {
+    color: #239654;
+    border-color: #239654;
+    background: white;
+    cursor: default;
+    opacity: 1;
+}
+
+/* Skip for now / final actions row */
+.complete-skip-row {
+    text-align: center;
+}
+
+/* Final actions (shown after at least one plugin installed) */
+.upsell-final-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
+.complete-skip-btn {
+    background: none;
+    border: none;
+    font-family: Inter, sans-serif;
+    font-size: 14px;
+    color: #76708c;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.complete-skip-btn:hover {
+    color: #201cfe;
+}
+
+.complete-skip-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 /* =========================================
@@ -981,12 +1198,6 @@ body {
     margin-top: 8px;
 }
 
-/* Center buttons for complete step */
-#step-complete .nav-buttons {
-    justify-content: center;
-    gap: 16px;
-    margin-top: 0;
-}
 
 .btn {
     font-family: Inter, sans-serif;

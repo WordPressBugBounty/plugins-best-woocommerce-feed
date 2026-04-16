@@ -627,6 +627,15 @@ abstract class Rex_Product_Feed_Abstract_Generator
     }
 
     /**
+     * Get the feed ID.
+     * @return int Feed ID.
+     * @since 7.4.77
+     */
+    public function get_id() {
+        return $this->id;
+    }
+
+    /**
      * Prepare the Products Query args for retrieving  products.
      * @param $args
      */
@@ -859,6 +868,17 @@ abstract class Rex_Product_Feed_Abstract_Generator
 
         $this->feed_config= $feed_rules[ 'fc' ] ?? [];
 
+        $result = array_filter($this->feed_config, function ($item) {
+            return isset($item['attr'], $item['meta_key']) &&
+                $item['attr'] === 'google_product_category' &&
+                !empty($item['meta_key']);
+        });
+
+        if (!empty($result)) {
+            $item = reset($result);
+            update_post_meta($this->id, '_rex_feed_google_product_category', $item['meta_key']);
+        }
+
         // save the feed_rules into feed post_meta.
         if ( $this->batch === 1 ) {
             update_post_meta( $this->id, '_rex_feed_feed_config', $this->feed_config);
@@ -1017,10 +1037,11 @@ abstract class Rex_Product_Feed_Abstract_Generator
         }
 
         $filter_data = Rex_Product_Feed_Data_Handle::get_filter_drawer_data( $feed_configs );
-
         if( !empty( $filter_data ) ) {
             Rex_Product_Feed_Data_Handle::save_filter_drawer_data( $this->id, $filter_data );
-            do_action( 'wpfm_filter_rules_applied' );
+            if ( 'all' !== $filter_data['rex_feed_products'] ) {
+                do_action( 'wpfm_filter_rules_applied' );
+            }
         }
 
         $settings_data = Rex_Product_Feed_Data_Handle::get_settings_drawer_data( $feed_configs );

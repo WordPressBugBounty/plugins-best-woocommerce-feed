@@ -241,57 +241,91 @@
             </div>
         </section>
 
-        <!-- Complete Step -->
+        <!-- Complete Step (Upsell) -->
         <section class="step" id="step-complete">
-            <div class="card complete-card">
-                <div class="success-content">
-                    <!-- Success Icon -->
-                    <div class="success-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#239654" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
+            <div class="complete-upsell-app">
+                <div class="complete-upsell-wrapper">
+                    <!-- Header -->
+                    <div class="complete-upsell-header">
+                        <h1 class="complete-upsell-title">
+                            <?php esc_html_e('Your Feed Is Live.', 'rex-product-feed'); ?><br>
+                            <span class="complete-upsell-title-blue"><?php esc_html_e('Now Make Every Click Profitable.', 'rex-product-feed'); ?></span>
+                        </h1>
+                        <p class="complete-upsell-desc" id="completeUpsellDesc"></p>
                     </div>
 
-                    <h1 class="success-title"><?php esc_html_e('Your Feed is Ready!', 'rex-product-feed'); ?></h1>
-                    <p class="success-desc"><?php esc_html_e('Your product feed has been generated and is ready to use.', 'rex-product-feed'); ?></p>
-
-                    <!-- Feed URL Section -->
-                    <div class="feed-url-section">
-                        <div class="feed-url-header">
-                            <span class="feed-url-label"><?php esc_html_e('Feed URL', 'rex-product-feed'); ?></span>
+                    <!-- Plugin Cards -->
+                    <div class="upsell-plugins-list">
+                        <!-- WPFunnels Card -->
+                        <div class="upsell-plugin-card upsell-plugin-featured">
+                            <span class="upsell-badge"><?php esc_html_e('HIGHLY RECOMMENDED', 'rex-product-feed'); ?></span>
+                            <div class="upsell-plugin-header-row">
+                                <div class="upsell-plugin-icon-wrap">
+                                    <img src="<?php echo esc_url( WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/wpfunnels.png' ); ?>" alt="WPFunnels" class="upsell-plugin-icon-img">
+                                </div>
+                                <div class="upsell-plugin-titles">
+                                    <h3 class="upsell-plugin-name"><?php esc_html_e('Turn Clicks Into Profit', 'rex-product-feed'); ?></h3>
+                                    <p class="upsell-plugin-brand">WPFunnels &mdash; <?php esc_html_e('Funnel Builder for WooCommerce', 'rex-product-feed'); ?></p>
+                                </div>
+                            </div>
+                            <p class="upsell-plugin-desc" id="wpfunnelsPluginDesc"></p>
+                            <div class="upsell-plugin-footer-row">
+                                <button class="btn btn-continue upsell-install-btn" id="installWpfunnelsBtn">
+                                    <?php esc_html_e('Install WPFunnels (Free)', 'rex-product-feed'); ?> &rarr;
+                                </button>
+                                <span class="upsell-plugin-stats">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:4px;flex-shrink:0;">
+                                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                                    </svg><?php esc_html_e('Used by 6,000+ WooCommerce stores', 'rex-product-feed'); ?> &bull; <?php esc_html_e('4.9/5 rating', 'rex-product-feed'); ?>
+                                </span>
+                            </div>
                         </div>
-                        <div class="feed-url-row">
-                            <input type="text" class="feed-url-input" id="feedUrl" value="" readonly />
-                            <button class="icon-btn" id="copyBtn" title="<?php esc_attr_e('View feed', 'rex-product-feed'); ?>">
-                                <span class="icon-tooltip"><?php esc_html_e('View Feed', 'rex-product-feed'); ?></span>
-                                <svg width="23" height="20" viewBox="0 0 23 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M15.0355 9.60039C15.0355 11.7168 13.3253 13.427 11.2089 13.427C9.09254 13.427 7.38232 11.7168 7.38232 9.60039C7.38232 7.484 9.09254 5.77379 11.2089 5.77379C13.3253 5.77379 15.0355 7.484 15.0355 9.60039Z" stroke="#75718B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M11.209 18.44C14.9822 18.44 18.4988 16.2167 20.9465 12.3687C21.9085 10.8616 21.9085 8.32837 20.9465 6.82125C18.4988 2.97327 14.9822 0.75 11.209 0.75C7.43586 0.75 3.91924 2.97327 1.4715 6.82125C0.509501 8.32837 0.509501 10.8616 1.4715 12.3687C3.91924 16.2167 7.43586 18.44 11.209 18.44Z" stroke="#75718B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
-                            <button class="icon-btn" id="editFeedLink" type="button" title="<?php esc_attr_e('Edit Feed', 'rex-product-feed'); ?>">
-                                <span class="icon-tooltip"><?php esc_html_e('Edit Feed', 'rex-product-feed'); ?></span>
-                                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12.378 2.39855L2.1713 12.6052C1.77798 12.9985 1.40434 13.7655 1.32568 14.3162L0.775033 18.21C0.578373 19.626 1.56166 20.6093 2.97762 20.4126L6.87145 19.862C7.4221 19.7833 8.18912 19.4096 8.58244 19.0163L18.7891 8.80966C20.5394 7.05939 21.385 5.01412 18.7891 2.41821C16.1932 -0.197368 14.1479 0.628607 12.378 2.39855Z" stroke="#75718B" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M10.9224 3.85386C11.7877 6.94142 14.2066 9.38001 17.3138 10.2453" stroke="#75718B" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
-                            <button class="icon-btn" id="downloadBtn" title="<?php esc_attr_e('Download Feed', 'rex-product-feed'); ?>">
-                                <span class="icon-tooltip"><?php esc_html_e('Download Feed', 'rex-product-feed'); ?></span>
-                                <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M7.05566 9.85398L10.0903 12.8886L13.125 9.85398" stroke="#75718B" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M10.0903 0.75V12.8057" stroke="#75718B" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M19.7166 10.4467C19.7166 15.6862 16.1604 19.93 10.2333 19.93C4.30624 19.93 0.75 15.6862 0.75 10.4467" stroke="#75718B" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
+
+                        <!-- Cart Lift Card -->
+                        <div class="upsell-plugin-card">
+                            <div class="upsell-plugin-body-row">
+                                <div class="upsell-plugin-icon-wrap">
+                                    <img src="<?php echo esc_url( WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/cart-lift.png' ); ?>" alt="Cart Lift" class="upsell-plugin-icon-img">
+                                </div>
+                                <div class="upsell-plugin-titles">
+                                    <h3 class="upsell-plugin-name"><?php esc_html_e('Recover Lost Revenue', 'rex-product-feed'); ?></h3>
+                                    <p class="upsell-plugin-brand upsell-plugin-brand--muted">Cart Lift</p>
+                                    <p class="upsell-plugin-desc"><?php esc_html_e('Automatically recover abandoned carts with email reminders.', 'rex-product-feed'); ?></p>
+                                </div>
+                                <div class="upsell-cartlift-action">
+                                    <button class="upsell-secondary-btn" id="installCartLiftBtn"><?php esc_html_e('Install Cart Lift (Free)', 'rex-product-feed'); ?> &rarr;</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Actions -->
-                <div class="nav-buttons">
-                    <button class="btn btn-secondary" id="createAnotherBtn"><?php esc_html_e('Create Another Feed', 'rex-product-feed'); ?></button>
-                    <button class="btn btn-primary" id="dashboardBtn"><?php esc_html_e('Go to Dashboard', 'rex-product-feed'); ?></button>
+                    <!-- Feed Info Card -->
+                    <div class="feed-info-card" id="feedInfoCard">
+                        <div class="feed-info-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                            <?php esc_html_e('Feed URL', 'rex-product-feed'); ?>
+                            <span class="feed-info-format-badge" id="feedFormatBadge"></span>
+                        </div>
+                        <div class="feed-info-url-wrap">
+                            <input type="text" class="feed-info-url-input" id="feedUrlInput" readonly>
+                            <div class="feed-info-actions">
+                                <a class="feed-info-icon-btn" id="feedViewLink" href="#" target="_blank" title="<?php esc_attr_e('View Feed', 'rex-product-feed'); ?>">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                </a>
+                                <a class="feed-info-icon-btn" id="feedEditLink" href="#" target="_blank" title="<?php esc_attr_e('Edit Feed', 'rex-product-feed'); ?>">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </a>
+                                <a class="feed-info-icon-btn" id="feedDownloadLink" href="#" target="_blank" download title="<?php esc_attr_e('Download Feed', 'rex-product-feed'); ?>">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skip -->
+                    <div class="complete-skip-row">
+                        <button class="complete-skip-btn" id="skipForNowBtn"><?php esc_html_e('Skip for now', 'rex-product-feed'); ?> &rarr;</button>
+                    </div>
                 </div>
             </div>
         </section>

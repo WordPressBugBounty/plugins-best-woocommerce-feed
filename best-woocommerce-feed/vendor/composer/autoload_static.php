@@ -12,35 +12,35 @@ class ComposerStaticInit978a6166a9b5478c3020d5cccd729501
     );
 
     public static $prefixLengthsPsr4 = array (
-        'P' =>
+        'P' => 
         array (
             'PostHog\\' => 8,
             'PhilipNewcomer\\WP_Ajax_Helper\\' => 30,
         ),
-        'L' =>
+        'L' => 
         array (
             'LinnoSDK\\Telemetry\\' => 19,
         ),
-        'A' =>
+        'A' => 
         array (
             'Appsero\\' => 8,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'PostHog\\' =>
+        'PostHog\\' => 
         array (
             0 => __DIR__ . '/..' . '/posthog/posthog-php/lib',
         ),
-        'PhilipNewcomer\\WP_Ajax_Helper\\' =>
+        'PhilipNewcomer\\WP_Ajax_Helper\\' => 
         array (
             0 => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components',
         ),
-        'LinnoSDK\\Telemetry\\' =>
+        'LinnoSDK\\Telemetry\\' => 
         array (
             0 => __DIR__ . '/..' . '/linno/telemetry/src',
         ),
-        'Appsero\\' =>
+        'Appsero\\' => 
         array (
             0 => __DIR__ . '/..' . '/appsero/client/src',
         ),
