@@ -1175,6 +1175,7 @@ return array(
     'Rex_Product_Feed_Controller' => $baseDir . '/admin/class-rex-product-feed-controller.php',
     'Rex_Product_Feed_Create_Contact' => $baseDir . '/includes/class-rex-product-feed-create-contact.php',
     'Rex_Product_Feed_Daisycon' => $baseDir . '/admin/feed/class-rex-product-feed-daisycon.php',
+    'Rex_Product_Feed_Dashboard_Banner' => $baseDir . '/includes/class-rex-product-feed-dashboard-banner.php',
     'Rex_Product_Feed_Data_Handle' => $baseDir . '/admin/class-rex-product-feed-handle-data.php',
     'Rex_Product_Feed_Deactivator' => $baseDir . '/includes/class-rex-product-feed-deactivator.php',
     'Rex_Product_Feed_DealsForU' => $baseDir . '/admin/feed/class_rex_product_feed_deals4u.php',

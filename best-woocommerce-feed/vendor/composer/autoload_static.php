@@ -12,35 +12,35 @@ class ComposerStaticInit978a6166a9b5478c3020d5cccd729501
     );
 
     public static $prefixLengthsPsr4 = array (
-        'P' => 
+        'P' =>
         array (
             'PostHog\\' => 8,
             'PhilipNewcomer\\WP_Ajax_Helper\\' => 30,
         ),
-        'L' => 
+        'L' =>
         array (
             'LinnoSDK\\Telemetry\\' => 19,
         ),
-        'A' => 
+        'A' =>
         array (
             'Appsero\\' => 8,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'PostHog\\' => 
+        'PostHog\\' =>
         array (
             0 => __DIR__ . '/..' . '/posthog/posthog-php/lib',
         ),
-        'PhilipNewcomer\\WP_Ajax_Helper\\' => 
+        'PhilipNewcomer\\WP_Ajax_Helper\\' =>
         array (
             0 => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components',
         ),
-        'LinnoSDK\\Telemetry\\' => 
+        'LinnoSDK\\Telemetry\\' =>
         array (
             0 => __DIR__ . '/..' . '/linno/telemetry/src',
         ),
-        'Appsero\\' => 
+        'Appsero\\' =>
         array (
             0 => __DIR__ . '/..' . '/appsero/client/src',
         ),
@@ -1216,6 +1216,7 @@ class ComposerStaticInit978a6166a9b5478c3020d5cccd729501
         'Rex_Product_Feed_Controller' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-controller.php',
         'Rex_Product_Feed_Create_Contact' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-create-contact.php',
         'Rex_Product_Feed_Daisycon' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-daisycon.php',
+        'Rex_Product_Feed_Dashboard_Banner' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-dashboard-banner.php',
         'Rex_Product_Feed_Data_Handle' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-handle-data.php',
         'Rex_Product_Feed_Deactivator' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-deactivator.php',
         'Rex_Product_Feed_DealsForU' => __DIR__ . '/../..' . '/admin/feed/class_rex_product_feed_deals4u.php',

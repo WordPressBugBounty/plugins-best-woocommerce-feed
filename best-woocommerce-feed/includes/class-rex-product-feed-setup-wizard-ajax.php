@@ -26,6 +26,9 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         add_action('wp_ajax_pfm_install_activate_plugin', array($this, 'install_activate_plugin'));
         add_action('wp_ajax_pfm_skip_upsell', array($this, 'skip_upsell'));
         add_action('wp_ajax_pfm_track_companion_impression', array($this, 'track_companion_impression'));
+        add_action('wp_ajax_pfm_settings_wpfunnels_widget_track', array($this, 'track_settings_wpfunnels_widget'));
+        add_action('wp_ajax_pfm_dashboard_banner_track',          array($this, 'dashboard_banner_track'));
+        add_action('wp_ajax_pfm_dashboard_banner_dismiss',        array($this, 'dashboard_banner_dismiss'));
     }
 
     /**
@@ -576,6 +579,90 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
 
         do_action( 'product-feed-manager_telemetry_track', 'pfm_wizard_companion_impression', array() );
         wp_send_json_success( array( 'message' => 'Impression tracked' ), 200 );
+    }
+
+    /**
+     * Track PFM Settings page WPFunnels promo widget impression or click.
+     *
+     * @since 7.4.78
+     */
+    public function track_settings_wpfunnels_widget() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized user' ), 403 );
+            return;
+        }
+
+        $event = isset( $_POST['event'] ) ? sanitize_text_field( wp_unslash( $_POST['event'] ) ) : '';
+
+        if ( 'impression' === $event ) {
+            do_action( 'product-feed-manager_telemetry_track', 'pfm_settings_wpfunnels_widget_impression', array() );
+        }
+
+        wp_send_json_success( array( 'message' => 'Tracked' ), 200 );
+    }
+
+    /**
+     * Track a dashboard banner PostHog event.
+     *
+     * Accepted events: impression, click, dismiss.
+     * Props forwarded: variant, user_feed_count, pfm_version.
+     *
+     * @since 7.4.78
+     */
+    public function dashboard_banner_track() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+            return;
+        }
+
+        $event      = isset( $_POST['event'] )       ? sanitize_text_field( wp_unslash( $_POST['event'] ) )       : '';
+        $variant    = isset( $_POST['variant'] )     ? sanitize_text_field( wp_unslash( $_POST['variant'] ) )     : '';
+        $feed_count = isset( $_POST['feed_count'] )  ? absint( $_POST['feed_count'] )                             : 0;
+        $version    = isset( $_POST['pfm_version'] ) ? sanitize_text_field( wp_unslash( $_POST['pfm_version'] ) ) : '';
+
+        $allowed = array( 'impression', 'click', 'dismiss' );
+        if ( ! in_array( $event, $allowed, true ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid event' ), 400 );
+            return;
+        }
+
+        do_action(
+            'product-feed-manager_telemetry_track',
+            'pfm_wpfunnels_banner_' . $event,
+            array(
+                'variant'         => $variant,
+                'user_feed_count' => $feed_count,
+                'pfm_version'     => $version,
+            )
+        );
+
+        wp_send_json_success( array( 'message' => 'Tracked' ), 200 );
+    }
+
+    /**
+     * Persist a banner dismiss decision for the current user.
+     *
+     * type=temp      → 30-day transient
+     * type=permanent → user_meta flag
+     *
+     * @since 7.4.78
+     */
+    public function dashboard_banner_dismiss() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+            return;
+        }
+
+        $type    = isset( $_POST['type'] ) ? sanitize_text_field( wp_unslash( $_POST['type'] ) ) : 'temp';
+        $user_id = get_current_user_id();
+
+        if ( 'permanent' === $type ) {
+            update_user_meta( $user_id, 'pfm_wpfunnels_banner_dismissed', '1' );
+        } else {
+            set_transient( 'pfm_wpfunnels_banner_temp_' . $user_id, '1', 14 * DAY_IN_SECONDS );
+        }
+
+        wp_send_json_success( array( 'message' => 'Dismissed' ), 200 );
     }
 
     /**

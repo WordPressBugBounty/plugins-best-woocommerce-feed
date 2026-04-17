@@ -10261,4 +10261,86 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
   text-decoration-line: underline;
 }
 
+/* ---------- PFM Settings: WPFunnels promo banner ---------- */
+.rex-settings__promo-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 22px;
+  position: relative;
+}
+.rex-settings__promo-banner.is-hidden {
+  display: none;
+}
+.rex-settings__promo-banner-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+.rex-settings__promo-banner-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: block;
+}
+.rex-settings__promo-banner-body {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.rex-settings__promo-banner-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0C2044;
+  white-space: nowrap;
+}
+.rex-settings__promo-banner-desc {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.4;
+}
+.rex-settings__promo-banner-cta {
+  display: inline-block;
+  background: #216DF0;
+  color: #fff !important;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 4px;
+  text-decoration: none !important;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.rex-settings__promo-banner-cta:hover {
+  background: #1a5fd4;
+  color: #fff !important;
+}
+.rex-settings__promo-banner-dismiss {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  color: #999;
+  padding: 2px 4px;
+  box-shadow: none;
+  min-height: unset;
+  flex-shrink: 0;
+}
+.rex-settings__promo-banner-dismiss:hover {
+  color: #333;
+  background: none;
+  box-shadow: none;
+}
+
 /*# sourceMappingURL=style.css.map */

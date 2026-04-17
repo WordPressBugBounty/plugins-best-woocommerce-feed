@@ -140,6 +140,7 @@ class Rex_Product_Feed {
 		require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-setup-wizard.php';
 		require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-create-contact.php';
         require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-linno-telemetry.php';
+        require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-dashboard-banner.php';
 
 		/**
 		 * Load the Feed Validator system.
@@ -182,6 +183,7 @@ class Rex_Product_Feed {
 	    $appsero_data           = new Rex_Product_Appsero_Data();
 	    $scheduler              = new Rex_Feed_Scheduler();
 	    $setup_wizard_ajax      = new Rex_Product_Feed_Setup_Wizard_Ajax();
+        $dashboard_banner       = new Rex_Product_Feed_Dashboard_Banner();
 
         /**
          * Initialize the Feed Validator system.

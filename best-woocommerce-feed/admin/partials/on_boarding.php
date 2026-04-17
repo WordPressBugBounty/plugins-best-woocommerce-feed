@@ -55,6 +55,24 @@ if ( $is_premium_activated ) {
 		<h2 class="rex-onboarding__title"><?php echo esc_html__('Settings', 'rex-product-feed'); ?></h2>
 	</div>
 
+	<div class="rex-settings__promo-banner" id="pfm-wpfunnels-promo-widget">
+		<div class="rex-settings__promo-banner-inner">
+			<img class="rex-settings__promo-banner-icon" src="<?php echo esc_url( WPFM_PLUGIN_DIR_URL . 'admin/assets/icon/setup-wizard-images/wpfunnels.png' ); ?>" alt="WPFunnels" width="36" height="36">
+			<div class="rex-settings__promo-banner-body">
+				<strong class="rex-settings__promo-banner-title"><?php esc_html_e( 'Your Feeds Drive Traffic. Does Your Checkout Drive Profit?', 'rex-product-feed' ); ?></strong>
+				<span class="rex-settings__promo-banner-desc"><?php esc_html_e( 'Add order bumps and upsells to your WooCommerce checkout. Make every click from Google Shopping worth more.', 'rex-product-feed' ); ?></span>
+			</div>
+			<a href="https://getwpfunnels.com/for-product-feed-manager-users/?utm_source=pfm_settings&utm_medium=banner&utm_campaign=pfm_crosspromo"
+			   target="_blank"
+			   rel="noopener noreferrer"
+			   class="rex-settings__promo-banner-cta"
+			   id="pfm-wpfunnels-promo-cta">
+				<?php esc_html_e( 'Learn More', 'rex-product-feed' ); ?> &rarr;
+			</a>
+		</div>
+		<button class="rex-settings__promo-banner-dismiss" id="pfm-wpfunnels-promo-dismiss" title="<?php esc_attr_e( 'Dismiss', 'rex-product-feed' ); ?>">&#x00D7;</button>
+	</div>
+
 	<div class="rex-onboarding__tab-wrapper">
 		<nav class="rex-settings__nav-items">
 			<ul class="rex-settings__tabs" role="tablist">
@@ -736,6 +754,7 @@ if ( $is_premium_activated ) {
             <?php endif; ?>
 
 		</div>
+
 
 	</div>
 

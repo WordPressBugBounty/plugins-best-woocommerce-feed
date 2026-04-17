@@ -6,7 +6,7 @@ Tags: Product Feed, WooCommerce Product Feed, Google Shopping Feed, Facebook Cat
 Requires at least: 6.7
 Tested up to:  6.9
 Requires PHP: 7.4
-Stable tag:  7.4.77
+Stable tag:  7.4.78
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -343,50 +343,23 @@ Although most merchant templates are available in the free plugin, the following
 
 **⭐ If you want to know more about the [Pro version then click here!](https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=repo-CTA&utm_medium=PFM-repo&utm_campaign=PFM-pro-final-cta)⭐**
 
-## Privacy & Data Collection
-Product Feed Manager for WooCommerce includes an <b>optional, opt-in usage tracking module</b> powered by <b>Appsero SDK</b> to help us troubleshoot issues faster and improve plugin performance, marketplace integrations, and overall user experience.
+## Privacy and policy
 
-## What data we collect (only if you opt in)
-Product Feed Manager for WooCommerce <b>does not collect any data by default.</b>
+If you explicitly **opt in** to usage tracking, we collect specific telemetry data via **PostHog** to improve plugin performance and troubleshoot issues.
 
-If you explicitly allow data collection via the Appsero admin notice, the plugin may collect the following telemetry data:
-- WordPress version
-- PHP version
-- Product Feed Manager for WooCommerce plugin version
-- Active theme and active plugins (names only)
-- Non-sensitive plugin settings related to feed configuration
-- Feature usage and page views within the plugin
-- Site administrator email address
-No data is collected without your explicit confirmation.
-## How and why the data is used
-The collected data is used solely to:
-- Diagnose and resolve technical issues more efficiently
-- Understand how Product Feed Manager for WooCommerce features are used
-- Improve feed generation, marketplace compatibility, and plugin stability
-- Enhance the overall user experience
+### What Data is Collected?
+No data is collected by default. If you provide consent, the following information is gathered:
+* **System Environment:** WordPress version, PHP version, and active theme/plugin names.
+* **Plugin Details:** Product Feed Manager version and non-sensitive configuration settings.
+* **Usage Patterns:** Feature usage and in-plugin page views.
+* **Contact Info:** Site administrator email address.
 
+---
 
-Data collection and processing are handled via <b>Appsero SDK.</b>
+### How to Request Data Removal
+You can revoke your consent at any time. If you would like your previously collected data to be deleted from our systems, please contact us at:
 
-## Additional analytics (conditional)
-Product Feed Manager for WooCommerce may also use <b>OpenPanel</b> for internal analytics <b>only after</b> the administrator has opted in to data collection via Appsero.<br>
-No OpenPanel tracking is initialized or executed unless Appsero consent has already been granted.
-## Consent, Control, and Third-Party Services
-Product Feed Manager for WooCommerce <b>does not collect any data by default.</b><br>
-Both <b>Appsero SDK</b> and <b>OpenPanel</b> analytics are strictly <b>opt-in:</b>
-- <b>Appsero SDK</b> does not gather any data unless you explicitly allow it via the admin notice.
-- <b>OpenPanel</b> tracking is initialized <b>only after</b> the administrator has opted in to Appsero data collection.
-- You can opt out at any time, which immediately stops all further data collection.
-- Integrating Appsero SDK <b>does not immediately start gathering data</b> under any circumstances.<br>
-<b>Third-party services used for optional analytics:</b>
-- <b>Appsero SDK</b> – https://appsero.com/privacy-policy/
-- <b>OpenPanel</b> (only after Appsero opt-in) – https://openpanel.dev/privacy<br><br>
-You can review how Appsero and OpenPanel collect and use data via their respective privacy policies.
-## Data removal
-If you have previously opted in and would like your data removed, you may request deletion by contacting us at support@rextheme.com.
-
-We use below mentioned third party services to improve user experience and enhance the plugin features -
-* [Google Content API](https://developers.google.com/shopping-content/guides/quickstart)
+**Email:** [support@rextheme.com](mailto:support@rextheme.com)
 
 == Installation ==
 **Easy Product Feed Manager Installation Process in your WordPress Dashboard:**
@@ -407,6 +380,12 @@ We use below mentioned third party services to improve user experience and enhan
 
 **Step -4:** That’s it; Publish your feed & send it to your merchant.
 
+== Driving Traffic Is Step 1. Converting It Is Step 2. ==
+Product Feed Manager gets your products in front of buyers across 200+ marketplaces. But more traffic doesn’t automatically mean more profit — your checkout experience is what turns clicks into revenue. Complete your WooCommerce profit stack:
+
+* WPFunnels — Replace the default WooCommerce checkout with custom pages, order bumps, and one-click upsells. Make every visitor from Google Shopping worth more. [Learn more](https://getwpfunnels.com/?utm_source=product_feed_manager_repo&utm_medium=plugin&utm_campaign=profit_stack)
+* Cart Lift — Recover abandoned carts automatically with email and SMS. [Learn more](https://rextheme.com/cart-lift/?utm_source=product_feed_manager_repo&utm_medium=plugin&utm_campaign=profit_stack)
+* Mail Mint — Email marketing automation for WordPress. Trigger sequences from purchases, signups, and funnel actions. [Learn more](https://getwpfunnels.com/email-marketing-automation-mail-mint/?utm_source=product_feed_manager_repo&utm_medium=plugin&utm_campaign=profit_stack)
 
 == Frequently Asked Questions ==
 
@@ -472,6 +451,9 @@ You can easily set this up by following the steps in this <a href="https://www.y
 This feature is only there for Google Merchant Shops and no other merchant shops for now.
 For other shops such as eBay, you will have to download the generated feed and upload it on your Merchant shop’s feed import section manually.
 
+=  Can I use Product Feed Manager with WPFunnels? =
+Yes. Product Feed Manager drives traffic from Google Shopping and other marketplaces. WPFunnels optimizes what happens after the click — custom checkout pages, order bumps, and upsells that increase revenue per visitor. Together they form a complete traffic-to-profit pipeline. Both plugins are built by the Linno team and designed to complement each other.
+
 =  How do I upgrade to pro? =
 You may use the Product Feed Manager for WooCommerce to generate feed for up to 50 items in total in the free version. You may remove this limit and get feed for unlimited products by upgrading to PRO.
 To upgrade to PRO, you may purchase a license key from:
@@ -493,6 +475,9 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.4.78 (2026-04-17) =
+* Improvement: Update promotional banner
 
 = 7.4.77 (2026-04-16) =
 * Improvement: Add upsell section for WPFunnels and Cart Lift on setup wizard

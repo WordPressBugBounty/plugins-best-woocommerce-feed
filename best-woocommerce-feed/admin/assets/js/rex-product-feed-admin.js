@@ -65,6 +65,7 @@
         } else if ( 'product-feed_page_wpfm_dashboard' === rex_wpfm_ajax.current_screen ) {
             rex_feed_settings_tab(event);
             rex_feed_process_rollback_button();
+            pfm_init_wpfunnels_promo_widget();
         }
         const isChecked = $( '#rex_feed_is_google_content_api' ).is( ':checked' );
         showGoogleMerchantContentApiContent( isChecked );
@@ -1744,6 +1745,49 @@
         rex_feed_settings_tab();
     });
     
+
+    /**
+     * PFM Settings — WPFunnels promo sidebar widget.
+     * Shows the widget if not dismissed within the last 60 days,
+     * tracks impression and click events via PostHog telemetry.
+     */
+    function pfm_init_wpfunnels_promo_widget() {
+        var DISMISS_KEY  = 'pfm_wpfunnels_promo_dismissed_at';
+        var DISMISS_DAYS = 60;
+        var $widget      = $( '#pfm-wpfunnels-promo-widget' );
+
+        if ( ! $widget.length ) {
+            return;
+        }
+
+        // Check 60-day dismiss window.
+        var dismissedAt = localStorage.getItem( DISMISS_KEY );
+        if ( dismissedAt ) {
+            var elapsed = ( Date.now() - parseInt( dismissedAt, 10 ) ) / ( 1000 * 60 * 60 * 24 );
+            if ( elapsed < DISMISS_DAYS ) {
+                $widget.addClass( 'is-hidden' );
+                return;
+            }
+        }
+
+        // Widget is visible.
+        $widget.removeClass( 'is-hidden' );
+
+        // Dismiss button.
+        $( document ).on( 'click', '#pfm-wpfunnels-promo-dismiss', function () {
+            localStorage.setItem( DISMISS_KEY, Date.now().toString() );
+            $widget.addClass( 'is-hidden' );
+        } );
+
+        // Learn More click — track impression when the user clicks.
+        $( document ).on( 'click', '#pfm-wpfunnels-promo-cta', function () {
+            $.post( rex_wpfm_ajax.ajax_url, {
+                action:   'pfm_settings_wpfunnels_widget_track',
+                event:    'impression',
+                security: rex_wpfm_ajax.ajax_nonce
+            } );
+        } );
+    }
 
     /**
      * WPFM error log
