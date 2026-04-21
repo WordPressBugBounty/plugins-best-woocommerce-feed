@@ -29,6 +29,10 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         add_action('wp_ajax_pfm_settings_wpfunnels_widget_track', array($this, 'track_settings_wpfunnels_widget'));
         add_action('wp_ajax_pfm_dashboard_banner_track',          array($this, 'dashboard_banner_track'));
         add_action('wp_ajax_pfm_dashboard_banner_dismiss',        array($this, 'dashboard_banner_dismiss'));
+        add_action('wp_ajax_pfm_wizard_dismiss',                   array($this, 'dismiss_wizard'));
+        add_action('wp_ajax_pfm_wizard_mark_completed',            array($this, 'mark_wizard_completed'));
+        add_action('admin_init',                                   array($this, 'maybe_suppress_consent_notice'));
+        add_filter('views_edit-product-feed',                      array($this, 'inject_re_engagement_banner'));
     }
 
     /**
@@ -49,14 +53,18 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         }
 
         $consent = isset($_POST['consent']) ? sanitize_text_field($_POST['consent']) : '0';
+        $feed_id = isset($_POST['feed_id']) ? absint($_POST['feed_id']) : 0;
         $is_consent_given = '1' === $consent;
         update_option('best-woocommerce-feed_allow_tracking', $is_consent_given ? 'yes' : 'no');
         do_action( 'rex_product_feed_consent_updated', $is_consent_given );
 
         if ( $is_consent_given ) {
             Rex_Product_Feed_Create_Contact::create_contact_for_current_user();
+            if ( $feed_id > 0 ) {
+                do_action( 'rex_product_feed_feed_published', $feed_id, 'wizard' );
+            }
         }
-        
+
         wp_send_json_success( array( 'message' => __('Consent saved.', 'rex-product-feed') ), 200 );
     }
 
@@ -143,7 +151,7 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         $merchants_list = array();
         
         // Popular merchants (already shown separately, so exclude them from search)
-        $popular_ids = array('google', 'facebook', 'tiktok', 'instagram', 'yandex');
+        $popular_ids = array('google', 'facebook', 'idealo', 'tiktok', 'pinterest');
         
         // Get premium status
         $is_premium = apply_filters( 'wpfm_is_premium', false );
@@ -192,6 +200,12 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
     public function get_template_mappings() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array( 'message' => 'Unauthorized user' ), 403 );
+            return;
+        }
+
+        $nonce = isset($_POST['security']) ? sanitize_text_field($_POST['security']) : '';
+        if ( ! wp_verify_nonce( $nonce, 'rex-product-feed' ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid nonce' ), 400 );
             return;
         }
 
@@ -663,6 +677,215 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         }
 
         wp_send_json_success( array( 'message' => 'Dismissed' ), 200 );
+    }
+
+    /**
+     * Dismiss the setup wizard for the current session ("remind me later").
+     *
+     * @since 7.4.14
+     */
+    public function dismiss_wizard() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized user' ), 403 );
+            return;
+        }
+
+        $nonce = isset($_POST['security']) ? sanitize_text_field($_POST['security']) : '';
+        if ( ! wp_verify_nonce( $nonce, 'rex-product-feed' ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid nonce' ), 400 );
+            return;
+        }
+
+        $step_index = isset( $_POST['step_index'] ) ? absint( $_POST['step_index'] ) : 0;
+        $step_id    = isset( $_POST['step_id'] ) ? sanitize_text_field( $_POST['step_id'] ) : 'merchant';
+
+        $existing = get_option( 'pfm_wizard_onboarding_progress', array() );
+
+        $progress = array_merge(
+            array( 'started_at' => null, 'completed_steps' => array() ),
+            $existing,
+            array(
+                'current_step_index' => $step_index,
+                'current_step_id'    => $step_id,
+                'dismissed_at'       => time(),
+            )
+        );
+
+        if ( empty( $progress['started_at'] ) ) {
+            $progress['started_at'] = time();
+        }
+
+        update_option( 'pfm_wizard_onboarding_progress', $progress, false );
+        update_user_meta( get_current_user_id(), 'pfm_wizard_dismissed', '1' );
+        wp_send_json_success( array( 'message' => 'Wizard dismissed' ), 200 );
+    }
+
+    /**
+     * Mark the setup wizard as completed for the current user.
+     *
+     * @since 7.4.14
+     */
+    public function mark_wizard_completed() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized user' ), 403 );
+            return;
+        }
+
+        $nonce = isset($_POST['security']) ? sanitize_text_field($_POST['security']) : '';
+        if ( ! wp_verify_nonce( $nonce, 'rex-product-feed' ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid nonce' ), 400 );
+            return;
+        }
+
+        update_user_meta( get_current_user_id(), 'pfm_wizard_completed', '1' );
+        do_action( 'rex_product_feed_setup_completed' );
+        wp_send_json_success( array( 'message' => 'Wizard completed' ), 200 );
+    }
+
+    /**
+     * Show re-engagement banner for users who dismissed the wizard without completing it.
+     *
+     * @since 7.4.14
+     */
+    /**
+     * Check whether the re-engagement banner should be visible.
+     *
+     * @return bool
+     */
+    private function should_show_re_engagement_banner() {
+        $user_id = get_current_user_id();
+        
+        $dismissed = get_user_meta( $user_id, 'pfm_wizard_dismissed', true );
+        $completed = get_user_meta( $user_id, 'pfm_wizard_completed', true );
+
+        if ( $dismissed === '1' ) {
+            return false;
+        }
+
+        if ( $completed === '1' ) {
+            return false;
+        }
+
+        $feeds = get_posts( array(
+            'post_type'      => 'product-feed',
+            'post_status'    => 'publish',
+            'posts_per_page' => 1,
+            'fields'         => 'ids',
+        ) );
+        return empty( $feeds );
+    }
+
+    /**
+     * Suppress the Linno consent notice on admin_init when the re-engagement banner
+     * will be shown — consent notice should only appear after the wizard is completed.
+     *
+     * @return void
+     */
+    public function maybe_suppress_consent_notice() {
+        if ( $this->should_show_re_engagement_banner() ) {
+            add_filter( 'pre_option_linno_telemetry_notice_dismissed', array( $this, 'suppress_consent_notice_for_request' ) );
+        }
+    }
+
+    /**
+     * Inject the re-engagement banner before the "All (0)" views row on the feed list page.
+     *
+     * Hooked to views_edit-product-feed — fires only on edit.php?post_type=product-feed,
+     * right between the "Product Feeds" heading and the All/Published filter links.
+     *
+     * @param  array $views  Existing view links (passed through unchanged).
+     * @return array
+     */
+    public function inject_re_engagement_banner( $views ) {
+        if ( ! $this->should_show_re_engagement_banner() ) {
+            return $views;
+        }
+
+        $progress = get_option( 'pfm_wizard_onboarding_progress', array() );
+
+        $step_labels = array(
+            'merchant'  => __( 'Select a Channel', 'rex-product-feed' ),
+            'configure' => __( 'Configure Feed', 'rex-product-feed' ),
+            'aha'       => __( 'Review Feed', 'rex-product-feed' ),
+        );
+        $step_index  = isset( $progress['current_step_index'] ) ? (int) $progress['current_step_index'] : 0;
+        $step_id     = isset( $progress['current_step_id'] ) ? $progress['current_step_id'] : 'merchant';
+        $total_steps = 3;
+        $step_number = $step_index + 1;
+        $step_label  = isset( $step_labels[ $step_id ] ) ? $step_labels[ $step_id ] : $step_labels['merchant'];
+        $progress_pct = max( 8, (int) round( ( $step_number / $total_steps ) * 40 ) );
+
+        $wizard_url = admin_url( 'admin.php?page=wpfm-setup-wizard' );
+        $primary    = '#3272EA';
+        ?>
+        <style>
+        #pfm-reb{display:flex;align-items:center;gap:16px;background:#fff;border-radius:8px;border-left:4px solid <?php echo esc_attr( $primary ); ?>;padding:16px 20px;margin:16px 20px 0 0;box-shadow:0 1px 4px rgba(0,0,0,.08);box-sizing:border-box;}
+        #pfm-reb .pfm-reb-icon{flex-shrink:0;width:40px;height:40px;border-radius:50%;background:#EEF4FF;display:flex;align-items:center;justify-content:center;}
+        #pfm-reb .pfm-reb-body{flex:1;min-width:0;}
+        #pfm-reb .pfm-reb-title{font-size:14px;font-weight:700;color:#1e1e1e;margin:0 0 4px;}
+        #pfm-reb .pfm-reb-desc{font-size:13px;color:#6b7280;margin:0 0 10px;line-height:1.5;}
+        #pfm-reb .pfm-reb-progress-row{display:flex;align-items:center;gap:10px;}
+        #pfm-reb .pfm-reb-bar{flex:0 0 140px;height:6px;background:#E5E7EB;border-radius:99px;overflow:hidden;}
+        #pfm-reb .pfm-reb-bar-fill{height:100%;background:<?php echo esc_attr( $primary ); ?>;border-radius:99px;transition:width .4s ease;}
+        #pfm-reb .pfm-reb-step-label{font-size:12px;font-weight:600;color:<?php echo esc_attr( $primary ); ?>;}
+        #pfm-reb .pfm-reb-btn{flex-shrink:0;background:<?php echo esc_attr( $primary ); ?>;color:#fff;border:none;border-radius:6px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;transition:opacity .2s;}
+        #pfm-reb .pfm-reb-btn:hover{opacity:.88;color:#fff;}
+        #pfm-reb .pfm-reb-close{flex-shrink:0;background:none;border:none;cursor:pointer;padding:4px;color:#9CA3AF;line-height:1;font-size:18px;margin-left:4px;}
+        #pfm-reb .pfm-reb-close:hover{color:#374151;}
+        </style>
+        <div id="pfm-reb">
+            <div class="pfm-reb-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 2L4.09 12.11A1 1 0 0 0 5 13.5h5.5L10 22l9.91-10.11A1 1 0 0 0 19 10.5H13.5L13 2Z" fill="<?php echo esc_attr( $primary ); ?>" opacity=".9"/>
+                </svg>
+            </div>
+            <div class="pfm-reb-body">
+                <p class="pfm-reb-title"><?php esc_html_e( 'Your product feeds aren\'t live yet.', 'rex-product-feed' ); ?></p>
+                <p class="pfm-reb-desc"><?php esc_html_e( 'Finish setup to start selling on Google, Meta, and 200+ other channels. It only takes 2 minutes.', 'rex-product-feed' ); ?></p>
+                <div class="pfm-reb-progress-row">
+                    <div class="pfm-reb-bar">
+                        <div class="pfm-reb-bar-fill" style="width:<?php echo esc_attr( $progress_pct ); ?>%"></div>
+                    </div>
+                    <span class="pfm-reb-step-label">
+                        <?php
+                        printf(
+                            /* translators: 1: current step number, 2: total steps, 3: step name */
+                            esc_html__( 'Step %1$d of %2$d: %3$s', 'rex-product-feed' ),
+                            esc_html( $step_number ),
+                            esc_html( $total_steps ),
+                            esc_html( $step_label )
+                        );
+                        ?>
+                    </span>
+                </div>
+            </div>
+            <a href="<?php echo esc_url( $wizard_url ); ?>" class="pfm-reb-btn">
+                <?php esc_html_e( 'Finish Setup', 'rex-product-feed' ); ?> &rarr;
+            </a>
+            <button type="button" class="pfm-reb-close" id="pfmRebClose" aria-label="<?php esc_attr_e( 'Dismiss', 'rex-product-feed' ); ?>">&#215;</button>
+        </div>
+        <script>
+        (function(){
+            document.getElementById('pfmRebClose').addEventListener('click', function(){
+                document.getElementById('pfm-reb').style.display = 'none';
+                document.cookie = 'pfm_reb_session_dismissed=1; path=/';
+            });
+        })();
+        </script>
+        <?php
+        return $views;
+    }
+
+    /**
+     * Return 'yes' for the linno_telemetry_notice_dismissed option filter.
+     *
+     * Applied for the current request only when the re-engagement banner is visible,
+     * so the Linno consent notice is suppressed until the wizard is completed.
+     *
+     * @return string
+     */
+    public function suppress_consent_notice_for_request() {
+        return 'yes';
     }
 
     /**

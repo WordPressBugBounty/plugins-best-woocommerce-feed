@@ -1,26 +1,44 @@
 jQuery(document).ready(function ($) {
-    var LinnoOnboarding = window.LinnoOnboarding;
+    var LinnoOnboarding  = window.LinnoOnboarding;
     var registerOnboarding = LinnoOnboarding.registerOnboarding;
-    var engine = LinnoOnboarding.engine;
-    var tracker = LinnoOnboarding.tracker;
+    var engine           = LinnoOnboarding.engine;
+    var tracker          = LinnoOnboarding.tracker;
 
-    // Get assets URL from PHP
-    var assetsUrl = typeof pfmMerchantsData !== 'undefined' ? pfmMerchantsData.assetsUrl : '';
-    
-    // Popular merchants with images from local folder
+    var assetsUrl      = typeof pfmMerchantsData !== 'undefined' ? pfmMerchantsData.assetsUrl      : '';
+    var storeName      = typeof pfmMerchantsData !== 'undefined' ? pfmMerchantsData.storeName      : '';
+    var allMerchants   = typeof pfmMerchantsData !== 'undefined' ? pfmMerchantsData.merchants      : [];
+    var isPremiumUser  = typeof pfmMerchantsData !== 'undefined' ? pfmMerchantsData.isPremium      : false;
+    var companionPlugins = typeof pfmMerchantsData !== 'undefined' ? pfmMerchantsData.companionPlugins : {};
+
+    // Merchant → feed format map (default xml)
+    var merchantFormatMap = {
+        google   : 'xml',
+        facebook : 'xml',
+        tiktok   : 'xml',
+        bing     : 'xml',
+        pinterest: 'xml',
+        snapchat : 'csv',
+        idealo   : 'csv',
+    };
+
+    // Top-5 popular merchants (images must exist in assetsUrl folder)
     var popularMerchants = [
-        { id: 'google', name: 'Google Shopping', img: assetsUrl + 'google.webp', isPro: false },
-        { id: 'facebook', name: 'Facebook Catalog', img: assetsUrl + 'facebook.webp', isPro: false },
-        { id: 'tiktok', name: 'TikTok Ads Catalog', img: assetsUrl + 'tiktok.webp', isPro: false },
-        { id: 'instagram', name: 'Instagram (by Facebook)', img: assetsUrl + 'instagram.webp', isPro: false },
-        { id: 'custom', name: 'Create Custom Feed', img: assetsUrl + 'custom.webp', isPro: false }
+        { id: 'google',   name: 'Google Shopping',      img: assetsUrl + 'google.webp'   },
+        { id: 'facebook', name: 'Meta Product Catalog', img: assetsUrl + 'facebook.webp' },
+        { id: 'idealo',   name: 'Idealo',               img: assetsUrl + 'Idealo.svg'    },
+        { id: 'tiktok',   name: 'TikTok Shop',          img: assetsUrl + 'tiktok.webp'   },
+        { id: 'pinterest',name: 'Pinterest',            img: assetsUrl + 'pinterest.webp' },
     ];
 
-    // All other merchants (pre-loaded from PHP via wp_localize_script)
-    var allMerchants = typeof pfmMerchantsData !== 'undefined' ? pfmMerchantsData.merchants : [];
-    var isPremiumUser = typeof pfmMerchantsData !== 'undefined' ? pfmMerchantsData.isPremium : false;
-    
-    // Generate monogram color based on merchant name
+    // State
+    var selectedMerchantId   = null;
+    var selectedMerchantName = null;
+    var feedData             = {};
+    var mappingData          = { count: 0, mappings: [] };
+    var installedCount       = 0;
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+
     function getMonogramColor(name) {
         var hash = 0;
         for (var i = 0; i < name.length; i++) {
@@ -29,1153 +47,512 @@ jQuery(document).ready(function ($) {
         return Math.abs(hash % 10) + 1;
     }
 
-    // Telemetry state & helpers
-    var telemetryData = { plugin: 'product-feed-manager', version: '1.0.0' };
-    var firedFirstStrike = false;
-    var firedSetupCompleted = false;
-
-    // State
-    var selectedMerchantId = null;
-    var selectedMerchantName = null;
-    var feedData = {};
-    var isWelcomeStepSubmitting = false;
-
-    // Helper function to convert mappings array to serialized form string
-    // The form expects fields named fc[index][field]
-    function serializeMappings(mappings) {
-        var params = [];
-
-        // Force-enable parent products and variations in generated feed config
-        params.push('rex_feed_parent_product=' + encodeURIComponent('yes'));
-        params.push('rex_feed_variations=' + encodeURIComponent('yes'));
-        params.push('rex_feed_variable_product=' + encodeURIComponent('yes'));
-
-        if (!mappings || !Array.isArray(mappings) || mappings.length === 0) {
-            return params.join('&');
-        }
-        
-        // Convert each mapping to form field format using 'fc' structure
-        mappings.forEach(function(mapping, index) {
-            params.push('fc[' + index + '][attr]=' + encodeURIComponent(mapping.attr || ''));
-            params.push('fc[' + index + '][type]=' + encodeURIComponent(mapping.type || ''));
-            
-            if (mapping.type === 'meta') {
-                params.push('fc[' + index + '][meta_key]=' + encodeURIComponent(mapping.meta_key || ''));
-            } else if (mapping.type === 'static') {
-                params.push('fc[' + index + '][st_value]=' + encodeURIComponent(mapping.st_value || ''));
-            }
-            
-            // Add optional fields
-            if (mapping.prefix) {
-                params.push('fc[' + index + '][prefix]=' + encodeURIComponent(mapping.prefix));
-            }
-            if (mapping.suffix) {
-                params.push('fc[' + index + '][suffix]=' + encodeURIComponent(mapping.suffix));
-            }
-            if (mapping.escape) {
-                params.push('fc[' + index + '][escape]=' + encodeURIComponent(mapping.escape));
-            }
-            if (mapping.limit) {
-                params.push('fc[' + index + '][limit]=' + encodeURIComponent(mapping.limit));
-            }
-        });
-        
-        return params.join('&');
+    function getMerchantFormat(id) {
+        return merchantFormatMap[id] || 'xml';
     }
 
-    // Feed generation batch helper
-    function generateFeedBatch(feedId, totalProducts, offset, currentBatch, perBatch, totalBatches, successCallback, errorCallback) {
-        
-        // Serialize the feed config to match form structure (fc[index][field])
-        var serializedConfig = serializeMappings(feedData.mappings || []);
-        
-        var payload = {
-            merchant: feedData.merchant_slug || selectedMerchantId,
-            feed_format: feedData.format || 'xml',
-            feed_config: serializedConfig,
-            info: {
-                post_id: feedId,
-                title: feedData.name || '',
-                desc: feedData.name || '',
-                offset: offset,
-                batch: currentBatch,
-                per_batch: perBatch,
-                total_batch: totalBatches
-            },
-            products: {
-                products_scope: 'all',
-                tags: [],
-                cats: [],
-                brands: [],
-                data: ''
-            }
-        };
-        
+    function spinnerHtml(text) {
+        return '<span style="display:inline-flex;align-items:center;gap:8px;">' +
+            '<svg class="pfm-spin" width="16" height="16" viewBox="0 0 50 50">' +
+            '<circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5" stroke-dasharray="31.4 31.4" stroke-linecap="round"></circle>' +
+            '</svg>' + text + '</span>';
+    }
+
+    function injectSpinnerCSS() {
+        if (!$('#pfm-spin-css').length) {
+            $('<style id="pfm-spin-css">@keyframes pfm-rotate{100%{transform:rotate(360deg)}}.pfm-spin{animation:pfm-rotate 1s linear infinite}</style>').appendTo('head');
+        }
+    }
+
+    function merchantImgWithFallback(m) {
+        var $img = $('<img class="pfm-merchant-logo" src="' + m.img + '" alt="' + m.name + '">');
+        $img.on('error', function () {
+            var cc = 'monogram-color-' + getMonogramColor(m.name);
+            $(this).replaceWith($('<div class="pfm-merchant-monogram ' + cc + '">' + m.name.charAt(0).toUpperCase() + '</div>'));
+        });
+        return $img;
+    }
+
+    function checkmarkSvg() {
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    }
+
+    function showStep(id) {
+        $('.pfm-wizard-step').removeClass('active');
+        $('#' + id).addClass('active');
+    }
+
+    function serializeMappings(mappings) {
+        var p = ['rex_feed_parent_product=yes', 'rex_feed_variations=yes', 'rex_feed_variable_product=yes'];
+        if (!mappings || !Array.isArray(mappings)) return p.join('&');
+        mappings.forEach(function (m, i) {
+            p.push('fc[' + i + '][attr]=' + encodeURIComponent(m.attr || ''));
+            p.push('fc[' + i + '][type]=' + encodeURIComponent(m.type || ''));
+            if (m.type === 'meta')   p.push('fc[' + i + '][meta_key]=' + encodeURIComponent(m.meta_key || ''));
+            if (m.type === 'static') p.push('fc[' + i + '][st_value]=' + encodeURIComponent(m.st_value || ''));
+            if (m.prefix) p.push('fc[' + i + '][prefix]=' + encodeURIComponent(m.prefix));
+            if (m.suffix) p.push('fc[' + i + '][suffix]=' + encodeURIComponent(m.suffix));
+            if (m.escape) p.push('fc[' + i + '][escape]=' + encodeURIComponent(m.escape));
+            if (m.limit)  p.push('fc[' + i + '][limit]='  + encodeURIComponent(m.limit));
+        });
+        return p.join('&');
+    }
+
+    function generateFeedBatch(feedId, totalProds, offset, batch, perBatch, totalBatches, onDone, onError) {
         $.ajax({
             url: ajaxurl,
             type: 'POST',
             data: {
                 action: 'rexfeed-generate-feed',
-                payload: payload,
-                security: pfmNonce
+                security: pfmNonce,
+                payload: {
+                    merchant: feedData.merchant_slug,
+                    feed_format: feedData.format,
+                    feed_config: serializeMappings(feedData.mappings || []),
+                    info: { post_id: feedId, title: feedData.name, desc: feedData.name, offset: offset, batch: batch, per_batch: perBatch, total_batch: totalBatches },
+                    products: { products_scope: 'all', tags: [], cats: [], brands: [], data: '' }
+                }
             },
-            success: function(response) {
-                console.log('Batch', currentBatch, 'response:', response);
-                
-                if (response && response.msg === 'finish') {
-                    // Generation complete
-                    console.log('Feed generation complete!');
-                    if (successCallback) successCallback();
-                } else if (response && response.msg === 'failForEmptyProduct') {
-                    console.log('No products available');
-                    if (errorCallback) errorCallback('No products available to generate feed');
-                } else if (currentBatch < totalBatches) {
-                    // Continue with next batch
-                    var newOffset = offset + perBatch;
-                    var newBatch = currentBatch + 1;
-                    
-                    // Recursive call for next batch
-                    setTimeout(function() {
-                        generateFeedBatch(feedId, totalProducts, newOffset, newBatch, perBatch, totalBatches, successCallback, errorCallback);
+            success: function (r) {
+                if (r && r.msg === 'finish') {
+                    onDone && onDone();
+                } else if (r && r.msg === 'failForEmptyProduct') {
+                    onDone && onDone(); // still proceed
+                } else if (batch < totalBatches) {
+                    setTimeout(function () {
+                        generateFeedBatch(feedId, totalProds, offset + perBatch, batch + 1, perBatch, totalBatches, onDone, onError);
                     }, 100);
                 } else {
-                    console.log('All batches processed but no finish signal');
-                    if (successCallback) successCallback();
+                    onDone && onDone();
                 }
             },
-            error: function(xhr, status, error) {
-                console.error('Batch generation error:', error);
-                if (errorCallback) errorCallback(error);
-            }
+            error: function () { onError && onError(); }
         });
     }
 
-    function fireFirstStrikeCompleted() {
-        if (firedFirstStrike) return;
-        firedFirstStrike = true;        
-        // Track first feed creation via AJAX
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'pfm_track_first_strike',
-                feed_data: {
-                    name: feedData.name || '',
-                    merchant: selectedMerchantName || '',
-                    format: feedData.format || '',
-                    frequency: feedData.frequency || ''
-                },
-                security: pfmNonce
-            },
-            success: function(response) {
-                console.log('First strike tracked:', response);
-            },
-            error: function(xhr, status, error) {
-                console.log('Failed to track first strike:', error);
-            }
+    // ─── Step 1 helpers ───────────────────────────────────────────────────────
+
+    function renderPopularGrid() {
+        var $grid = $('#pfmPopularGrid').empty();
+        popularMerchants.forEach(function (m) {
+            var selected = m.id === selectedMerchantId;
+            var $card = $('<div>', { class: 'pfm-popular-card' + (selected ? ' selected' : ''), 'data-id': m.id, 'data-name': m.name });
+            $card.append(merchantImgWithFallback(m));
+            $card.append($('<div class="pfm-merchant-name">').text(m.name));
+            $card.append($('<div class="pfm-merchant-check">').html(checkmarkSvg()));
+            $card.on('click', function () { selectMerchant(m.id, m.name, $(this), 'popular'); });
+            $grid.append($card);
         });
     }
 
-    function fireSetupCompleted() {
-        if (firedSetupCompleted) return;
-        firedSetupCompleted = true;
-        console.log('Telemetry: setup_completed', telemetryData);
-        
-        // Track setup completion via AJAX
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'pfm_track_setup_completed'
-            },
-            success: function(response) {
-                console.log('Setup completed tracked:', response);
-            },
-            error: function(xhr, status, error) {
-                console.log('Failed to track setup completed:', error);
-            }
-        });
-    }
-
-    // Navigation helper function
-    function navigateTo(stepId) {
-        // Add step- prefix to stepId for consistency
-        var fullStepId = 'step-' + stepId;
-        var $wizardExit = $('#wizardExit');
-
-        // Show/Hide Sidebar
-        if (fullStepId === 'step-welcome' || fullStepId === 'step-complete') {
-            $('#main-sidebar').hide();
-            $('#onboarding-app').removeClass('sidebar-visible');
+    function selectMerchant(id, name, $card, type) {
+        var wasSelected = $card.hasClass('selected');
+        $('.pfm-popular-card, .pfm-result-card').removeClass('selected');
+        if (!wasSelected) {
+            $card.addClass('selected');
+            selectedMerchantId   = id;
+            selectedMerchantName = name;
+            $('#pfmStep1ContinueBtn').prop('disabled', false);
         } else {
-            $('#main-sidebar').css('display', 'flex');
-            $('#onboarding-app').addClass('sidebar-visible');
+            selectedMerchantId   = null;
+            selectedMerchantName = null;
+            $('#pfmStep1ContinueBtn').prop('disabled', true);
         }
+    }
 
-        if (fullStepId === 'step-welcome' || fullStepId === 'step-complete') {
-            $wizardExit.hide();
-        } else {
-            $wizardExit.show();
-        }
+    function renderSearchResults(query) {
+        var $wrap = $('#pfmSearchResultsWrap');
+        var $grid = $('#pfmSearchResults').empty();
+        if (!query) { $wrap.hide(); return; }
 
-        // Toggle Active Step
-        $('.step').removeClass('active');
-        $('#' + fullStepId).addClass('active');
+        // Combine popular + all other merchants, deduplicate
+        var seen    = {};
+        var combined = popularMerchants.map(function (m) {
+            return { id: m.id, name: m.name, isPro: false, isAvailable: true, img: m.img };
+        }).concat(allMerchants).filter(function (m) {
+            if (seen[m.id]) return false;
+            seen[m.id] = true;
+            return true;
+        });
 
-        // Update Sidebar Navigation UI
-        $('.nav-item').removeClass('active completed');
-        $('.nav-item[data-step="' + fullStepId + '"]').addClass('active');
+        var term    = query.toLowerCase();
+        var results = combined.filter(function (m) { return m.name.toLowerCase().indexOf(term) !== -1; });
 
-        // Mark previous steps as completed (checkmark)
-        var stepOrder = ['step-welcome', 'step-select-merchant', 'step-feed-settings', 'step-attribute-mapping', 'step-complete'];
-        var currentIndex = stepOrder.indexOf(fullStepId);
+        $wrap.show();
+        if (!results.length) { $grid.html('<div class="pfm-search-empty">No merchants found</div>'); return; }
 
-        var checkmarkSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M9.86725 0.315308C9.55785 0.0282705 9.05543 0.0284515 8.74561 0.315308L3.69748 4.9925L1.4538 2.91379C1.14399 2.62675 0.641783 2.62675 0.33197 2.91379C0.0221559 3.20082 0.0221559 3.66611 0.33197 3.95314L3.13645 6.55144C3.29126 6.69487 3.49425 6.76676 3.69726 6.76676C3.90028 6.76676 4.10347 6.69505 4.25828 6.55144L9.86725 1.35465C10.1771 1.06781 10.1771 0.602326 9.86725 0.315308Z" fill="white" stroke="white" stroke-width="0.2"></path></svg>';
+        results.forEach(function (m) {
+            var isSelected = m.id === selectedMerchantId;
+            var isDisabled = m.isPro && !isPremiumUser;
+            var $card = $('<div>', { class: 'pfm-result-card' + (isSelected ? ' selected' : '') + (isDisabled ? ' disabled' : ''), 'data-id': m.id });
 
-        stepOrder.forEach(function(step, index) {
-            var $navItem = $('.nav-item[data-step="' + step + '"]');
-            var $circle = $navItem.find('.nav-circle');
-
-            if (index < currentIndex) {
-                $navItem.addClass('completed');
-                $circle.html(checkmarkSvg);
+            if (m.img) {
+                $card.append(merchantImgWithFallback(m));
             } else {
-                $navItem.removeClass('completed');
-                // Restore number if not completed
-                $circle.text(index + 1);
+                var cc = 'monogram-color-' + getMonogramColor(m.name);
+                $card.append($('<div class="pfm-merchant-monogram ' + cc + '">').text(m.name.charAt(0).toUpperCase()));
+            }
+            $card.append($('<div class="pfm-merchant-name">').text(m.name));
+
+            if (m.isPro && !isPremiumUser) {
+                $card.append('<span class="pfm-merchant-badge">Pro</span>');
+            }
+            if (!isDisabled) {
+                $card.append($('<div class="pfm-merchant-check">').html(checkmarkSvg()));
+                $card.on('click', function () { selectMerchant(m.id, m.name, $(this), 'search'); });
+            }
+            $grid.append($card);
+        });
+    }
+
+    // ─── Step 2 helpers ───────────────────────────────────────────────────────
+
+    function mountStep2() {
+        var fmt     = getMerchantFormat(selectedMerchantId);
+        var display = selectedMerchantName || 'your feed';
+
+        feedData.format       = fmt;
+        feedData.frequency    = 'daily';
+        feedData.merchant     = selectedMerchantName;
+        feedData.merchant_slug = selectedMerchantId;
+
+        $('#pfmConfigHeading').text('Setting up your ' + display + ' feed');
+
+        var fmtLabel = fmt.toUpperCase();
+        if (fmt === 'csv') {
+            $('#pfmFormatConfirmText').text('Feed format — CSV (required by ' + display + ')');
+        } else {
+            $('#pfmFormatConfirmText').text('Feed format — ' + fmtLabel);
+        }
+
+        var autoName = (storeName ? storeName + ' - ' : '') + display + ' Feed';
+        $('#pfmFeedNameInput').val(autoName);
+        feedData.name = autoName;
+
+        $('#pfmFeedNameInput').off('input').on('input', function () {
+            feedData.name = $(this).val().trim() || autoName;
+        });
+
+        startMappingAnimation();
+    }
+
+    function startMappingAnimation() {
+        var $bar    = $('#pfmMappingBarFill');
+        var $status = $('#pfmMappingStatus');
+        var $detail = $('#pfmMappingDetail');
+        var done    = false;
+
+        $bar.css({ transition: 'none', width: '0%' });
+        $status.text('Mapping your product attributes...');
+        $detail.text('Analyzing products...');
+
+        // Animate to 80 % over 1.5–2.5 s
+        var duration  = 1500 + Math.random() * 1000;
+        var startTime = Date.now();
+        (function tick() {
+            if (done) return;
+            var pct = Math.min((Date.now() - startTime) / duration * 80, 80);
+            $bar.css('width', pct + '%');
+            if (pct < 80) requestAnimationFrame(tick);
+        })();
+
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: { action: 'pfm_get_template_mappings', merchant: selectedMerchantId, security: pfmNonce },
+            success: function (r) {
+                done = true;
+                if (r.success && r.data && r.data.mappings) {
+                    mappingData.mappings = r.data.mappings;
+                    mappingData.count    = r.data.mappings.length;
+                    feedData.mappings    = r.data.mappings;
+                } else {
+                    mappingData.mappings = [];
+                    mappingData.count    = 0;
+                    feedData.mappings    = [];
+                }
+                finishMappingAnimation($bar, $status, $detail);
+            },
+            error: function () {
+                done = true;
+                mappingData.mappings = [];
+                mappingData.count    = 0;
+                feedData.mappings    = [];
+                finishMappingAnimation($bar, $status, $detail);
             }
         });
     }
 
-    // Register onboarding
-    registerOnboarding({
-        plugin: 'product-feed-manager',
-        version: '1.0.0',
-        telemetry: {
-            onSetupCompleted: function () {
-                fireSetupCompleted();
-            },
-            onFirstStrikeCompleted: function () {
-                fireFirstStrikeCompleted();
+    function finishMappingAnimation($bar, $status, $detail) {
+        $bar.css({ transition: 'width 0.4s ease', width: '100%' });
+        $detail.text('');
+        setTimeout(function () {
+            var n = mappingData.count;
+            if (n >= 5) {
+                $status.html('<span style="margin-right:6px;">✅</span>' + n + ' attributes mapped automatically');
+            } else if (n > 0) {
+                $status.html('<span style="margin-right:6px;">⚠️</span>' + n + ' attributes mapped. You can add more after your feed is created.');
+            } else {
+                $status.html('<span style="margin-right:6px;">⚠️</span>We couldn\'t find product data yet. You can map attributes manually after your feed is created.');
             }
+        }, 450);
+    }
+
+    // ─── Step 3 helpers ───────────────────────────────────────────────────────
+
+    function mountStep3() {
+        var display = selectedMerchantName || 'Your';
+
+        $('#pfmAhaTitle').text('Your ' + display + ' Feed is Ready!');
+        $('#pfmAhaFeedName').text(feedData.name || '');
+        $('#pfmFeedUrlInput').val(feedData.feed_url || '');
+
+        var $openBtn = $('#pfmOpenUrlBtn');
+        if ( feedData.format === 'csv' ) {
+            $openBtn.attr('href', feedData.feed_url || '#')
+                    .attr('download', '')
+                    .text('Download');
+        } else {
+            $openBtn.attr('href', feedData.feed_url || '#')
+                    .removeAttr('download')
+                    .html('Open &#8599;');
+        }
+        $('#pfmPropagationText').text('Your feed URL is ready. Submit to your ' + display + ' account to start listing your products. The feed file refreshes automatically every day.');
+
+        $('#pfmWpfDesc').html(
+            'Replace your default checkout with a high-converting page. Add order bumps and upsells so every visitor from <strong>' + display + '</strong> is worth more.'
+        );
+
+        // Copy button
+        $('#pfmCopyUrlBtn').off('click').on('click', function () {
+            var url  = $('#pfmFeedUrlInput').val();
+            var $btn = $(this);
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(function () {
+                    $btn.text('Copied!');
+                    setTimeout(function () { $btn.text('Copy'); }, 2000);
+                });
+            } else {
+                $('#pfmFeedUrlInput').select();
+                document.execCommand('copy');
+                $btn.text('Copied!');
+                setTimeout(function () { $btn.text('Copy'); }, 2000);
+            }
+        });
+
+        // Consent checkbox — checked by default, fire consent immediately on mount
+        $('#pfmConsentCheckbox').prop('checked', true);
+        saveConsent(true);
+        $('#pfmConsentCheckbox').off('change').on('change', function () {
+            saveConsent(this.checked);
+        });
+
+        // Dashboard / skip
+        function goToDashboard() {
+            markCompleted(function () { window.location.href = 'edit.php?post_type=product-feed'; });
+        }
+        $('#pfmGoToDashboardBtn').off('click').on('click', goToDashboard);
+        $('#pfmSkipForNowBtn').off('click').on('click', goToDashboard);
+
+        applyCompanionStatuses();
+    }
+
+    function saveConsent(isGiven) {
+        $.ajax({
+            url: ajaxurl, type: 'POST',
+            data: { action: 'pfm_save_consent', consent: isGiven ? '1' : '0', feed_id: feedData.feed_id || 0, security: pfmNonce }
+        });
+    }
+
+    function markCompleted(cb) {
+        $.ajax({
+            url: ajaxurl, type: 'POST',
+            data: { action: 'pfm_wizard_mark_completed', security: pfmNonce },
+            complete: function () { cb && cb(); }
+        });
+    }
+
+    // ─── Companion plugins ────────────────────────────────────────────────────
+
+    function applyCompanionStatuses() {
+        installedCount = 0;
+        applyPluginStatus($('#pfmInstallWpfBtn'), companionPlugins['wpfunnels'] || 'not_installed', 'wpfunnels',
+            'Install WPFunnels (Free) →', 'Activate WPFunnels →', 'Already Activated ✓');
+        applyPluginStatus($('#pfmInstallClBtn'), companionPlugins['cart-lift'] || 'not_installed', 'cart-lift',
+            'Install Cart Lift (Free) →', 'Activate Cart Lift →', 'Already Activated ✓');
+
+        if ((companionPlugins['wpfunnels'] || 'not_installed') === 'not_installed') {
+            $('#pfmInstallWpfBtn').off('click').on('click', function () {
+                handlePluginInstall($(this), 'wpfunnels', 'Install WPFunnels (Free) →', 'Installed ✓');
+            });
+        }
+        if ((companionPlugins['cart-lift'] || 'not_installed') === 'not_installed') {
+            $('#pfmInstallClBtn').off('click').on('click', function () {
+                handlePluginInstall($(this), 'cart-lift', 'Install Cart Lift (Free) →', 'Installed ✓');
+            });
+        }
+    }
+
+    function applyPluginStatus($btn, status, slug, installLabel, activateLabel, activeLabel) {
+        if (status === 'active') {
+            $btn.addClass('is-installed').prop('disabled', true).text(activeLabel);
+            $btn.closest('.pfm-upsell-card').addClass('is-already-active');
+            installedCount++;
+        } else if (status === 'installed') {
+            $btn.text(activateLabel).off('click').on('click', function () {
+                handlePluginInstall($(this), slug, activateLabel, 'Activated ✓');
+            });
+        }
+    }
+
+    function handlePluginInstall($btn, slug, origLabel, successLabel) {
+        if ($btn.hasClass('is-installing') || $btn.hasClass('is-installed')) return;
+        injectSpinnerCSS();
+        $btn.addClass('is-installing').prop('disabled', true).html(spinnerHtml('Installing...'));
+        $.ajax({
+            url: ajaxurl, type: 'POST',
+            data: { action: 'pfm_install_activate_plugin', plugin_slug: slug, security: pfmNonce },
+            success: function (r) {
+                $btn.removeClass('is-installing');
+                if (r && r.success) {
+                    $btn.addClass('is-installed').prop('disabled', true).text(successLabel);
+                    do_action && do_action('product-feed-manager_telemetry_track',
+                        'wpfunnels' === slug ? 'pfm_wizard_companion_install_wpfunnels' : 'pfm_wizard_companion_install_cartlift',
+                        { plugin: slug });
+                } else {
+                    $btn.prop('disabled', false).text(origLabel);
+                }
+            },
+            error: function () { $btn.removeClass('is-installing').prop('disabled', false).text(origLabel); }
+        });
+    }
+
+    // ─── Register onboarding ──────────────────────────────────────────────────
+
+    registerOnboarding({
+        plugin  : 'product-feed-manager',
+        version : '1.0.0',
+        telemetry: {
+            onSetupCompleted      : function () {},
+            onFirstStrikeCompleted: function () {}
         },
         steps: [
-            // =====================
-            // STEP 1: Welcome
-            // =====================
+            // ── Step 1: Merchant ──────────────────────────────────────────────
             {
-                id: 'welcome',
-                title: 'Welcome to Product Feed Manager',
-                description: 'Create powerful product feeds for major shopping platforms in just a few steps.',
-                canSkip: false,
-                canGoBack: false,
-                mount: function (container, context) {
-                    navigateTo('welcome');
+                id: 'merchant', title: 'Select a Channel', canSkip: false, canGoBack: false,
+                mount: function (container, ctx) {
+                    showStep('pfm-step-1');
+                    renderPopularGrid();
 
-                    // Reset state when re-mounting (e.g. navigating back from Step 2)
-                    isWelcomeStepSubmitting = false;
-                    var $getStartedBtn = $('#getStartedBtn');
-                    $getStartedBtn
-                        .prop('disabled', false)
-                        .removeClass('is-loading')
-                        .text('Get Started');
+                    $('#pfmMerchantSearch').off('input').on('input', function () {
+                        renderSearchResults($(this).val().trim());
+                    });
 
-                    $getStartedBtn.off('click').on('click', function () {
-                        if (isWelcomeStepSubmitting) {
-                            return;
-                        }
+                    $('#pfmStep1ContinueBtn').off('click').on('click', function () {
+                        if (selectedMerchantId) ctx.goNext();
+                    });
 
-                        isWelcomeStepSubmitting = true;
-
-                        var $getStartedBtn = $(this);
-                        var originalBtnText = $getStartedBtn.text();
-                        var loadingText = $getStartedBtn.data('loading-text') || 'Please wait...';
-
-                        $getStartedBtn
-                            .prop('disabled', true)
-                            .addClass('is-loading')
-                            .text(loadingText);
-
-                        function goToNextStep() {
-                            try {
-                                context.goNext();
-                            } catch (e) {
-                                isWelcomeStepSubmitting = false;
-                                $getStartedBtn
-                                    .prop('disabled', false)
-                                    .removeClass('is-loading')
-                                    .text(originalBtnText);
-                                console.log('Failed to move to next step:', e);
-                            }
-                        }
-
-                        var consentChecked = $('#consentCheckbox').is(':checked');
-                        
-                        // Save consent preference
+                    // "remind me later" dismiss
+                    $('#pfmRemindLaterBtn').off('click').on('click', function (e) {
+                        e.preventDefault();
                         $.ajax({
-                            url: ajaxurl,
-                            type: 'POST',
-                            data: {
-                                action: 'pfm_save_consent',
-                                consent: consentChecked ? '1' : '0',
-                                security: pfmNonce
-                            },
-                            success: function(response) {                                
-                                if (consentChecked) {
-                                    $.ajax({
-                                        url: ajaxurl,
-                                        type: 'POST',
-                                        data: {
-                                            action: 'pfm_track_setup_start'
-                                        },
-                                        success: function(response) {
-                                            console.log('Setup start tracked:', response);
-                                        },
-                                        error: function(xhr, status, error) {
-                                            console.log('Failed to track setup start:', error);
-                                        }
-                                    });
-                                }
-                                
-                                goToNextStep();
-                            },
-                            error: function(xhr, status, error) {
-                                console.log('Failed to save consent:', error);
-                                // Continue anyway
-                                goToNextStep();
-                            }
+                            url: ajaxurl, type: 'POST',
+                            data: { action: 'pfm_wizard_dismiss', security: pfmNonce, step_index: 0, step_id: 'merchant' },
+                            complete: function () { window.location.href = 'index.php'; }
                         });
-                    });
-                }
-            },
-
-            // =====================
-            // STEP 2: Select Merchant
-            // =====================
-            {
-                id: 'select-merchant',
-                title: 'Select Merchant',
-                canSkip: false,
-                canGoBack: true,
-                mount: function (container, context) {
-                    navigateTo('select-merchant');
-
-                    var $popularGrid = $('#popularGrid');
-                    var $searchResults = $('#searchResults');
-                    var $search = $('#merchantSearch');
-                    var $continueBtn = $('#merchantContinueBtn');
-
-                    // Render popular merchants
-                    function renderPopularMerchants() {
-                        $popularGrid.empty();
-                        popularMerchants.forEach(function (m) {
-                            var isSelected = m.id === selectedMerchantId;
-                            var $card = $('<div class="popular-card' + (isSelected ? ' selected' : '') + '" data-id="' + m.id + '"></div>');
-
-                            var $img = $('<img class="merchant-logo" src="' + m.img + '" alt="' + m.name + '">');
-                            var $name = $('<div class="merchant-name">' + m.name + '</div>');
-                            var $check = $('<div class="merchant-check">' +
-                                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-                                '<polyline points="20 6 9 17 4 12"/>' +
-                                '</svg>' +
-                                '</div>');
-
-                            $card.append($img, $name, $check);
-                            $popularGrid.append($card);
-
-                            $card.on('click', function () {
-                                selectedMerchantId = m.id;
-                                selectedMerchantName = m.name;
-                                $('.popular-card, .result-card').removeClass('selected');
-                                $(this).addClass('selected');
-                                $continueBtn.prop('disabled', false);
-                            });
-                        });
-                    }
-
-                    // Search other merchants
-                    function searchMerchants(query) {
-                        var $searchResultsContainer = $('#searchResultsContainer');
-                        var $popularSection = $('#popularSection');
-                        
-                        if (query.length < 3) {
-                            $searchResults.empty();
-                            $searchResultsContainer.hide();
-                            $popularSection.show();
-                            
-                            // Clear selection and disable continue button
-                            selectedMerchantId = null;
-                            selectedMerchantName = null;
-                            $('.popular-card, .result-card').removeClass('selected');
-                            $continueBtn.prop('disabled', true);
-                            return;
-                        }
-
-                        var searchTerm = query.toLowerCase();
-                        var results = allMerchants.filter(function (m) {
-                            return m.name.toLowerCase().includes(searchTerm);
-                        });
-
-                        // Always add custom feed to search results
-                        var customFeed = popularMerchants.find(function(m) { return m.id === 'custom'; });
-                        if (customFeed) {
-                            // Prevent duplicate custom feed
-                            var alreadyIncluded = results.some(function(m) { return m.id === 'custom'; });
-                            if (!alreadyIncluded) {
-                                results.push(customFeed);
-                            }
-                        }
-
-                        $searchResults.empty();
-                        $searchResultsContainer.show();
-                        $popularSection.hide();
-
-                        if (results.length === 0) {
-                            // Show custom feed card if nothing else found
-                            if (customFeed) {
-                                var cardClasses = 'result-card';
-                                var isSelected = customFeed.id === selectedMerchantId;
-                                if (isSelected) cardClasses += ' selected';
-                                var $card = $('<div class="' + cardClasses + '" data-id="' + customFeed.id + '"></div>');
-                                var $img = $('<img class="merchant-logo" src="' + customFeed.img + '" alt="' + customFeed.name + '">');
-                                var $name = $('<div class="merchant-name">' + customFeed.name + '</div>');
-                                var $check = $('<div class="merchant-check">' +
-                                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-                                    '<polyline points="20 6 9 17 4 12"/>' +
-                                    '</svg>' +
-                                    '</div>');
-                                $card.append($img, $name, $check);
-                                $searchResults.append($card);
-                                $card.on('click', function () {
-                                    selectedMerchantId = customFeed.id;
-                                    selectedMerchantName = customFeed.name;
-                                    $('.popular-card, .result-card').removeClass('selected');
-                                    $(this).addClass('selected');
-                                    $continueBtn.prop('disabled', false);
-                                });
-                            }
-                            return;
-                        }
-
-                        results.forEach(function (m) {
-                            var isSelected = m.id === selectedMerchantId;
-                            var isDisabled = m.isPro && !isPremiumUser;
-                            var cardClasses = 'result-card';
-                            if (isSelected) cardClasses += ' selected';
-                            if (isDisabled) cardClasses += ' disabled';
-                            var $card = $('<div class="' + cardClasses + '" data-id="' + m.id + '"></div>');
-                            if (m.id === 'custom') {
-                                var $img = $('<img class="merchant-logo" src="' + m.img + '" alt="' + m.name + '">');
-                                var $name = $('<div class="merchant-name">' + m.name + '</div>');
-                                var $check = $('<div class="merchant-check">' +
-                                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-                                    '<polyline points="20 6 9 17 4 12"/>' +
-                                    '</svg>' +
-                                    '</div>');
-                                $card.append($img, $name, $check);
-                            } else {
-                                // Create monogram avatar
-                                var firstLetter = m.name.charAt(0).toUpperCase();
-                                var colorClass = 'monogram-color-' + getMonogramColor(m.name);
-                                var $monogram = $('<div class="merchant-monogram ' + colorClass + '">' + firstLetter + '</div>');
-                                var $name = $('<div class="merchant-name">' + m.name + '</div>');
-                                $card.append($monogram, $name);
-                                // Add pro badge only if user doesn't have premium and merchant is pro
-                                if (m.isPro && !isPremiumUser) {
-                                    var $badge = $('<span class="merchant-badge">Pro</span>');
-                                    $card.append($badge);
-                                }
-                                // Add check mark for selection (only if not disabled)
-                                if (!isDisabled) {
-                                    var $check = $('<div class="merchant-check">' +
-                                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-                                        '<polyline points="20 6 9 17 4 12"/>' +
-                                        '</svg>' +
-                                        '</div>');
-                                    $card.append($check);
-                                }
-                            }
-                            $searchResults.append($card);
-                            // Only allow click if not disabled
-                            if (!isDisabled) {
-                                $card.on('click', function () {
-                                    selectedMerchantId = m.id;
-                                    selectedMerchantName = m.name;
-                                    $('.popular-card, .result-card').removeClass('selected');
-                                    $(this).addClass('selected');
-                                    $continueBtn.prop('disabled', false);
-                                });
-                            }
-                        });
-                    }
-
-                    // Search input handler
-                    $search.off('input').on('input', function () {
-                        searchMerchants($(this).val());
-                    });
-
-                    // Initial render
-                    $continueBtn.prop('disabled', !selectedMerchantId);
-                    renderPopularMerchants();
-
-                    $('#merchantBackBtn').off('click').on('click', function () {
-                        context.goBack();
-                    });
-
-                    $continueBtn.off('click').on('click', function () {
-                        if (selectedMerchantId) {
-                            context.goNext();
-                        }
-                    });
-
-                    $('.exit').off('click').on('click', function () {
-                        window.location.href = 'edit.php?post_type=product-feed';
                     });
                 },
-                onNext: function () {
-                    return !!selectedMerchantId;
-                }
+                onNext: function () { return !!selectedMerchantId; }
             },
 
-            // =====================
-            // STEP 3: Feed Settings (Renamed from Create Feed)
-            // =====================
+            // ── Step 2: Smart Config ──────────────────────────────────────────
             {
-                id: 'feed-settings',
-                title: 'Feed Settings',
-                canSkip: false,
-                canGoBack: true,
-                mount: function (container, context) {
-                    navigateTo('feed-settings');
+                id: 'configure', title: 'Smart Configuration', canSkip: false, canGoBack: true,
+                mount: function (container, ctx) {
+                    showStep('pfm-step-2');
+                    mountStep2();
 
-                    var $feedName = $('#feedName');
-                    var $continueBtn = $('#feedContinueBtn');
+                    $('#pfmStep2BackBtn').off('click').on('click', function () { ctx.goBack(); });
 
-                    function validateForm() {
-                        var isValid = $feedName.val().trim() !== '';
-                        $continueBtn.prop('disabled', !isValid);
-                    }
+                    $('#pfmCreateFeedBtn').off('click').on('click', function () {
+                        var name = $('#pfmFeedNameInput').val().trim() || feedData.name;
+                        feedData.name = name;
 
-                    $feedName.off('input').on('input', validateForm);
-                    validateForm();
+                        injectSpinnerCSS();
+                        var $btn = $(this).prop('disabled', true).html(spinnerHtml('Creating...'));
 
-                    $('#feedBackBtn').off('click').on('click', function () {
-                        context.goBack();
-                    });
-
-                    $continueBtn.off('click').on('click', function () {
-                        if ($feedName.val().trim()) {
-                            // Save feed settings to feedData
-                            feedData.name = $feedName.val().trim();
-                            feedData.format = $('#feedFormat').val();
-                            feedData.frequency = $('#updateFrequency').val();
-                            feedData.merchant = selectedMerchantName;
-                            feedData.merchant_slug = selectedMerchantId;
-                            
-                            context.goNext();
-                        }
-                    });
-
-                    $('.exit').off('click').on('click', function () {
-                        window.location.href = 'edit.php?post_type=product-feed';
-                    });
-                },
-                onNext: function () {
-                    var name = $('#feedName').val();
-                    return name && name.trim() !== '';
-                }
-            },
-
-            // =====================
-            // STEP 4: Attribute Mapping
-            // =====================
-            {
-                id: 'attribute-mapping',
-                title: 'Attribute Mapping',
-                canSkip: false,
-                canGoBack: true,
-                mount: function (container, context) {
-                    navigateTo('attribute-mapping');
-
-                    var $publishBtn = $('#publishBtn');
-                    var $mappingTableBody = $('#mappingTableBody');
-                    var currentMappings = [];
-                    var merchantAttributes = {};
-                    var wcAttributes = {};
-
-                    // Reset custom dropdown artifacts on each mount
-                    $('.custom-attr-dropdown-container').remove();
-                    $('.mapping-table-wrapper').css('margin-bottom', '32px');
-
-                    // Custom feed dropdown logic
-                    if (feedData.merchant_slug === 'custom') {
-                        // Add native dropdown UI for custom feed
-                        var $customAttrDropdown = $('<div class="custom-attr-dropdown-container" style="display:flex;align-items:center;justify-content:flex-start;width:auto;margin-top:0;margin-bottom:12px;"></div>');
-                        var $dropdown = $('<select class="mapping-select custom-attr-dropdown" id="addCustomAttrBtn" aria-label="Add New Attribute" style="width:auto;min-width:220px;max-width:280px;"></select>');
-                        $dropdown.append('<option value="" selected disabled>Add New Attribute</option>');
-                        $dropdown.append('<option value="attribute">New Attribute</option>');
-                        $dropdown.append('<option value="custom">Custom Attribute</option>');
-                        $customAttrDropdown.append($dropdown);
-
-                        // Keep dropdown outside wrapper with controlled spacing
-                        var $wrapper = $('.mapping-table-wrapper');
-                        if ($wrapper.length) {
-                            $wrapper.css('margin-bottom', '8px');
-                            $wrapper.after($customAttrDropdown);
-                        }
-
-                        // Add row on selection
-                        $dropdown.on('change', function() {
-                            var type = $(this).val();
-                            if (!type) {
-                                return;
-                            }
-                            var newRow;
-                            if (type === 'attribute') {
-                                // Prepopulate with last row's data if exists
-                                var metaKey = '';
-                                if (currentMappings.length > 0) {
-                                    var lastRow = currentMappings[currentMappings.length - 1];
-                                    metaKey = lastRow.meta_key || '';
-                                }
-                                newRow = {
-                                    label: 'New Attribute',
-                                    type: 'meta', // ensure type is meta for select
-                                    meta_key: metaKey,
-                                    filter: 'Default',
-                                    char_limit: '',
-                                };
-                            } else if (type === 'custom') {
-                                // Custom: mimic admin.js approach
-                                var filterVal = 'Default';
-                                var charLimitVal = '255';
-                                var stValue = '';
-                                if (currentMappings.length > 0) {
-                                    var lastRow = currentMappings[currentMappings.length - 1];
-                                    filterVal = lastRow.filter || 'Default';
-                                    charLimitVal = lastRow.char_limit || '255';
-                                    stValue = lastRow.st_value || '';
-                                }
-                                newRow = {
-                                    label: '', // user will enter custom attribute name
-                                    type: 'Custom',
-                                    st_value: stValue,
-                                    filter: filterVal,
-                                    char_limit: charLimitVal,
-                                };
-                            }
-                            currentMappings.push(newRow);
-                            renderMappingsTable();
-                            $(this).val('');
-                        });
-                    }
-
-                    // Load template mappings
-                    $.ajax({
-                        url: ajaxurl,
-                        type: 'POST',
-                        data: {
-                            action: 'pfm_get_template_mappings',
-                            merchant: selectedMerchantId
-                        },
-                        success: function(response) {
-                            console.log('Template mappings response:', response);
-                            if (response.success && response.data && response.data.mappings) {
-                                currentMappings = response.data.mappings;
-                                merchantAttributes = response.data.merchant_attributes || {};
-                                wcAttributes = response.data.wc_attributes || {};
-                                
-                                // Store mappings in feedData
-                                feedData.mappings = currentMappings;
-                                
-                                renderMappingsTable();
-
-                                // Enable publish button
-                                $publishBtn.prop('disabled', false);
-                            } else {
-                                $mappingTableBody.html('<tr><td colspan="4" style="text-align: center; padding: 20px; color: #d63638;">Failed to load mappings</td></tr>');
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Failed to load mappings:', error);
-                            $mappingTableBody.html('<tr><td colspan="4" style="text-align: center; padding: 20px; color: #d63638;">Error loading mappings</td></tr>');
-                        }
-                    });
-
-                    function renderMappingsTable() {
-                        $mappingTableBody.empty();
-                        
-                        currentMappings.forEach(function(mapping, index) {
-                            var $row = $('<tr data-index="' + index + '"></tr>');
-                            // Attribute column
-                            var $attrCell = $('<td></td>');
-                            if (mapping.type === 'Custom') {
-                                var $attrInput = $('<input type="text" class="mapping-input attr-input" data-field="label" value="' + (mapping.label || '') + '" placeholder="Attribute Name">');
-                                $attrCell.append($attrInput);
-                            } else {
-                                var $attrSelect = $('<select class="mapping-select attr-select" data-field="attr">');
-                                if (typeof merchantAttributes === 'object') {
-                                    var hasGroups = false;
-                                    $.each(merchantAttributes, function(key, value) {
-                                        if (typeof value === 'object' && value !== null) {
-                                            hasGroups = true;
-                                            return false; // break
-                                        }
-                                    });
-                                    if (hasGroups) {
-                                        $.each(merchantAttributes, function(group, attrs) {
-                                            if (typeof attrs === 'object' && attrs !== null) {
-                                                var $optgroup = $('<optgroup label="' + group + '">');
-                                                $.each(attrs, function(key, label) {
-                                                    var selected = key === mapping.attr ? ' selected' : '';
-                                                    $optgroup.append('<option value="' + key + '"' + selected + '>' + label + '</option>');
-                                                });
-                                                $attrSelect.append($optgroup);
-                                            }
-                                        });
-                                    } else {
-                                        $.each(merchantAttributes, function(key, label) {
-                                            var selected = key === mapping.attr ? ' selected' : '';
-                                            $attrSelect.append('<option value="' + key + '"' + selected + '>' + label + '</option>');
-                                        });
-                                    }
-                                }
-                                $attrCell.append($attrSelect);
-                            }
-                            // Type column
-                            var $typeCell = $('<td></td>');
-                            var $typeSelect = $('<select class="mapping-select type-select" data-field="type">');
-                            $typeSelect.append('<option value="meta"' + (mapping.type === 'meta' ? ' selected' : '') + '>Attribute</option>');
-                            $typeSelect.append('<option value="static"' + (mapping.type === 'static' ? ' selected' : '') + '>Static</option>');
-                            $typeCell.append($typeSelect);
-                            // Value column
-                            var $valueCell = $('<td></td>');
-                            if (mapping.type === 'meta' || (mapping.type === 'Custom' && (!mapping.st_value || mapping.st_value === '') ) ) {
-                                // Show dropdown for meta or for custom row if type is meta (default)
-                                var $valueSelect = $('<select class="mapping-select value-select" data-field="meta_key">');
-                                $.each(wcAttributes, function(group, attrs) {
-                                    var $optgroup = $('<optgroup label="' + group + '">');
-                                    $.each(attrs, function(key, label) {
-                                        var selected = key === mapping.meta_key ? ' selected' : '';
-                                        $optgroup.append('<option value="' + key + '"' + selected + '>' + label + '</option>');
-                                    });
-                                    $valueSelect.append($optgroup);
-                                });
-                                $valueCell.append($valueSelect);
-                            } else if (mapping.type === 'static' || (mapping.type === 'Custom' && mapping.st_value && mapping.st_value !== '')) {
-                                // Show text input for static or for custom row if type is static
-                                var $valueInput = $('<input type="text" class="mapping-input value-input" data-field="st_value" value="' + (mapping.st_value || '') + '" placeholder="Enter static value" autocomplete="off">');
-                                $valueCell.append($valueInput);
-                            }
-                            $row.append($attrCell, $typeCell, $valueCell);
-                            $mappingTableBody.append($row);
-                        });
-                    }
-
-                    // Handle type change - switch between dropdown and input
-                    $mappingTableBody.on('change', '.type-select', function() {
-                        var $row = $(this).closest('tr');
-                        var index = $row.data('index');
-                        var newType = $(this).val();
-                        var $valueCell = $row.find('td').eq(2);
-
-                        // Update mapping
-                        currentMappings[index].type = newType;
-
-                        // Re-render value cell for custom attribute row
-                        $valueCell.empty();
-                        if (currentMappings[index].type === 'Custom') {
-                            if (newType === 'meta') {
-                                var $valueSelect = $('<select class="mapping-select value-select" data-field="meta_key">');
-                                $.each(wcAttributes, function(group, attrs) {
-                                    var $optgroup = $('<optgroup label="' + group + '">');
-                                    $.each(attrs, function(key, label) {
-                                        $optgroup.append('<option value="' + key + '">' + label + '</option>');
-                                    });
-                                    $valueSelect.append($optgroup);
-                                });
-                                $valueCell.append($valueSelect);
-                                currentMappings[index].meta_key = $valueSelect.val();
-                                currentMappings[index].st_value = '';
-                            } else {
-                                var $valueInput = $('<input type="text" class="mapping-input value-input" data-field="st_value" placeholder="Enter static value">');
-                                $valueCell.append($valueInput);
-                                currentMappings[index].st_value = '';
-                                currentMappings[index].meta_key = '';
-                            }
-                        } else {
-                            // Non-custom row logic (unchanged)
-                            if (newType === 'meta') {
-                                var $valueSelect = $('<select class="mapping-select value-select" data-field="meta_key">');
-                                $.each(wcAttributes, function(group, attrs) {
-                                    var $optgroup = $('<optgroup label="' + group + '">');
-                                    $.each(attrs, function(key, label) {
-                                        $optgroup.append('<option value="' + key + '">' + label + '</option>');
-                                    });
-                                    $valueSelect.append($optgroup);
-                                });
-                                $valueCell.append($valueSelect);
-                                currentMappings[index].meta_key = $valueSelect.val();
-                                currentMappings[index].st_value = '';
-                            } else {
-                                var $valueInput = $('<input type="text" class="mapping-input value-input" data-field="st_value" placeholder="Enter static value">');
-                                $valueCell.append($valueInput);
-                                currentMappings[index].st_value = '';
-                                currentMappings[index].meta_key = '';
-                            }
-                        }
-
-                        feedData.mappings = currentMappings;
-                    });
-
-                    // Handle field changes
-                    $mappingTableBody.on('change', '.attr-select, .value-select', function() {
-                        var $row = $(this).closest('tr');
-                        var index = $row.data('index');
-                        var field = $(this).data('field');
-                        var value = $(this).val();
-                        
-                        currentMappings[index][field] = value;
-                        feedData.mappings = currentMappings;
-                    });
-
-                    $mappingTableBody.on('input', '.value-input', function() {
-                        var $row = $(this).closest('tr');
-                        var index = $row.data('index');
-                        var field = $(this).data('field');
-                        var value = $(this).val();
-                        
-                        currentMappings[index][field] = value;
-                        feedData.mappings = currentMappings;
-                    });
-
-                    $('#mappingBackBtn').off('click').on('click', function () {
-                        context.goBack();
-                    });
-
-                    $publishBtn.off('click').on('click', function () {
-                        // Ensure mappings are in feedData
-                        feedData.mappings = currentMappings;
-                        
-                        console.log('Creating feed with data:', {
-                            name: feedData.name,
-                            merchant: feedData.merchant_slug,
-                            format: feedData.format,
-                            frequency: feedData.frequency,
-                            mappings_count: currentMappings.length
-                        });
-                        
-                        // Show loading state
-                        $publishBtn.prop('disabled', true).html('<span style="display: inline-flex; align-items: center; gap: 8px;"><svg class="spinner" width="16" height="16" viewBox="0 0 50 50" style="animation: rotate 1s linear infinite;"><circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5" stroke-dasharray="31.4 31.4" stroke-linecap="round" style="animation: dash 1.5s ease-in-out infinite;"></circle></svg>Creating Feed...</span>');
-                        
-                        // Add spinner animation styles if not already present
-                        if (!$('#spinner-styles').length) {
-                            $('<style id="spinner-styles">@keyframes rotate { 100% { transform: rotate(360deg); } } @keyframes dash { 0% { stroke-dasharray: 1 31.4; stroke-dashoffset: 0; } 50% { stroke-dasharray: 15.7 15.7; stroke-dashoffset: -15.7; } 100% { stroke-dasharray: 1 31.4; stroke-dashoffset: -31.4; } }</style>').appendTo('head');
-                        }
-                        
-                        // Create the feed post via AJAX
                         $.ajax({
-                            url: ajaxurl,
-                            type: 'POST',
+                            url: ajaxurl, type: 'POST',
                             data: {
                                 action: 'pfm_create_feed',
                                 feed_name: feedData.name,
                                 merchant: feedData.merchant_slug,
                                 feed_format: feedData.format,
                                 update_frequency: feedData.frequency,
-                                mappings: JSON.stringify(currentMappings),
+                                mappings: JSON.stringify(feedData.mappings || []),
                                 security: pfmNonce
                             },
-                            success: function(response) {
-                                console.log('Feed creation response:', response);
-                                if (response.success && response.data && response.data.batch_info) {
-                                    // Update feed data
-                                    feedData.feed_id = response.data.feed_id;
-                                    feedData.feed_url = response.data.feed_url;
-                                    feedData.edit_url = response.data.edit_url;
-                                    
-                                    // Start batch feed generation
-                                    $publishBtn.html('<span style="display: inline-flex; align-items: center; gap: 8px;"><svg class="spinner" width="16" height="16" viewBox="0 0 50 50" style="animation: rotate 1s linear infinite;"><circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5" stroke-dasharray="31.4 31.4" stroke-linecap="round" style="animation: dash 1.5s ease-in-out infinite;"></circle></svg>Generating Feed...</span>');
-                                    
-                                    generateFeedBatch(
-                                        response.data.feed_id,
-                                        response.data.batch_info.total_products,
-                                        0, // offset
-                                        1, // current batch
-                                        response.data.batch_info.per_batch,
-                                        response.data.batch_info.total_batch,
-                                        function() {
-                                            fireFirstStrikeCompleted();
-                                            // Success callback - move to next step
-                                            $publishBtn.prop('disabled', false).html('Create Feed');
-                                            context.goNext();
+                            success: function (r) {
+                                if (r.success && r.data) {
+                                    feedData.feed_id  = r.data.feed_id;
+                                    feedData.feed_url = r.data.feed_url;
+                                    feedData.edit_url = r.data.edit_url;
+
+                                    $btn.html(spinnerHtml('Generating...'));
+                                    var bi = r.data.batch_info;
+                                    generateFeedBatch(feedData.feed_id, bi.total_products, 0, 1, bi.per_batch, bi.total_batch,
+                                        function () {
+                                            $btn.prop('disabled', false).text('Create My Feed →');
+                                            ctx.goNext();
                                         },
-                                        function(error) {
-                                            // Error callback
-                                            console.error('Feed generation failed:', error);
-                                            alert('Feed created but generation failed: ' + error);
-                                            $publishBtn.prop('disabled', false).html('Create Feed');
+                                        function () {
+                                            $btn.prop('disabled', false).text('Create My Feed →');
+                                            ctx.goNext(); // proceed even on generation error
                                         }
                                     );
                                 } else {
-                                    console.error('Feed creation failed:', response);
-                                    var errorMsg = response.data && response.data.message ? response.data.message : 'Failed to create feed. Please try again.';
-                                    alert(errorMsg);
-                                    $publishBtn.prop('disabled', false).html('Create Feed');
+                                    $btn.prop('disabled', false).text('Create My Feed →');
+                                    var msg = (r.data && r.data.message) ? r.data.message : 'Failed to create feed. Please try again.';
+                                    alert(msg);
                                 }
                             },
-                            error: function(xhr, status, error) {
-                                console.error('AJAX Error:', {
-                                    status: status,
-                                    error: error,
-                                    responseText: xhr.responseText,
-                                    xhr: xhr
-                                });
-                                var errorMsg = 'An error occurred while creating the feed.';
-                                if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
-                                    errorMsg = xhr.responseJSON.data.message;
-                                }
-                                alert(errorMsg + ' Please check the browser console for more details.');
-                                $publishBtn.prop('disabled', false).html('Create Feed');
+                            error: function () {
+                                $btn.prop('disabled', false).text('Create My Feed →');
+                                alert('An error occurred. Please try again.');
                             }
                         });
-                    });
-
-                    $('.exit').off('click').on('click', function () {
-                        window.location.href = 'edit.php?post_type=product-feed';
                     });
                 },
-                onNext: function () {
-                    return !!feedData.feed_id;
-                }
+                onNext: function () { return !!feedData.feed_id; }
             },
 
-            // =====================
-            // STEP 5: Complete (Upsell)
-            // =====================
+            // ── Step 3: Aha + Consent ─────────────────────────────────────────
             {
-                id: 'complete',
-                title: 'Complete',
-                canSkip: false,
-                canGoBack: false,
-                mount: function (container, context) {
-                    navigateTo('complete');
-                    fireSetupCompleted();
-
-                    // Fire impression telemetry (non-blocking)
-                    $.ajax({
-                        url: ajaxurl,
-                        type: 'POST',
-                        data: { action: 'pfm_track_companion_impression', security: pfmNonce }
-                    });
-
-                    // Determine merchant display name
-                    var isCustom = (selectedMerchantId === 'custom' || !selectedMerchantId || !selectedMerchantName);
-                    var merchantDisplay;
-                    if (isCustom) {
-                        merchantDisplay = 'your desired merchant';
-                    } else {
-                        var name = selectedMerchantName || '';
-                        merchantDisplay = name.charAt(0).toUpperCase() + name.slice(1);
-                    }
-
-                    // Set dynamic description text
-                    $('#completeUpsellDesc').html(
-                        'Nice \u2014 your products are heading to <strong>' + merchantDisplay + '</strong>. ' +
-                        'But more traffic doesn\'t automatically mean more profit. ' +
-                        'The real leverage is what happens at checkout. ' +
-                        'Here are two tools that turn clicks into revenue:'
-                    );
-
-                    // Set WPFunnels description with merchant name
-                    $('#wpfunnelsPluginDesc').html(
-                        'Replace your default checkout with a high-converting page. Add order bumps and upsells so every visitor from <strong>' + merchantDisplay + '</strong> is worth more.'
-                    );
-
-                    // Populate feed info card
-                    if (feedData.feed_url) {
-                        $('#feedUrlInput').val(feedData.feed_url);
-                        $('#feedViewLink').attr('href', feedData.feed_url);
-                        $('#feedEditLink').attr('href', feedData.edit_url || '#');
-                        $('#feedDownloadLink').attr('href', feedData.feed_url);
-                        var fmt = (feedData.format || 'xml').toUpperCase();
-                        $('#feedFormatBadge').text(fmt);
-                    }
-
-                    // Track how many plugins have been installed this session
-                    var installedPluginsCount = 0;
-
-                    // Swap the skip row with dashboard/create-another buttons
-                    function showFinalActions() {
-                        var $skipRow = $('.complete-skip-row');
-                        $skipRow.html(
-                            '<div class="upsell-final-actions">' +
-                            '<button class="btn btn-secondary" id="upsellCreateAnotherBtn">Create Another Feed</button>' +
-                            '<button class="btn btn-primary" id="upsellDashboardBtn">Go to Dashboard</button>' +
-                            '</div>'
-                        );
-                        $('#upsellCreateAnotherBtn').on('click', function() {
-                            window.location.href = 'post-new.php?post_type=product-feed';
-                        });
-                        $('#upsellDashboardBtn').on('click', function() {
-                            window.location.href = 'edit.php?post_type=product-feed';
-                        });
-                    }
-
-                    // Spinner HTML helper
-                    function spinnerHtml(text) {
-                        return '<span style="display:inline-flex;align-items:center;gap:8px;">' +
-                            '<svg class="spinner" width="15" height="15" viewBox="0 0 50 50" style="animation:rotate 1s linear infinite;">' +
-                            '<circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5" stroke-dasharray="31.4 31.4" stroke-linecap="round" style="animation:dash 1.5s ease-in-out infinite;"></circle>' +
-                            '</svg>' + text + '</span>';
-                    }
-
-                    // Disable all footer action buttons during install
-                    function lockFooterActions() {
-                        $('#skipForNowBtn, #upsellCreateAnotherBtn, #upsellDashboardBtn').prop('disabled', true);
-                    }
-
-                    // Re-enable footer action buttons after install
-                    function unlockFooterActions() {
-                        $('#skipForNowBtn, #upsellCreateAnotherBtn, #upsellDashboardBtn').prop('disabled', false);
-                    }
-
-                    // Generic plugin install handler
-                    function handlePluginInstall($btn, pluginSlug, originalHtml, successText) {
-                        if ($btn.hasClass('is-installing') || $btn.hasClass('is-installed')) return;
-                        $btn.addClass('is-installing').prop('disabled', true).html(spinnerHtml('Installing...'));
-                        lockFooterActions();
-
-                        $.ajax({
-                            url: ajaxurl,
-                            type: 'POST',
-                            data: {
-                                action: 'pfm_install_activate_plugin',
-                                plugin_slug: pluginSlug,
-                                security: pfmNonce
-                            },
-                            success: function(response) {
-                                $btn.removeClass('is-installing');
-                                if (response && response.success) {
-                                    $btn.addClass('is-installed').prop('disabled', true).html(successText);
-                                    installedPluginsCount++;
-                                    if (installedPluginsCount === 1) {
-                                        showFinalActions();
-                                    } else {
-                                        unlockFooterActions();
-                                    }
-                                } else {
-                                    $btn.prop('disabled', false).html(originalHtml);
-                                    unlockFooterActions();
-                                }
-                            },
-                            error: function() {
-                                $btn.removeClass('is-installing').prop('disabled', false).html(originalHtml);
-                                unlockFooterActions();
-                            }
-                        });
-                    }
-
-                    // Companion plugin statuses passed from PHP
-                    var companionPlugins = (typeof pfmMerchantsData !== 'undefined' && pfmMerchantsData.companionPlugins)
-                        ? pfmMerchantsData.companionPlugins
-                        : {};
-
-                    // Apply initial state to a plugin card button
-                    // status: 'not_installed' | 'installed' | 'active'
-                    function applyPluginStatus($btn, status, pluginSlug, installLabel, activateLabel) {
-                        if (status === 'active') {
-                            // Already active — show card with activated badge, disable button
-                            $btn.addClass('is-installed').prop('disabled', true).html('Already Activated \u2713');
-                            $btn.closest('.upsell-plugin-card').addClass('is-already-active');
-                            installedPluginsCount++;
-                        } else if (status === 'installed') {
-                            // Installed but not active — change button label to Activate
-                            $btn.html(activateLabel);
-                            $btn.off('click').on('click', function() {
-                                handlePluginInstall($(this), pluginSlug, activateLabel, 'Activated \u2713');
-                            });
-                        }
-                        // 'not_installed' — leave default install button as-is
-                    }
-
-                    // WPFunnels install button
-                    var $wpfBtn = $('#installWpfunnelsBtn');
-                    var wpfInstallLabel = 'Install WPFunnels (Free) \u2192';
-                    var wpfActivateLabel = 'Activate WPFunnels \u2192';
-                    var wpfStatus = companionPlugins['wpfunnels'] || 'not_installed';
-
-                    applyPluginStatus($wpfBtn, wpfStatus, 'wpfunnels', wpfInstallLabel, wpfActivateLabel);
-
-                    if (wpfStatus === 'not_installed') {
-                        $wpfBtn.off('click').on('click', function() {
-                            handlePluginInstall($(this), 'wpfunnels', wpfInstallLabel, 'Installed \u2713');
-                        });
-                    }
-
-                    // Cart Lift install button
-                    var $clBtn = $('#installCartLiftBtn');
-                    var clInstallLabel = 'Install Cart Lift (Free) \u2192';
-                    var clActivateLabel = 'Activate Cart Lift \u2192';
-                    var clStatus = companionPlugins['cart-lift'] || 'not_installed';
-
-                    applyPluginStatus($clBtn, clStatus, 'cart-lift', clInstallLabel, clActivateLabel);
-
-                    if (clStatus === 'not_installed') {
-                        $clBtn.off('click').on('click', function() {
-                            handlePluginInstall($(this), 'cart-lift', clInstallLabel, 'Installed \u2713');
-                        });
-                    }
-
-                    // If both were already active, show final actions immediately
-                    if (installedPluginsCount >= 1) {
-                        showFinalActions();
-                    }
-
-                    // Skip for now - fire AJAX then redirect
-                    $('#skipForNowBtn').off('click').on('click', function() {
-                        var $btn = $(this);
-                        $btn.prop('disabled', true).text('Please wait...');
-                        $.ajax({
-                            url: ajaxurl,
-                            type: 'POST',
-                            data: { action: 'pfm_skip_upsell', security: pfmNonce },
-                            complete: function() {
-                                window.location.href = 'edit.php?post_type=product-feed';
-                            }
-                        });
-                    });
+                id: 'aha', title: 'Feed Ready', canSkip: false, canGoBack: false,
+                mount: function (container, ctx) {
+                    showStep('pfm-step-3');
+                    mountStep3();
                 }
             }
         ],
         firstStrike: {
-            label: 'Product Feed Created',
-            verify: function () {
-                return !!feedData.name;
-            }
+            label : 'Product Feed Created',
+            verify: function () { return !!feedData.feed_id; }
         }
     });
 
-    // Start the onboarding engine
     engine.start();
 
-    // Listen to step changes and update UI
-    tracker.on('step_changed', (data) => {
-        const currentStep = engine.getCurrentStep();
-        if (currentStep && currentStep.mount) {
-            const container = document.getElementById('onboarding-app');
-            if (container) {
-                currentStep.mount(container, engine.getStepContext());
-            }
+    tracker.on('step_changed', function () {
+        var step = engine.getCurrentStep();
+        if (step && step.mount) {
+            step.mount(document.getElementById('pfm-wizard-app'), engine.getStepContext());
         }
     });
 
-    // Initial render - show welcome step
-    const currentStep = engine.getCurrentStep();
-    if (currentStep && currentStep.mount) {
-        const container = document.getElementById('onboarding-app');
-        if (container) {
-            currentStep.mount(container, engine.getStepContext());
-        }
+    // Initial render
+    var step = engine.getCurrentStep();
+    if (step && step.mount) {
+        step.mount(document.getElementById('pfm-wizard-app'), engine.getStepContext());
     }
 });

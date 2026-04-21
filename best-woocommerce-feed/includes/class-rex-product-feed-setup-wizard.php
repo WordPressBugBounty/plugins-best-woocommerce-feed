@@ -56,6 +56,7 @@ class Rex_Product_Feed_Setup_Wizard
                 $merchants_data,
                 array(
                     'assetsUrl'        => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/',
+                    'storeName'        => get_bloginfo( 'name' ),
                     'companionPlugins' => $this->get_companion_plugin_statuses(),
                 )
             )
@@ -117,7 +118,7 @@ class Rex_Product_Feed_Setup_Wizard
         $merchants_list = array();
         
         // Popular merchants (already shown separately, so exclude them from search)
-        $popular_ids = array('google', 'facebook', 'tiktok', 'instagram', 'yandex');
+        $popular_ids = array('google', 'facebook', 'idealo', 'tiktok', 'pinterest');
         
         // Get premium status
         $is_premium = apply_filters( 'wpfm_is_premium', false );

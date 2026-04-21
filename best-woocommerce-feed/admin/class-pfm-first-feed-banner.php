@@ -30,7 +30,7 @@ class PFM_First_Feed_Banner {
      */
     public function __construct() {
         if ($this->should_show_banner()) {
-            add_action('admin_notices', array($this, 'display_banner'));
+            // add_action('admin_notices', array($this, 'display_banner'));
             add_action('admin_head', array($this, 'add_styles'));
             add_action('wp_ajax_pfm_dismiss_feed_banner', array($this, 'handle_dismiss_banner'));
         }

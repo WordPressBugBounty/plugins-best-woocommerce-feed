@@ -23,6 +23,7 @@ class Rex_Product_Feed_Linno_Telemetry {
         add_action( 'rex_product_feed_feed_published', array( $this, 'maybe_track_aha' ) );
         add_action( 'rex_product_feed_feed_published', array( $this, 'accumulate_feed_publish' ), 10, 2 );
         add_action( 'rex_product_feed_consent_updated', array( $this, 'handle_consent_updated' ) );
+        add_action( 'rex_product_feed_setup_completed', array( $this, 'track_onboarding' ) );
         add_action( 'wpfm_flush_feed_telemetry', array( $this, 'flush_daily_telemetry' ) );
         if ( ! wp_next_scheduled( 'wpfm_flush_feed_telemetry' ) ) {
             wp_schedule_event( strtotime( 'tomorrow midnight' ), 'daily', 'wpfm_flush_feed_telemetry' );
@@ -56,11 +57,6 @@ class Rex_Product_Feed_Linno_Telemetry {
             )
         );
 
-        $telemetry_client->define_triggers(
-            array(
-                'onboarding' => 'rex_product_feed_setup_completed',
-            )
-        );
     }
 
     /**
@@ -114,6 +110,34 @@ class Rex_Product_Feed_Linno_Telemetry {
             return;
         }
         $telemetry_client->set_optin_state( $is_consent_given ? 'yes' : 'no' );
+    }
+
+    /**
+     * Track onboarding completion without consent — no PII, just site_url + unique_id.
+     *
+     * Fires on rex_product_feed_setup_completed regardless of consent state,
+     * mirroring the same no-consent pattern used for plugin_activated/deactivated.
+     *
+     * @return void
+     */
+    public function track_onboarding() {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'has_sent_event' ) ) {
+            return;
+        }
+        $event_key = 'onboarding_completed';
+        if ( $telemetry_client->has_sent_event( $event_key ) ) {
+            return;
+        }
+        $telemetry_client->track_lifecycle_event(
+            'activation/onboarding_completed',
+            array(
+                'site_url'  => get_site_url(),
+                'unique_id' => $telemetry_client->get_unique_id(),
+                'timestamp'  => current_time( 'mysql' ),
+            )
+        );
+        $telemetry_client->mark_event_sent( $event_key );
     }
 
     /**
