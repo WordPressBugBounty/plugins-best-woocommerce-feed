@@ -160,7 +160,34 @@ class Rex_Product_Feed_Admin {
             $_get = rex_feed_get_sanitized_get_post();
             $_get = !empty( $_get[ 'get' ] ) ? $_get[ 'get' ] : array();
 
-            if ( !empty( $_get ) && isset( $_get[ 'tour_guide' ] ) && 1 === (int) $_get[ 'tour_guide' ] ) {
+            $is_tour_guide_style = false;
+            $tour_state = get_user_meta( get_current_user_id(), 'wpfm_tour_completed_or_skipped', true );
+            
+            if ( empty( $tour_state ) ) {
+                if ( !empty( $_get ) && isset( $_get[ 'tour_guide' ] ) && 1 === (int) $_get[ 'tour_guide' ] ) {
+                    $is_tour_guide_style = true;
+                } elseif ( $hook === 'post-new.php' && isset($screen->id) && $screen->id === 'product-feed' ) {
+                    $args = array(
+                        'post_type'      => 'product-feed',
+                        'post_status'    => array( 'publish', 'draft' ),
+                        'posts_per_page' => 1,
+                        'fields'         => 'ids',
+                        'meta_query'     => array(
+                            array(
+                                'key'     => 'pfm_feed_created_by',
+                                'compare' => 'NOT EXISTS',
+                            ),
+                        ),
+                    );
+                    $manual_feeds = get_posts( $args );
+                    
+                    if ( empty( $manual_feeds ) ) {
+                        $is_tour_guide_style = true;
+                    }
+                }
+            }
+
+            if ( $is_tour_guide_style ) {
                 wp_enqueue_style( $this->plugin_name . '-shepherd', WPFM_PLUGIN_ASSETS_FOLDER . 'css/shepherd.css', array(), $this->version );
             }
 
@@ -318,7 +345,34 @@ class Rex_Product_Feed_Admin {
             $_get = rex_feed_get_sanitized_get_post();
             $_get = !empty( $_get[ 'get' ] ) ? $_get[ 'get' ] : array();
 
-            if ( !empty( $_get ) && isset( $_get[ 'tour_guide' ] ) && 1 === (int) $_get[ 'tour_guide' ] ) {
+            $is_tour_guide_script = false;
+            $tour_state = get_user_meta( get_current_user_id(), 'wpfm_tour_completed_or_skipped', true );
+            
+            if ( empty( $tour_state ) ) {
+                if ( !empty( $_get ) && isset( $_get[ 'tour_guide' ] ) && 1 === (int) $_get[ 'tour_guide' ] ) {
+                    $is_tour_guide_script = true;
+                } elseif ( $hook === 'post-new.php' && isset($screen->id) && $screen->id === 'product-feed' ) {
+                    $args = array(
+                        'post_type'      => 'product-feed',
+                        'post_status'    => array( 'publish', 'draft' ),
+                        'posts_per_page' => 1,
+                        'fields'         => 'ids',
+                        'meta_query'     => array(
+                            array(
+                                'key'     => 'pfm_feed_created_by',
+                                'compare' => 'NOT EXISTS',
+                            ),
+                        ),
+                    );
+                    $manual_feeds = get_posts( $args );
+                    
+                    if ( empty( $manual_feeds ) ) {
+                        $is_tour_guide_script = true;
+                    }
+                }
+            }
+
+            if ( $is_tour_guide_script ) {
                 wp_enqueue_script(
                     $this->plugin_name . '-shepherd',
                     WPFM_PLUGIN_ASSETS_FOLDER . 'js/shepherd.min.js',
@@ -467,6 +521,43 @@ class Rex_Product_Feed_Admin {
 
         // PFM actions.
         add_filter( 'plugin_action_links_' . $this->plugin_basename, array( new Rex_Product_Feed_Actions(), 'plugin_action_links' ) );
+    }
+
+    /**
+     * Display a success notice when the Demo Feed has been dynamically created.
+     *
+     * @since 7.4.83
+     */
+    public function show_demo_feed_success_notice() {
+        $data = get_transient( "pfm_demo_feed_created" );
+        if ( ! $data ) {
+            return;
+        }
+
+        if ( is_array( $data ) ) {
+            $country_name  = isset( $data["country_name"] )  ? $data["country_name"]  : "";
+            $merchant_name = isset( $data["merchant_name"] ) ? $data["merchant_name"] : "";
+        } else {
+            $country_name  = "";
+            $merchant_name = "";
+        }
+
+        if ( $country_name && $merchant_name ) {
+            /* translators: 1: country name, 2: merchant name */
+            $tpl     = __( "We noticed you’re in %1\$s, so we’ve created a %2\$s demo feed for you!", "rex-product-feed" );
+            $message = sprintf(
+                $tpl,
+                "<strong>" . esc_html( $country_name ) . "</strong>",
+                "<strong>" . esc_html( $merchant_name ) . "</strong>"
+            );
+        } else {
+            $message = esc_html__( "We’ve created a Demo Feed for you based on your store’s settings. You can find it in your feed list!", "rex-product-feed" );
+        }
+        echo "<div class=\"notice notice-success is-dismissible pfm-demo-feed-notice\"><p>";
+        echo "<strong>" . esc_html__( "Product Feed Manager:", "rex-product-feed" ) . "</strong> ";
+        echo wp_kses( $message, array( "strong" => array() ) );
+        echo "</p></div>";
+        delete_transient( "pfm_demo_feed_created" );
     }
 
     /**

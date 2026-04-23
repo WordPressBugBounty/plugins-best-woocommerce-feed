@@ -458,7 +458,7 @@ jQuery(document).ready(function ($) {
                         $.ajax({
                             url: ajaxurl, type: 'POST',
                             data: { action: 'pfm_wizard_dismiss', security: pfmNonce, step_index: 0, step_id: 'merchant' },
-                            complete: function () { window.location.href = 'index.php'; }
+                            complete: function () { window.location.href = 'edit.php?post_type=product-feed'; }
                         });
                     });
                 },

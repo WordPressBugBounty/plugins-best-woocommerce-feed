@@ -692,6 +692,7 @@
     $(document).on("change", "#remove_plugin_data", remove_plugin_data);
 
     $(document).on("change", "#wpfm_enable_log", wpfm_enable_log);
+    $(document).on("change", "#wpfm_allow_tracking", wpfm_allow_tracking);
 
     $(document).on("change", "#rex-product-allow-private", allow_private);
 
@@ -1974,6 +1975,33 @@
             .error(function (response) {
                 console.log("Uh, oh!");
             });
+    }
+
+    /**
+     * Usage Tracking
+     */
+    function wpfm_allow_tracking() {
+        var consent = '0';
+        if ($(this).is(":checked")) {
+            consent = '1';
+        }
+        
+        var $el = $(this);
+        $el.attr("disabled", true);
+        
+        $.post( rex_wpfm_ajax.ajax_url, {
+            action:   'pfm_save_consent',
+            security: rex_wpfm_ajax.ajax_nonce,
+            consent:  consent
+        })
+        .done(function() {
+            $el.attr("disabled", false);
+            console.log("Consent saved.");
+        } )
+        .fail(function() {
+            $el.attr("disabled", false);
+            console.log("Failed to save consent.");
+        } );
     }
 
     /**

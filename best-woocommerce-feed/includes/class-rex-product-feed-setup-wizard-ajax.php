@@ -31,6 +31,7 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         add_action('wp_ajax_pfm_dashboard_banner_dismiss',        array($this, 'dashboard_banner_dismiss'));
         add_action('wp_ajax_pfm_wizard_dismiss',                   array($this, 'dismiss_wizard'));
         add_action('wp_ajax_pfm_wizard_mark_completed',            array($this, 'mark_wizard_completed'));
+        add_action('wp_ajax_pfm_tour_update_status',               array($this, 'tour_update_status'));
         add_action('admin_init',                                   array($this, 'maybe_suppress_consent_notice'));
         add_filter('views_edit-product-feed',                      array($this, 'inject_re_engagement_banner'));
     }
@@ -321,6 +322,9 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
                 return;
             }
 
+            // Mark this feed as created by the setup wizard (or demo) so it doesn't count as a manually created feed
+            update_post_meta( $feed_id, 'pfm_feed_created_by', 'setup_wizard' );
+
             // Load required classes
             require_once plugin_dir_path(__FILE__) . '../admin/class-rex-feed-template-factory.php';
 
@@ -381,6 +385,7 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
             update_post_meta( $feed_id, '_rex_feed_created_via_wizard', 'yes' );
             update_post_meta( $feed_id, '_feed_created_at', time() );
             update_post_meta( $feed_id, 'edit_count', 0 );
+            update_post_meta( $feed_id, '_rex_feed_is_google_content_api', 'no' );
 
             // Get the feed URL
             $path = wp_upload_dir();
@@ -401,11 +406,19 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
             $total_products = $products['products'];
             $total_batch = ceil( $total_products / $posts_per_page );
 
+            $count_posts = wp_count_posts('product-feed');
+            $total_feeds = (isset($count_posts->publish) ? $count_posts->publish : 0) + (isset($count_posts->draft) ? $count_posts->draft : 0);
+            $edit_url = admin_url( 'post.php?post=' . $feed_id . '&action=edit' );
+            
+            if ( $total_feeds <= 1 ) {
+                $edit_url .= '&tour_guide=1';
+            }
+
             // Return success with feed data and batch info
             wp_send_json_success( array(
                 'feed_id' => $feed_id,
                 'feed_url' => $feed_url,
-                'edit_url' => admin_url( 'post.php?post=' . $feed_id . '&action=edit' ),
+                'edit_url' => $edit_url,
                 'message' => 'Feed created successfully',
                 'batch_info' => array(
                     'total_products' => $total_products,
@@ -717,6 +730,99 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
 
         update_option( 'pfm_wizard_onboarding_progress', $progress, false );
         update_user_meta( get_current_user_id(), 'pfm_wizard_dismissed', '1' );
+
+        $count_posts = wp_count_posts('product-feed');
+        $total_feeds = (isset($count_posts->publish) ? $count_posts->publish : 0) + (isset($count_posts->draft) ? $count_posts->draft : 0);
+
+        $is_premium = apply_filters( 'wpfm_is_premium', false );
+
+        if ( $total_feeds === 0 && ! $is_premium ) {
+            $country_code = get_option('woocommerce_default_country', 'US');
+            if (strpos($country_code, ':') !== false) {
+                $country_code = explode(':', $country_code)[0];
+            }
+            $country_name = 'United States';
+            if ( function_exists('WC') && isset(WC()->countries) ) {
+                $countries = WC()->countries->get_countries();
+                if ( isset($countries[$country_code]) ) {
+                    $country_name = $countries[$country_code];
+                }
+            }
+
+            $demo_merchant   = $this->get_demo_merchant_by_country( $country_code );
+            $date            = current_time('Y-m-d');
+            $feed_name       = "Demo Feed - $country_name - $date";
+            $merchant        = $demo_merchant['slug'];
+            $merchant_name   = $demo_merchant['name'];
+            $feed_format     = $demo_merchant['format'];
+            $is_eu_merchant  = $demo_merchant['is_eu'];
+            $update_frequency = 'daily';
+
+            require_once plugin_dir_path(__FILE__) . '../admin/class-rex-feed-template-factory.php';
+            try {
+                $template = Rex_Feed_Template_Factory::build( $merchant, false );
+                $feed_config = $template->get_template_mappings();
+
+                if ( is_array($feed_config) ) {
+                    foreach ($feed_config as &$mapping) {
+                        if ( isset($mapping['attr']) && $mapping['attr'] === 'link' ) {
+                            $mapping['suffix'] = '?utm_source=pfm_demo&utm_medium=feed';
+                        }
+                    }
+                }
+
+                $feed_id = wp_insert_post( array(
+                    'post_title'  => $feed_name,
+                    'post_type'   => 'product-feed',
+                    'post_status' => 'publish',
+                    'post_author' => get_current_user_id(),
+                ) );
+
+                if ( ! is_wp_error( $feed_id ) && $feed_id > 0 ) {
+                    update_post_meta( $feed_id, 'pfm_feed_created_by', 'setup_wizard_skip' );
+                    update_post_meta( $feed_id, '_rex_feed_merchant', $merchant );
+                    update_post_meta( $feed_id, '_rex_feed_feed_format', $feed_format );
+                    update_post_meta( $feed_id, '_rex_feed_schedule', $update_frequency );
+                    update_post_meta( $feed_id, '_rex_feed_feed_config', $feed_config );
+
+                    update_post_meta( $feed_id, '_rex_feed_variations', 'yes' );
+                    update_post_meta( $feed_id, '_rex_feed_variable_product', 'yes' );
+                    update_post_meta( $feed_id, '_rex_feed_parent_product', 'yes' );
+                    update_post_meta( $feed_id, '_rex_feed_include_out_of_stock', 'no' );
+                    update_post_meta( $feed_id, '_rex_feed_include_zero_price_products', 'no' );
+                    update_post_meta( $feed_id, '_rex_feed_hidden_products', 'no' );
+                    update_post_meta( $feed_id, '_rex_feed_skip_product', 'no' );
+                    update_post_meta( $feed_id, '_rex_feed_skip_row', 'no' );
+
+                    update_post_meta( $feed_id, '_rex_feed_products', 'all' );
+                    update_post_meta( $feed_id, '_feed_created_at', time() );
+                    update_post_meta( $feed_id, 'edit_count', 0 );
+                    update_post_meta( $feed_id, '_rex_feed_is_google_content_api', 'no' );
+
+                    if ( $is_eu_merchant ) {
+                        update_post_meta( $feed_id, '_rex_feed_feed_country', $country_code );
+                    }
+
+                    $path = wp_upload_dir();
+                    $path = $path['baseurl'] . '/rex-feed';
+                    $feed_url = trailingslashit($path) . "feed-{$feed_id}.{$feed_format}";
+                    update_post_meta( $feed_id, '_rex_feed_xml_file', $feed_url );
+
+                    require_once plugin_dir_path(__FILE__) . '../admin/class-rex-feed-scheduler.php';
+                    $scheduler = new Rex_Feed_Scheduler();
+                    $scheduler->schedule_merchant_single_batch_object( [ $feed_id ], true );
+
+                    set_transient( 'pfm_demo_feed_created', array(
+                        'feed_id'       => $feed_id,
+                        'merchant_name' => $merchant_name,
+                        'country_name'  => $country_name,
+                    ), 60 );
+                }
+            } catch ( Exception $e ) {
+                error_log( 'PFM Demo Feed Creation Error: ' . $e->getMessage() );
+            }
+        }
+
         wp_send_json_success( array( 'message' => 'Wizard dismissed' ), 200 );
     }
 
@@ -740,6 +846,21 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         update_user_meta( get_current_user_id(), 'pfm_wizard_completed', '1' );
         do_action( 'rex_product_feed_setup_completed' );
         wp_send_json_success( array( 'message' => 'Wizard completed' ), 200 );
+    }
+
+    /**
+     * Mark the guided tour as completed or skipped for the current user.
+     *
+     * @since 7.X.X
+     */
+    public function tour_update_status() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized user' ), 403 );
+            return;
+        }
+
+        update_user_meta( get_current_user_id(), 'wpfm_tour_completed_or_skipped', '1' );
+        wp_send_json_success( array( 'message' => 'Tour status updated' ), 200 );
     }
 
     /**
@@ -886,6 +1007,42 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
      */
     public function suppress_consent_notice_for_request() {
         return 'yes';
+    }
+
+    /**
+     * Return the most relevant free demo merchant for a given ISO country code.
+     *
+     * Priority:
+     *   DE  → idealo_de  |  NL → bol  |  FR → fnac  |  PL → ceneo
+     *   GR  → skroutz   |  EU (other) → idealo  |  everywhere else → google
+     *
+     * @param string $country_code Two-letter ISO 3166-1 alpha-2 country code.
+     * @return array{slug:string, name:string, format:string, is_eu:bool}
+     */
+    private function get_demo_merchant_by_country( $country_code ) {
+        $eu_countries = array(
+            'AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI',
+            'FR', 'GR', 'HR', 'HU', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT',
+            'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK',
+        );
+
+        $map = array(
+            'DE' => array( 'slug' => 'idealo_de', 'name' => 'Idealo.de',  'format' => 'csv',  'is_eu' => true ),
+            'NL' => array( 'slug' => 'bol',       'name' => 'Bol.com',    'format' => 'csv',  'is_eu' => true ),
+            'FR' => array( 'slug' => 'fnac',      'name' => 'Fnac',       'format' => 'xml',  'is_eu' => true ),
+            'PL' => array( 'slug' => 'ceneo',     'name' => 'Ceneo',      'format' => 'xml',  'is_eu' => true ),
+            'GR' => array( 'slug' => 'skroutz',   'name' => 'Skroutz',    'format' => 'xml',  'is_eu' => true ),
+        );
+
+        if ( isset( $map[ $country_code ] ) ) {
+            return $map[ $country_code ];
+        }
+
+        if ( in_array( $country_code, $eu_countries, true ) ) {
+            return array( 'slug' => 'idealo', 'name' => 'Idealo', 'format' => 'csv', 'is_eu' => true );
+        }
+
+        return array( 'slug' => 'google', 'name' => 'Google Shopping', 'format' => 'xml', 'is_eu' => false );
     }
 
     /**

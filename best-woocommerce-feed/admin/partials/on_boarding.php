@@ -209,6 +209,23 @@ if ( $is_premium_activated ) {
                         </div>
                     </div>
 
+                    <div class="single-merchant">
+						<span class="title">
+							<?php echo esc_html__( 'Allow Usage Tracking', 'rex-product-feed' ); ?>
+						</span>
+                        <div class="switch">
+                            <?php
+                            $usage_tracking = get_option( 'best-woocommerce-feed_allow_tracking', 'no' );
+                            $checked = 'yes' === $usage_tracking ? 'checked' : '';
+                            ?>
+                            <div class="wpfm-switcher">
+                                <input class="switch-input" type="checkbox"
+                                       id="wpfm_allow_tracking" <?php echo esc_attr( $checked ); ?>>
+                                <label class="lever" for="wpfm_allow_tracking"></label>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="single-merchant hide-character">
 						<span class="title">
 							<?php echo esc_html__( 'Hide Character Limit Column', 'rex-product-feed' ); ?>

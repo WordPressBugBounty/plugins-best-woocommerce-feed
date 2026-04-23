@@ -233,6 +233,7 @@ class Rex_Product_Feed {
         $this->loader->add_action( 'after_delete_post', $feed_actions, 'delete_feed_files' );
         $this->loader->add_action( 'admin_init', $feed_actions, 'remove_logs' );
         $this->loader->add_action( 'admin_notices', $feed_actions, 'render_xml_error_message' );
+        $this->loader->add_action( 'admin_notices', $plugin_admin, 'show_demo_feed_success_notice' );
         // Duplicate feed item.
         $this->loader->add_action( 'admin_action_wpfm_duplicate_post_as_draft', $feed_actions, 'duplicate_feed_as_draft' );
         $this->loader->add_filter( 'post_row_actions', $feed_actions, 'duplicate_feed_link', 10, 2 );
