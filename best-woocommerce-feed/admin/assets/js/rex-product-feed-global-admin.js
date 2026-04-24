@@ -64,26 +64,59 @@
 
     $(document).on('click', '#rex-wpfm-update-db', wpfm_update_database);
 
-    $(document).on('click', '.best-woocommerce-feed-deactivate-link', function (e) {
-        $('.wd-dr-modal-footer a.dont-bother-me').hide();
+    // Deactivation modal — Phase 4 UI enhancements.
+    // The SDK opens the modal; we layer on: narrower wrap, flexbox footer,
+    // disabled submit, demoted skip link, pre-selected first card.
+    $(document).on('click', 'a.product-feed-manager-deactivation-link', function () {
+        var $modal = $('#product-feed-manager-wd-dr-modal');
 
-        var $payload = {
-            security: rex_wpfm_ajax.ajax_nonce
-        };
+        // Narrower modal.
+        $modal.find('.wd-dr-modal-wrap').css('max-width', '650px');
 
-        wpAjaxHelperRequest('rex-feed-get-appsero-options', $payload)
-            .success(function (response) {
-                if (response.success) {
-                    $('ul.wd-de-reasons').empty();
-                    $('ul.wd-de-reasons').append(response.data.html);
-                }
-            })
-            .error(function (response) {
-            });
+        // Disable submit until a card is picked.
+        $modal.find('.wd-dr-submit-modal').prop('disabled', true).css({ opacity: '0.5', cursor: 'not-allowed' });
 
-        if (!$('#appsero_new_assistance').length && !$('#appsero_required').length) {
-            $('.wd-dr-modal-body').append('<p id="appsero_new_assistance">Need Support/Assistance? <a href="https://rextheme.com/support/?utm_source=plugin&utm_medium=support_link&utm_campaign=pfm_plugin" target="_blank">Click Here!</a></p>');
-            $('.wd-dr-modal-body').append('<p id="appsero_required"><span style="color: red">*</span>Please, select one reason and submit.</p>');
+        // Reset previous selection, then pre-select the first card.
+        $modal.find('li.wd-de-reason-selected').removeClass('wd-de-reason-selected');
+        $modal.find('input[type="radio"]').prop('checked', false);
+        $modal.find('.wd-dr-modal-reason-input').hide();
+
+        // Pre-select first card — fires SDK handler (visual) then our handler (enables submit).
+        $modal.find('input[type="radio"]:first').trigger('click');
+
+        // Footer: flexbox so skip sits left, cancel+submit stay right.
+        $modal.find('.wd-dr-modal-footer').css({
+            display:         'flex',
+            'align-items':   'center',
+            'text-align':    'left'
+        });
+
+        // Demote skip link to a muted left-side text link.
+        // SDK sets float:left inline; we override since document handler fires last.
+        $modal.find('a.dont-bother-me').css({
+            float:             'none',
+            display:           'inline',
+            'margin-right':    'auto',
+            border:            'none',
+            padding:           '0',
+            'font-size':       '11px',
+            color:             '#aaa',
+            'text-decoration': 'underline',
+            background:        'transparent'
+        }).removeClass('wd-dr-button-secondary');
+    });
+
+    // Enable submit on card selection; hide textarea for one_time_export.
+    $(document).on('click', '#product-feed-manager-wd-dr-modal input[type="radio"]', function () {
+        var $modal    = $('#product-feed-manager-wd-dr-modal');
+        var reasonId  = $(this).val();
+
+        $modal.find('.wd-dr-submit-modal').prop('disabled', false).css({ opacity: '1', cursor: 'pointer' });
+
+        // SDK already shows .wd-dr-modal-reason-input for all selections.
+        // For one_time_export there is no useful text to collect — hide it.
+        if ('one_time_export' === reasonId) {
+            $modal.find('.wd-dr-modal-reason-input').hide();
         }
     });
 

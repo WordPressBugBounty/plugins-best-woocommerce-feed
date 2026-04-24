@@ -67,6 +67,7 @@ class ComposerStaticInit978a6166a9b5478c3020d5cccd729501
         'LukeSnowden\\GoogleShoppingFeed\\Feed' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Feed.php',
         'LukeSnowden\\GoogleShoppingFeed\\Item' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Item.php',
         'LukeSnowden\\GoogleShoppingFeed\\Node' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Node.php',
+        'PFM_Feed_Nudge' => __DIR__ . '/../..' . '/admin/class-pfm-feed-nudge.php',
         'PFM_First_Feed_Banner' => __DIR__ . '/../..' . '/admin/class-pfm-first-feed-banner.php',
         'PhilipNewcomer\\WP_Ajax_Helper\\Frontend' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components/Frontend.php',
         'PhilipNewcomer\\WP_Ajax_Helper\\Handler' => __DIR__ . '/..' . '/philipnewcomer/wp-ajax-helper/src/components/Handler.php',

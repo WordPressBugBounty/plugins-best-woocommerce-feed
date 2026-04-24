@@ -566,7 +566,16 @@ class Client {
         );
 
         if ( 'activation/plugin_deactivated' === $event ) {
-            $minimal_properties['reason'] = sanitize_text_field( (string) ( $properties['reason'] ?? 'none' ) );
+            $minimal_properties['reason']     = sanitize_text_field( (string) ( $properties['reason'] ?? 'none' ) );
+            $minimal_properties['reason_key'] = sanitize_text_field( (string) ( $properties['reason_key'] ?? '' ) );
+
+            // Pass through any extra properties added by the plugin via the deactivation_payload filter.
+            $reserved = array( 'site_url', 'unique_id', '__identify', 'reason', 'reason_key' );
+            foreach ( $properties as $key => $value ) {
+                if ( ! in_array( $key, $reserved, true ) ) {
+                    $minimal_properties[ sanitize_key( $key ) ] = is_numeric( $value ) ? $value : sanitize_text_field( (string) $value );
+                }
+            }
         }
 
         $result = $this->handlers['dispatcher']->dispatch_minimal( $event, $minimal_properties );
