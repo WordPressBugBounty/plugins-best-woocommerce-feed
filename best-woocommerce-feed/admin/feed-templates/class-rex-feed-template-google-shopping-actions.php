@@ -86,6 +86,8 @@ class Rex_Feed_Template_Google_shopping_actions extends Rex_Feed_Abstract_Templa
 				'product_highlight'       => 'Product highlight [product_highlight]',
 			),
 
+			'Product Detail'                      => $this->get_product_detail_attributes(),
+
 			'Tax & Shipping'                      => array(
 				'tax'                => 'Tax [tax]',
 				"tax_country"        => "Tax Country[tax_country]",

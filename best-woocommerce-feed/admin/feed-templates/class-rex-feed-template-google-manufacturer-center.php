@@ -53,6 +53,8 @@ class Rex_Feed_Template_Google_manufacturer_center extends Rex_Feed_Abstract_Tem
 				'rich_product_content'   => 'Rich Product Content',
 			),
 
+			'Product Detail'          => $this->get_product_detail_attributes(),
+
 		);
 	}
 

@@ -46,7 +46,7 @@ class REST
      */
     public static function execute(ClientInterface $client, RequestInterface $request, $expectedClass = null, $config = array(), $retryMap = null)
     {
-        $runner = new Runner($config, \sprintf('%s %s', $request->getMethod(), (string) $request->getUri()), array(\get_class(), 'doExecute'), array($client, $request, $expectedClass));
+        $runner = new Runner($config, \sprintf('%s %s', $request->getMethod(), (string) $request->getUri()), array(self::class, 'doExecute'), array($client, $request, $expectedClass));
         if (null !== $retryMap) {
             $runner->setRetryMap($retryMap);
         }
@@ -89,7 +89,7 @@ class REST
      * @param string $expectedClass
      * @return mixed|null
      */
-    public static function decodeHttpResponse(ResponseInterface $response, RequestInterface $request = null, $expectedClass = null)
+    public static function decodeHttpResponse(ResponseInterface $response, ?RequestInterface $request = null, $expectedClass = null)
     {
         $code = $response->getStatusCode();
         // retry strategy
@@ -108,7 +108,7 @@ class REST
         }
         return $response;
     }
-    private static function decodeBody(ResponseInterface $response, RequestInterface $request = null)
+    private static function decodeBody(ResponseInterface $response, ?RequestInterface $request = null)
     {
         if (self::isAltMedia($request)) {
             // don't decode the body, it's probably a really long string
@@ -116,7 +116,7 @@ class REST
         }
         return (string) $response->getBody();
     }
-    private static function determineExpectedClass($expectedClass, RequestInterface $request = null)
+    private static function determineExpectedClass($expectedClass, ?RequestInterface $request = null)
     {
         // "false" is used to explicitly prevent an expected class from being returned
         if (\false === $expectedClass) {
@@ -137,7 +137,7 @@ class REST
         }
         return null;
     }
-    private static function isAltMedia(RequestInterface $request = null)
+    private static function isAltMedia(?RequestInterface $request = null)
     {
         if ($request && ($qs = $request->getUri()->getQuery())) {
             \parse_str($qs, $query);

@@ -387,43 +387,62 @@ class Rex_Feed_Scheduler {
             $per_batch     = !empty( $products_info[ 'per_batch' ] ) ? $products_info[ 'per_batch' ] : 0;
             $total_batches = !empty( $products_info[ 'total_batch' ] ) ? $products_info[ 'total_batch' ] : 1;
 
-            if( $per_batch && $total_batches ) {
-                foreach( $feed_ids as $feed_id ) {
-                    $update_on_product_change = get_post_meta( $feed_id, '_rex_feed_update_on_product_change', true ) ?: get_post_meta( $feed_id, 'rex_feed_update_on_product_change', true );
-                    $is_triggered_by_product_change = ( 'yes' === $update_on_product_change && get_option( 'rex_feed_wc_product_updated', false ) );
+	            $last_product_change = $this->get_last_product_change_timestamp();
+	            if( $per_batch && $total_batches ) {
+	                foreach( $feed_ids as $feed_id ) {
+	                    $update_on_product_change = get_post_meta( $feed_id, '_rex_feed_update_on_product_change', true ) ?: get_post_meta( $feed_id, 'rex_feed_update_on_product_change', true );
+	                    $is_triggered_by_product_change = ( 'yes' === $update_on_product_change && $this->feed_has_pending_product_changes( $feed_id, $last_product_change ) );
 
-                    if( $update_single || $is_triggered_by_product_change || ( !$update_on_product_change || 'no' === $update_on_product_change ) ) {
-                        $is_custom_executable = '';
+	                    if( $update_single || $is_triggered_by_product_change || ( !$update_on_product_change || 'no' === $update_on_product_change ) ) {
+	                        $is_custom_executable = '';
                         if( !$update_single ) {
                             $schedule             = $this->get_feed_schedule_settings( $feed_id );
                             $schedule_time        = get_post_meta( $feed_id, '_rex_feed_custom_time', true ) ?: get_post_meta( $feed_id, 'rex_feed_custom_time', true );
                             $is_custom_executable = 'custom' === $schedule;
                         }
 
-                        if( $update_single || $is_custom_executable || in_array( $schedule, [ 'hourly', 'daily', 'weekly', 'custom' ] ) ) {
-                            update_post_meta( $feed_id, '_generation_start_time', time() );
-                            $offset = 0;
-                            for( $current_batch = 1; $current_batch <= $total_batches; $current_batch++ ) {
-                                $data         = [];
-                                $data[]       = [
+	                        if( $update_single || $is_custom_executable || in_array( $schedule, [ 'hourly', 'daily', 'weekly', 'custom' ] ) ) {
+	                            update_post_meta( $feed_id, '_generation_start_time', time() );
+	                            $offset = 0;
+	                            $has_pending_or_new_batches = false;
+	                            $all_batches_ok             = true;
+	                            for( $current_batch = 1; $current_batch <= $total_batches; $current_batch++ ) {
+	                                $data         = [];
+	                                $data[]       = [
                                     'feed_id'       => $feed_id,
                                     'current_batch' => $current_batch,
                                     'total_batches' => $total_batches,
                                     'per_batch'     => $per_batch,
                                     'offset'        => $offset,
-                                ];
-                                $is_scheduled = function_exists( 'as_has_scheduled_action' ) && as_has_scheduled_action( 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
-                                if( !$is_scheduled ) {
-                                    $scheduled = function_exists( 'as_schedule_single_action' ) && as_schedule_single_action( time(), 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
-                                    if( 1 === $current_batch && !is_wp_error( $scheduled ) && $scheduled ) {
-                                        Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'In queue', false );
-                                    }
-                                }
-                                $offset += $per_batch;
-                            }
-                        }
-                    }
-                }
+	                                ];
+	                                $is_scheduled = function_exists( 'as_has_scheduled_action' ) && as_has_scheduled_action( 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
+	                                if ( $is_scheduled ) {
+	                                    $has_pending_or_new_batches = true;
+	                                }
+	                                if( !$is_scheduled ) {
+	                                    $scheduled = function_exists( 'as_schedule_single_action' ) && as_schedule_single_action( time(), 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
+	                                    if( 1 === $current_batch && !is_wp_error( $scheduled ) && $scheduled ) {
+	                                        Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'In queue', false );
+	                                    }
+	                                    if ( ! is_wp_error( $scheduled ) && $scheduled ) {
+	                                        $has_pending_or_new_batches = true;
+	                                    } else {
+	                                        $all_batches_ok = false;
+	                                    }
+	                                }
+	                                $offset += $per_batch;
+	                            }
+
+	                            if ( $is_triggered_by_product_change && $has_pending_or_new_batches && $all_batches_ok ) {
+	                                // Mark the change as processed for this feed only.
+	                                // Only advance when every batch is confirmed scheduled/pending so
+	                                // a partial scheduling failure does not suppress an automatic retry.
+	                                // This keeps one feed's scheduled run from suppressing other due feeds.
+	                                update_post_meta( $feed_id, '_rex_feed_last_product_change_processed', $last_product_change );
+	                            }
+	                        }
+	                    }
+	                }
             }
             wpfm_purge_cached_data( 'cron_products_info' );
         }
@@ -468,12 +487,17 @@ class Rex_Feed_Scheduler {
 
         $is_manual_run = $this->is_manual_action_scheduler_run();
 
-        if('custom' === $schedule && !$is_manual_run) {
-            $timezone = new DateTimeZone( wp_timezone_string() );
-            $now_time = wp_date( "G", null, $timezone );
+	        if('custom' === $schedule && !$is_manual_run) {
+	            $timezone = new DateTimeZone( wp_timezone_string() );
+	            $now_time = wp_date( "G", null, $timezone );
+	            $custom_time_values = [ (string) $now_time ];
+	            if ( 0 === (int) $now_time ) {
+	                // Older feeds may still store midnight as 24.
+	                $custom_time_values[] = '24';
+	            }
 
-            $meta_queries[] = [
-                'relation' => 'AND',
+	            $meta_queries[] = [
+	                'relation' => 'AND',
                 [
                     'relation' => 'OR',
                     [
@@ -484,15 +508,24 @@ class Rex_Feed_Scheduler {
                         'key'   => 'rex_feed_schedule',
                         'value' => 'custom',
                     ],
-                ],
-                [
-                    'key'     => '_rex_feed_custom_time',
-                    'value'   => $now_time,
-                    'compare' => '=',
-                    'type'    => 'CHAR',
-                ],
-            ];
-        }
+	                ],
+	                [
+	                    'relation' => 'OR',
+	                    [
+	                        'key'     => '_rex_feed_custom_time',
+	                        'value'   => $custom_time_values,
+	                        'compare' => 'IN',
+	                        'type'    => 'NUMERIC',
+	                    ],
+	                    [
+	                        'key'     => 'rex_feed_custom_time',
+	                        'value'   => $custom_time_values,
+	                        'compare' => 'IN',
+	                        'type'    => 'NUMERIC',
+	                    ],
+	                ],
+	            ];
+	        }
 
         $args = [
             'fields'           => 'ids',
@@ -690,8 +723,8 @@ class Rex_Feed_Scheduler {
      * @return string|bool
      * @since 7.2.18
      */
-    private function get_feed_schedule_settings( $feed_id ) {
-        $feed_schedule = get_post_meta( $feed_id, '_rex_feed_schedule', true );
+	    private function get_feed_schedule_settings( $feed_id ) {
+	        $feed_schedule = get_post_meta( $feed_id, '_rex_feed_schedule', true );
         if( $feed_schedule ) {
             delete_post_meta( $feed_id, 'rex_feed_schedule' );
         }
@@ -701,8 +734,57 @@ class Rex_Feed_Scheduler {
                 update_post_meta( $feed_id, '_rex_feed_schedule', $feed_schedule );
                 delete_post_meta( $feed_id, 'rex_feed_schedule' );
             }
-        }
-        return $feed_schedule;
-    }
-}
+	        }
+	        return $feed_schedule;
+	    }
 
+	    /**
+	     * Return the latest recorded product-change timestamp.
+	     *
+	     * Previous versions stored this option as a boolean (true/false). Those
+	     * legacy values must NOT be treated as a pending change because:
+	     * - the per-feed tracking key (_rex_feed_last_product_change_processed)
+	     *   starts at 0 for every existing feed, and
+	     * - comparing 1 > 0 would make every feed look like it has a pending
+	     *   change forever, even when no products have actually changed.
+	     *
+	     * A real Unix timestamp is in the billions (current epoch ~1.7B), so
+	     * any value <= 1 is unambiguously a legacy artifact and is returned as 0.
+	     *
+	     * @return int
+	     */
+	    private function get_last_product_change_timestamp() {
+	        $last_product_change = get_option( 'rex_feed_wc_product_updated', 0 );
+
+	        if ( is_numeric( $last_product_change ) ) {
+	            $product_change_timestamp = (int) $last_product_change;
+	            // Values <= 1 are legacy boolean-style flags, not real timestamps.
+	            return $product_change_timestamp > 1 ? $product_change_timestamp : 0;
+	        }
+
+	        // Non-numeric legacy values (e.g. stored boolean true) are no longer
+	        // treated as a pending change — they cannot be meaningfully compared
+	        // against a per-feed processed marker.
+	        return 0;
+	    }
+
+	    /**
+	     * Determine whether a feed still has unprocessed product changes.
+	     *
+	     * Each feed tracks the latest change timestamp it has already queued for.
+	     * That keeps the "only when products changed" gate from repeating forever
+	     * after a single unrelated update.
+	     *
+	     * @param int $feed_id Feed ID.
+	     * @param int $last_product_change Latest global product change timestamp.
+	     * @return bool
+	     */
+	    private function feed_has_pending_product_changes( $feed_id, $last_product_change ) {
+	        if ( $last_product_change <= 0 ) {
+	            return false;
+	        }
+
+	        $last_processed_change = (int) get_post_meta( $feed_id, '_rex_feed_last_product_change_processed', true );
+	        return $last_product_change > $last_processed_change;
+	    }
+}

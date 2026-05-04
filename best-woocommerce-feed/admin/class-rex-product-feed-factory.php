@@ -265,6 +265,7 @@ class Rex_Product_Feed_Factory {
             'google_css_center',
             'temu_seller_center',
 			'openai',
+			'reddit_ads',
 		];
 		self::$bestprice_format = [ 'Bestprice' ];
 		self::$mirakl_format = [ 'mirakl' ];

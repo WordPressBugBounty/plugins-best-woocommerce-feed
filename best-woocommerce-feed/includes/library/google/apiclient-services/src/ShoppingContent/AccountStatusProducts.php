@@ -34,8 +34,16 @@ class AccountStatusProducts extends \RexFeed\Google\Collection
     public $destination;
     protected $itemLevelIssuesType = AccountStatusItemLevelIssue::class;
     protected $itemLevelIssuesDataType = 'array';
+    /**
+     * @var AccountStatusItemLevelIssue[]
+     */
+    public $itemLevelIssues;
     protected $statisticsType = AccountStatusStatistics::class;
     protected $statisticsDataType = '';
+    /**
+     * @var AccountStatusStatistics
+     */
+    public $statistics;
     /**
      * @param string
      */

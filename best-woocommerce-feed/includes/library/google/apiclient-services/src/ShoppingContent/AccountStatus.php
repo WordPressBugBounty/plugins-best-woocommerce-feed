@@ -27,6 +27,10 @@ class AccountStatus extends \RexFeed\Google\Collection
     protected $accountLevelIssuesType = AccountStatusAccountLevelIssue::class;
     protected $accountLevelIssuesDataType = 'array';
     /**
+     * @var AccountStatusAccountLevelIssue[]|null
+     */
+    public $accountLevelIssues;
+    /**
      * @var string
      */
     public $accountManagement;
@@ -36,6 +40,10 @@ class AccountStatus extends \RexFeed\Google\Collection
     public $kind;
     protected $productsType = AccountStatusProducts::class;
     protected $productsDataType = 'array';
+    /**
+     * @var AccountStatusProducts[]|null
+     */
+    public $products;
     /**
      * @var bool
      */

@@ -60,6 +60,8 @@ class Rex_Feed_Template_Google_local_products extends Rex_Feed_Abstract_Template
 				'gender'        => 'Gender [gender]',
 				'age_group'     => 'Age Group [age_group]',
 			),
+
+			'Product Detail'          => $this->get_product_detail_attributes(),
 		);
 	}
 

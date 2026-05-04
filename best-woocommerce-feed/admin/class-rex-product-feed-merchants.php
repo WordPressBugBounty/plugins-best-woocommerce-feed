@@ -1101,6 +1101,11 @@ class Rex_Feed_Merchants {
 				'name'    => 'OpenAI Commerce',
 				'formats' => array( 'json', 'xml', 'csv', 'tsv' ),
 			),
+			'reddit_ads'                         => array(
+				'free'    => true,
+				'name'    => 'Reddit Ads',
+				'formats' => array('csv', 'tsv', 'xml' ),
+			),
 		);
 
 		$merchants[ 'popular' ]        = $popular;

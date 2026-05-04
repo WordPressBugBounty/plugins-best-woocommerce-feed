@@ -54,6 +54,8 @@ class Rex_Feed_Template_Google_local_inventory_ads extends Rex_Feed_Abstract_Tem
 				'pickup_link_template'        => 'Pickup Link Template',
 				'mobile_pickup_link_template' => 'Mobile Pickup Link Template',
 			),
+
+			'Product Detail'          => $this->get_product_detail_attributes(),
 		);
 	}
 

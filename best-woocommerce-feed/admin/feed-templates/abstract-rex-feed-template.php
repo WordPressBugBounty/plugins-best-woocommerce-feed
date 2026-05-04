@@ -292,6 +292,23 @@ abstract class Rex_Feed_Abstract_Template {
         return $this->attributes;
     }
 
+    /**
+     * Generate product_detail sub-field attributes for Google Merchant feeds.
+     * Produces entries 1..N each with section_name, attribute_name, attribute_value.
+     *
+     * @param int $count Number of product_detail entries to generate. Default 10.
+     * @return array
+     */
+    protected function get_product_detail_attributes( $count = 10 ) {
+        $attrs = array();
+        for ( $i = 1; $i <= $count; $i++ ) {
+            $attrs[ "product_detail_section_name_{$i}" ]    = "Product Detail {$i} - Section Name [product_detail]";
+            $attrs[ "product_detail_attribute_name_{$i}" ]  = "Product Detail {$i} - Attribute Name [product_detail]";
+            $attrs[ "product_detail_attribute_value_{$i}" ] = "Product Detail {$i} - Attribute Value [product_detail]";
+        }
+        return $attrs;
+    }
+
 
     /**
      * Initialize Attributes

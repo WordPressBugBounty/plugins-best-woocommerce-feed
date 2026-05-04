@@ -269,7 +269,22 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 					$check_item_group_id = 0;
 				}
 
+				// Collect product_detail sub-fields and group them before iterating.
+				$product_details = array();
+				foreach ( $attributes as $key => $value ) {
+					if ( preg_match( '/^product_detail_(section_name|attribute_name|attribute_value)_(\d+)$/', $key, $matches ) && isset( $matches[1], $matches[2] ) ) {
+						$sub_field = $matches[1]; // section_name | attribute_name | attribute_value
+						$index     = (int) $matches[2];
+						$product_details[ $index ][ $sub_field ] = $value;
+					}
+				}
+
 				foreach ($attributes as $key => $value) {
+					// Skip product_detail sub-fields — handled separately below.
+					if ( preg_match( '/^product_detail_(section_name|attribute_name|attribute_value)_\d+$/', $key ) ) {
+						continue;
+					}
+
 					if ('shipping' === $key) {
 						if (is_array($value) && !empty($value)) {
 							foreach ($value as $shipping) {
@@ -304,6 +319,17 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 
 					if ($product_type === 'variation' && 'item_group_id' == $key) {
 						$check_item_group_id = 1;
+					}
+				}
+
+				// Output structured product_detail entries.
+				ksort( $product_details );
+				foreach ( $product_details as $detail ) {
+					$attr_name  = isset( $detail['attribute_name'] ) ? $detail['attribute_name'] : '';
+					$attr_value = isset( $detail['attribute_value'] ) ? $detail['attribute_value'] : '';
+					if ( '' !== $attr_name && '' !== $attr_value ) {
+						$section_name = isset( $detail['section_name'] ) ? $detail['section_name'] : '';
+						$item->product_detail( $section_name, $attr_name, $attr_value );
 					}
 				}
 

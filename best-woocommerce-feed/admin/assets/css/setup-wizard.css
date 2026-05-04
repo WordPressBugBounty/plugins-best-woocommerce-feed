@@ -1305,15 +1305,40 @@ body {
     margin-bottom: 32px;
     border: 1px solid #e8e1ff;
     border-radius: 8px;
-    overflow: hidden;
-    max-height: 500px;
+    overflow-x: auto;
     overflow-y: auto;
+    max-height: 500px;
+    -webkit-overflow-scrolling: touch;
 }
 
 .mapping-table {
     width: 100%;
+    min-width: 560px;
     border-collapse: collapse;
     font-size: 14px;
+    table-layout: fixed;
+}
+
+/* Column widths */
+.mapping-table th:nth-child(1),
+.mapping-table td:nth-child(1) {
+    width: 38%;
+}
+
+.mapping-table th:nth-child(2),
+.mapping-table td:nth-child(2) {
+    width: 160px;
+}
+
+.mapping-table th:nth-child(3),
+.mapping-table td:nth-child(3) {
+    width: auto;
+}
+
+.mapping-table th:nth-child(4),
+.mapping-table td:nth-child(4) {
+    width: 52px;
+    text-align: center;
 }
 
 .mapping-table thead {
@@ -1371,14 +1396,21 @@ body {
 /* Mapping table dropdowns and inputs */
 .mapping-select {
     width: 100%;
-    padding: 8px 12px;
+    max-width: 100%;
+    padding: 8px 32px 8px 12px;
     border: 1px solid #e8e1ff;
     border-radius: 6px;
     font-size: 14px;
     color: #0e003c;
-    background: white;
+    background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2376708c' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center;
+    appearance: none;
+    -webkit-appearance: none;
     cursor: pointer;
     transition: border-color 0.2s;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .mapping-select:hover {
@@ -1389,6 +1421,10 @@ body {
     outline: none;
     border-color: #201cfe;
     box-shadow: 0 0 0 3px rgba(63, 4, 254, 0.1);
+}
+
+select.mapping-select.type-select {
+    width: 140px;
 }
 
 .mapping-input {

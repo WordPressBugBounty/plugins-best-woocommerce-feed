@@ -78,6 +78,8 @@ class Rex_Feed_Template_Google_express extends Rex_Feed_Abstract_Template {
 				'size_system'   => 'Size System [size_system]',
 			),
 
+			'Product Detail'                      => $this->get_product_detail_attributes(),
+
 			'Tax & Shipping'                      => array(
 				'tax'              => 'Tax [tax]',
 				"tax_country"      => "Tax Country[tax_country]",

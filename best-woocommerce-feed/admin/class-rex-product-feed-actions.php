@@ -168,14 +168,19 @@ class Rex_Product_Feed_Actions {
 			}
 		}
 
-		if ( isset( $feed_data[ 'rex_feed_schedule' ] ) ) {
-			update_post_meta( $post_id, '_rex_feed_schedule', $feed_data[ 'rex_feed_schedule' ] );
+			if ( isset( $feed_data[ 'rex_feed_schedule' ] ) ) {
+				update_post_meta( $post_id, '_rex_feed_schedule', $feed_data[ 'rex_feed_schedule' ] );
 
-			if ( isset( $feed_data[ 'rex_feed_custom_time' ] ) && 'custom' === $feed_data[ 'rex_feed_schedule' ] ) {
-				update_post_meta( $post_id, '_rex_feed_custom_time', $feed_data[ 'rex_feed_custom_time' ] );
-			}
-			else {
-				delete_post_meta( $post_id, '_rex_feed_custom_time' );
+				if ( isset( $feed_data[ 'rex_feed_custom_time' ] ) && 'custom' === $feed_data[ 'rex_feed_schedule' ] ) {
+					$normalized_custom_time = $this->normalize_custom_schedule_hour( $feed_data[ 'rex_feed_custom_time' ] );
+					if ( null !== $normalized_custom_time ) {
+						update_post_meta( $post_id, '_rex_feed_custom_time', $normalized_custom_time );
+					} else {
+						delete_post_meta( $post_id, '_rex_feed_custom_time' );
+					}
+				}
+				else {
+					delete_post_meta( $post_id, '_rex_feed_custom_time' );
 			}
 		}
 
@@ -242,12 +247,38 @@ class Rex_Product_Feed_Actions {
             delete_post_meta( $post_id, '_rex_feed_brands_check_all_btn' );
         }
 
-		do_action( 'rex_feed_after_draft_feed_config_saved', $post_id, $feed_data );
-	}
+			do_action( 'rex_feed_after_draft_feed_config_saved', $post_id, $feed_data );
+		}
+
+		/**
+		 * Normalize custom schedule hours to the same 0-23 range used by the scheduler.
+		 *
+		 * This keeps the save path aligned with the runtime check and preserves older
+		 * feeds that stored midnight as 24 in previous versions.
+		 *
+		 * @param mixed $hour Saved hour value from the feed settings.
+		 * @return int|null
+		 */
+		private function normalize_custom_schedule_hour( $hour ) {
+			if ( '' === $hour || null === $hour || ! is_numeric( $hour ) ) {
+				return null;
+			}
+
+			$hour = (int) $hour;
+			if ( 24 === $hour ) {
+				return 0;
+			}
+
+			if ( $hour < 0 || $hour > 23 ) {
+				return null;
+			}
+
+			return $hour;
+		}
 
 
-	/**
-	 * Deletes all available feed files after deleting a feed
+		/**
+		 * Deletes all available feed files after deleting a feed
 	 *
 	 * @param string|int $post_id Feed id.
 	 *
@@ -1570,6 +1601,11 @@ class Rex_Product_Feed_Actions {
 
         if ( wpfm_is_translatePress_active() ) {
             if (empty($value) || !is_string($value)) {
+                return $value;
+            }
+
+            // Static values should not be translated
+            if ( isset( $rule['type'] ) && 'static' === $rule['type'] ) {
                 return $value;
             }
 

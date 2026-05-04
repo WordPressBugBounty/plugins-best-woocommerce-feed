@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit978a6166a9b5478c3020d5cccd729501
+class ComposerStaticInit5c39ab2898678d0c12760c03a3f08ee0
 {
     public static $files = array (
         'aed659f3655c497c30e044c41fa917c6' => __DIR__ . '/..' . '/linno/telemetry/src/helpers.php',
@@ -61,6 +61,7 @@ class ComposerStaticInit978a6166a9b5478c3020d5cccd729501
         'LinnoSDK\\Telemetry\\EventDispatcher' => __DIR__ . '/..' . '/linno/telemetry/src/EventDispatcher.php',
         'LinnoSDK\\Telemetry\\Helpers\\Utils' => __DIR__ . '/..' . '/linno/telemetry/src/Helpers/Utils.php',
         'LinnoSDK\\Telemetry\\Queue' => __DIR__ . '/..' . '/linno/telemetry/src/Queue.php',
+        'LinnoSDK\\Telemetry\\ReviewPrompt' => __DIR__ . '/..' . '/linno/telemetry/src/ReviewPrompt.php',
         'LinnoSDK\\Telemetry\\TriggerManager' => __DIR__ . '/..' . '/linno/telemetry/src/TriggerManager.php',
         'LukeSnowden\\GoogleShoppingFeed\\Containers\\GoogleShopping' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Containers/GoogleShopping.php',
         'LukeSnowden\\GoogleShoppingFeed\\Exceptions\\MissingIdentifierException' => __DIR__ . '/../..' . '/includes/library/GoogleShoppingFeed/Exceptions/MissingIdentifierException.php',
@@ -1148,6 +1149,7 @@ class ComposerStaticInit978a6166a9b5478c3020d5cccd729501
         'Rex_Feed_Template_Rakuten' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-rakuten.php',
         'Rex_Feed_Template_Rakuten_advertising' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-rakuten-advertising.php',
         'Rex_Feed_Template_Realde' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-realde.php',
+        'Rex_Feed_Template_Reddit_ads' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-reddit_ads.php',
         'Rex_Feed_Template_Restposten' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-restposten.php',
         'Rex_Feed_Template_Rozetka' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-rozetka.php',
         'Rex_Feed_Template_Rss' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-rss.php',
@@ -1247,6 +1249,7 @@ class ComposerStaticInit978a6166a9b5478c3020d5cccd729501
         'Rex_Product_Feed_Mirakl' => __DIR__ . '/../..' . '/admin/feed/class_rex_product_feed_mirakl.php',
         'Rex_Product_Feed_Other' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-other.php',
         'Rex_Product_Feed_Rakuten' => __DIR__ . '/../..' . '/admin/feed/class_rex_product_feed_rakuten.php',
+        'Rex_Product_Feed_Reddit_ads' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-reddit_ads.php',
         'Rex_Product_Feed_Rozetka' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-rozetka.php',
         'Rex_Product_Feed_Setup_Wizard' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-setup-wizard.php',
         'Rex_Product_Feed_Setup_Wizard_Ajax' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-setup-wizard-ajax.php',
@@ -1279,9 +1282,9 @@ class ComposerStaticInit978a6166a9b5478c3020d5cccd729501
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit978a6166a9b5478c3020d5cccd729501::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit978a6166a9b5478c3020d5cccd729501::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit978a6166a9b5478c3020d5cccd729501::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit5c39ab2898678d0c12760c03a3f08ee0::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit5c39ab2898678d0c12760c03a3f08ee0::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit5c39ab2898678d0c12760c03a3f08ee0::$classMap;
 
         }, null, ClassLoader::class);
     }

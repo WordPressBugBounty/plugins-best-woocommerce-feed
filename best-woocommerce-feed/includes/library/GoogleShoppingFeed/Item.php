@@ -531,6 +531,33 @@ class Item
     }
 
     /**
+     * Adds a product_detail entry with nested sub-attributes.
+     *
+     * @param string|null $section_name   Optional section name.
+     * @param string|null $attribute_name  Required attribute name.
+     * @param string|null $attribute_value Required attribute value.
+     */
+    public function product_detail( $section_name = null, $attribute_name = null, $attribute_value = null )
+    {
+        if ( null === $attribute_name || null === $attribute_value ) {
+            return;
+        }
+
+        $node  = new Node( 'product_detail' );
+        $value = '';
+        if ( !empty( $section_name ) ) {
+            $value .= "<g:section_name>{$section_name}</g:section_name>";
+        }
+        $value .= "<g:attribute_name>{$attribute_name}</g:attribute_name>";
+        $value .= "<g:attribute_value>{$attribute_value}</g:attribute_value>";
+
+        if ( !isset( $this->nodes['product_detail'] ) ) {
+            $this->nodes['product_detail'] = array();
+        }
+        $this->nodes['product_detail'][] = $node->value( $value )->_namespace( $this->namespace );
+    }
+
+    /**
      * @param $material
      */
     public function material($material)
