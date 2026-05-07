@@ -168,7 +168,7 @@
             ],
             when: {
                 show: function () {
-                    let nextBtn = this.getElements().footer.querySelector('.shepherd-button-primary');
+                    let nextBtn = this.getElement().querySelector('.shepherd-button-primary');
                     let targetInput = $('#title');
 
                     function checkTitle() {
@@ -211,11 +211,12 @@
             ],
             when: {
                 show: function () {
-                    let nextBtn = this.getElements().footer.querySelector('.shepherd-button-primary');
+                    let nextBtn = this.getElement().querySelector('.shepherd-button-primary');
                     let targetSelect = $('#rex_feed_merchant');
 
                     function checkMerchant() {
-                        if (targetSelect.val() && targetSelect.val() !== '') {
+                        const val = targetSelect.val();
+                        if (val && val !== '' && val !== '-1') {
                             nextBtn.disabled = false;
                         } else {
                             nextBtn.disabled = true;
