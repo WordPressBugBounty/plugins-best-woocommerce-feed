@@ -6,7 +6,7 @@ Tags: Product Feed, WooCommerce Product Feed, Google Shopping Feed, Facebook Cat
 Requires at least: 6.7
 Tested up to:  6.9
 Requires PHP: 7.4
-Stable tag:  7.4.83
+Stable tag:  7.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -476,7 +476,10 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 = Product feed manager (Free) =
 
-= 7.4.83 (2026-04-30) =
+= 7.5.0 (2026-05-07) =
+* New: Added Youtube shopping merchant support
+
+= 7.4.83 (2026-05-05) =
 * New: Added Google Merchants product_detail mapping support
 * New: Added Reddit Ads feed support
 * Bug Fix: Static feed values no longer translated by TranslatePress
@@ -523,16 +526,6 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 = 7.4.73 (2026-03-06) =
 * Bug Fix: Back button now correctly returns from Merchant step in setup wizard
 * Bug Fix: Skip variation logic for simple products to prevent fatal errors
-
-= 7.4.72 (2026-03-05) =
-* Enhancement: Update telemetry events
-
-= 7.4.71 (2026-02-27) =
-* Enhancement: Update telemetry events
-
-= 7.4.70 (2026-02-26) =
-* Bug Fix: Feed generation issue for variable product
-* Enhancement: Add custom feed option on onboarding
 
 👉 [Visit to view full changelog for the free version](https://rextheme.com/changelog/?plugin=product-feed-manager-for-woocommerce)
 

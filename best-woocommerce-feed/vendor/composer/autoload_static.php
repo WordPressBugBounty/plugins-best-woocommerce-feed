@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit5c39ab2898678d0c12760c03a3f08ee0
+class ComposerStaticInitf8910af2635b5ca262290725a9c78bbd
 {
     public static $files = array (
         'aed659f3655c497c30e044c41fa917c6' => __DIR__ . '/..' . '/linno/telemetry/src/helpers.php',
@@ -12,6 +12,10 @@ class ComposerStaticInit5c39ab2898678d0c12760c03a3f08ee0
     );
 
     public static $prefixLengthsPsr4 = array (
+        'c' => 
+        array (
+            'cweagans\\Composer\\' => 18,
+        ),
         'P' => 
         array (
             'PostHog\\' => 8,
@@ -28,6 +32,10 @@ class ComposerStaticInit5c39ab2898678d0c12760c03a3f08ee0
     );
 
     public static $prefixDirsPsr4 = array (
+        'cweagans\\Composer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/cweagans/composer-patches/src',
+        ),
         'PostHog\\' => 
         array (
             0 => __DIR__ . '/..' . '/posthog/posthog-php/lib',
@@ -1188,6 +1196,7 @@ class ComposerStaticInit5c39ab2898678d0c12760c03a3f08ee0
         'Rex_Feed_Template_Winesearcher' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-winesearcher.php',
         'Rex_Feed_Template_Wish' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-wish.php',
         'Rex_Feed_Template_Yandex' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-yandex.php',
+        'Rex_Feed_Template_Youtube_shopping' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-youtube_shopping.php',
         'Rex_Feed_Template_Zalando' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-zalando.php',
         'Rex_Feed_Template_Zalando_stock_update' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-zalando-stock-update.php',
         'Rex_Feed_Template_Zap_co_il' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-zap-co-il.php',
@@ -1277,14 +1286,17 @@ class ComposerStaticInit5c39ab2898678d0c12760c03a3f08ee0
         'Rex_Sooqr_Product_Data_Retriever' => __DIR__ . '/../..' . '/admin/feed/sooqr/class-rex-sooqr-product-data-retriever.php',
         'Rex_Spartoo_Product_Data_Retriever' => __DIR__ . '/../..' . '/admin/feed/spartoo/class-rex-spartoo-product-data-retriever.php',
         'Rex_Yandex_Product_Data_Retriever' => __DIR__ . '/../..' . '/admin/feed/yandex/class-rex-yandex-product-data-retriever.php',
+        'cweagans\\Composer\\PatchEvent' => __DIR__ . '/..' . '/cweagans/composer-patches/src/PatchEvent.php',
+        'cweagans\\Composer\\PatchEvents' => __DIR__ . '/..' . '/cweagans/composer-patches/src/PatchEvents.php',
+        'cweagans\\Composer\\Patches' => __DIR__ . '/..' . '/cweagans/composer-patches/src/Patches.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit5c39ab2898678d0c12760c03a3f08ee0::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit5c39ab2898678d0c12760c03a3f08ee0::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit5c39ab2898678d0c12760c03a3f08ee0::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitf8910af2635b5ca262290725a9c78bbd::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitf8910af2635b5ca262290725a9c78bbd::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitf8910af2635b5ca262290725a9c78bbd::$classMap;
 
         }, null, ClassLoader::class);
     }

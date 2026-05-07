@@ -1147,6 +1147,7 @@ return array(
     'Rex_Feed_Template_Winesearcher' => $baseDir . '/admin/feed-templates/class-rex-feed-template-winesearcher.php',
     'Rex_Feed_Template_Wish' => $baseDir . '/admin/feed-templates/class-rex-feed-template-wish.php',
     'Rex_Feed_Template_Yandex' => $baseDir . '/admin/feed-templates/class-rex-feed-template-yandex.php',
+    'Rex_Feed_Template_Youtube_shopping' => $baseDir . '/admin/feed-templates/class-rex-feed-template-youtube_shopping.php',
     'Rex_Feed_Template_Zalando' => $baseDir . '/admin/feed-templates/class-rex-feed-template-zalando.php',
     'Rex_Feed_Template_Zalando_stock_update' => $baseDir . '/admin/feed-templates/class-rex-feed-template-zalando-stock-update.php',
     'Rex_Feed_Template_Zap_co_il' => $baseDir . '/admin/feed-templates/class-rex-feed-template-zap-co-il.php',
@@ -1236,4 +1237,7 @@ return array(
     'Rex_Sooqr_Product_Data_Retriever' => $baseDir . '/admin/feed/sooqr/class-rex-sooqr-product-data-retriever.php',
     'Rex_Spartoo_Product_Data_Retriever' => $baseDir . '/admin/feed/spartoo/class-rex-spartoo-product-data-retriever.php',
     'Rex_Yandex_Product_Data_Retriever' => $baseDir . '/admin/feed/yandex/class-rex-yandex-product-data-retriever.php',
+    'cweagans\\Composer\\PatchEvent' => $vendorDir . '/cweagans/composer-patches/src/PatchEvent.php',
+    'cweagans\\Composer\\PatchEvents' => $vendorDir . '/cweagans/composer-patches/src/PatchEvents.php',
+    'cweagans\\Composer\\Patches' => $vendorDir . '/cweagans/composer-patches/src/Patches.php',
 );

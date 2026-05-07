@@ -42,6 +42,11 @@ class Rex_Feed_Merchants {
 				'formats'        => array( 'xml', 'csv' ),
 				'csv_separators' => array( 'comma', 'semi_colon' ),
 			),
+			'openai'    => array(
+				'free'    => true,
+				'name'    => 'OpenAI Commerce (ChatGPT)',
+				'formats' => array( 'json', 'xml', 'csv', 'tsv' ),
+			),
 			'tiktok'  => array(
 				'free'           => true,
 				'name'           => 'TikTok Ads Catalog',
@@ -87,6 +92,11 @@ class Rex_Feed_Merchants {
 				'free'    => true,
 				'name'    => 'Vivino',
 				'formats' => array( 'xml', 'csv' ),
+			),
+			'youtube_shopping' => array(
+				'free'    => true,
+				'name'    => 'YouTube Shopping',
+				'formats' => array( 'xml' ),
 			),
 		);
 		$pro     = array(
@@ -1096,11 +1106,6 @@ class Rex_Feed_Merchants {
                 'name'    => 'MediaMarkt',
                 'formats' => array( 'xml', 'csv'),
             ),
-			'openai'                         => array(
-				'free'    => true,
-				'name'    => 'OpenAI Commerce',
-				'formats' => array( 'json', 'xml', 'csv', 'tsv' ),
-			),
 			'reddit_ads'                         => array(
 				'free'    => true,
 				'name'    => 'Reddit Ads',

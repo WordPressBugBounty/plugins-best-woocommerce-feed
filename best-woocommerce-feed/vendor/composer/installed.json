@@ -58,6 +58,57 @@
             "install-path": "../appsero/client"
         },
         {
+            "name": "cweagans/composer-patches",
+            "version": "1.x-dev",
+            "version_normalized": "1.9999999.9999999.9999999-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cweagans/composer-patches.git",
+                "reference": "37e1b296d8100845c7b10c143cc3e96552d41ab1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cweagans/composer-patches/zipball/37e1b296d8100845c7b10c143cc3e96552d41ab1",
+                "reference": "37e1b296d8100845c7b10c143cc3e96552d41ab1",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^1.0 || ^2.0",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "composer/composer": "~1.0 || ~2.0",
+                "phpunit/phpunit": "~4.6"
+            },
+            "time": "2023-01-26T17:59:26+00:00",
+            "type": "composer-plugin",
+            "extra": {
+                "class": "cweagans\\Composer\\Patches"
+            },
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "cweagans\\Composer\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Cameron Eagans",
+                    "email": "me@cweagans.net"
+                }
+            ],
+            "description": "Provides a way to patch Composer packages.",
+            "support": {
+                "issues": "https://github.com/cweagans/composer-patches/issues",
+                "source": "https://github.com/cweagans/composer-patches/tree/1.x"
+            },
+            "install-path": "../cweagans/composer-patches"
+        },
+        {
             "name": "linno/telemetry",
             "version": "dev-posthog",
             "version_normalized": "dev-posthog",
@@ -194,6 +245,11 @@
                 "bin/posthog"
             ],
             "type": "library",
+            "extra": {
+                "patches_applied": {
+                    "Fix PHP 8.2+ deprecated string interpolation": "patches/posthog-php-php82.patch"
+                }
+            },
             "installation-source": "dist",
             "autoload": {
                 "psr-4": {
