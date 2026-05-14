@@ -9,11 +9,6 @@
  *   "Dismiss"          → 30-day transient  (pfm_wpfunnels_banner_temp_{user_id})
  *   "Don't show again" → permanent user_meta (pfm_wpfunnels_banner_dismissed)
  *
- * PostHog events (fired via the Linno telemetry action)
- *   pfm_wpfunnels_banner_impression  props: user_feed_count, pfm_version
- *   pfm_wpfunnels_banner_click       props: user_feed_count, pfm_version
- *   pfm_wpfunnels_banner_dismiss     props: user_feed_count, pfm_version
- *
  * @since 7.4.78
  */
 class Rex_Product_Feed_Dashboard_Banner {
@@ -42,15 +37,12 @@ class Rex_Product_Feed_Dashboard_Banner {
             return $views;
         }
 
-        $cta_url    = 'https://rextheme.com/amazons-secrect-to-profitability/?utm_source=pfm_dashboard&utm_medium=banner&utm_campaign=pfm_crosspromo';
-        $feed_count = $this->get_feed_count();
-        $ajax_url   = admin_url( 'admin-ajax.php' );
+        $cta_url  = 'https://rextheme.com/amazons-secrect-to-profitability/?utm_source=pfm_dashboard&utm_medium=banner&utm_campaign=pfm_crosspromo';
+        $ajax_url = admin_url( 'admin-ajax.php' );
         $nonce      = wp_create_nonce( 'rex-wpfm-ajax' );
         ?>
 
         <div class="pfm-wpfunnels-banner"
-             data-feed-count="<?php echo esc_attr( $feed_count ); ?>"
-             data-pfm-version="<?php echo esc_attr( WPFM_VERSION ); ?>"
              data-ajax-url="<?php echo esc_attr( $ajax_url ); ?>"
              data-nonce="<?php echo esc_attr( $nonce ); ?>">
 
@@ -139,34 +131,21 @@ class Rex_Product_Feed_Dashboard_Banner {
             var banner = document.querySelector('.pfm-wpfunnels-banner');
             if (!banner) return;
 
-            var ajaxUrl   = banner.dataset.ajaxUrl;
-            var nonce     = banner.dataset.nonce;
-            var feedCount = banner.dataset.feedCount;
-            var pfmVer    = banner.dataset.pfmVersion;
+            var ajaxUrl = banner.dataset.ajaxUrl;
+            var nonce   = banner.dataset.nonce;
 
             function post(action, extra) {
                 var body = new FormData();
-                body.append('action',      action);
-                body.append('security',    nonce);
-                body.append('feed_count',  feedCount);
-                body.append('pfm_version', pfmVer);
+                body.append('action',   action);
+                body.append('security', nonce);
                 if (extra) {
                     Object.keys(extra).forEach(function(k) { body.append(k, extra[k]); });
                 }
                 fetch(ajaxUrl, { method: 'POST', body: body });
             }
 
-            // Impression on page load.
-            post('pfm_dashboard_banner_track', { event: 'impression' });
-
-            // CTA click.
-            banner.querySelector('.pfm-wpfunnels-banner__cta').addEventListener('click', function() {
-                post('pfm_dashboard_banner_track', { event: 'click' });
-            });
-
             // × close — 14-day dismiss.
             banner.querySelector('.pfm-wpfunnels-banner__close').addEventListener('click', function() {
-                post('pfm_dashboard_banner_track', { event: 'dismiss' });
                 post('pfm_dashboard_banner_dismiss', { type: 'temp' });
                 banner.remove();
             });
@@ -213,18 +192,6 @@ class Rex_Product_Feed_Dashboard_Banner {
         ) );
 
         return ! empty( $feeds );
-    }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
-    /**
-     * Number of published product-feed posts.
-     */
-    private function get_feed_count(): int {
-        $counts = wp_count_posts( 'product-feed' );
-        return isset( $counts->publish ) ? (int) $counts->publish : 0;
     }
 
 }

@@ -221,6 +221,47 @@ class Rex_Product_Feed_Linno_Telemetry {
             $buffer['feed_filter_rules'] = 'yes';
         }
 
+        // --- Free Features ---
+        if ( 'yes' === get_post_meta( $feed_id, '_rex_feed_analytics_params_options', true ) || 'yes' === get_post_meta( $feed_id, 'rex_feed_analytics_params_options', true ) ) {
+            $buffer['utm_tracking'] = 'yes';
+        }
+
+        $currency_metas = array( '_rex_feed_wcml_currency', '_rex_feed_aelia_currency', '_rex_feed_wmc_currency', '_rex_feed_translate_press_language', '_rex_feed_curcy_currency', '_rex_feed_woocs_currency' );
+        foreach ( $currency_metas as $meta_key ) {
+            if ( get_post_meta( $feed_id, $meta_key, true ) ) {
+                $buffer['multi_currency'] = 'yes';
+                break;
+            }
+        }
+
+        $variation_metas = array( '_rex_feed_default_variation', '_rex_feed_cheapest_variation', '_rex_feed_highest_variation', '_rex_feed_first_variation', '_rex_feed_last_variation' );
+        foreach ( $variation_metas as $meta_key ) {
+            if ( 'yes' === get_post_meta( $feed_id, $meta_key, true ) || 'yes' === get_post_meta( $feed_id, ltrim( $meta_key, '_' ), true ) ) {
+                $buffer['variation_filters'] = 'yes';
+                break;
+            }
+        }
+
+        // --- Pro Features ---
+        if ( class_exists( 'Rex_Product_Feed_Pro' ) || defined( 'WPFM_PRO_VERSION' ) ) {
+            $buffer['is_pro'] = 'yes';
+        }
+
+        if ( get_post_meta( $feed_id, '_rex_feed_feed_config_rules', true ) || get_post_meta( $feed_id, 'rex_feed_feed_config_rules', true ) ) {
+            $buffer['advanced_filters'] = 'yes';
+        }
+
+        if ( get_post_meta( $feed_id, '_rex_feed_custom_fields', true ) || get_post_meta( $feed_id, 'rex_feed_custom_fields', true ) ) {
+            $buffer['custom_fields'] = 'yes';
+        }
+
+        $feed_config = get_post_meta( $feed_id, '_rex_feed_feed_config', true ) ?: get_post_meta( $feed_id, 'rex_feed_feed_config', true );
+        if ( is_string( $feed_config ) && ( strpos( $feed_config, 'wpfm_combined' ) !== false || strpos( $feed_config, 'dynamic' ) !== false ) ) {
+            $buffer['dynamic_mapping'] = 'yes';
+        } elseif ( is_array( $feed_config ) && ( strpos( wp_json_encode( $feed_config ), 'wpfm_combined' ) !== false || strpos( wp_json_encode( $feed_config ), 'dynamic' ) !== false ) ) {
+            $buffer['dynamic_mapping'] = 'yes';
+        }
+
         update_option( '_wpfm_feed_telemetry_buffer', $buffer, false );
     }
 
@@ -255,6 +296,13 @@ class Rex_Product_Feed_Linno_Telemetry {
                 'google_api'            => $buffer['google_api']       ?? 'no',
                 'category_mapping'      => $buffer['category_mapping'] ?? 'no',
                 'feed_filter_rules'     => $buffer['feed_filter_rules'] ?? 'no',
+                'utm_tracking'          => $buffer['utm_tracking']     ?? 'no',
+                'multi_currency'        => $buffer['multi_currency']   ?? 'no',
+                'variation_filters'     => $buffer['variation_filters']?? 'no',
+                'is_pro'                => $buffer['is_pro']           ?? 'no',
+                'advanced_filters'      => $buffer['advanced_filters'] ?? 'no',
+                'custom_fields'         => $buffer['custom_fields']    ?? 'no',
+                'dynamic_mapping'       => $buffer['dynamic_mapping']  ?? 'no',
                 'merchants'             => implode( ',', $buffer['merchants'] ?? array() ),
                 'formats'               => implode( ',', $buffer['formats']   ?? array() ),
                 'intervals'             => implode( ',', array_keys( $intervals ) ),
@@ -271,7 +319,7 @@ class Rex_Product_Feed_Linno_Telemetry {
      * @return array
      */
     public function override_deactivation_reasons(): array {
-        return array(
+        $reasons = array(
             array(
                 'id'          => 'setup_too_complex',
                 'text'        => __( 'I couldn\'t figure out how to create a feed', 'rex-product-feed' ),
@@ -309,12 +357,25 @@ class Rex_Product_Feed_Linno_Telemetry {
                 'icon'        => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="17" viewBox="0 0 24 17"><g fill="none"><g fill="#3B86FF"><path d="M23.5 9C23.5 9 23.5 8.9 23.5 8.9 23.5 8.9 23.5 8.9 23.5 8.9 23.4 8.6 23.2 8.3 23 8 22.2 6.5 20.6 3.7 19.8 2.6 18.8 1.3 17.7 0 16.1 0 15.7 0 15.3 0.1 14.9 0.2 13.8 0.6 12.6 1.2 12.3 2.7L11.7 2.7C11.4 1.2 10.2 0.6 9.1 0.2 8.7 0.1 8.3 0 7.9 0 6.3 0 5.2 1.3 4.2 2.6 3.4 3.7 1.8 6.5 1 8 0.8 8.3 0.6 8.6 0.5 8.9 0.5 8.9 0.5 8.9 0.5 8.9 0.5 8.9 0.5 9 0.5 9 0.2 9.7 0 10.5 0 11.3 0 14.4 2.5 17 5.5 17 7.3 17 8.8 16.1 9.8 14.8L14.2 14.8C15.2 16.1 16.7 17 18.5 17 21.5 17 24 14.4 24 11.3 24 10.5 23.8 9.7 23.5 9ZM5.5 15C3.6 15 2 13.2 2 11 2 8.8 3.6 7 5.5 7 7.4 7 9 8.8 9 11 9 13.2 7.4 15 5.5 15ZM18.5 15C16.6 15 15 13.2 15 11 15 8.8 16.6 7 18.5 7 20.4 7 22 8.8 22 11 22 13.2 20.4 15 18.5 15Z"/></g></g></svg>',
             ),
             array(
-                'id'          => 'other',
-                'text'        => __( 'Other', 'rex-product-feed' ),
-                'placeholder' => __( 'Could you tell us more?', 'rex-product-feed' ),
-                'icon'        => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="23" viewBox="0 0 24 6"><g fill="none"><g fill="#3B86FF"><path d="M3 0C4.7 0 6 1.3 6 3 6 4.7 4.7 6 3 6 1.3 6 0 4.7 0 3 0 1.3 1.3 0 3 0ZM12 0C13.7 0 15 1.3 15 3 15 4.7 13.7 6 12 6 10.3 6 9 4.7 9 3 9 1.3 10.3 0 12 0ZM21 0C22.7 0 24 1.3 24 3 24 4.7 22.7 6 21 6 19.3 6 18 4.7 18 3 18 1.3 19.3 0 21 0Z"/></g></g></svg>',
+                'id'          => 'temporary_deactivation',
+                'text'        => __( 'Temporary deactivation / Debugging', 'rex-product-feed' ),
+                'placeholder' => '',
+                'icon'        => '<svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 23 23"><g fill="none"><g fill="#3B86FF"><path d="M11.5 0C17.9 0 23 5.1 23 11.5 23 17.9 17.9 23 11.5 23 5.1 23 0 17.9 0 11.5 0 5.1 5.1 0 11.5 0ZM15 7.6L13.4 6 10.5 8.9 7.6 6 6 7.6 8.9 10.5 6 13.4 7.6 15 10.5 12.1 13.4 15 15 13.4 12.1 10.5 15 7.6Z"/></g></g></svg>',
             ),
         );
+
+        shuffle( $reasons );
+
+        $reasons[] = array(
+            'id'          => 'other',
+            'text'        => __( 'Other', 'rex-product-feed' ),
+            'placeholder' => __( 'Could you tell us more?', 'rex-product-feed' ),
+            'icon'        => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="23" viewBox="0 0 24 6"><g fill="none"><g fill="#3B86FF"><path d="M3 0C4.7 0 6 1.3 6 3 6 4.7 4.7 6 3 6 1.3 6 0 4.7 0 3 0 1.3 1.3 0 3 0ZM12 0C13.7 0 15 1.3 15 3 15 4.7 13.7 6 12 6 10.3 6 9 4.7 9 3 9 1.3 10.3 0 12 0ZM21 0C22.7 0 24 1.3 24 3 24 4.7 22.7 6 21 6 19.3 6 18 4.7 18 3 18 1.3 19.3 0 21 0Z"/></g></g></svg>' .
+                           '<style>#product-feed-manager-wd-dr-modal .dont-bother-me { display: none !important; }</style>' .
+                           '<script>jQuery(document).ready(function($){ var modal = $("#product-feed-manager-wd-dr-modal"); function resetModalState() { var btn = modal.find("button.wd-dr-submit-modal"); btn.addClass("disabled").css({opacity: 0.5, cursor: "not-allowed", pointerEvents: "none"}); modal.find("input[type=\'radio\']").prop("checked", false).removeAttr("checked"); modal.find("li").removeClass("wd-de-reason-selected"); modal.find(".wd-dr-modal-reason-input").hide(); } resetModalState(); $(document).on("click", "a.product-feed-manager-deactivation-link", function() { setTimeout(resetModalState, 50); setTimeout(resetModalState, 200); }); modal.on("change click", "input[type=\'radio\']", function(){ modal.find("li").removeClass("wd-de-reason-selected"); $(this).closest("li").addClass("wd-de-reason-selected"); modal.find("button.wd-dr-submit-modal").removeClass("disabled").css({opacity: 1, cursor: "pointer", pointerEvents: "auto"}); }); });</script>',
+        );
+
+        return $reasons;
     }
 
     /**

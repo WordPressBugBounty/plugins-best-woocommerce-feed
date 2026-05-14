@@ -26,8 +26,7 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         add_action('wp_ajax_pfm_install_activate_plugin', array($this, 'install_activate_plugin'));
         add_action('wp_ajax_pfm_skip_upsell', array($this, 'skip_upsell'));
         add_action('wp_ajax_pfm_track_companion_impression', array($this, 'track_companion_impression'));
-        add_action('wp_ajax_pfm_settings_wpfunnels_widget_track', array($this, 'track_settings_wpfunnels_widget'));
-        add_action('wp_ajax_pfm_dashboard_banner_track',          array($this, 'dashboard_banner_track'));
+add_action('wp_ajax_pfm_dashboard_banner_track',          array($this, 'dashboard_banner_track'));
         add_action('wp_ajax_pfm_dashboard_banner_dismiss',        array($this, 'dashboard_banner_dismiss'));
         add_action('wp_ajax_pfm_wizard_dismiss',                   array($this, 'dismiss_wizard'));
         add_action('wp_ajax_pfm_wizard_mark_completed',            array($this, 'mark_wizard_completed'));
@@ -48,7 +47,7 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         }
 
         $nonce = isset($_POST['security']) ? sanitize_text_field($_POST['security']) : '';
-        if ( !wp_verify_nonce( $nonce, 'rex-product-feed' ) ) {
+        if ( !wp_verify_nonce( $nonce, 'rex-product-feed' ) && !wp_verify_nonce( $nonce, 'rex-wpfm-ajax' ) ) {
             wp_send_json_error( array( 'message' => 'Invalid nonce' ), 400 );
             return;
         }
@@ -509,12 +508,6 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
             return;
         }
 
-        // Fire telemetry event for the click
-        $telemetry_event = 'wpfunnels' === $plugin_slug
-            ? 'pfm_wizard_companion_install_wpfunnels'
-            : 'pfm_wizard_companion_install_cartlift';
-        do_action( 'product-feed-manager_telemetry_track', $telemetry_event, array( 'plugin' => $plugin_slug ) );
-
         // Map slug → main plugin file (folder/file.php)
         $plugin_files = array(
             'wpfunnels' => 'wpfunnels/wpfnl.php',
@@ -588,7 +581,6 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
             return;
         }
 
-        do_action( 'product-feed-manager_telemetry_track', 'pfm_wizard_companion_skip', array() );
         update_option( 'rex_feed_setup_wizard_upsell_skipped', true );
         wp_send_json_success( array( 'message' => 'Skipped' ), 200 );
     }
@@ -604,29 +596,9 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
             return;
         }
 
-        do_action( 'product-feed-manager_telemetry_track', 'pfm_wizard_companion_impression', array() );
         wp_send_json_success( array( 'message' => 'Impression tracked' ), 200 );
     }
 
-    /**
-     * Track PFM Settings page WPFunnels promo widget impression or click.
-     *
-     * @since 7.4.78
-     */
-    public function track_settings_wpfunnels_widget() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error( array( 'message' => 'Unauthorized user' ), 403 );
-            return;
-        }
-
-        $event = isset( $_POST['event'] ) ? sanitize_text_field( wp_unslash( $_POST['event'] ) ) : '';
-
-        if ( 'impression' === $event ) {
-            do_action( 'product-feed-manager_telemetry_track', 'pfm_settings_wpfunnels_widget_impression', array() );
-        }
-
-        wp_send_json_success( array( 'message' => 'Tracked' ), 200 );
-    }
 
     /**
      * Track a dashboard banner PostHog event.
@@ -641,27 +613,6 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
             wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
             return;
         }
-
-        $event      = isset( $_POST['event'] )       ? sanitize_text_field( wp_unslash( $_POST['event'] ) )       : '';
-        $variant    = isset( $_POST['variant'] )     ? sanitize_text_field( wp_unslash( $_POST['variant'] ) )     : '';
-        $feed_count = isset( $_POST['feed_count'] )  ? absint( $_POST['feed_count'] )                             : 0;
-        $version    = isset( $_POST['pfm_version'] ) ? sanitize_text_field( wp_unslash( $_POST['pfm_version'] ) ) : '';
-
-        $allowed = array( 'impression', 'click', 'dismiss' );
-        if ( ! in_array( $event, $allowed, true ) ) {
-            wp_send_json_error( array( 'message' => 'Invalid event' ), 400 );
-            return;
-        }
-
-        do_action(
-            'product-feed-manager_telemetry_track',
-            'pfm_wpfunnels_banner_' . $event,
-            array(
-                'variant'         => $variant,
-                'user_feed_count' => $feed_count,
-                'pfm_version'     => $version,
-            )
-        );
 
         wp_send_json_success( array( 'message' => 'Tracked' ), 200 );
     }

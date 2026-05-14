@@ -43,10 +43,10 @@ class Rex_Feed_Sales_Notification_Bar
 
         $current_date_time = current_time( 'timestamp' );
 
-		 if (
-            !defined( 'REX_PRODUCT_FEED_PRO_VERSION' )
-		 	&& ( $current_date_time >= $this->start_date && $current_date_time <= $this->end_date )
-		 ) {
+		// if (
+        //     !defined( 'REX_PRODUCT_FEED_PRO_VERSION' )
+		//  	&& ( $current_date_time >= $this->start_date && $current_date_time <= $this->end_date )
+		//  ) {
 			// Hook into the admin_notices action to display the banner
             add_action( 'admin_notices', array( $this, 'display_banner' ) );
             // Add styles
@@ -54,7 +54,7 @@ class Rex_Feed_Sales_Notification_Bar
 
             add_action( 'wp_ajax_rexfeed_sales_notification_notice', [ $this, 'sales_notification_notice' ] );
             add_action( 'wp_ajax_nopriv_rexfeed_sales_notification_notice', [ $this, 'sales_notification_notice' ] );
-		 }
+		// }
 
         
     }
@@ -88,12 +88,12 @@ class Rex_Feed_Sales_Notification_Bar
         }
 
         
-        $base_url = 'https://rextheme.com/best-woocommerce-product-feed/pricing/';
+        $base_url = 'https://rextheme.com/ugc-for-woocommerce-ugcify/';
 
         $utm_params = array(
-            'utm_source'   => 'website',
-            'utm_medium'   => 'plugin-ban-pfm',
-            'utm_campaign' => 'eidoffer2026',
+            'utm_source'   => 'plugin',
+            'utm_medium'   => 'dashboard-banner-pfm',
+            'utm_campaign' => 'ugcify-early-access',
         );
 
         $btn_link = add_query_arg( $utm_params, $base_url );
@@ -107,9 +107,9 @@ class Rex_Feed_Sales_Notification_Bar
         $img_height = $img_size[1];
         ?>
 
-        <section class="wpfm-promo-banner wpfm-promo-banner--regular" aria-labelledby="wpfm-promo-banner-title" id="wpfm-promo-banner">
+        <section class="wpfm-promo-banner wpfm-promo-banner--regular" aria-labelledby="UGCify banner" id="wpfm-promo-banner">
 
-            <div class="wpfm-regular-promotional-banner" id="wpfm-regular-promotional-banner" role="region" aria-labelledby="banner-flash-title">
+            <div class="wpfm-regular-promotional-banner" id="wpfm-regular-promotional-banner" role="region" aria-labelledby="UGCify banner">
 
                 <div class="wpfm-regular-promotional-banner-container">
 
@@ -128,33 +128,18 @@ class Rex_Feed_Sales_Notification_Bar
 
                         <!-- Banner Title + Timer -->
                         <div class="wpfm-regular-promotional-banner-title">
+                            <div class="banner-logo-area">
+                                <span class="new-tool-text"><?php echo __('New Tool Coming:', 'rex-product-feed'); ?></span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="23" height="20" viewBox="0 0 23 20" fill="none"><path d="M1.06618 12.1359C8.90142 22.3152 17.4084 17.0302 21.0104 12.1256C21.0976 12.0069 21.286 12.1052 21.2364 12.2439C17.5346 22.5755 4.52336 22.5942 0.84551 12.2448C0.797424 12.1095 0.97859 12.0221 1.06618 12.1359Z" fill="#201cfe"/><path d="M3.38441 14.7801C7.55671 19.3578 14.4767 19.3577 18.6683 14.7962L19.2305 18.0621C19.4048 19.0746 18.6283 20 17.6009 20H4.4095C3.37407 20 2.59495 19.0608 2.78274 18.0425L3.38441 14.7801ZM18.4936 13.7809C14.7261 17.1915 8.66183 18.7568 3.58106 13.7132L5.28946 4.4507H16.8876L18.4936 13.7809ZM11.4455 8.30703C11.1791 7.76715 10.7417 7.76715 10.4726 8.30703L9.97917 9.30214C9.91189 9.44065 9.73246 9.57354 9.58387 9.59899L8.68947 9.74872C8.11753 9.84484 7.98578 10.2633 8.39511 10.676L9.09037 11.377C9.20812 11.4957 9.27268 11.7247 9.23624 11.8887L9.0371 12.7566C8.88013 13.4406 9.24466 13.7091 9.84463 13.3502L10.6829 12.8498C10.8371 12.7594 11.0866 12.7593 11.238 12.8498L12.0763 13.3502C12.679 13.7091 13.0407 13.4435 12.8837 12.7566L12.6847 11.8887C12.6482 11.7247 12.7127 11.4957 12.8304 11.377L13.5258 10.676C13.9379 10.2633 13.8032 9.84483 13.2313 9.74872L12.337 9.59899C12.1856 9.57355 12.0062 9.44065 11.9389 9.30214L11.4455 8.30703Z" fill="#201cfe"/><path d="M2.13955 12.1528C1.65099 12.0253 0.571895 12.1146 0.164049 13.491C-0.473269 12.5989 0.864968 10.942 2.13955 12.1528Z" fill="#201cfe"/><path d="M21.652 13.492C21.5932 12.9905 21.118 12.0176 19.6874 12.1378C20.287 11.2198 22.3169 11.8646 21.652 13.492Z" fill="#201cfe"/><path d="M14.02 3.50497C14.02 2.57539 13.6977 1.68389 13.1241 1.02658C12.5504 0.369272 11.7724 7.01809e-08 10.9611 0C10.1499 -7.01809e-08 9.37184 0.369272 8.7982 1.02658C8.22455 1.68389 7.90228 2.57539 7.90228 3.50496H8.7852C8.7852 2.84371 9.01445 2.20953 9.42252 1.74195C9.83058 1.27437 10.384 1.01169 10.9611 1.01169C11.5382 1.01169 12.0917 1.27437 12.4997 1.74195C12.9078 2.20953 13.1371 2.84371 13.1371 3.50497H14.02Z" fill="#201cfe"/></svg>
+                                <span class="tool-name">UGCify</span>
+                            </div>
 
-
-                            <div class="wpfm-badge-content-img-area">
-
-                                <div class="heart-icon">
-                                    <figure class="wpfm-banner-img black-friday">
-                                        <img src="<?php echo esc_url($img_url); ?>" alt="Eid-Ul-Fitr"  width="<?php echo esc_attr($img_width); ?>"
-                                        height="<?php echo esc_attr($img_height); ?>" />
-                                    </figure>
-                                </div>
-
-                                <div class="wpfm-badge-content">
-
-                                    <div class="wpfm-banner-title">
-                                        <h2 id="banner-flash-title">
-                                            <?php echo esc_html__('Eid Mubarak, Save Big', 'rex-product-feed'); ?>
-                                        </h2>
-                                    </div>
-
-                                    <div class="wpfm-title wpfm-banner-offer">
-                                        <?php echo esc_html__('Up to 50% Off', 'rex-product-feed'); ?>
-                                    </div>
-                                </div>
+                            <div class="banner-text">
+                                <?php echo __('Build trust and increase conversions with UGC for WooCommerce!', 'rex-product-feed'); ?>
                             </div>
 
                             <!-- Countdown Timer -->
-                            <div class="wpfm-timer">
+                            <div class="wpfm-timer" style="display: none">
                                 <div class="wpfm-timer-box">
                                     <span class="wpfm-timer-number" id="wpfm_days">12</span>
                                     <span class="wpfm-timer-label">DAY</span>
@@ -180,13 +165,10 @@ class Rex_Feed_Sales_Notification_Bar
                         target="_blank"
                         class="wpfm-regular-promotional-banner-link"
                         role="button"
-                        aria-label="<?php esc_attr_e('Claim Your Deal on Product Feed Manager', 'rex-product-feed'); ?>">
-                            <?php esc_html_e('Claim Your Deal', 'rex-product-feed'); ?>
+                        aria-label="<?php esc_attr_e('Request Early Access for UGCify', 'rex-product-feed'); ?>">
+                            <?php esc_html_e('Request Early Access', 'rex-product-feed'); ?>
                             <span class="arrow-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10">
-                                    <path d="M10 0.78V9.22C10 9.65 9.65 10 9.22 10C8.79 10 8.44 9.65 8.44 9.22V2.66L1.33 9.77C1.19 9.92 0.99 10 0.78 10C0.35 10 0 9.65 0 9.22C0 9.01 0.08 8.81 0.23 8.67L7.33 1.56H0.78C0.35 1.56 0 1.21 0 0.78C0 0.35 0.35 0 0.78 0H9.22C9.65 0 10 0.35 10 0.78Z"
-                                        fill="#fff"/>
-                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="9" viewBox="0 0 8 9" fill="none"><path d="M8 0.703124V8.29686C8 8.48334 7.93415 8.66218 7.81694 8.79405C7.69973 8.92591 7.54076 8.99999 7.375 8.99999C7.20924 8.99999 7.05027 8.92591 6.93306 8.79405C6.81585 8.66218 6.75 8.48334 6.75 8.29686V2.40061L1.06695 8.79406C0.949738 8.92592 0.790765 9 0.625004 9C0.459243 9 0.30027 8.92592 0.183059 8.79406C0.0658485 8.6622 0 8.48335 0 8.29687C0 8.11039 0.0658485 7.93155 0.183059 7.79968L5.86613 1.40625H0.625012C0.459252 1.40625 0.300281 1.33217 0.183071 1.20031C0.0658608 1.06845 1.28672e-05 0.889604 1.28672e-05 0.703124C1.28672e-05 0.516644 0.0658608 0.337802 0.183071 0.20594C0.300281 0.0740789 0.459252 0 0.625012 0L7.375 0C7.54076 0 7.69973 0.0740789 7.81694 0.20594C7.93415 0.337802 8 0.516644 8 0.703124Z" fill="#201cfe"/></svg>
                             </span>
                         </a>
 
@@ -229,9 +211,9 @@ class Rex_Feed_Sales_Notification_Bar
                         if (secondsEl) secondsEl.textContent = '0';
                         clearInterval(wpfm_timer);
                         // Auto-hide banner after countdown expires
-                        setTimeout(function() {
+                        /*setTimeout(function() {
                             if (banner) banner.style.display = 'none';
-                        }, 2000);
+                        }, 2000);*/
                         return;
                     }
 
@@ -306,7 +288,7 @@ class Rex_Feed_Sales_Notification_Bar
     public function enqueue_css() {
         $plugin_dir_url = plugin_dir_url(__FILE__ );
         ?>
-         <style type="text/css">
+        <style type="text/css">
             @font-face {
                 font-family: 'Inter';
                 src: url(<?php echo "{$plugin_dir_url}assets/fonts/campaign-font/Inter-Bold.woff2"; ?>) format('woff2');
@@ -331,321 +313,181 @@ class Rex_Feed_Sales_Notification_Bar
                 font-display: swap;
             }
 
-        .wpfm-regular-promotional-banner {
-           background: radial-gradient(41.22% 84.27% at 50.55% 15.73%, #1d3a10 0, #0e1b09 100%);
-            padding: 10px 0;
-            position: relative;
-            z-index: 2;
-            margin-top: 40px;
-            width: calc(100% - 20px);
-        }
+            .wpfm-regular-promotional-banner {
+                padding: 10px 0;
+                position: relative;
+                z-index: 2;
+                margin-top: 40px;
+                width: calc(100% - 20px);
+                border-radius: 10px;
+                background: #FFF;
+                box-shadow: 0 1px 1px 0 rgba(32, 28, 254, 0.10);
+            }
 
-        .wpfm-regular-promotional-banner-container {
-            max-width: 830px;
-            margin: 0 auto;
-            padding: 0 15px;
-        }
+            .wpfm-regular-promotional-banner-container {
+                /* max-width: 830px; */
+                margin: 0 auto;
+                padding: 0 15px;
+            }
 
-        .wpfm-regular-promotional-banner-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 24px;
-        }
+            .wpfm-regular-promotional-banner-content {
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 24px;
+                row-gap: 8px;
+            }
 
-        .wpfm-regular-promotional-banner-content .wpfm-badge-content-img-area {
-            display: flex;
-            align-items: center;
-            gap: 33px;
-            line-height: 1;
-        }
+            .wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-title {
+                display: flex;
+                align-items: center;
+                gap: 30px;
+            }
 
-    .wpfm-regular-promotional-banner-content .wpfm-banner-title {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        margin-bottom: 3px;
-        line-height: 1.1;
-        animation: slideInLeft 0.8s ease-out;
-    }
+            .wpfm-regular-promotional-banner-content .new-tool-text {
+                color: #666;
+                font-size: 12px;
+                font-weight: 500;
+                line-height: 1;
+                display: block;
+            }
+            .wpfm-regular-promotional-banner-content .tool-name {
+                color: #090939;
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 1;
+                display: block;
+            }
+            .wpfm-regular-promotional-banner-content .banner-logo-area {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            .wpfm-regular-promotional-banner-content .banner-text {
+                font-size: 15px;
+                color: #100627;
+                font-weight: 400;
+                line-height: 1.4;
+                text-transform: capitalize;
+                letter-spacing: 0;
+            }
 
-    .wpfm-regular-promotional-banner-content .heart-icon img {
-        width: 100%;
-        height: auto;
-        max-width: 53px;
-    }
+            /* CLOSE BUTTON */
+            .wpfm-regular-promotional-banner-content .wpfm-close-btn {
+                position: absolute;
+                top: 50%;
+                right: 16px;
+                transform: translateY(-50%);
+                border: none;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                background-color: transparent;
+                transition: all 0.3s ease-in-out;
+            }
 
-    .wpfm-regular-promotional-banner-content .heart-icon figure{
-        margin: 0;
-    }
+            /* TITLE, SUBTITLE, BADGE */
+            .wpfm-regular-promotional-banner-content .wpfm-title {
+                font-family: "Inter", sans-serif;
+                font-size: 24px;
+                font-weight: 700;
+                line-height: 1;
+                letter-spacing: -0.084px;
+                color: #24ec2c;
+                margin: 0;
+            }
 
-    .wpfm-regular-promotional-banner-content .wpfm-banner-title h2 {
-        font-family: 'Inter', sans-serif;
-        font-size: 16px;
-        font-weight: 500;
-        line-height: 1.7;
-        letter-spacing: -0.32px;
-        color: #FFF;
-        margin: 0;
-    }
+            /* BUTTON */
+            .wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-link {
+                color: #201CFE;
+                font-size: 15px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: 1;
+                text-decoration: underline;
+                text-decoration-thickness: 1px;
+                text-underline-offset: 5px;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                transition: all 0.2s ease;
+                background: #fff;
+                padding: 9px 14px;
+            }
 
-    .wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-title {
-        display: flex;
-        align-items: center;
-        gap: 65px;
-    }
+            .wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-link:hover {
+                text-decoration: none;
+            }
+            .wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-link svg {
+                transition: all 0.3s ease;
+            }
+            .wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-link:hover svg {
+                transform: translateX(3px);
+            }
 
-    .wpfm-regular-promotional-banner-content .linno-banner.closing {
-        animation: linno-slideUp 0.5s ease-in forwards;
-    }
+            /* TIMER */
+            .wpfm-regular-promotional-banner-content .wpfm-timer {
+                display: flex;
+                gap: 3px;
+            }
 
-/* CLOSE BUTTON */
-.wpfm-regular-promotional-banner-content .wpfm-close-btn {
-    position: absolute;
-    top: 36px;
-    right: 40px;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    background-color: transparent;
-    transition: all 0.3s ease-in-out;
-}
+            .wpfm-regular-promotional-banner-content .wpfm-timer-box {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 6px 11px;
+                text-align: center;
+                color: #fff;
+                border: 1px solid #2d5d1a;
+                background: rgba(29, 58, 16, .4);
+            
+            }
 
-.wpfm-regular-promotional-banner-content .wpfm-close-btn:hover {
-    transform: rotate(90deg);
-}
+            .wpfm-regular-promotional-banner-content .wpfm-timer-box:first-child {
+                border-radius: 4px 0 0 4px;
+            }
 
-/* TITLE, SUBTITLE, BADGE */
-.wpfm-regular-promotional-banner-content .wpfm-title {
-    font-family: "Inter", sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: -0.084px;
-    color: #24ec2c;
-    margin: 0;
-}
+            .wpfm-regular-promotional-banner-content .wpfm-timer-box:last-child {
+                border-radius: 0 4px 4px 0;
+            }
 
-.wpfm-regular-promotional-banner-content span.arrow-icon {
-    margin-left: 10px;
-}
+            .wpfm-regular-promotional-banner-content .wpfm-timer-number {
+                font-family: "Inter", sans-serif;
+                font-size: 20px;
+                font-weight: 800;
+                line-height: 1.1;
+                margin-bottom: 6px;
+                color: #FFF;
+            }
 
-.wpfm-regular-promotional-banner-content .wpfm-badge {
-    font-family: "Inter", sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 12px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #24EC2C;
-}
+            .wpfm-regular-promotional-banner-content .wpfm-timer-label {
+                font-family: "Inter", sans-serif;
+                font-size: 12px;
+                font-weight: 400;
+                line-height: 1;
+                letter-spacing: 0.24px;
+                text-transform: uppercase;
+                opacity: 0.8;
+            }
 
-/* BUTTON */
-.wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-link {
-    padding: 12px 16px;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    border-radius: 4px;
-    background: #211cfd;
-    color: #fff;
-    font-family: "Inter", sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: -0.084px;
-    text-decoration: none;
-}
+            /* RESPONSIVE */
 
-.wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-link:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-}
+            @media only screen and (max-width: 1199px) { 
+                .wpfm-regular-promotional-banner {
+                    margin-top: 55px;
+                }
 
-/* TIMER */
-.wpfm-regular-promotional-banner-content .wpfm-timer {
-    display: flex;
-    gap: 3px;
-}
+                .wpfm-regular-promotional-banner-container {
+                    max-width: 760px;
+                }
 
-.wpfm-regular-promotional-banner-content .wpfm-timer-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 6px 11px;
-    text-align: center;
-    color: #fff;
-    border: 1px solid #2d5d1a;
-    background: rgba(29, 58, 16, .4);
-  
-}
-
-    .wpfm-regular-promotional-banner-content .wpfm-timer-box:first-child {
-        border-radius: 4px 0 0 4px;
-    }
-
-    .wpfm-regular-promotional-banner-content .wpfm-timer-box:last-child {
-        border-radius: 0 4px 4px 0;
-    }
-
-    .wpfm-regular-promotional-banner-content .wpfm-timer-number {
-        font-family: "Inter", sans-serif;
-        font-size: 20px;
-        font-weight: 800;
-        line-height: 1.1;
-        margin-bottom: 6px;
-        color: #FFF;
-    }
-
-    .wpfm-regular-promotional-banner-content .wpfm-timer-label {
-        font-family: "Inter", sans-serif;
-        font-size: 12px;
-        font-weight: 400;
-        line-height: 1;
-        letter-spacing: 0.24px;
-        text-transform: uppercase;
-        opacity: 0.8;
-    }
-
-    /* ANIMATIONS */
-    @keyframes linno-slideDown {
-        from { transform: translateY(-100%); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-
-    @keyframes linno-slideUp {
-        from { transform: translateY(0); opacity: 1; }
-        to { transform: translateY(-100%); opacity: 0; }
-    }
-
-    @keyframes linno-pulse {
-        0%,100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-    }
-
-    @keyframes linno-float {
-        0%,100% { transform: translateY(0); }
-        50% { transform: translateY(-20px); }
-    }
-
-    @keyframes heartbeat {
-        0%,100% { transform: scale(1); }
-        25% { transform: scale(1.2); }
-        50% { transform: scale(1); }
-    }
-
-    /* REDUCED MOTION */
-    @media (prefers-reduced-motion: reduce) {
-        .wpfm-regular-promotional-banner {
-            transition: none;
-        }
-    }
-
-    /* RESPONSIVE */
-
-    @media only screen and (max-width: 1199px) { 
-        .wpfm-regular-promotional-banner {
-            margin-top: 55px;
-        }
-
-        .wpfm-regular-promotional-banner-container {
-            max-width: 760px;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-banner-title h2{
-            font-size: 15px;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-title {
-            gap: 40px;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-badge-content-img-area {
-            gap: 16px;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-close-btn {
-            top: 32px;
-            right: 14px;
-        } 
-    }  
-
-    @media only screen and (max-width: 991px) {
-
-        .wpfm-regular-promotional-banner-container {
-            max-width: 670px;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-banner-title h2 {
-            font-size: 13px;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-timer-box {
-            padding: 5px 8px;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-title {
-            font-size: 20px;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-timer-number {
-            font-size: 18px;
-            line-height: 1.3;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-close-btn {
-            top: 32px;
-            right: 3px;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-badge {
-            font-size: 14px;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-title {
-            gap: 15px;
-        }
-    }
-
-    @media only screen and (max-width: 767px) {
-
-        .wpfm-regular-promotional-banner-content {
-            flex-direction: column;
-            text-align: center;
-            gap: 30px;
-            padding: 30px 0;
-        }
-
-        .wpfm-regular-promotional-banner-content .heart-icon {
-            margin-bottom: 0px;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-title {
-            font-size: 22px;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-title {
-            flex-direction: column;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-timer-number {
-            font-size: 20px;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-timer {
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .wpfm-regular-promotional-banner-content .wpfm-close-btn {
-            top: 15px;
-            right: 20px;
-        }
-    }
-
-
+                .wpfm-regular-promotional-banner-content .wpfm-regular-promotional-banner-link {
+                    padding-top: 0;
+                }
+            }  
         </style>
 
         <?php

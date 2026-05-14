@@ -191,8 +191,17 @@ class Rex_Product_Feed_Admin {
                 wp_enqueue_style( $this->plugin_name . '-shepherd', WPFM_PLUGIN_ASSETS_FOLDER . 'css/shepherd.css', array(), $this->version );
             }
 
-            wp_enqueue_style( $this->plugin_name . '-style-css', WPFM_PLUGIN_ASSETS_FOLDER . 'css/style.css', array(), $this->version );
-            wp_style_add_data( $this->plugin_name . '-style-css', 'rtl', 'replace' );
+            if ( $screen->id === $this->dashboard_screen_hook_suffix ) {
+                wp_enqueue_style(
+                    $this->plugin_name . '-pfm-settings',
+                    WPFM_PLUGIN_ASSETS_FOLDER . 'css/pfm-settings.css',
+                    array(),
+                    $this->version
+                );
+            } else {
+                wp_enqueue_style( $this->plugin_name . '-style-css', WPFM_PLUGIN_ASSETS_FOLDER . 'css/style.css', array(), $this->version );
+                wp_style_add_data( $this->plugin_name . '-style-css', 'rtl', 'replace' );
+            }
         }
     }
 
@@ -341,6 +350,16 @@ class Rex_Product_Feed_Admin {
                 $this->version,
                 true
             );
+
+            if ( $screen->id === $this->dashboard_screen_hook_suffix ) {
+                wp_enqueue_script(
+                    $this->plugin_name . '-pfm-settings',
+                    WPFM_PLUGIN_ASSETS_FOLDER . 'js/pfm-settings.js',
+                    array( $this->plugin_name ),
+                    $this->version,
+                    true
+                );
+            }
 
             $_get = rex_feed_get_sanitized_get_post();
             $_get = !empty( $_get[ 'get' ] ) ? $_get[ 'get' ] : array();

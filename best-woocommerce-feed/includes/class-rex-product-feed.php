@@ -198,13 +198,13 @@ class Rex_Product_Feed {
 		//    	'2025-11-05 23:59:59'
         // );
 		 // Date format: YYYY-MM-DD HH:MM:SS
-        if ( !defined( 'REX_PRODUCT_FEED_PRO_VERSION' ) && 'no' === get_option( 'rexfeed_hide_eid_ul_fitr_2026_notification_bar', 'no' ) ) {
+        // if ( !defined( 'REX_PRODUCT_FEED_PRO_VERSION' ) && 'no' === get_option( 'ugcify', 'no' ) ) {
             new Rex_Feed_Sales_Notification_Bar(
-				'Eid_ul_fitr_2026',
+				'ugcify',
 				'2026-03-16 00:00:00',
 				'2026-03-24 23:59:59'
 			);
-        }
+        // }
 
 
 	    $this->loader->add_action( 'admin_init', $plugin_admin, 'register_setup_wizard_page' );

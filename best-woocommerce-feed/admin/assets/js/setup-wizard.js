@@ -416,9 +416,6 @@ jQuery(document).ready(function ($) {
                 $btn.removeClass('is-installing');
                 if (r && r.success) {
                     $btn.addClass('is-installed').prop('disabled', true).text(successLabel);
-                    do_action && do_action('product-feed-manager_telemetry_track',
-                        'wpfunnels' === slug ? 'pfm_wizard_companion_install_wpfunnels' : 'pfm_wizard_companion_install_cartlift',
-                        { plugin: slug });
                 } else {
                     $btn.prop('disabled', false).text(origLabel);
                 }

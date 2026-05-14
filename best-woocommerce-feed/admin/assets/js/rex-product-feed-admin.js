@@ -65,7 +65,6 @@
         } else if ( 'product-feed_page_wpfm_dashboard' === rex_wpfm_ajax.current_screen ) {
             rex_feed_settings_tab(event);
             rex_feed_process_rollback_button();
-            pfm_init_wpfunnels_promo_widget();
         }
         const isChecked = $( '#rex_feed_is_google_content_api' ).is( ':checked' );
         showGoogleMerchantContentApiContent( isChecked );
@@ -1685,17 +1684,23 @@
      */
     function wpfm_clear_batch(e) {
         e.preventDefault();
-        const $this = $(this);
-        $this.find("span").hide();
-        $this.find("i").show();
+        var $btn = $(this);
+        var originalText = $btn.find('span').text() || 'Clear Batch';
+        $btn.addClass('is-loading').prop('disabled', true).find('span').text('Working…');
+        $btn.find('i').hide();
 
         wpAjaxHelperRequest("rex-product-clear-batch")
             .success(function () {
-                $this.find("i").hide();
-                $this.find("span").show();
+                $btn.removeClass('is-loading').addClass('is-success').find('span').text('Done!');
+                setTimeout(function () {
+                    $btn.removeClass('is-success').prop('disabled', false).find('span').text(originalText);
+                }, 2000);
             })
             .error(function () {
-                console.log("uh, oh!");
+                $btn.removeClass('is-loading').addClass('is-error').find('span').text('Error — try again');
+                setTimeout(function () {
+                    $btn.removeClass('is-error').prop('disabled', false).find('span').text(originalText);
+                }, 3000);
             });
     }
 
@@ -1741,54 +1746,96 @@
     // Attach the event handler to the tabs
     $(document).ready(function() {
         $("ul.rex-settings__tabs li").on("click", rex_feed_settings_tab);
-    
+
         // Trigger the function to check for saved tab on page load
         rex_feed_settings_tab();
     });
-    
 
-    /**
-     * PFM Settings — WPFunnels promo sidebar widget.
-     * Shows the widget if not dismissed within the last 60 days,
-     * tracks impression and click events via PostHog telemetry.
-     */
-    function pfm_init_wpfunnels_promo_widget() {
-        var DISMISS_KEY  = 'pfm_wpfunnels_promo_dismissed_at';
-        var DISMISS_DAYS = 60;
-        var $widget      = $( '#pfm-wpfunnels-promo-widget' );
+    // Filter Settings — real-time search across Controls tab rows
+    $(document).on('input', '#wpfm-settings-filter', function () {
+        var query = $(this).val().toLowerCase().trim();
 
-        if ( ! $widget.length ) {
+        if (!query) {
+            $('.feed-settings .single-merchant[data-label]').show();
+            $('.feed-settings .wpfm-settings-section h3').show();
             return;
         }
 
-        // Check 60-day dismiss window.
-        var dismissedAt = localStorage.getItem( DISMISS_KEY );
-        if ( dismissedAt ) {
-            var elapsed = ( Date.now() - parseInt( dismissedAt, 10 ) ) / ( 1000 * 60 * 60 * 24 );
-            if ( elapsed < DISMISS_DAYS ) {
-                $widget.addClass( 'is-hidden' );
-                return;
-            }
+        $('.feed-settings .single-merchant[data-label]').each(function () {
+            var label = $(this).attr('data-label').toLowerCase();
+            $(this).toggle(label.indexOf(query) !== -1);
+        });
+
+        $('.feed-settings .wpfm-settings-section').each(function () {
+            var $rows = $(this).find('.single-merchant[data-label]');
+            var anyVisible = $rows.filter(':visible').length > 0;
+            $(this).find('> h3').toggle(anyVisible);
+        });
+    });
+
+    // Sticky Save Bar — tracks dirty save-required fields and saves them on click
+    (function () {
+        var dirtyForms = new Set();
+        var saveFormMap = {
+            '#wpfm-per-batch':            '#wpfm-per-batch',
+            '#wpfm-transient-settings':   '#wpfm-transient-settings',
+            '#wpfm-fb-pixel':             '#wpfm-fb-pixel',
+            '#wpfm-tiktok-pixel':         '#wpfm-tiktok-pixel',
+            '#wpfm-user-email':           '#wpfm-user-email'
+        };
+
+        function showStickyBar() {
+            $('#wpfm-sticky-save-bar').css('display', 'flex');
         }
 
-        // Widget is visible.
-        $widget.removeClass( 'is-hidden' );
+        function hideStickyBar() {
+            $('#wpfm-sticky-save-bar').hide();
+            dirtyForms.clear();
+        }
 
-        // Dismiss button.
-        $( document ).on( 'click', '#pfm-wpfunnels-promo-dismiss', function () {
-            localStorage.setItem( DISMISS_KEY, Date.now().toString() );
-            $widget.addClass( 'is-hidden' );
-        } );
+        // Watch for changes to inputs inside save-required forms
+        Object.keys(saveFormMap).forEach(function (formSel) {
+            $(document).on('change input', formSel + ' input, ' + formSel + ' select', function () {
+                dirtyForms.add(formSel);
+                showStickyBar();
+            });
+        });
 
-        // Learn More click — track impression when the user clicks.
-        $( document ).on( 'click', '#pfm-wpfunnels-promo-cta', function () {
-            $.post( rex_wpfm_ajax.ajax_url, {
-                action:   'pfm_settings_wpfunnels_widget_track',
-                event:    'impression',
-                security: rex_wpfm_ajax.ajax_nonce
-            } );
-        } );
-    }
+        // "Save Changes" fires each dirty form's existing submit handler in sequence
+        $(document).on('click', '#wpfm-sticky-save-btn', function () {
+            if (!dirtyForms.size) {
+                hideStickyBar();
+                return;
+            }
+
+            var $btn = $(this);
+            $btn.prop('disabled', true).text('Saving…');
+
+            var pending = Array.from(dirtyForms);
+            var idx = 0;
+
+            function saveNext() {
+                if (idx >= pending.length) {
+                    $btn.prop('disabled', false).text('Save Changes');
+                    hideStickyBar();
+                    return;
+                }
+                var formSel = pending[idx++];
+                var $form = $(formSel);
+                if ($form.length) {
+                    $form.trigger('submit');
+                    // Allow the AJAX request time to dispatch before firing next
+                    setTimeout(saveNext, 400);
+                } else {
+                    saveNext();
+                }
+            }
+
+            saveNext();
+        });
+    }());
+
+
 
     /**
      * WPFM error log
@@ -1906,13 +1953,12 @@
     function save_fb_pixel_id(e) {
         e.preventDefault();
         var $form = $(this);
-        var value = $form.find("#wpfm_fb_pixel").val();
+        var value = $form.find("#wpfm_fb_pixel_id").val();
         if(!value){
             alert("Please enter a valid Facebook Pixel ID.");
             $('.wpfm-fb-pixel-field').show();
             return;
         }
-        // $form.find("button.save-fb-pixel span").hide();
         $form.find("button.save-fb-pixel i").show();
         wpAjaxHelperRequest("rexfeed-save-fb-pixel-value", value)
             .success(function (response) {
@@ -2038,19 +2084,23 @@
     function purge_transient_cache(e) {
         e.preventDefault();
         var payload = {};
-        var $el = $(this);
-        $el.find("span").hide();
-        $el.find("i").show();
+        var $btn = $(this);
+        var originalText = $btn.find('span').text() || 'Purge Cache';
+        $btn.addClass('is-loading').prop('disabled', true).find('span').text('Working…');
+        $btn.find('i').hide();
 
         wpAjaxHelperRequest("rexfeed-purge-wpfm-transient-cache", payload)
             .success(function (response) {
-                $el.find("i").hide();
-                $el.find("span").show();
-                console.log("woohoo!");
+                $btn.removeClass('is-loading').addClass('is-success').find('span').text('Done!');
+                setTimeout(function () {
+                    $btn.removeClass('is-success').prop('disabled', false).find('span').text(originalText);
+                }, 2000);
             })
             .error(function (response) {
-                $el.find("i").hide();
-                console.log("uh, oh!");
+                $btn.removeClass('is-loading').addClass('is-error').find('span').text('Error — try again');
+                setTimeout(function () {
+                    $btn.removeClass('is-error').prop('disabled', false).find('span').text(originalText);
+                }, 3000);
             });
     }
 
