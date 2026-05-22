@@ -348,7 +348,7 @@ class Rex_Product_Feed_Ajax {
         ob_flush();
 
         $selected_format = get_post_meta( $merchant[ 'post_id' ], '_rex_feed_feed_format', true ) ?: get_post_meta( $merchant[ 'post_id' ], 'rex_feed_feed_format', true );
-        if ( !$selected_format ) {
+        if ( !$selected_format || ! in_array( $selected_format, $feed_format, true ) ) {
             $selected_format = $feed_format[ 0 ];
         }
 
@@ -738,7 +738,7 @@ class Rex_Product_Feed_Ajax {
     public static function show_wpfm_log( $payload ) {
         if ( !empty( $payload[ 'logKey' ] ) && defined( 'WC_LOG_DIR' ) ) {
             $wc_log   = WC_Admin_Status::scan_log_files();
-            $key      = filter_var( $payload[ 'logKey' ], FILTER_SANITIZE_STRING );
+            $key      = sanitize_text_field( wp_unslash( $payload[ 'logKey' ] ) );
             $file_url = realpath( WC_LOG_DIR . $key );
 
             if ( !in_array( $key, $wc_log ) || empty( $file_url ) || false === strpos( $file_url, WC_LOG_DIR ) ) {
@@ -1485,6 +1485,330 @@ class Rex_Product_Feed_Ajax {
             'needs_auth' => $credentials_changed || !$is_authorized,
             'is_authorized' => $is_authorized
         ) );
+    }
+
+    /**
+     * Export all saved feed configurations as JSON.
+     *
+     * @return void
+     */
+    public function export_feed_configurations() {
+        self::authorize_feed_configuration_transfer();
+
+        $feeds = self::get_feed_configuration_posts();
+
+        if ( empty( $feeds ) ) {
+            wp_send_json_error(
+                array(
+                    'message' => __( 'No feed configurations found to export.', 'rex-product-feed' ),
+                ),
+                404
+            );
+        }
+
+        $export = array(
+            'title'        => 'Rex Product Feed Configurations',
+            'format'       => 'wpfm-feed-configurations',
+            'version'      => 1,
+            'generated_at' => current_time( 'mysql' ),
+            'feeds'        => array_map( array( __CLASS__, 'prepare_feed_configuration_export' ), $feeds ),
+        );
+
+        $content = wp_json_encode( $export, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+
+        if ( false === $content ) {
+            wp_send_json_error(
+                array(
+                    'message' => __( 'Failed to generate the export file.', 'rex-product-feed' ),
+                ),
+                500
+            );
+        }
+
+        wp_send_json_success(
+            array(
+                'file_name' => sprintf( 'wpfm-feed-configurations-%s.json', wp_date( 'Y-m-d-His' ) ),
+                'content'   => $content,
+                'count'     => count( $export['feeds'] ),
+            )
+        );
+    }
+
+    /**
+     * Import feed configurations from a JSON payload.
+     *
+     * @return void
+     */
+    public function import_feed_configurations() {
+        self::authorize_feed_configuration_transfer();
+
+        $payload = isset( $_POST['payload'] ) ? wp_unslash( $_POST['payload'] ) : '';
+
+        if ( '' === $payload ) {
+            wp_send_json_error(
+                array(
+                    'message' => __( 'Select a valid JSON file to import.', 'rex-product-feed' ),
+                ),
+                400
+            );
+        }
+
+        $data = json_decode( $payload, true );
+
+        if ( JSON_ERROR_NONE !== json_last_error() || empty( $data['feeds'] ) || ! is_array( $data['feeds'] ) ) {
+            wp_send_json_error(
+                array(
+                    'message' => __( 'The selected file is not a valid feed configuration export.', 'rex-product-feed' ),
+                ),
+                400
+            );
+        }
+
+        $imported = 0;
+
+        foreach ( $data['feeds'] as $feed ) {
+            if ( ! is_array( $feed ) ) {
+                continue;
+            }
+
+            $post          = isset( $feed['post'] ) && is_array( $feed['post'] ) ? $feed['post'] : array();
+            $post_title    = isset( $post['title'] ) ? wp_strip_all_tags( $post['title'] ) : __( 'Imported Feed', 'rex-product-feed' );
+            $post_status   = isset( $post['status'] ) ? sanitize_key( $post['status'] ) : 'publish';
+            $post_statuses = array( 'publish', 'draft', 'pending', 'future', 'private' );
+
+            if ( ! in_array( $post_status, $post_statuses, true ) ) {
+                $post_status = 'publish';
+            }
+
+            $post_id = wp_insert_post(
+                array(
+                    'post_author'  => get_current_user_id(),
+                    'post_title'   => '' !== $post_title ? $post_title : __( 'Imported Feed', 'rex-product-feed' ),
+                    'post_content' => '',
+                    'post_type'    => 'product-feed',
+                    'post_status'  => $post_status,
+                ),
+                true
+            );
+
+            if ( is_wp_error( $post_id ) ) {
+                continue;
+            }
+
+            self::import_feed_meta( $post_id, isset( $feed['meta'] ) ? $feed['meta'] : array() );
+            self::import_feed_terms( $post_id, isset( $feed['terms'] ) ? $feed['terms'] : array() );
+            self::reset_imported_feed_runtime_meta( $post_id );
+
+            ++$imported;
+        }
+
+        if ( 0 === $imported ) {
+            wp_send_json_error(
+                array(
+                    'message' => __( 'No feed configurations could be imported from that file.', 'rex-product-feed' ),
+                ),
+                400
+            );
+        }
+
+        wp_send_json_success(
+            array(
+                'message' => sprintf(
+                    /* translators: %d: imported feed count. */
+                    _n( '%d feed configuration imported.', '%d feed configurations imported.', $imported, 'rex-product-feed' ),
+                    $imported
+                ),
+                'count'   => $imported,
+            )
+        );
+    }
+
+    /**
+     * Validate permissions and nonce for configuration transfers.
+     *
+     * @return void
+     */
+    private static function authorize_feed_configuration_transfer() {
+        check_ajax_referer( 'rex-wpfm-ajax', 'security' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error(
+                array(
+                    'message' => __( 'You are not allowed to manage feed configurations.', 'rex-product-feed' ),
+                ),
+                403
+            );
+        }
+    }
+
+    /**
+     * Collect the feed posts that should be included in the export.
+     *
+     * @return array
+     */
+    private static function get_feed_configuration_posts() {
+        return get_posts(
+            array(
+                'post_type'      => 'product-feed',
+                'post_status'    => array( 'publish', 'draft', 'pending', 'future', 'private' ),
+                'posts_per_page' => -1,
+                'orderby'        => 'date',
+                'order'          => 'ASC',
+            )
+        );
+    }
+
+    /**
+     * Prepare a single feed for JSON export.
+     *
+     * @param WP_Post $feed Feed post object.
+     *
+     * @return array
+     */
+    private static function prepare_feed_configuration_export( $feed ) {
+        return array(
+            'post'  => array(
+                'title'  => $feed->post_title,
+                'status' => $feed->post_status,
+            ),
+            'meta'  => self::get_exportable_post_meta( $feed->ID ),
+            'terms' => self::get_exportable_feed_terms( $feed->ID ),
+        );
+    }
+
+    /**
+     * Get post meta that should round-trip in feed configuration exports.
+     *
+     * @param int $feed_id Feed post ID.
+     *
+     * @return array
+     */
+    private static function get_exportable_post_meta( $feed_id ) {
+        $meta = get_post_meta( $feed_id );
+
+        foreach ( self::get_excluded_feed_meta_keys() as $meta_key ) {
+            unset( $meta[ $meta_key ] );
+        }
+
+        return $meta;
+    }
+
+    /**
+     * Export taxonomy terms using slugs so imports work across sites.
+     *
+     * @param int $feed_id Feed post ID.
+     *
+     * @return array
+     */
+    private static function get_exportable_feed_terms( $feed_id ) {
+        $terms_by_taxonomy = array();
+
+        foreach ( array( 'product_cat', 'product_tag', 'product_brand' ) as $taxonomy ) {
+            if ( ! taxonomy_exists( $taxonomy ) ) {
+                continue;
+            }
+
+            $terms = wp_get_post_terms( $feed_id, $taxonomy, array( 'fields' => 'slugs' ) );
+
+            if ( is_wp_error( $terms ) || empty( $terms ) ) {
+                continue;
+            }
+
+            $terms_by_taxonomy[ $taxonomy ] = array_values( array_map( 'strval', $terms ) );
+        }
+
+        return $terms_by_taxonomy;
+    }
+
+    /**
+     * Persist imported feed meta values.
+     *
+     * @param int   $post_id Feed post ID.
+     * @param array $meta    Meta values keyed by meta key.
+     *
+     * @return void
+     */
+    private static function import_feed_meta( $post_id, $meta ) {
+        if ( ! is_array( $meta ) ) {
+            return;
+        }
+
+        foreach ( $meta as $meta_key => $meta_values ) {
+            if ( ! is_string( $meta_key ) || '' === $meta_key || in_array( $meta_key, self::get_excluded_feed_meta_keys(), true ) ) {
+                continue;
+            }
+
+            $meta_values = is_array( $meta_values ) ? $meta_values : array( $meta_values );
+
+            foreach ( $meta_values as $meta_value ) {
+                add_post_meta( $post_id, $meta_key, $meta_value );
+            }
+        }
+    }
+
+    /**
+     * Persist imported taxonomy selections.
+     *
+     * @param int   $post_id Feed post ID.
+     * @param array $terms   Taxonomy terms keyed by taxonomy.
+     *
+     * @return void
+     */
+    private static function import_feed_terms( $post_id, $terms ) {
+        if ( ! is_array( $terms ) ) {
+            return;
+        }
+
+        foreach ( $terms as $taxonomy => $term_slugs ) {
+            if ( ! is_string( $taxonomy ) || ! taxonomy_exists( $taxonomy ) ) {
+                continue;
+            }
+
+            $term_slugs = is_array( $term_slugs ) ? $term_slugs : array( $term_slugs );
+            $term_slugs = array_values( array_filter( array_map( 'sanitize_title', $term_slugs ) ) );
+
+            wp_set_object_terms( $post_id, $term_slugs, $taxonomy, false );
+        }
+    }
+
+    /**
+     * Remove site-specific runtime state after importing a feed configuration.
+     *
+     * @param int $post_id Feed post ID.
+     *
+     * @return void
+     */
+    private static function reset_imported_feed_runtime_meta( $post_id ) {
+        foreach ( self::get_excluded_feed_meta_keys() as $meta_key ) {
+            delete_post_meta( $post_id, $meta_key );
+        }
+    }
+
+    /**
+     * Meta keys that should never be transferred between sites.
+     *
+     * @return array
+     */
+    private static function get_excluded_feed_meta_keys() {
+        return array(
+            '_edit_last',
+            '_edit_lock',
+            '_wp_old_slug',
+            '_wp_trash_meta_status',
+            '_wp_trash_meta_time',
+            '_rex_feed_xml_file',
+            'rex_feed_xml_file',
+            '_rex_feed_preview_file',
+            'rex_feed_preview_file',
+            '_rex_feed_temp_xml_file',
+            'rex_feed_temp_xml_file',
+            '_rex_feed_status',
+            'rex_feed_status',
+            '_generation_start_time',
+            '_rex_feed_google_data_feed_id',
+            'rex_feed_google_data_feed_id',
+            '_rex_mas_last_sync',
+        );
     }
 
     /**

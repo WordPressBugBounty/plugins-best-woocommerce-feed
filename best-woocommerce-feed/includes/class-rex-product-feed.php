@@ -272,6 +272,8 @@ class Rex_Product_Feed {
         //setup wizard ajax
         $this->loader->add_action( 'wp_ajax_rexfeed_create_contact', $ajax, 'create_contact' );
         $this->loader->add_action( 'wp_ajax_nopriv_rexfeed_create_contact', $ajax, 'create_contact' );
+		$this->loader->add_action( 'wp_ajax_rex_feed_export_configurations', $ajax, 'export_feed_configurations' );
+		$this->loader->add_action( 'wp_ajax_rex_feed_import_configurations', $ajax, 'import_feed_configurations' );
 
         $this->loader->add_filter( 'rexfeed_product_attribute_raw_value', $feed_actions, 'add_translate_press_value', 10, 3);
     }

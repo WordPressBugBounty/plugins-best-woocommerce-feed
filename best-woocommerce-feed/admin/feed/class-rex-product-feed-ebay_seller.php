@@ -92,6 +92,7 @@ class Rex_Product_Feed_Ebay_seller extends Rex_Product_Feed_Abstract_Generator {
      **/
     public function make_feed() {
         $this->ebaySellerInit($this->config['feed_config']);
+        $this->feed_format = 'csv';
 
         // Generate feed for both simple and variable products.
 
@@ -125,7 +126,6 @@ class Rex_Product_Feed_Ebay_seller extends Rex_Product_Feed_Abstract_Generator {
             Rex_Feed_Generator_Helper::wpfm_update_feed_timestamp($this->id);
         }
 
-        $this->feed_format = 'csv';
         if ($this->batch >= $this->tbatch ) {
             $this->save_feed($this->feed_format);
             return array(
@@ -250,7 +250,6 @@ class Rex_Product_Feed_Ebay_seller extends Rex_Product_Feed_Abstract_Generator {
                         '*Quantity',
                         '*StartPrice',
                         'BuyItNowPrice',
-                        '*ConditionID',
                         'ReturnsAcceptedOption',
                         'RefundOption',
                         'ReturnsWithinOption',
@@ -291,17 +290,17 @@ class Rex_Product_Feed_Ebay_seller extends Rex_Product_Feed_Abstract_Generator {
                             if( ( $this->rex_feed_skip_product && empty( array_keys($attributes, '') ) ) || !$this->rex_feed_skip_product ) {
                                 // get the variation attributes of
                                 // this product
-                                $vrelationshipDetails = '';
                                 $_variation_atts = $variation_product->get_attributes();
-                                end($_variation_atts);
-                                $_key = key($_variation_atts);
+                                $vrelationshipParts = [];
+                                foreach( $_variation_atts as $attr_name => $attr ){
+                                    if( '' === $attr ) {
+                                        continue;
+                                    }
+                                    $vrelationshipParts[] = wc_attribute_label( $attr_name ) . '=' . $attr;
+                                }
+                                $vrelationshipDetails = implode( '|', $vrelationshipParts );
 
                                 $item = RexShoppingCustom::createItem();
-
-                                foreach( $_variation_atts as $attr_name => $attr ){
-                                    $vrelationshipDetails .= wc_attribute_label( $attr_name ).'='.$attr;
-                                    if($attr_name !== $_key) $vrelationshipDetails .= '|';
-                                }
 
                                 $attributes['Relationship'] = 'Variation';
                                 $attributes['RelationshipDetails'] = $vrelationshipDetails;
@@ -313,12 +312,7 @@ class Rex_Product_Feed_Ebay_seller extends Rex_Product_Feed_Abstract_Generator {
                                         }
                                     }
                                     else {
-                                        if(in_array( $key, $variable_common_fields )) {
-                                            $item->$key(''); // invoke $key as method of $item object.
-                                        }
-                                        else {
-                                            $item->$key( $value ); // invoke $key as method of $item object.
-                                        }
+                                        $item->$key( $value ); // invoke $key as method of $item object.
                                     }
                                 }
                             }

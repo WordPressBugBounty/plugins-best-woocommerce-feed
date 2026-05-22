@@ -851,6 +851,12 @@
     var chooseBtn = document.querySelector('.rex-feed-import-choose');
     var fileInput = document.getElementById('rex-feed-import-file');
     var fileLabel = document.querySelector('.rex-feed-import-filename');
+    var exportBtn = document.getElementById('rex-feed-export-btn');
+    var importBtn = document.getElementById('rex-feed-import-btn');
+    var exportCard = document.querySelector('.rex-feed-export');
+    var importCard = document.querySelector('.rex-feed-import');
+    var exportStatus = ensureTransferStatus(exportCard);
+    var importStatus = ensureTransferStatus(importCard);
 
     if (chooseBtn && fileInput) {
       chooseBtn.addEventListener('click', function () {
@@ -862,8 +868,186 @@
       fileInput.addEventListener('change', function () {
         var name = fileInput.files.length ? fileInput.files[0].name : 'No file chosen';
         fileLabel.textContent = name;
+        setTransferStatus(importStatus, '');
       });
     }
+
+    if (exportBtn) {
+      exportBtn.addEventListener('click', function () {
+        setTransferLoading(exportBtn, true);
+        setTransferStatus(exportStatus, '');
+
+        postTransferRequest('rex_feed_export_configurations')
+          .then(function (response) {
+            if (!response.success || !response.data || !response.data.content) {
+              throw new Error(getTransferMessage(response, 'Export failed.'));
+            }
+
+            downloadTransferFile(response.data.file_name || 'wpfm-feed-configurations.json', response.data.content);
+            setTransferStatus(exportStatus, 'Exported ' + String(response.data.count || 0) + ' feed configurations.', 'success');
+          })
+          .catch(function (error) {
+            setTransferStatus(exportStatus, error.message || 'Export failed.', 'error');
+          })
+          .finally(function () {
+            setTransferLoading(exportBtn, false);
+          });
+      });
+    }
+
+    if (importBtn && fileInput) {
+      importBtn.addEventListener('click', function () {
+        var file = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+
+        if (!file) {
+          setTransferStatus(importStatus, 'Choose a JSON file to import.', 'error');
+          return;
+        }
+
+        setTransferLoading(importBtn, true);
+        setTransferStatus(importStatus, '');
+
+        readTransferFile(file)
+          .then(function (content) {
+            JSON.parse(content);
+            return postTransferRequest('rex_feed_import_configurations', { payload: content });
+          })
+          .then(function (response) {
+            if (!response.success) {
+              throw new Error(getTransferMessage(response, 'Import failed.'));
+            }
+
+            setTransferStatus(importStatus, getTransferMessage(response, 'Import completed.'), 'success');
+            fileInput.value = '';
+            fileLabel.textContent = 'No file chosen';
+          })
+          .catch(function (error) {
+            setTransferStatus(importStatus, error.message || 'Import failed.', 'error');
+          })
+          .finally(function () {
+            setTransferLoading(importBtn, false);
+          });
+      });
+    }
+  }
+
+  function ensureTransferStatus(container) {
+    var status;
+    var host;
+
+    if (!container) {
+      return null;
+    }
+
+    status = container.querySelector('.rex-feed-transfer-status');
+    if (status) {
+      return status;
+    }
+
+    status = document.createElement('p');
+    status.className = 'rex-feed-transfer-status';
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    host = container.firstElementChild && container.firstElementChild.tagName === 'DIV'
+      ? container.firstElementChild
+      : container;
+    host.appendChild(status);
+
+    return status;
+  }
+
+  function setTransferStatus(statusNode, message, type) {
+    if (!statusNode) {
+      return;
+    }
+
+    statusNode.textContent = message || '';
+    statusNode.dataset.state = type || '';
+  }
+
+  function setTransferLoading(button, isLoading) {
+    var label;
+    var spinner;
+
+    if (!button) {
+      return;
+    }
+
+    label = button.querySelector('span');
+    spinner = button.querySelector('i');
+
+    button.disabled = !!isLoading;
+
+    if (label) {
+      label.style.display = isLoading ? 'none' : '';
+    }
+
+    if (spinner) {
+      spinner.style.display = isLoading ? 'inline-block' : 'none';
+    }
+  }
+
+  function postTransferRequest(action, extraData) {
+    var body = new URLSearchParams();
+
+    body.append('action', action);
+    body.append('security', rex_wpfm_ajax.ajax_nonce);
+
+    Object.keys(extraData || {}).forEach(function (key) {
+      body.append(key, extraData[key]);
+    });
+
+    return fetch(rex_wpfm_ajax.ajax_url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+      },
+      credentials: 'same-origin',
+      body: body.toString()
+    }).then(function (response) {
+      return response.json();
+    });
+  }
+
+  function getTransferMessage(response, fallback) {
+    if (response && response.data && response.data.message) {
+      return response.data.message;
+    }
+
+    return fallback;
+  }
+
+  function downloadTransferFile(fileName, content) {
+    var link = document.createElement('a');
+    var blob = new Blob([content], { type: 'application/json;charset=utf-8' });
+    var url = window.URL.createObjectURL(blob);
+
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  }
+
+  function readTransferFile(file) {
+    if (file && typeof file.text === 'function') {
+      return file.text();
+    }
+
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+
+      reader.onload = function () {
+        resolve(reader.result || '');
+      };
+
+      reader.onerror = function () {
+        reject(new Error('Unable to read the selected file.'));
+      };
+
+      reader.readAsText(file);
+    });
   }
 
   /* =======================================================

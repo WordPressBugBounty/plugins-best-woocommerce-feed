@@ -182,6 +182,7 @@ class Rex_Product_CPT {
 				break;
 			case 'total_products':
 				$total_products = get_post_meta( $post_id, '_rex_feed_total_products', true ) ?: get_post_meta( $post_id, 'rex_feed_total_products', true );
+				$total_products = is_array( $total_products ) ? $total_products : array();
 				$total_products = $total_products ?: array(
 					'total'           => 0,
 					'simple'          => 0,

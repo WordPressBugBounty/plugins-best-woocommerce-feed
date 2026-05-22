@@ -99,6 +99,16 @@ class Rex_Product_Feed_Actions {
 		$feed_data = function_exists( 'rex_feed_get_sanitized_get_post' ) ? rex_feed_get_sanitized_get_post() : array();
 		$feed_data = !empty( $feed_data[ 'post' ] ) ? $feed_data[ 'post' ] : '';
 
+        if ( is_array( $feed_data ) ) {
+            $merchant = ! empty( $feed_data['rex_feed_merchant'] )
+                ? $feed_data['rex_feed_merchant']
+                : ( get_post_meta( $post_id, '_rex_feed_merchant', true ) ?: get_post_meta( $post_id, 'rex_feed_merchant', true ) );
+
+            if ( in_array( $merchant, array( 'ebay_seller', 'ebay_seller_tickets' ), true ) ) {
+                $feed_data['rex_feed_feed_format'] = 'csv';
+            }
+        }
+
 		$meta_keys       = [
 			'rex_feed_products',
 			'rex_feed_aelia_currency',

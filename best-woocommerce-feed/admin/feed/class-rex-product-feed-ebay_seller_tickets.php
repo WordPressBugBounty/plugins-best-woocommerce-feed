@@ -37,6 +37,7 @@ class Rex_Product_Feed_Ebay_seller_tickets extends Rex_Product_Feed_Abstract_Gen
     public function make_feed() {
 
         $this->ebaySellerInit($this->config['feed_config']);
+        $this->feed_format = 'csv';
 
         // Generate feed for both simple and variable products.
         $should_regenerate = true;
@@ -69,9 +70,6 @@ class Rex_Product_Feed_Ebay_seller_tickets extends Rex_Product_Feed_Abstract_Gen
             Rex_Feed_Generator_Helper::wpfm_update_feed_timestamp($this->id);
         }
 
-
-
-        $this->feed_format = 'csv';
         if ($this->batch >= $this->tbatch ) {
             $this->save_feed($this->feed_format);
             return array(

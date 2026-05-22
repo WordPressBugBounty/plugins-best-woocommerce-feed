@@ -877,6 +877,21 @@
   white-space: nowrap;
 }
 
+.rex-feed-transfer-status {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--pfm-text-dim);
+}
+
+.rex-feed-transfer-status[data-state="success"] {
+  color: #15803d;
+}
+
+.rex-feed-transfer-status[data-state="error"] {
+  color: #b91c1c;
+}
+
 /* Rollback option area */
 .wpfm-rollback-option-area {
   display: flex;

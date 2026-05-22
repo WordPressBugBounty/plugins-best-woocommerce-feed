@@ -485,9 +485,9 @@ class Rex_Feed_Scheduler {
             ],
         ];
 
-        $is_manual_run = $this->is_manual_action_scheduler_run();
+            $force_custom_run_now = (bool) apply_filters( 'wpfm_force_run_custom_schedule_now', false, $schedule );
 
-	        if('custom' === $schedule && !$is_manual_run) {
+            if('custom' === $schedule && !$force_custom_run_now) {
 	            $timezone = new DateTimeZone( wp_timezone_string() );
 	            $now_time = wp_date( "G", null, $timezone );
 	            $custom_time_values = [ (string) $now_time ];

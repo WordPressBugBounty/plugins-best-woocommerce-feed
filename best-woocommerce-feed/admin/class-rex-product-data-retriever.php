@@ -3152,7 +3152,7 @@ class Rex_Product_Data_Retriever {
 				$val = preg_replace( '#\[[^\]]+\]#', '', $val );
 				return strip_shortcodes( $val );
 			case 'remove_special':
-				return filter_var( $val, FILTER_SANITIZE_STRING ); //phpcs:ignore
+				return sanitize_text_field( (string) $val );
 			case 'cdata':
 				return $val && '' !== $val ? "<![CDATA[ {$val} ]]>" : $val;
 			case 'cdata_without_space':
