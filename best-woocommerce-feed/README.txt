@@ -6,7 +6,7 @@ Tags: Product Feed, WooCommerce Product Feed, Google Shopping Feed, Facebook Cat
 Requires at least: 6.7
 Tested up to:  7.0
 Requires PHP: 7.4
-Stable tag:  7.5.3
+Stable tag:  7.5.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -476,8 +476,12 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 = Product feed manager (Free) =
 
-= 7.5.3 (2026-05-22) =
+= 7.5.4 (2026-05-24) =
+* Fix: Scheduled Feed generation Issue
+
+= 7.5.3 (2026-05-20) =
 * Compatibility: Compatibility with WP 7.0
+* Fix: Feeds set to a custom schedule regenerating every hour instead of respecting the configured daily (or other) interval
 
 = 7.5.2 (2026-05-15) =
 * Improvement: Organize the plugin settings page

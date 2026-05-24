@@ -1639,6 +1639,15 @@ class Rex_Product_Feed_Ajax {
                 403
             );
         }
+
+        if ( ! apply_filters( 'wpfm_is_premium_activate', false ) ) {
+            wp_send_json_error(
+                array(
+                    'message' => __( 'Feed import and export is a Pro feature. Please activate your Pro license to use it.', 'rex-product-feed' ),
+                ),
+                403
+            );
+        }
     }
 
     /**

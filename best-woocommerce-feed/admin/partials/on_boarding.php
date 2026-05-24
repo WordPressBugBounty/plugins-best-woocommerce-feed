@@ -782,30 +782,40 @@ if ( $is_premium_activated ) {
 
                     <section class="wpfm-settings-section" data-section="import-export">
 
-                        <div class="single-merchant rex-feed-export" data-label="<?php echo esc_attr__( 'Export feed configurations', 'rex-product-feed' ); ?>">
+                        <div class="single-merchant rex-feed-export <?php echo ! $is_premium_activated ? 'wpfm-pro' : ''; ?>" data-label="<?php echo esc_attr__( 'Export feed configurations', 'rex-product-feed' ); ?>">
+                            <?php if ( ! $is_premium_activated ) : ?>
+                                <a href="<?php echo esc_url( $pro_url ); ?>" target="_blank" title="<?php echo esc_attr__( 'Click to Upgrade Pro', 'rex-product-feed' ); ?>" class="wpfm-pro-cta">
+                                    <span class="wpfm-pro-tag"><?php echo esc_html__( 'pro', 'rex-product-feed' ); ?></span>
+                                </a>
+                            <?php endif; ?>
                             <div>
                                 <span class="title"><?php echo esc_html__( 'Export feed configurations', 'rex-product-feed' ); ?></span>
                                 <p><?php echo esc_html__( 'Download a JSON file containing all of your feed setups.', 'rex-product-feed' ); ?></p>
                             </div>
-                            <button type="button" id="rex-feed-export-btn" class="rex-feed-export-btn">
+                            <button type="button" id="rex-feed-export-btn" class="rex-feed-export-btn" <?php echo ! $is_premium_activated ? 'disabled' : ''; ?>>
                                 <span><?php echo esc_html__( 'Export', 'rex-product-feed' ); ?></span>
                                 <i class="fa fa-spinner fa-pulse fa-fw"></i>
                             </button>
                         </div>
 
-                        <div class="single-merchant rex-feed-import" data-label="<?php echo esc_attr__( 'Import feed configurations', 'rex-product-feed' ); ?>">
+                        <div class="single-merchant rex-feed-import <?php echo ! $is_premium_activated ? 'wpfm-pro' : ''; ?>" data-label="<?php echo esc_attr__( 'Import feed configurations', 'rex-product-feed' ); ?>">
+                            <?php if ( ! $is_premium_activated ) : ?>
+                                <a href="<?php echo esc_url( $pro_url ); ?>" target="_blank" title="<?php echo esc_attr__( 'Click to Upgrade Pro', 'rex-product-feed' ); ?>" class="wpfm-pro-cta">
+                                    <span class="wpfm-pro-tag"><?php echo esc_html__( 'pro', 'rex-product-feed' ); ?></span>
+                                </a>
+                            <?php endif; ?>
                             <div>
                                 <span class="title"><?php echo esc_html__( 'Import feed configurations', 'rex-product-feed' ); ?></span>
                                 <p><?php echo esc_html__( 'Upload a JSON export from another site to restore feeds.', 'rex-product-feed' ); ?></p>
                             </div>
                             <div class="rex-feed-import-area">
-                                <input type="file" id="rex-feed-import-file" accept=".json" style="display:none;">
-                                <button type="button" class="pfm-btn pfm-btn--ghost rex-feed-import-choose">
+                                <input type="file" id="rex-feed-import-file" accept=".json" style="display:none;" <?php echo ! $is_premium_activated ? 'disabled' : ''; ?>>
+                                <button type="button" class="pfm-btn pfm-btn--ghost rex-feed-import-choose" <?php echo ! $is_premium_activated ? 'disabled' : ''; ?>>
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                     <?php echo esc_html__( 'Choose file', 'rex-product-feed' ); ?>
                                 </button>
                                 <span class="rex-feed-import-filename"><?php echo esc_html__( 'No file chosen', 'rex-product-feed' ); ?></span>
-                                <button type="button" id="rex-feed-import-btn" class="rex-feed-import-btn">
+                                <button type="button" id="rex-feed-import-btn" class="rex-feed-import-btn" <?php echo ! $is_premium_activated ? 'disabled' : ''; ?>>
                                     <span><?php echo esc_html__( 'Import', 'rex-product-feed' ); ?></span>
                                     <i class="fa fa-spinner fa-pulse fa-fw"></i>
                                 </button>

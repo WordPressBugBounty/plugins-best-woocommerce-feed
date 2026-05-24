@@ -43,7 +43,7 @@ class Rex_Feed_Scheduler {
      */
     public function on_plugin_activated( $plugin, $network_wide ) {
         // Adjust this check to match your pro plugin's main file path if different.
-        $pro_plugin_basename = 'best-woocommerce-feed-pro/best-woocommerce-feed-pro.php';
+        $pro_plugin_basename = 'best-woocommerce-feed-pro/rex-product-feed-pro.php';
 
         if ( isset( $plugin ) && $plugin === $pro_plugin_basename ) {
             // Pro plugin activated — ensure custom scheduler is registered
@@ -66,7 +66,7 @@ class Rex_Feed_Scheduler {
 
         // Check installed plugins list (available for bulk installs)
         if ( ! empty( $options['plugins'] ) && is_array( $options['plugins'] ) ) {
-            $pro_plugin_basename = 'best-woocommerce-feed-pro/best-woocommerce-feed-pro.php';
+            $pro_plugin_basename = 'best-woocommerce-feed-pro/rex-product-feed-pro.php';
             if ( in_array( $pro_plugin_basename, $options['plugins'], true ) ) {
                 $this->maybe_register_custom_scheduler();
             }
