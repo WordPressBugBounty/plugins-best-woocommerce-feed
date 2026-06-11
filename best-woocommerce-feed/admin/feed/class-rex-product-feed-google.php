@@ -269,19 +269,11 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 					$check_item_group_id = 0;
 				}
 
-				// Collect product_detail sub-fields and group them before iterating.
-				$product_details = array();
-				foreach ( $attributes as $key => $value ) {
-					if ( preg_match( '/^product_detail_(section_name|attribute_name|attribute_value)_(\d+)$/', $key, $matches ) && isset( $matches[1], $matches[2] ) ) {
-						$sub_field = $matches[1]; // section_name | attribute_name | attribute_value
-						$index     = (int) $matches[2];
-						$product_details[ $index ][ $sub_field ] = $value;
-					}
-				}
+				$product_details = $this->normalize_product_detail_entries( $attributes, $product->get_id() );
 
 				foreach ($attributes as $key => $value) {
 					// Skip product_detail sub-fields — handled separately below.
-					if ( preg_match( '/^product_detail_(section_name|attribute_name|attribute_value)_\d+$/', $key ) ) {
+					if ( $this->is_product_detail_mapping_key( $key ) ) {
 						continue;
 					}
 
@@ -323,14 +315,8 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 				}
 
 				// Output structured product_detail entries.
-				ksort( $product_details );
 				foreach ( $product_details as $detail ) {
-					$attr_name  = isset( $detail['attribute_name'] ) ? $detail['attribute_name'] : '';
-					$attr_value = isset( $detail['attribute_value'] ) ? $detail['attribute_value'] : '';
-					if ( '' !== $attr_name && '' !== $attr_value ) {
-						$section_name = isset( $detail['section_name'] ) ? $detail['section_name'] : '';
-						$item->product_detail( $section_name, $attr_name, $attr_value );
-					}
+					$item->product_detail( $detail['section_name'], $detail['attribute_name'], $detail['attribute_value'] );
 				}
 
 				if ($product_type === 'variation' && $check_item_group_id === 0) {
@@ -340,6 +326,75 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 				$this->prepare_google_product($attributes, $product_type);
 			}
 		}
+	}
+
+	/**
+	 * Check whether an attribute key belongs to product_detail grouped mappings.
+	 *
+	 * @param string $attribute_key Attribute mapping key.
+	 * @return bool
+	 */
+	private function is_product_detail_mapping_key( $attribute_key ) {
+		return (bool) preg_match( '/^product_detail_(section_name|attribute_name|attribute_value)_\d+$/', $attribute_key );
+	}
+
+	/**
+	 * Normalize mapped product_detail sub-fields into a sequential list.
+	 *
+	 * @param array $attributes Product attributes from mapped feed fields.
+	 * @param int   $product_id Product ID for warning context.
+	 * @return array
+	 */
+	private function normalize_product_detail_entries( $attributes, $product_id = 0 ) {
+		$grouped_entries = array();
+		$normalized      = array();
+		$invalid_indexes = array();
+
+		foreach ( $attributes as $key => $value ) {
+			if ( preg_match( '/^product_detail_(section_name|attribute_name|attribute_value)_(\d+)$/', $key, $matches ) && isset( $matches[1], $matches[2] ) ) {
+				$index = (int) $matches[2];
+				$field = $matches[1];
+				if ( is_scalar( $value ) || null === $value ) {
+					$grouped_entries[ $index ][ $field ] = (string) $value;
+				}
+			}
+		}
+
+		if ( empty( $grouped_entries ) ) {
+			return $normalized;
+		}
+
+		ksort( $grouped_entries );
+
+		foreach ( $grouped_entries as $index => $entry ) {
+			$attribute_name  = isset( $entry['attribute_name'] ) ? trim( (string) $entry['attribute_name'] ) : '';
+			$attribute_value = isset( $entry['attribute_value'] ) ? trim( (string) $entry['attribute_value'] ) : '';
+
+			if ( '' === $attribute_name || '' === $attribute_value ) {
+				$invalid_indexes[] = (string) $index;
+				continue;
+			}
+
+			$normalized[] = array(
+				'section_name'    => isset( $entry['section_name'] ) ? (string) $entry['section_name'] : '',
+				'attribute_name'  => $attribute_name,
+				'attribute_value' => $attribute_value,
+			);
+		}
+
+		if ( ! empty( $invalid_indexes ) && function_exists( 'wc_get_logger' ) ) {
+			wc_get_logger()->warning(
+				sprintf(
+					'Skipping malformed product_detail entries. Feed ID: %d, Product ID: %d, Indexes: %s',
+					(int) $this->id,
+					(int) $product_id,
+					implode( ',', $invalid_indexes )
+				),
+				array( 'source' => 'wpfm-google-feed' )
+			);
+		}
+
+		return $normalized;
 	}
 
 

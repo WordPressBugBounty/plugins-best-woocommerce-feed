@@ -927,7 +927,6 @@ return array(
     'Rex_Feed_Handle_Google_Product' => $baseDir . '/admin/api-data-handlers/class-rex-feed-google-product-data-handler.php',
     'Rex_Feed_Merchants' => $baseDir . '/admin/class-rex-product-feed-merchants.php',
     'Rex_Feed_Rollback' => $baseDir . '/admin/class-rex-product-feed-rollback.php',
-    'Rex_Feed_Sales_Notification_Bar' => $baseDir . '/admin/class-rex-product-feed-sales-notification-bar.php',
     'Rex_Feed_Scheduler' => $baseDir . '/admin/class-rex-feed-scheduler.php',
     'Rex_Feed_Special_Occasion_Banner' => $baseDir . '/admin/class-rex-product-feed-special-occasion-banner.php',
     'Rex_Feed_System_Status' => $baseDir . '/admin/class-rex-product-feed-system-status.php',

@@ -6,7 +6,7 @@ Tags: Product Feed, WooCommerce Product Feed, Google Shopping Feed, Facebook Cat
 Requires at least: 6.7
 Tested up to:  7.0
 Requires PHP: 7.4
-Stable tag:  7.5.4
+Stable tag:  7.5.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -475,6 +475,9 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.5.5 (2026-06-11) =
+* Fix: Update the logic of Google's product detail attribute
 
 = 7.5.4 (2026-05-24) =
 * Fix: Scheduled Feed generation Issue

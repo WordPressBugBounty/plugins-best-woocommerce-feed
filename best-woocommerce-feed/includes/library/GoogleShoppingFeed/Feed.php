@@ -203,6 +203,19 @@ class Feed
             foreach ($item->nodes() as $itemNode) {
                 if (is_array($itemNode)) {
                     foreach ($itemNode as $node) {
+                        if ( 'product_detail' === $node->get( 'name' ) && is_array( $node->get( 'value' ) ) ) {
+                            $product_detail = $node->get( 'value' );
+                            $detail_node    = $feedItemNode->addChild( 'product_detail', null, $node->get( '_namespace' ) );
+
+                            if ( ! empty( $product_detail['section_name'] ) ) {
+                                $detail_node->addChild( 'section_name', htmlspecialchars( (string) $product_detail['section_name'] ), $node->get( '_namespace' ) );
+                            }
+
+                            $detail_node->addChild( 'attribute_name', htmlspecialchars( (string) $product_detail['attribute_name'] ), $node->get( '_namespace' ) );
+                            $detail_node->addChild( 'attribute_value', htmlspecialchars( (string) $product_detail['attribute_value'] ), $node->get( '_namespace' ) );
+                            continue;
+                        }
+
                         $feedItemNode->addChild($node->get('name'), $node->get('value'), $node->get('_namespace'));
                     }
                 }
@@ -256,8 +269,12 @@ class Feed
                     if (isset($item_nodes[$field])) {
                         $itemNode = $item_nodes[$field];
                         if (is_array($itemNode)) {
-                            foreach ($itemNode as $node) {
-                                $row[] = str_replace(array("\r\n", "\n", "\r"), ' ', $node->get('value'));
+                            if ( 'product_detail' === $field ) {
+                                $row[] = $this->formatProductDetailNodesForText( $itemNode );
+                            } else {
+                                foreach ($itemNode as $node) {
+                                    $row[] = str_replace(array("\r\n", "\n", "\r"), ' ', $node->get('value'));
+                                }
                             }
                         } else {
                             $row[] = str_replace(array("\r\n", "\n", "\r"), ' ', $itemNode->get('value'));
@@ -285,10 +302,14 @@ class Feed
             $length = count($items_row[0]);
             foreach ($this->items as $item) {
                 $row = array();
-                foreach ($item->nodes() as $itemNode) {
+                foreach ($item->nodes() as $key => $itemNode) {
                     if (is_array($itemNode)) {
-                        foreach ($itemNode as $node) {
-                            $row[] = str_replace(array("\r\n", "\n", "\r"), ' ', $node->get('value'));
+                        if ( 'product_detail' === $key ) {
+                            $row[] = $this->formatProductDetailNodesForText( $itemNode );
+                        } else {
+                            foreach ($itemNode as $node) {
+                                $row[] = str_replace(array("\r\n", "\n", "\r"), ' ', $node->get('value'));
+                            }
                         }
                     } else {
                         $row[] = str_replace(array("\r\n", "\n", "\r"), ' ', $itemNode->get('value'));
@@ -310,6 +331,53 @@ class Feed
             }
         }
         return $items_row;
+    }
+
+    /**
+     * Convert product_detail nodes to Google text-feed format.
+     *
+     * @param array $nodes Product detail nodes.
+     * @return string
+     */
+    private function formatProductDetailNodesForText( $nodes ) {
+        $details = array();
+
+        foreach ( $nodes as $node ) {
+            $value = $node->get( 'value' );
+            if ( ! is_array( $value ) ) {
+                continue;
+            }
+
+            $attribute_name  = isset( $value['attribute_name'] ) ? trim( (string) $value['attribute_name'] ) : '';
+            $attribute_value = isset( $value['attribute_value'] ) ? trim( (string) $value['attribute_value'] ) : '';
+            if ( '' === $attribute_name || '' === $attribute_value ) {
+                continue;
+            }
+
+            $section_name = isset( $value['section_name'] ) ? (string) $value['section_name'] : '';
+            $details[]    = $this->escapeProductDetailTextPart( $section_name )
+                . ':' . $this->escapeProductDetailTextPart( $attribute_name )
+                . ':' . $this->escapeProductDetailTextPart( $attribute_value );
+        }
+
+        return implode( ',', $details );
+    }
+
+    /**
+     * Escape a product_detail sub-attribute value for text output.
+     *
+     * @param string $value Sub-attribute value.
+     * @return string
+     */
+    private function escapeProductDetailTextPart( $value ) {
+        $value = str_replace( array( "\r\n", "\n", "\r" ), ' ', (string) $value );
+        $value = str_replace( '"', '""', $value );
+
+        if ( false !== strpbrk( $value, ':,"\\' ) ) {
+            return '"' . $value . '"';
+        }
+
+        return $value;
     }
 
     /**

@@ -543,13 +543,18 @@ class Item
             return;
         }
 
-        $node  = new Node( 'product_detail' );
-        $value = '';
-        if ( !empty( $section_name ) ) {
-            $value .= "<g:section_name>{$section_name}</g:section_name>";
+        $attribute_name  = trim( (string) $attribute_name );
+        $attribute_value = trim( (string) $attribute_value );
+        if ( '' === $attribute_name || '' === $attribute_value ) {
+            return;
         }
-        $value .= "<g:attribute_name>{$attribute_name}</g:attribute_name>";
-        $value .= "<g:attribute_value>{$attribute_value}</g:attribute_value>";
+
+        $node  = new Node( 'product_detail' );
+        $value = array(
+            'section_name'    => null !== $section_name ? (string) $section_name : '',
+            'attribute_name'  => $attribute_name,
+            'attribute_value' => $attribute_value,
+        );
 
         if ( !isset( $this->nodes['product_detail'] ) ) {
             $this->nodes['product_detail'] = array();

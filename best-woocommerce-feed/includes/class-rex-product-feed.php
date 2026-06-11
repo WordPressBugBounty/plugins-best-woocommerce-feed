@@ -198,13 +198,6 @@ class Rex_Product_Feed {
 		//    	'2025-11-05 23:59:59'
         // );
 		 // Date format: YYYY-MM-DD HH:MM:SS
-        // if ( !defined( 'REX_PRODUCT_FEED_PRO_VERSION' ) && 'no' === get_option( 'ugcify', 'no' ) ) {
-            new Rex_Feed_Sales_Notification_Bar(
-				'ugcify',
-				'2026-03-16 00:00:00',
-				'2026-03-24 23:59:59'
-			);
-        // }
 
 
 	    $this->loader->add_action( 'admin_init', $plugin_admin, 'register_setup_wizard_page' );
