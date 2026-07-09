@@ -10,13 +10,17 @@
   var SETTINGS_GROUPS = {
     'general': [
       '.product-batch',
-      '.detailed-merchants',
       '.hide-character'
     ],
     'maintenance': [
       '.wpfm-clear-btn',
       '.purge-cache',
-      '.update-list'
+      '.update-list',
+      '.wpfm-cache-storage-row',
+      '.wpfm-generation-mode-row',
+      '.wpfm-cache-ttl-row',
+      '.wpfm-job-retention-row',
+      '.wpfm-job-cleanup-row'
     ],
     'product-data': [
       '.unique-product',
@@ -574,6 +578,7 @@
   var INLINE_SAVE_FORMS = {
     '#wpfm_product_per_batch': '#wpfm-per-batch',
     '#wpfm_cache_ttl': '#wpfm-transient-settings',
+    '#wpfm_job_history_retention_days': '#wpfm-job-retention-form',
     '#wpfm_fb_pixel_id': '#wpfm-fb-pixel',
     '#wpfm_tiktok_pixel_id': '#wpfm-tiktok-pixel'
     /* #wpfm_user_email intentionally excluded (task 7.1 spec) */
@@ -1271,5 +1276,196 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') closeModal();
   });
+
+  /* =======================================================
+     CACHE STORAGE DRIVER (tasks 3.3 – 3.5)
+  ======================================================= */
+  (function () {
+    if (typeof wpfm_cache_storage_ajax === 'undefined') return;
+
+    var cfg          = wpfm_cache_storage_ajax;
+    var savedDriver  = cfg.saved_driver;
+    var radios       = document.querySelectorAll('input[name="wpfm_cache_storage"]');
+    var dialog       = document.getElementById('wpfm-cache-storage-dialog');
+    var dialogMsg    = document.getElementById('wpfm-cache-storage-dialog-msg');
+    var dialogImpact = document.getElementById('wpfm-cache-storage-impact');
+    var confirmBtn   = document.getElementById('wpfm-cache-storage-confirm');
+    var cancelBtn    = document.getElementById('wpfm-cache-storage-cancel');
+    var resultSpan   = document.getElementById('wpfm-cache-storage-result');
+    var pendingDriver = null;
+
+    if (!dialog || !radios.length) return;
+
+    function getSelected() {
+      for (var i = 0; i < radios.length; i++) {
+        if (radios[i].checked) return radios[i].value;
+      }
+      return null;
+    }
+
+    function setSelected(val) {
+      for (var i = 0; i < radios.length; i++) {
+        radios[i].checked = (radios[i].value === val);
+      }
+    }
+
+    radios.forEach(function (radio) {
+      radio.addEventListener('change', function () {
+        var newVal = getSelected();
+        if (newVal === savedDriver) {
+          dialog.style.display = 'none';
+          return;
+        }
+        pendingDriver = newVal;
+        resultSpan.textContent = '';
+
+        var body = new FormData();
+        body.append('action', 'wpfm_get_cache_storage_info');
+        body.append('nonce', cfg.nonce_info);
+
+        function saveDirectly() {
+          var params = new URLSearchParams();
+          params.append('action', 'wpfm_save_cache_storage');
+          params.append('nonce', cfg.nonce_save);
+          params.append('storage', pendingDriver);
+          fetch(cfg.ajax_url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+            credentials: 'same-origin',
+            body: params.toString()
+          })
+            .then(function (r) { return r.text(); })
+            .then(function (text) {
+              var res; try { res = JSON.parse(text); } catch (e) { return; }
+              if (res.success) { savedDriver = pendingDriver; }
+              pendingDriver = null;
+            })
+            .catch(function () { pendingDriver = null; });
+        }
+
+        function showDialog(d) {
+          var hasData = d && (newVal === 'filesystem' ? d.db_mb > 0 : d.fs_count > 0);
+          if (!hasData) {
+            // Nothing to clean up — save silently without dialog
+            saveDirectly();
+            return;
+          }
+          if (newVal === 'filesystem') {
+            dialogMsg.textContent = 'Switching to Filesystem will clean ' + d.db_mb + ' MB of database cache rows.';
+          } else {
+            dialogMsg.textContent = 'Switching to Database will delete ' + d.fs_count + ' cache files (' + d.fs_mb + ' MB).';
+          }
+          dialogImpact.innerHTML = newVal === 'filesystem'
+            ? '<li>All feeds will fully regenerate on next cron run.</li><li>Feed files on disk are NOT affected.</li>'
+            : '<li>All feeds will fully regenerate on next cron run.</li><li>Database size may grow over time with this option.</li>';
+          dialog.style.display = 'block';
+        }
+
+        fetch(cfg.ajax_url, { method: 'POST', body: body })
+          .then(function (r) { return r.json(); })
+          .then(function (res) {
+            showDialog(res.success ? res.data : null);
+          })
+          .catch(function () {
+            // Can't determine size — save directly
+            saveDirectly();
+          });
+      });
+    });
+
+    confirmBtn.addEventListener('click', function () {
+      if (!pendingDriver) return;
+      confirmBtn.disabled = true;
+      resultSpan.textContent = '';
+
+      var params = new URLSearchParams();
+      params.append('action', 'wpfm_save_cache_storage');
+      params.append('nonce', cfg.nonce_save);
+      params.append('storage', pendingDriver);
+
+      fetch(cfg.ajax_url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+        credentials: 'same-origin',
+        body: params.toString()
+      })
+        .then(function (r) { return r.text(); })
+        .then(function (text) {
+          confirmBtn.disabled = false;
+          var res;
+          try { res = JSON.parse(text); } catch (e) {
+            resultSpan.textContent = 'Server error: ' + text.substring(0, 120);
+            return;
+          }
+          if (res.success) {
+            savedDriver = pendingDriver;
+            resultSpan.textContent = 'Saved!';
+            dialog.style.display = 'none';
+          } else {
+            resultSpan.textContent = 'Error: ' + (res.data || 'could not save');
+          }
+          pendingDriver = null;
+        })
+        .catch(function (e) {
+          confirmBtn.disabled = false;
+          resultSpan.textContent = 'Network error: ' + e.message;
+        });
+    });
+
+    cancelBtn.addEventListener('click', function () {
+      setSelected(savedDriver);
+      dialog.style.display = 'none';
+      pendingDriver = null;
+    });
+  }());
+
+  /* =======================================================
+     FEED GENERATION MODE
+  ======================================================= */
+  (function () {
+    var radios     = document.querySelectorAll('input[name="rex_feed_generation_mode"]');
+    var resultSpan = document.getElementById('wpfm-generation-mode-result');
+
+    if (!radios.length) return;
+
+    radios.forEach(function (radio) {
+      radio.addEventListener('change', function () {
+        if (!radio.checked) return;
+
+        if (resultSpan) {
+          resultSpan.textContent = '';
+          resultSpan.style.display = 'inline';
+        }
+
+        function onSuccess() {
+          if (resultSpan) {
+            resultSpan.textContent = '✓ Saved';
+            setTimeout(function () { resultSpan.style.display = 'none'; }, 2000);
+          }
+        }
+        function onError() {
+          if (resultSpan) { resultSpan.textContent = '✗ Error saving'; }
+        }
+
+        if (typeof wpAjaxHelperRequest !== 'undefined') {
+          wpAjaxHelperRequest('wpfm-save-generation-mode', { rex_feed_generation_mode: radio.value })
+            .success(onSuccess).error(onError);
+        } else if (typeof rex_wpfm_ajax !== 'undefined') {
+          var body = new URLSearchParams();
+          body.append('action', 'wpfm_save_generation_mode');
+          body.append('nonce', rex_wpfm_ajax.ajax_nonce);
+          body.append('payload[rex_feed_generation_mode]', radio.value);
+          fetch(rex_wpfm_ajax.ajax_url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+            credentials: 'same-origin',
+            body: body.toString()
+          }).then(function (r) { return r.json(); })
+            .then(function (res) { res.success ? onSuccess() : onError(); })
+            .catch(onError);
+        }
+      });
+    });
+  }());
 
 })();

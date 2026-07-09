@@ -307,6 +307,41 @@ class Rex_Product_Feed_Actions {
 		}
 	}
 
+	/**
+	 * Delete all transients for a feed post when it is deleted or trashed.
+	 * No generation-status check needed — a deleted/trashed feed cannot be generating.
+	 *
+	 * @param int $post_id Post ID.
+	 * @since 7.4.60
+	 */
+	/**
+	 * When a feed is restored from trash, reset its status so the user knows to regenerate.
+	 * No cache, transients, or scheduled actions are created automatically.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return void
+	 */
+	public function handle_feed_untrash( $post_id ) {
+		if ( 'product-feed' !== get_post_type( $post_id ) ) {
+			return;
+		}
+		Rex_Product_Feed_Controller::update_feed_status( $post_id, 'draft', false );
+	}
+
+	public function handle_feed_delete( $post_id ) {
+		if ( 'product-feed' !== get_post_type( $post_id ) ) {
+			return;
+		}
+
+		Rex_Feed_Generator_Helper::wpfm_delete_feed_transients( $post_id );
+
+		// Cancel any pending batch actions for this feed.
+		if ( function_exists( 'as_unschedule_all_actions' ) ) {
+			$hook = defined( 'SINGLE_SCHEDULE_HOOK' ) ? SINGLE_SCHEDULE_HOOK : 'rex_feed_regenerate_feed_batch';
+			as_unschedule_all_actions( $hook, array(), "wpfm-feed-{$post_id}" );
+		}
+	}
+
 
 	/**
 	 * Removes plugin log files from upload/wc-logs folder

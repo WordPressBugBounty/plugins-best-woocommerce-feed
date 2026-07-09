@@ -294,6 +294,12 @@ class Rex_Feed_Scheduler {
     public function regenerate_feed_batch( array $data ) {
         if( !is_wp_error( $data ) && !empty( $data ) ) {
             $feed_id       = !empty( $data[ 'feed_id' ] ) ? $data[ 'feed_id' ] : '';
+
+            // Bail if the feed was trashed or deleted while this batch was queued.
+            $post_status = get_post_status( (int) $feed_id );
+            if ( false === $post_status || 'trash' === $post_status ) {
+                return;
+            }
             $current_batch = !empty( $data[ 'current_batch' ] ) ? $data[ 'current_batch' ] : '';
             $total_batches = !empty( $data[ 'total_batches' ] ) ? $data[ 'total_batches' ] : '';
             $per_batch     = !empty( $data[ 'per_batch' ] ) ? $data[ 'per_batch' ] : '';
@@ -313,8 +319,14 @@ class Rex_Feed_Scheduler {
                 $payload  = $this->get_feed_settings_payload( $feed_id, $current_batch, $total_batches, $per_batch, $offset );
                 $merchant = Rex_Product_Feed_Factory::build( $payload, true );
                 $merchant->make_feed();
+                update_post_meta( $feed_id, '_rex_feed_current_batch', $current_batch );
                 if( empty( $scheduled_actions ) ) {
+                    if ( in_array( get_post_status( $feed_id ), array( 'auto-draft', 'draft' ), true ) ) {
+                        wp_update_post( array( 'ID' => $feed_id, 'post_status' => 'publish' ) );
+                    }
                     Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'completed', true );
+                    $this->update_total_products_from_feed_file( $feed_id );
+                    Rex_Feed_Job_Cleanup::cleanup_feed_batch_jobs( $feed_id );
                 }
             }
             catch( Exception $e ) {
@@ -332,6 +344,88 @@ class Rex_Feed_Scheduler {
             }
         }
     }
+
+    /**
+     * After all AS batches complete, correct _rex_feed_total_products:
+     * - total: authoritative count from the actual feed file (XML item count / CSV line count)
+     * - subcounts: taken from the generator's accumulated meta (best-effort; correct when
+     *   cache is bypassed, partial when cached batches skip generate_product_feed())
+     *
+     * @param int $feed_id
+     */
+    private function update_total_products_from_feed_file( $feed_id ) {
+        // Read subcounts accumulated by the generator across batches.
+        $existing = get_post_meta( $feed_id, '_rex_feed_total_products', true );
+        $existing = is_array( $existing ) ? $existing : array(
+            'total'           => 0,
+            'simple'          => 0,
+            'variable'        => 0,
+            'variable_parent' => 0,
+            'group'           => 0,
+        );
+
+        // Get authoritative item count from the feed file.
+        $feed_format = get_post_meta( $feed_id, '_rex_feed_feed_format', true ) ?: 'xml';
+        $upload_dir  = wp_upload_dir();
+        $base        = trailingslashit( $upload_dir['basedir'] ) . 'rex-feed/';
+        $file        = $base . "feed-{$feed_id}.{$feed_format}";
+
+        $file_count = 0;
+        if ( file_exists( $file ) ) {
+            if ( 'xml' === $feed_format || 'rss' === $feed_format ) {
+                $contents = file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+                if ( $contents ) {
+                    $file_count = substr_count( $contents, '<item>' );
+                    if ( 0 === $file_count ) {
+                        $file_count = substr_count( $contents, '<entry>' );
+                    }
+                }
+            } elseif ( in_array( $feed_format, array( 'csv', 'tsv', 'txt' ), true ) ) {
+                $lines      = file( $file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
+                $file_count = $lines ? max( 0, count( $lines ) - 1 ) : 0;
+            }
+        }
+
+        if ( $file_count > 0 ) {
+            $existing['total'] = $file_count;
+
+            // If subcounts only partially accumulated (cached batches skip the generator),
+            // scale them proportionally so they add up to the correct total.
+            $subcount_sum = (int) $existing['simple']
+                          + (int) $existing['variable']
+                          + (int) $existing['variable_parent']
+                          + (int) $existing['group'];
+
+            if ( $subcount_sum > 0 && $subcount_sum !== $file_count ) {
+                $ratio = $file_count / $subcount_sum;
+                $existing['simple']          = (int) round( $existing['simple'] * $ratio );
+                $existing['variable']        = (int) round( $existing['variable'] * $ratio );
+                $existing['variable_parent'] = (int) round( $existing['variable_parent'] * $ratio );
+                $existing['group']           = (int) round( $existing['group'] * $ratio );
+
+                // Fix any rounding drift on the dominant type.
+                $new_sum = $existing['simple'] + $existing['variable'] + $existing['variable_parent'] + $existing['group'];
+                $diff    = $file_count - $new_sum;
+                if ( $diff !== 0 ) {
+                    // Apply drift to whichever type has the most items.
+                    $dominant = array_search(
+                        max( $existing['simple'], $existing['variable'], $existing['variable_parent'], $existing['group'] ),
+                        array(
+                            'simple'          => $existing['simple'],
+                            'variable'        => $existing['variable'],
+                            'variable_parent' => $existing['variable_parent'],
+                            'group'           => $existing['group'],
+                        )
+                    );
+                    $existing[ $dominant ] += $diff;
+                }
+            }
+
+            update_post_meta( $feed_id, '_rex_feed_total_products', $existing );
+            update_post_meta( $feed_id, '_rex_feed_total_products_for_all_feed', $file_count );
+        }
+    }
+
 
     /**
      * Register background scheduler for updating WC abandoned child list

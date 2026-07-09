@@ -114,6 +114,8 @@ class Rex_Product_Feed_Admin {
         $this->plugin_basename = plugin_basename( plugin_dir_path( realpath( dirname( __FILE__ ) ) ) . $this->plugin_name . '.php' );
         $this->version         = $version;
         $this->cron            = new Rex_Feed_Scheduler();
+        $job_cleanup           = new Rex_Feed_Job_Cleanup();
+        $job_cleanup->init();
     }
 
     /**
@@ -358,6 +360,16 @@ class Rex_Product_Feed_Admin {
                     array( $this->plugin_name ),
                     $this->version,
                     true
+                );
+                wp_localize_script(
+                    $this->plugin_name . '-pfm-settings',
+                    'wpfm_cache_storage_ajax',
+                    array(
+                        'ajax_url'        => admin_url( 'admin-ajax.php' ),
+                        'nonce_info'      => wp_create_nonce( 'wpfm_get_cache_storage_info' ),
+                        'nonce_save'      => wp_create_nonce( 'wpfm_save_cache_storage' ),
+                        'saved_driver'    => get_option( 'wpfm_feed_cache_storage', 'database' ),
+                    )
                 );
             }
 
@@ -782,6 +794,223 @@ class Rex_Product_Feed_Admin {
      *
      * @since 7.3.16
      */
+    /**
+     * Show admin notice when feed transient cache is large enough to impact performance.
+     * Only shown to admins, only on plugin pages, dismissible per-user.
+     *
+     * @since 7.4.60
+     */
+    public function show_feed_transient_cleanup_notice() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
+        $user_id = get_current_user_id();
+        if ( get_user_meta( $user_id, 'wpfm_transient_notice_dismissed', true ) ) {
+            return;
+        }
+
+        // Only show on plugin-related admin screens
+        $screen = get_current_screen();
+        if ( ! $screen || false === strpos( $screen->id, 'product-feed' ) ) {
+            return;
+        }
+
+        $size_bytes = Rex_Feed_Generator_Helper::wpfm_get_feed_transient_size();
+        $threshold  = 50 * 1024 * 1024; // 50 MB
+
+        if ( $size_bytes < $threshold ) {
+            return;
+        }
+
+        $size_mb  = round( $size_bytes / 1024 / 1024, 1 );
+        $nonce    = wp_create_nonce( 'wpfm_cleanup_feed_transients' );
+        $ajax_url = admin_url( 'admin-ajax.php' );
+
+        echo '<div id="wpfm-transient-cleanup-notice" class="notice notice-warning">';
+        echo '<p>';
+        printf(
+            /* translators: %s: size in MB */
+            esc_html__( 'Product Feed Manager: Feed cache is using %s MB in your database options table. This can slow down your site.', 'rex-product-feed' ),
+            '<strong>' . esc_html( $size_mb ) . '</strong>'
+        );
+        echo ' &nbsp;<button type="button" id="wpfm-cleanup-btn" class="button button-primary" data-nonce="' . esc_attr( $nonce ) . '" data-url="' . esc_url( $ajax_url ) . '">';
+        echo esc_html__( 'Clean up now', 'rex-product-feed' );
+        echo '</button>';
+        echo ' &nbsp;<button type="button" id="wpfm-cleanup-dismiss" class="button button-secondary" data-nonce="' . esc_attr( wp_create_nonce( 'wpfm_dismiss_transient_notice' ) ) . '" data-url="' . esc_url( $ajax_url ) . '">';
+        echo esc_html__( 'Dismiss', 'rex-product-feed' );
+        echo '</button>';
+        echo ' <span id="wpfm-cleanup-status" style="margin-left:8px;"></span>';
+        echo '</p>';
+        echo '</div>';
+        echo '<script>
+(function($){
+    $("#wpfm-cleanup-btn").on("click", function(){
+        var btn = $(this);
+        btn.prop("disabled", true);
+        $("#wpfm-cleanup-status").text("' . esc_js( __( 'Cleaning...', 'rex-product-feed' ) ) . '");
+        $.post(btn.data("url"), {
+            action: "wpfm_cleanup_feed_transients",
+            nonce:  btn.data("nonce")
+        }, function(res){
+            if(res.success){
+                $("#wpfm-transient-cleanup-notice").html("<p><strong>' . esc_js( __( 'Product Feed Manager:', 'rex-product-feed' ) ) . '</strong> " + res.data.message + "</p>");
+                $("#wpfm-transient-cleanup-notice").removeClass("notice-warning").addClass("notice-success");
+            } else {
+                $("#wpfm-cleanup-status").text(res.data || "' . esc_js( __( 'Error. Please try again.', 'rex-product-feed' ) ) . '");
+                btn.prop("disabled", false);
+            }
+        });
+    });
+    $("#wpfm-cleanup-dismiss").on("click", function(){
+        var btn = $(this);
+        $.post(btn.data("url"), {
+            action: "wpfm_dismiss_transient_notice",
+            nonce:  btn.data("nonce")
+        });
+        $("#wpfm-transient-cleanup-notice").fadeOut();
+    });
+})(jQuery);
+</script>';
+    }
+
+    /**
+     * AJAX: run the full feed transient cleanup and return result.
+     *
+     * @since 7.4.60
+     */
+    public function ajax_cleanup_feed_transients() {
+        check_ajax_referer( 'wpfm_cleanup_feed_transients', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( __( 'Insufficient permissions.', 'rex-product-feed' ) );
+        }
+
+        $deleted   = Rex_Feed_Generator_Helper::wpfm_cleanup_all_feed_transients();
+        $size_now  = Rex_Feed_Generator_Helper::wpfm_get_feed_transient_size();
+        $size_mb   = round( $size_now / 1024 / 1024, 1 );
+
+        // Mark migration done since we just cleaned everything
+        update_option( 'wpfm_transient_cleanup_v1', 'done', false );
+
+        // Dismiss notice for this user
+        update_user_meta( get_current_user_id(), 'wpfm_transient_notice_dismissed', 1 );
+
+        wp_send_json_success( [
+            'message' => sprintf(
+                /* translators: 1: rows deleted, 2: remaining MB */
+                __( 'Done! Removed %1$d stale cache rows. Database usage is now %2$s MB.', 'rex-product-feed' ),
+                $deleted,
+                $size_mb
+            ),
+            'deleted'  => $deleted,
+            'size_now' => $size_now,
+        ] );
+    }
+
+    /**
+     * AJAX: dismiss the transient cleanup notice for the current user.
+     *
+     * @since 7.4.60
+     */
+    public function ajax_dismiss_transient_notice() {
+        check_ajax_referer( 'wpfm_dismiss_transient_notice', 'nonce' );
+        update_user_meta( get_current_user_id(), 'wpfm_transient_notice_dismissed', 1 );
+        wp_send_json_success();
+    }
+
+    /**
+     * AJAX: save cache storage driver with migration.
+     *
+     * @since 7.4.61
+     */
+    public function ajax_save_cache_storage() {
+        check_ajax_referer( 'wpfm_save_cache_storage', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( __( 'Insufficient permissions.', 'rex-product-feed' ) );
+        }
+
+        $new_storage = isset( $_POST['storage'] ) ? sanitize_text_field( wp_unslash( $_POST['storage'] ) ) : '';
+
+        if ( ! in_array( $new_storage, [ 'database', 'filesystem' ], true ) ) {
+            wp_send_json_error( __( 'Invalid storage driver.', 'rex-product-feed' ) );
+        }
+
+        $current_storage = get_option( 'wpfm_feed_cache_storage', 'database' );
+
+        if ( $new_storage !== $current_storage ) {
+            if ( 'filesystem' === $new_storage ) {
+                // DB → FS: clear DB transients
+                Rex_Feed_Generator_Helper::wpfm_cleanup_all_feed_transients();
+                update_option( 'wpfm_transient_cleanup_v1', 'done', false );
+            } else {
+                // FS → DB: delete all cache files
+                $upload_dir = wp_upload_dir();
+                $cache_dir  = $upload_dir['basedir'] . '/rex-feed/cache';
+                if ( is_dir( $cache_dir ) ) {
+                    foreach ( glob( $cache_dir . '/*.cache' ) ?: [] as $f ) {
+                        @unlink( $f ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+                    }
+                    foreach ( glob( $cache_dir . '/*.meta' ) ?: [] as $f ) {
+                        @unlink( $f ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+                    }
+                }
+            }
+        }
+
+        update_option( 'wpfm_feed_cache_storage', $new_storage, true );
+
+        // Verify the option was actually persisted.
+        wp_cache_delete( 'wpfm_feed_cache_storage', 'options' );
+        $saved = get_option( 'wpfm_feed_cache_storage', '' );
+        if ( $saved !== $new_storage ) {
+            wp_send_json_error( 'Option could not be saved (got: ' . esc_html( $saved ) . ')' );
+        }
+
+        wp_send_json_success( [ 'storage' => $new_storage ] );
+    }
+
+    /**
+     * AJAX: return current cache storage info for the confirmation dialog.
+     *
+     * @since 7.4.61
+     */
+    public function ajax_get_cache_storage_info() {
+        check_ajax_referer( 'wpfm_get_cache_storage_info', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( __( 'Insufficient permissions.', 'rex-product-feed' ) );
+        }
+
+        $driver   = get_option( 'wpfm_feed_cache_storage', 'database' );
+        $db_bytes = Rex_Feed_Generator_Helper::wpfm_get_feed_transient_size();
+        $db_mb    = round( $db_bytes / 1024 / 1024, 1 );
+
+        $upload_dir = wp_upload_dir();
+        $cache_dir  = $upload_dir['basedir'] . '/rex-feed/cache';
+        $fs_count   = 0;
+        $fs_bytes   = 0;
+        if ( is_dir( $cache_dir ) ) {
+            $files = array_merge(
+                glob( $cache_dir . '/*.cache' ) ?: [],
+                glob( $cache_dir . '/*.meta' ) ?: []
+            );
+            $fs_count = count( $files );
+            foreach ( $files as $f ) {
+                $fs_bytes += (int) filesize( $f );
+            }
+        }
+        $fs_mb = round( $fs_bytes / 1024 / 1024, 1 );
+
+        wp_send_json_success( [
+            'driver'    => $driver,
+            'db_mb'     => $db_mb,
+            'fs_count'  => $fs_count,
+            'fs_mb'     => $fs_mb,
+        ] );
+    }
+
     public function delete_shipping_transient() {
         if ( function_exists( 'wpfm_purge_cached_data' ) ) {
             // Use wpfm_purge_cached_data to remove cached data related to WooCommerce shipping methods.
@@ -841,6 +1070,26 @@ class Rex_Product_Feed_Admin {
      */
     public function admin_redirects()
     {
+        // One-time repair: publish feeds that completed via AS but were left as draft/auto-draft.
+        if ( ! get_option( 'wpfm_repaired_draft_completed_feeds_v1' ) ) {
+            $stuck = get_posts( array(
+                'post_type'      => 'product-feed',
+                'post_status'    => array( 'draft', 'auto-draft' ),
+                'posts_per_page' => -1,
+                'fields'         => 'ids',
+                'meta_query'     => array(
+                    array(
+                        'key'   => '_rex_feed_status',
+                        'value' => 'completed',
+                    ),
+                ),
+            ) );
+            foreach ( $stuck as $feed_id ) {
+                wp_update_post( array( 'ID' => $feed_id, 'post_status' => 'publish' ) );
+            }
+            update_option( 'wpfm_repaired_draft_completed_feeds_v1', true );
+        }
+
         // Setup wizard redirect.
         if (get_transient('rex_wpfm_activation_redirect')) {
             $do_redirect = true;

@@ -6,7 +6,7 @@ Tags: Product Feed, WooCommerce Product Feed, Google Shopping Feed, Facebook Cat
 Requires at least: 6.7
 Tested up to:  7.0
 Requires PHP: 7.4
-Stable tag:  7.5.5
+Stable tag:  7.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -476,6 +476,14 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 = Product feed manager (Free) =
 
+= 7.6.0 (2026-07-09) =
+* Feat: Add filesystem driver for feed batch cache storage (recommended for large stores)
+* Feat: Add scheduled actions mode for feed generation (background WP-Cron processing)
+* Feat: Add scheduled job cleanup and reorganize maintenance settings
+* Feat: Feed cleanup on trash/delete
+* Fix: Prevent transient bloat in wp_options from feed batch cache accumulation
+* Fix: CF 524 timeout issue during feed generation
+
 = 7.5.5 (2026-06-11) =
 * Fix: Update the logic of Google's product detail attribute
 
@@ -540,13 +548,8 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 = 7.4.74 (2026-03-16) =
 * Improvement: Update notification banner for Eid-Ul-fitr
 
-= 7.4.73 (2026-03-06) =
-* Bug Fix: Back button now correctly returns from Merchant step in setup wizard
-* Bug Fix: Skip variation logic for simple products to prevent fatal errors
 
 👉 [Visit to view full changelog for the free version](https://rextheme.com/changelog/?plugin=product-feed-manager-for-woocommerce)
-
-
 
 
 == Upgrade Notice ==

@@ -2431,3 +2431,57 @@
 .rex-premium-feature__btn:hover svg path {
     fill: #216df0;
 }
+
+/* Feed cache storage options */
+.wpfm-cache-storage-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.wpfm-radio-label {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    cursor: pointer;
+}
+.wpfm-radio-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.wpfm-radio-desc {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    padding-left: 22px;
+}
+.wpfm-recommended-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    background: #216df0;
+    border-radius: 3px;
+    padding: 1px 6px;
+    line-height: 1.5;
+}
+.wpfm-cache-storage-dialog {
+    margin: 0 0 12px 0;
+    padding: 12px 16px;
+    border: 1px solid #dba617;
+    border-radius: 4px;
+    background: #fffbf0;
+}
+.wpfm-cache-storage-dialog ul {
+    margin: 6px 0 12px 18px;
+    list-style: disc;
+}
+
+.wpfm-cache-storage-right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-self: center;
+    align-items: flex-end;
+}

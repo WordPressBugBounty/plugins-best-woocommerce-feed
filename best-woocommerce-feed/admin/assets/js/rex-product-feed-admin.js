@@ -336,6 +336,10 @@
 
     $(document).on("click", "#rex_feed_abandoned_child_list_update_button", rex_feed_update_abandoned_child_list);
 
+    $(document).on("click", "#wpfm-cleanup-jobs-btn", wpfm_cleanup_jobs);
+
+    $(document).on("submit", "#wpfm-job-retention-form", wpfm_save_job_retention);
+
     // Trigger Based Review Request
     $(document).on("click", "#rex_rate_now, #rex_rate_not_now, #rex_rated_already", function (e) {
         let btn_id = $(this).attr("id");
@@ -1311,6 +1315,9 @@
                         generate_feed(response.products, 0, 1, per_batch, 1);
                     } else {
                         per_batch = response.per_batch ? parseInt(response.per_batch) : 200;
+                        // Run batch 1 synchronously — this saves all feed meta (merchant,
+                        // feed_config, etc.) via save_feed_meta() inside make_feed().
+                        // After batch 1 succeeds, remaining batches dispatch to AS.
                         generate_feed(response.products, 0, 1, per_batch, response.total_batch);
                     }
                 }
@@ -1439,10 +1446,33 @@
                     return false;
                 } else {
                     if (batch < batches) {
-                        offset = offset + per_batch;
-                        batch++;
+                        // Batch 1 saved meta. Dispatch remaining batches to AS
+                        // so we don't hold HTTP connections open for large catalogs.
+                        var nextBatch = batch + 1;
                         rex_feed_feed_progressBar(progressWidth);
-                        generate_feed(product, offset, batch, per_batch, total_batch);
+                        wpAjaxHelperRequest("rexfeed-dispatch-feed-generation", {
+                            feed_id:       rex_wpfm_ajax.feed_id,
+                            start_batch:   nextBatch,
+                            total_batches: batches,
+                            per_batch:     per_batch,
+                        })
+                        .done(function (dispatchResponse) {
+                            if (dispatchResponse && dispatchResponse.dispatched === true) {
+                                $(window).off('beforeunload');
+                                $(".progress-msg span").html("Feed is generating in the background. You can safely close this tab &mdash; it will finish on its own.");
+                                poll_feed_generation_status(batches);
+                            } else {
+                                // AS unavailable — continue sync
+                                offset = offset + per_batch;
+                                batch++;
+                                generate_feed(product, offset, batch, per_batch, total_batch);
+                            }
+                        })
+                        .fail(function () {
+                            offset = offset + per_batch;
+                            batch++;
+                            generate_feed(product, offset, batch, per_batch, total_batch);
+                        });
                     }
                 }
             })
@@ -1457,6 +1487,112 @@
                 $("#wpfm-feed-clock").stopwatch().stopwatch("stop");
                 console.log("Uh, oh!");
             });
+    }
+
+    function rexfeed_check_pending_async_generation() {
+        if (typeof sessionStorage === "undefined" || !rex_wpfm_ajax.feed_id) {
+            return;
+        }
+        var flagKey  = "rex_feed_pending_generation_" + rex_wpfm_ajax.feed_id;
+        var flagData = sessionStorage.getItem(flagKey);
+        if (!flagData) {
+            return;
+        }
+
+        // Clear flag immediately so it doesn't re-trigger on next reload
+        sessionStorage.removeItem(flagKey);
+
+        var info       = JSON.parse(flagData);
+        var total      = info.total_batch || 1;
+
+        // Show progress UI
+        $(".post-type-product-feed #rex_feed_progress_bar").fadeIn();
+        $(".rex-feed-progressbar, .progress-msg").fadeIn();
+        $(".progress-msg span").html("Queueing feed generation...");
+        $("#wpfm-feed-clock").stopwatch().stopwatch("start");
+        $("#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn").addClass("disabled");
+
+        // Post meta now in DB — dispatch AS jobs
+        wpAjaxHelperRequest("rexfeed-dispatch-feed-generation", { feed_id: rex_wpfm_ajax.feed_id })
+            .done(function (dispatchResponse) {
+                if (dispatchResponse && dispatchResponse.dispatched === true) {
+                    poll_feed_generation_status(dispatchResponse.total_batches || total);
+                } else {
+                    // AS unavailable — fall back to sync generation
+                    $(".progress-msg span").html("Processing feed....");
+                    generate_feed(0, 0, 1, info.per_batch || 200, total);
+                }
+            })
+            .fail(function () {
+                generate_feed(0, 0, 1, info.per_batch || 200, total);
+            });
+    }
+
+    function poll_feed_generation_status(total_batches) {
+        var feedId      = rex_wpfm_ajax.feed_id;
+        var pollPayload = { feed_id: feedId };
+        var pollCount   = 0;
+        var QUEUED_TIMEOUT_POLLS = 10; // 30s at 3s interval — if still queued/0 progress, release UI
+
+        var pollInterval = setInterval(function () {
+            wpAjaxHelperRequest("rexfeed-get-feed-generation-status", pollPayload)
+                .done(function (res) {
+                    if (!res || res.status === "error") {
+                        clearInterval(pollInterval);
+                        $(".progressbar-bar").css("background", "#ff0000");
+                        $(".progressbar-bar").css("border-color", "#ff0000");
+                        $(".progress-msg span").css("color", "#ff0000");
+                        $(".progress-msg span").html("Feed generation failed.");
+                        rex_feed_feed_generation_error_helper();
+                        return;
+                    }
+
+                    pollCount++;
+                    var current = res.current_batch || 0;
+                    var total   = total_batches || res.total_batches || 1;
+                    var pct     = Math.min(Math.ceil((current / total) * 100), 99);
+
+                    if (res.status === "processing" || res.status === "In queue") {
+                        $(window).off('beforeunload');
+                        rex_feed_feed_progressBar(pct);
+
+                        // If no progress after timeout, reload — post already saved, AS will process in background
+                        if (pollCount >= QUEUED_TIMEOUT_POLLS && current === 0) {
+                            clearInterval(pollInterval);
+                            $(".progress-msg span").html("Feed is generating in the background. You can safely close this tab &mdash; it will finish on its own.");
+                            window.location.reload();
+                            return;
+                        }
+
+                        $(".progress-msg span").html("Feed is generating in the background (" + pct + "% complete). You can safely close this tab.");
+                    }
+
+                    if (res.status === "completed") {
+                        clearInterval(pollInterval);
+                        rex_feed_feed_progressBar(100);
+                        $(".progress-msg span").html("Generating feed. Please wait....");
+                        $("#wpfm-feed-clock").stopwatch().stopwatch("stop");
+                        $("#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn").removeClass("disabled");
+                        $(document).off("click", "#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn", get_product_number);
+
+                        if (typeof sessionStorage !== "undefined") {
+                            sessionStorage.setItem("rex_feed_just_generated_" + feedId, "true");
+                        }
+
+                        // Reload page to show feed URL and updated status.
+                        // Do NOT trigger #publish — that restarts the generation cycle.
+                        window.location.reload();
+                    }
+                })
+                .fail(function () {
+                    clearInterval(pollInterval);
+                    $(".progressbar-bar").css("background", "#ff0000");
+                    $(".progressbar-bar").css("border-color", "#ff0000");
+                    $(".progress-msg span").css("color", "#ff0000");
+                    $(".progress-msg span").html("Feed generation status check failed.");
+                    rex_feed_feed_generation_error_helper();
+                });
+        }, 3000);
     }
 
     function rex_feed_feed_generation_error_helper() {
@@ -1682,6 +1818,71 @@
      * @desc Clear all scheduled background processes
      * @param e
      */
+    function wpfm_cleanup_jobs(e) {
+        e.preventDefault();
+        var $btn = $(this);
+        var $notice = $('#wpfm-cleanup-notice');
+        var originalText = $btn.find('span').text();
+
+        $btn.prop('disabled', true).find('span').text('Cleaning…');
+        $btn.find('i').show();
+        $notice.hide().removeClass('notice-info notice-success notice-warning notice-error');
+
+        wpAjaxHelperRequest('wpfm-cleanup-jobs')
+            .success(function (response) {
+                $btn.prop('disabled', false).find('span').text(originalText);
+                $btn.find('i').hide();
+                var data = response.data || {};
+                var deleted = data.deleted || 0;
+                var hasMore = data.has_more || false;
+
+                if (deleted === 0) {
+                    $notice.text('No stale job records found.').addClass('notice notice-info').show();
+                } else if (hasMore) {
+                    $notice.html('Cleaned up ' + deleted + ' job records. <a href="#" id="wpfm-cleanup-again">More records remain — run again?</a>').addClass('notice notice-warning').show();
+                } else {
+                    $notice.text('Cleaned up ' + deleted + ' job records.').addClass('notice notice-success').show();
+                }
+            })
+            .error(function () {
+                $btn.prop('disabled', false).find('span').text(originalText);
+                $btn.find('i').hide();
+                $notice.text('Cleanup failed — please try again.').addClass('notice notice-error').show();
+            });
+    }
+
+    $(document).on('click', '#wpfm-cleanup-again', function (e) {
+        e.preventDefault();
+        $('#wpfm-cleanup-jobs-btn').trigger('click');
+    });
+
+    function wpfm_save_job_retention(e) {
+        e.preventDefault();
+        var $form = $(this);
+        var $btn  = $form.find('button[type="submit"]');
+        var days  = parseInt($('#wpfm_job_history_retention_days').val(), 10);
+        var originalText = $btn.find('span').text();
+
+        if (!days || days < 1) {
+            alert('Retention period must be at least 1 day.');
+            return;
+        }
+
+        $btn.prop('disabled', true).find('span').text('Saving…');
+
+        wpAjaxHelperRequest('wpfm-save-job-retention', { wpfm_job_history_retention_days: days })
+            .success(function () {
+                $btn.prop('disabled', false).find('span').text('Saved!');
+                setTimeout(function () {
+                    $btn.find('span').text(originalText);
+                }, 2000);
+            })
+            .error(function () {
+                $btn.prop('disabled', false).find('span').text(originalText);
+                alert('Failed to save. Please try again.');
+            });
+    }
+
     function wpfm_clear_batch(e) {
         e.preventDefault();
         var $btn = $(this);

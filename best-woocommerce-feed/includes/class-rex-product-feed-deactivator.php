@@ -39,6 +39,9 @@ class Rex_Product_Feed_Deactivator {
             as_unschedule_action( WEEKLY_SCHEDULE_HOOK, [], 'wpfm' );
 			as_unschedule_action( CUSTOM_SCHEDULE_HOOK, [], 'wpfm' );
         }
+        wp_clear_scheduled_hook( 'wpfm_orphan_cleanup_tick' );
+        wp_clear_scheduled_hook( 'wpfm_orphan_cleanup_weekly' );
+        Rex_Feed_Job_Cleanup::deregister();
     }
 
     /**

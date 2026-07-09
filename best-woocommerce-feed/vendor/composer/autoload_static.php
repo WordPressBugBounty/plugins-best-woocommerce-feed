@@ -974,6 +974,8 @@ class ComposerStaticInitf8910af2635b5ca262290725a9c78bbd
         'Rex_Feed_Generator_Helper' => __DIR__ . '/../..' . '/admin/class-rex-feed-generator-helper.php',
         'Rex_Feed_Google_Shopping_Api' => __DIR__ . '/../..' . '/admin/api/class-rex-feed-google-shopping-api.php',
         'Rex_Feed_Handle_Google_Product' => __DIR__ . '/../..' . '/admin/api-data-handlers/class-rex-feed-google-product-data-handler.php',
+        'Rex_Feed_Job_Cleanup' => __DIR__ . '/../..' . '/admin/class-rex-feed-job-cleanup.php',
+        'Rex_Feed_Job_History' => __DIR__ . '/../..' . '/admin/class-rex-feed-job-history.php',
         'Rex_Feed_Merchants' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-merchants.php',
         'Rex_Feed_Rollback' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-rollback.php',
         'Rex_Feed_Scheduler' => __DIR__ . '/../..' . '/admin/class-rex-feed-scheduler.php',

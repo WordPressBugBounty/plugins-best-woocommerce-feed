@@ -19,6 +19,8 @@ $pa_field                    = get_option( 'rex-wpfm-product-pa-field' ); // Get
 $structured_data             = get_option( 'rex-wpfm-product-structured-data' ); // Get structured data setting
 $exclude_tax                 = get_option( 'rex-wpfm-product-structured-data-exclude-tax' ); // Get tax exclusion setting for structured data
 $wpfm_cache_ttl              = get_option( 'wpfm_cache_ttl', 3 * $hour_in_seconds ); // Get cache TTL (time to live), default to 3 hours
+$wpfm_cache_storage          = get_option( 'wpfm_feed_cache_storage', 'database' );
+$wpfm_generation_mode        = get_option( 'rex_feed_generation_mode', 'ajax' );
 $wpfm_allow_private_products = get_option( 'wpfm_allow_private', 'no' ); // Get private products setting, default to 'no'
 $wpfm_hide_char              = get_option( 'rex_feed_hide_character_limit_field', 'on' ); // Get character limit field visibility setting, default to 'on'
 $wpfm_fb_pixel_enabled       = get_option( 'wpfm_fb_pixel_enabled', 'no' ); // Check if Facebook Pixel is enabled, default to 'no'
@@ -311,24 +313,6 @@ if ( $is_premium_activated ) {
                                 <span><?php echo esc_html__( 'Update List', 'rex-product-feed' ); ?></span>
                                 <i class="fa fa-spinner fa-pulse fa-fw"></i>
                             </button>
-                        </div>
-
-                        <div class="single-merchant detailed-product detailed-merchants" data-label="<?php echo esc_attr__( 'Feed cache TTL', 'rex-product-feed' ); ?>">
-                            <div>
-                                <span class="title"><?php echo esc_html__( 'Feed cache TTL', 'rex-product-feed' ); ?></span>
-                                <p><?php echo esc_html__( 'How long cached feed data is valid before regeneration.', 'rex-product-feed' ); ?></p>
-                            </div>
-                            <form id="wpfm-transient-settings" class="wpfm-transient-settings">
-                                <select id="wpfm_cache_ttl" name="wpfm_cache_ttl">
-                                    <?php foreach ( $schedule_hours as $key => $label ) { ?>
-                                        <option value="<?php echo esc_attr( (int) $key * $hour_in_seconds ); ?>" <?php selected( $wpfm_cache_ttl, (int) $key * $hour_in_seconds ); ?>><?php echo esc_attr( $label ); ?></option>
-                                    <?php } ?>
-                                </select>
-                                <button type="submit" class="save-transient-button">
-                                    <span><?php echo esc_html__( 'Save', 'rex-product-feed' ); ?></span>
-                                    <i class="fa fa-spinner fa-pulse fa-fw"></i>
-                                </button>
-                            </form>
                         </div>
 
                     </section>
@@ -776,6 +760,123 @@ if ( $is_premium_activated ) {
                                 );
                                 ?>
                             </div>
+                        </div>
+
+                        <div class="single-merchant detailed-product detailed-merchants wpfm-cache-storage-row" data-label="<?php echo esc_attr__( 'Feed cache storage', 'rex-product-feed' ); ?>">
+                            <div>
+                                <span class="title"><?php echo esc_html__( 'Feed cache storage', 'rex-product-feed' ); ?></span>
+                                <p><?php echo esc_html__( 'Where to store feed batch cache data between regenerations.', 'rex-product-feed' ); ?></p>
+                            </div>
+                            <div class="wpfm-cache-storage-right">
+                                <div class="wpfm-cache-storage-options">
+                                    <label class="wpfm-radio-label">
+                                        <span class="wpfm-radio-row">
+                                            <input type="radio" name="wpfm_cache_storage" id="wpfm_cache_storage_db" value="database" <?php checked( $wpfm_cache_storage, 'database' ); ?> />
+                                            <strong><?php echo esc_html__( 'Database', 'rex-product-feed' ); ?></strong>
+                                        </span>
+                                        <span class="wpfm-radio-desc"><?php echo esc_html__( 'Simple and universal. Works on all hosts. May grow wp_options on large stores.', 'rex-product-feed' ); ?></span>
+                                    </label>
+                                    <label class="wpfm-radio-label">
+                                        <span class="wpfm-radio-row">
+                                            <input type="radio" name="wpfm_cache_storage" id="wpfm_cache_storage_fs" value="filesystem" <?php checked( $wpfm_cache_storage, 'filesystem' ); ?> />
+                                            <strong><?php echo esc_html__( 'Filesystem', 'rex-product-feed' ); ?></strong>
+                                            <span class="wpfm-recommended-tag"><?php echo esc_html__( 'Recommended for large stores', 'rex-product-feed' ); ?></span>
+                                        </span>
+                                        <span class="wpfm-radio-desc"><?php echo esc_html__( 'Keeps wp_options lean. Stores cache files in uploads/rex-feed/cache/. Best for stores with many products or feeds.', 'rex-product-feed' ); ?></span>
+                                    </label>
+                                </div>
+                                <div id="wpfm-cache-storage-dialog" style="display:none;" class="wpfm-cache-storage-dialog">
+                                    <p id="wpfm-cache-storage-dialog-msg"></p>
+                                    <ul id="wpfm-cache-storage-impact"></ul>
+                                    <button type="button" id="wpfm-cache-storage-confirm" class="button button-primary"><?php echo esc_html__( 'Confirm &amp; Switch', 'rex-product-feed' ); ?></button>
+                                    <button type="button" id="wpfm-cache-storage-cancel" class="button button-secondary"><?php echo esc_html__( 'Cancel', 'rex-product-feed' ); ?></button>
+                                    <span id="wpfm-cache-storage-result" style="margin-left:8px;"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="single-merchant detailed-product detailed-merchants wpfm-generation-mode-row" data-label="<?php echo esc_attr__( 'Feed generation mode', 'rex-product-feed' ); ?>">
+                            <div>
+                                <span class="title"><?php echo esc_html__( 'Feed generation mode', 'rex-product-feed' ); ?></span>
+                                <p><?php echo esc_html__( 'How batches are processed when generating a feed manually. Use Scheduled Actions for large stores with many products.', 'rex-product-feed' ); ?></p>
+                            </div>
+                            <div class="wpfm-cache-storage-right">
+                                <div class="wpfm-cache-storage-options">
+                                    <label class="wpfm-radio-label">
+                                        <span class="wpfm-radio-row">
+                                            <input type="radio" name="rex_feed_generation_mode" id="rex_feed_generation_mode_ajax" value="ajax" <?php checked( $wpfm_generation_mode, 'ajax' ); ?> />
+                                            <strong><?php echo esc_html__( 'AJAX', 'rex-product-feed' ); ?></strong>
+                                            <span class="wpfm-recommended-tag"><?php echo esc_html__( 'Default', 'rex-product-feed' ); ?></span>
+                                        </span>
+                                        <span class="wpfm-radio-desc"><?php echo esc_html__( 'Each batch runs as a browser AJAX request. Real-time progress. Best for small to medium stores.', 'rex-product-feed' ); ?></span>
+                                    </label>
+                                    <label class="wpfm-radio-label">
+                                        <span class="wpfm-radio-row">
+                                            <input type="radio" name="rex_feed_generation_mode" id="rex_feed_generation_mode_sa" value="scheduled_actions" <?php checked( $wpfm_generation_mode, 'scheduled_actions' ); ?> />
+                                            <strong><?php echo esc_html__( 'Scheduled Actions', 'rex-product-feed' ); ?></strong>
+                                        </span>
+                                        <span class="wpfm-radio-desc"><?php echo esc_html__( 'Batches run as background WP-Cron / Action Scheduler jobs. Recommended for large stores or hosts with strict PHP timeouts.', 'rex-product-feed' ); ?></span>
+                                    </label>
+                                </div>
+                                <span id="wpfm-generation-mode-result" style="margin-left:8px;display:none;"></span>
+                            </div>
+                        </div>
+
+                        <div class="single-merchant detailed-product detailed-merchants wpfm-cache-ttl-row" data-label="<?php echo esc_attr__( 'Feed cache TTL', 'rex-product-feed' ); ?>">
+                            <div>
+                                <span class="title"><?php echo esc_html__( 'Feed cache TTL', 'rex-product-feed' ); ?></span>
+                                <p><?php echo esc_html__( 'How long cached feed data is valid before regeneration.', 'rex-product-feed' ); ?>
+                                <?php if ( 'filesystem' === $wpfm_cache_storage ) : ?>
+                                    <em><?php echo esc_html__( 'TTL applies to database cache only. Filesystem cache is invalidated by product changes.', 'rex-product-feed' ); ?></em>
+                                <?php endif; ?>
+                                </p>
+                            </div>
+                            <form id="wpfm-transient-settings" class="wpfm-transient-settings">
+                                <select id="wpfm_cache_ttl" name="wpfm_cache_ttl">
+                                    <?php foreach ( $schedule_hours as $key => $label ) { ?>
+                                        <option value="<?php echo esc_attr( (int) $key * $hour_in_seconds ); ?>" <?php selected( $wpfm_cache_ttl, (int) $key * $hour_in_seconds ); ?>><?php echo esc_attr( $label ); ?></option>
+                                    <?php } ?>
+                                </select>
+                                <button type="submit" class="save-transient-button">
+                                    <span><?php echo esc_html__( 'Save', 'rex-product-feed' ); ?></span>
+                                    <i class="fa fa-spinner fa-pulse fa-fw"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <?php
+                        $wpfm_job_retention = absint( get_option( 'wpfm_job_history_retention_days', 30 ) );
+                        if ( $wpfm_job_retention < 1 ) {
+                            $wpfm_job_retention = 30;
+                        }
+                        ?>
+                        <div class="single-merchant detailed-product detailed-merchants wpfm-job-retention-row" data-label="<?php echo esc_attr__( 'Job history retention', 'rex-product-feed' ); ?>">
+                            <div>
+                                <span class="title"><?php echo esc_html__( 'Job history retention (days)', 'rex-product-feed' ); ?></span>
+                                <p><?php echo esc_html__( 'Completed, failed and cancelled scheduled job records older than this will be automatically deleted each day.', 'rex-product-feed' ); ?></p>
+                            </div>
+                            <form id="wpfm-job-retention-form" class="wpfm-job-retention-form">
+                                <?php wp_nonce_field( 'wpfm_job_retention_nonce', 'wpfm_job_retention_nonce_field' ); ?>
+                                <input id="wpfm_job_history_retention_days" type="number" name="wpfm_job_history_retention_days"
+                                       value="<?php echo esc_attr( $wpfm_job_retention ); ?>" min="1" max="365">
+                                <span class="pfm-input-unit"><?php echo esc_html__( 'days', 'rex-product-feed' ); ?></span>
+                                <button type="submit" class="save-batch">
+                                    <span><?php esc_html_e( 'Save', 'rex-product-feed' ); ?></span>
+                                    <i class="fa fa-spinner fa-pulse fa-fw"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="single-merchant wpfm-job-cleanup-row" data-label="<?php echo esc_attr__( 'Clean up scheduled jobs', 'rex-product-feed' ); ?>">
+                            <div>
+                                <span class="title"><?php echo esc_html__( 'Clean up scheduled jobs', 'rex-product-feed' ); ?></span>
+                                <p><?php echo esc_html__( 'Delete completed, failed and cancelled feed job records older than the retention period above.', 'rex-product-feed' ); ?></p>
+                                <div id="wpfm-cleanup-notice" style="display:none;" class="wpfm-cleanup-notice"></div>
+                            </div>
+                            <button type="button" id="wpfm-cleanup-jobs-btn" class="wpfm-cleanup-jobs-btn">
+                                <span><?php echo esc_html__( 'Clean Up Now', 'rex-product-feed' ); ?></span>
+                                <i class="fa fa-spinner fa-pulse fa-fw" style="display:none;"></i>
+                            </button>
                         </div>
 
                     </section>

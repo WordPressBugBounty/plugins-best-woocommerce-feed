@@ -39,6 +39,7 @@ class Rex_Product_Metabox
 
         add_action( 'add_meta_boxes', array($this, 'rex_feed_upgrade_notice_section'));
         add_action( 'admin_notices', array( $this, 'rex_feed_feed_filter_settings_warning_popup' ) );
+        add_action( 'admin_notices', array( $this, 'rex_feed_background_generation_notice' ) );
     }
 
 
@@ -302,6 +303,52 @@ class Rex_Product_Metabox
         require_once plugin_dir_path( __FILE__ ) . 'partials/rex-feed-save-filters-changes-warning-popup.php';
         require_once plugin_dir_path( __FILE__ ) . 'partials/rex-feed-save-settings-changes-warning-popup.php';
         require_once plugin_dir_path( __FILE__ ) . 'partials/rex-feed-product-popup-pricing.php';
+    }
+
+
+    /**
+     * Show an admin notice on the feed edit page when generation is running in background.
+     */
+    public function rex_feed_background_generation_notice() {
+        // Only on the single post edit screen for product-feed
+        global $pagenow;
+        if ( 'post.php' !== $pagenow ) {
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $feed_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : 0;
+        if ( ! $feed_id || get_post_type( $feed_id ) !== 'product-feed' ) {
+            return;
+        }
+
+        $status = get_post_meta( $feed_id, '_rex_feed_status', true ) ?: get_post_meta( $feed_id, 'rex_feed_status', true );
+
+        if ( 'In queue' !== $status && 'processing' !== $status ) {
+            return;
+        }
+
+        $current = (int) get_post_meta( $feed_id, '_rex_feed_current_batch', true );
+        $total   = (int) get_post_meta( $feed_id, '_rex_feed_total_batches', true );
+        $pct     = ( $total > 0 ) ? min( 99, (int) round( ( $current / $total ) * 100 ) ) : 0;
+
+        $status_label = 'In queue' === $status
+            ? __( 'Feed generation is queued and will start shortly.', 'rex-product-feed' )
+            : sprintf(
+                /* translators: 1: percent done 2: current batch 3: total batches */
+                __( 'Feed generation is running in the background &mdash; %1$s%% complete (%2$d of %3$d batches). You can leave this page; the feed will finish on its own.', 'rex-product-feed' ),
+                $pct,
+                $current,
+                $total
+            );
+        ?>
+        <div class="notice notice-info rex-feed-notice">
+            <p>
+                <strong><?php esc_html_e( 'Feed Generating in Background', 'rex-product-feed' ); ?></strong>
+                &mdash; <?php echo wp_kses_post( $status_label ); ?>
+            </p>
+        </div>
+        <?php
     }
 
 

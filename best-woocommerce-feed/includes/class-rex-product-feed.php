@@ -224,9 +224,17 @@ class Rex_Product_Feed {
         $this->loader->add_action( 'publish_product-feed', $feed_actions, 'show_review_request_markups', 99999 );
         $this->loader->add_action( 'draft_product-feed', $feed_actions, 'save_draft_feed_meta', 99999, 2 );
         $this->loader->add_action( 'after_delete_post', $feed_actions, 'delete_feed_files' );
+        $this->loader->add_action( 'before_delete_post', $feed_actions, 'handle_feed_delete' );
+        $this->loader->add_action( 'wp_trash_post', $feed_actions, 'handle_feed_delete' );
+        $this->loader->add_action( 'untrashed_post', $feed_actions, 'handle_feed_untrash' );
         $this->loader->add_action( 'admin_init', $feed_actions, 'remove_logs' );
         $this->loader->add_action( 'admin_notices', $feed_actions, 'render_xml_error_message' );
         $this->loader->add_action( 'admin_notices', $plugin_admin, 'show_demo_feed_success_notice' );
+        $this->loader->add_action( 'admin_notices', $plugin_admin, 'show_feed_transient_cleanup_notice' );
+        $this->loader->add_action( 'wp_ajax_wpfm_cleanup_feed_transients', $plugin_admin, 'ajax_cleanup_feed_transients' );
+        $this->loader->add_action( 'wp_ajax_wpfm_dismiss_transient_notice', $plugin_admin, 'ajax_dismiss_transient_notice' );
+        $this->loader->add_action( 'wp_ajax_wpfm_save_cache_storage', $plugin_admin, 'ajax_save_cache_storage' );
+        $this->loader->add_action( 'wp_ajax_wpfm_get_cache_storage_info', $plugin_admin, 'ajax_get_cache_storage_info' );
         // Duplicate feed item.
         $this->loader->add_action( 'admin_action_wpfm_duplicate_post_as_draft', $feed_actions, 'duplicate_feed_as_draft' );
         $this->loader->add_filter( 'post_row_actions', $feed_actions, 'duplicate_feed_link', 10, 2 );
@@ -269,6 +277,58 @@ class Rex_Product_Feed {
 		$this->loader->add_action( 'wp_ajax_rex_feed_import_configurations', $ajax, 'import_feed_configurations' );
 
         $this->loader->add_filter( 'rexfeed_product_attribute_raw_value', $feed_actions, 'add_translate_press_value', 10, 3);
+
+        // Transient cleanup: on-delete and on-trash hooks already registered above (handle_feed_delete).
+        // Cron-based orphan cleanup hooks.
+        $this->loader->add_action( 'init', $this, 'schedule_transient_cleanup_cron' );
+        $this->loader->add_action( 'wpfm_orphan_cleanup_tick', $this, 'run_orphan_cleanup_tick' );
+        $this->loader->add_action( 'wpfm_orphan_cleanup_weekly', $this, 'run_orphan_cleanup_weekly' );
+    }
+
+    /**
+     * Schedule the weekly orphan transient cleanup cron and the one-time migration tick.
+     *
+     * @since 7.4.60
+     */
+    public function schedule_transient_cleanup_cron() {
+        if ( ! wp_next_scheduled( 'wpfm_orphan_cleanup_weekly' ) ) {
+            wp_schedule_event( time(), 'weekly', 'wpfm_orphan_cleanup_weekly' );
+        }
+
+        $migration_status = get_option( 'wpfm_transient_cleanup_v1' );
+        if ( 'done' !== $migration_status && ! wp_next_scheduled( 'wpfm_orphan_cleanup_tick' ) ) {
+            wp_schedule_single_event( time() + 60, 'wpfm_orphan_cleanup_tick' );
+            if ( 'scheduled' !== $migration_status ) {
+                update_option( 'wpfm_transient_cleanup_v1', 'scheduled', false );
+            }
+        }
+    }
+
+    /**
+     * Cron callback: delete one chunk of orphaned feed transients.
+     * Reschedules itself if more rows remain.
+     *
+     * @since 7.4.60
+     */
+    public function run_orphan_cleanup_tick() {
+        $deleted = Rex_Feed_Generator_Helper::wpfm_purge_orphan_transients_chunk( 500 );
+        if ( $deleted > 0 ) {
+            wp_schedule_single_event( time() + 60, 'wpfm_orphan_cleanup_tick' );
+        } else {
+            update_option( 'wpfm_transient_cleanup_v1', 'done', false );
+        }
+    }
+
+    /**
+     * Weekly cron callback: kick off orphan transient cleanup.
+     *
+     * @since 7.4.60
+     */
+    public function run_orphan_cleanup_weekly() {
+        $deleted = Rex_Feed_Generator_Helper::wpfm_purge_orphan_transients_chunk( 500 );
+        if ( $deleted > 0 ) {
+            wp_schedule_single_event( time() + 60, 'wpfm_orphan_cleanup_tick' );
+        }
     }
 
 

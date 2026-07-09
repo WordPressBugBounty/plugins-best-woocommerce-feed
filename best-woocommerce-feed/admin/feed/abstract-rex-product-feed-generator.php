@@ -1364,7 +1364,14 @@ abstract class Rex_Product_Feed_Abstract_Generator
                 $log->info( __( 'Completed feed generation job.', 'rex-product-feed' ), array( 'source' => 'WPFM', ) );
                 $log->info( '**************************************************', array( 'source' => 'WPFM', ) );
             }
-            
+
+            // Clean up stale batch transients from previous runs with more batches
+            $old_total = (int) get_post_meta( $this->id, '_wpfm_feed_total_batches', true );
+            if ( $old_total > $this->tbatch ) {
+                Rex_Feed_Generator_Helper::wpfm_delete_stale_batch_transients( $this->id, $this->tbatch, $old_total );
+            }
+            update_post_meta( $this->id, '_wpfm_feed_total_batches', $this->tbatch );
+
             // Trigger validation after feed completion
             do_action( 'rex_feed_after_feed_updated', $this->id );
         }

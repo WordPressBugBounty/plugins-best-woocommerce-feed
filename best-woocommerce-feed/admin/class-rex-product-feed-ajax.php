@@ -66,6 +66,14 @@ class Rex_Product_Feed_Ajax {
                         ->with_callback( array( 'Rex_Product_Feed_Ajax', 'generate_feed' ) )
                         ->with_validation( $validations );
 
+        wp_ajax_helper()->handle( 'rexfeed-dispatch-feed-generation' )
+                        ->with_callback( array( 'Rex_Product_Feed_Ajax', 'dispatch_feed_generation' ) )
+                        ->with_validation( $validations );
+
+        wp_ajax_helper()->handle( 'rexfeed-get-feed-generation-status' )
+                        ->with_callback( array( 'Rex_Product_Feed_Ajax', 'get_feed_generation_status' ) )
+                        ->with_validation( $validations );
+
         wp_ajax_helper()->handle( 'rexfeed-load-config-table' )
                         ->with_callback( array( 'Rex_Product_Feed_Ajax', 'show_feed_template' ) )
                         ->with_validation( $validations );
@@ -218,6 +226,18 @@ class Rex_Product_Feed_Ajax {
 	    wp_ajax_helper()->handle( 'rexfeed-fetch-gmc-report' )
 	                    ->with_callback( array( 'Rex_Product_Feed_Ajax', 'fetch_gmc_report' ) )
 	                    ->with_validation( $validations );
+
+        wp_ajax_helper()->handle( 'wpfm-cleanup-jobs' )
+                        ->with_callback( array( 'Rex_Product_Feed_Ajax', 'cleanup_jobs' ) )
+                        ->with_validation( $validations );
+
+        wp_ajax_helper()->handle( 'wpfm-save-job-retention' )
+                        ->with_callback( array( 'Rex_Product_Feed_Ajax', 'save_job_retention' ) )
+                        ->with_validation( $validations );
+
+        wp_ajax_helper()->handle( 'wpfm-save-generation-mode' )
+                        ->with_callback( array( 'Rex_Product_Feed_Ajax', 'save_generation_mode' ) )
+                        ->with_validation( $validations );
     }
 
 
@@ -1841,5 +1861,181 @@ class Rex_Product_Feed_Ajax {
         wp_send_json_success( array(
             'message' => __( 'All Google Merchant credentials and authorization have been cleared.', 'rex-product-feed' )
         ) );
+    }
+
+    /**
+     * Dispatch manual feed generation to Action Scheduler background queue.
+     * Returns immediately — does not wait for any batch to process.
+     *
+     * @param array $payload Feed payload from AJAX request.
+     * @return array
+     */
+    public static function dispatch_feed_generation( $payload ) {
+        // In AJAX mode, signal JS to continue driving batches itself.
+        if ( 'ajax' === get_option( 'rex_feed_generation_mode', 'ajax' ) ) {
+            return [ 'dispatched' => false ];
+        }
+
+        if ( !function_exists( 'as_schedule_single_action' ) || !function_exists( 'as_has_scheduled_action' ) ) {
+            return [ 'dispatched' => false ];
+        }
+
+        $feed_id = !empty( $payload[ 'feed_id' ] ) ? (int) $payload[ 'feed_id' ] : 0;
+        if ( !$feed_id ) {
+            return [ 'dispatched' => false ];
+        }
+
+        // start_batch: caller already ran batches 1..(start_batch-1) synchronously.
+        // We only schedule start_batch..total_batches here.
+        $start_batch   = !empty( $payload[ 'start_batch' ] ) ? (int) $payload[ 'start_batch' ] : 1;
+        $total_batches = !empty( $payload[ 'total_batches' ] ) ? (int) $payload[ 'total_batches' ] : 0;
+        $per_batch     = !empty( $payload[ 'per_batch' ] ) ? (int) $payload[ 'per_batch' ] : 0;
+
+        if ( !$total_batches || !$per_batch ) {
+            $products_info = self::get_product_number( [ 'feed_id' => $feed_id ] );
+            $per_batch     = !empty( $products_info[ 'per_batch' ] ) ? (int) $products_info[ 'per_batch' ] : 200;
+            $total_batches = !empty( $products_info[ 'total_batch' ] ) ? (int) $products_info[ 'total_batch' ] : 1;
+        }
+
+        update_post_meta( $feed_id, '_rex_feed_total_batches', $total_batches );
+        update_post_meta( $feed_id, '_rex_feed_current_batch', $start_batch - 1 );
+        update_post_meta( $feed_id, '_generation_start_time', time() );
+
+        $offset = ( $start_batch - 1 ) * $per_batch;
+        for ( $current_batch = $start_batch; $current_batch <= $total_batches; $current_batch++ ) {
+            $data = [
+                [
+                    'feed_id'       => $feed_id,
+                    'current_batch' => $current_batch,
+                    'total_batches' => $total_batches,
+                    'per_batch'     => $per_batch,
+                    'offset'        => $offset,
+                ],
+            ];
+
+            $is_scheduled = as_has_scheduled_action( 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
+            if ( !$is_scheduled ) {
+                $scheduled = as_schedule_single_action( time(), 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
+                if ( $start_batch === $current_batch && !is_wp_error( $scheduled ) && $scheduled ) {
+                    Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'In queue', false );
+                }
+            }
+
+            $offset += $per_batch;
+        }
+
+        // Trigger AS async queue runner directly with current user session cookies.
+        // This bypasses WP Cron entirely (works even when DISABLE_WP_CRON=true on local).
+        // blocking=false + timeout=0.01 means we fire-and-forget without waiting.
+        wp_remote_post(
+            admin_url( 'admin-ajax.php' ),
+            [
+                'timeout'   => 0.01,
+                'blocking'  => false,
+                'body'      => [ 'action' => 'as_async_request_queue_runner' ],
+                'cookies'   => isset( $_COOKIE ) ? $_COOKIE : [],
+                'sslverify' => false,
+            ]
+        );
+
+        // Also spawn WP cron as a secondary fallback.
+        spawn_cron();
+
+        return [
+            'dispatched'    => true,
+            'total_batches' => $total_batches,
+        ];
+    }
+
+    /**
+     * Return current feed generation status and batch progress for JS polling.
+     *
+     * @param array $payload Payload containing feed_id.
+     * @return array
+     */
+    public static function get_feed_generation_status( $payload ) {
+        $feed_id = !empty( $payload[ 'feed_id' ] ) ? (int) $payload[ 'feed_id' ] : 0;
+        if ( !$feed_id || !get_post( $feed_id ) ) {
+            return [ 'status' => 'error', 'message' => 'Invalid feed ID.' ];
+        }
+
+        $status        = get_post_meta( $feed_id, '_rex_feed_status', true ) ?: get_post_meta( $feed_id, 'rex_feed_status', true );
+        $current_batch = (int) get_post_meta( $feed_id, '_rex_feed_current_batch', true );
+        $total_batches = (int) get_post_meta( $feed_id, '_rex_feed_total_batches', true );
+
+        $response = [
+            'status'        => $status,
+            'current_batch' => $current_batch,
+            'total_batches' => $total_batches,
+            'feed_url'      => '',
+        ];
+
+        if ( 'completed' === $status ) {
+            $response[ 'feed_url' ] = get_post_meta( $feed_id, '_rex_feed_xml_file', true ) ?: get_post_meta( $feed_id, 'rex_feed_xml_file', true );
+        }
+
+        return $response;
+    }
+
+    /**
+     * AJAX: manually clean up stale scheduled job records.
+     *
+     * @param array $payload Payload (unused, validation handled by middleware).
+     * @return void
+     */
+    public static function cleanup_jobs( $payload ) {
+        if ( ! class_exists( 'Rex_Feed_Job_Cleanup' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Cleanup service unavailable.', 'rex-product-feed' ) ) );
+            wp_die();
+        }
+
+        $days    = absint( get_option( 'wpfm_job_history_retention_days', 30 ) );
+        $cleanup = new Rex_Feed_Job_Cleanup();
+        $deleted = $cleanup->cleanup( max( 1, $days ) );
+
+        wp_send_json_success( array(
+            'deleted'  => $deleted,
+            'has_more' => $deleted >= Rex_Feed_Job_Cleanup::BATCH_LIMIT,
+        ) );
+        wp_die();
+    }
+
+    /**
+     * AJAX: save the job history retention setting.
+     *
+     * @param array $payload Payload containing wpfm_job_history_retention_days.
+     * @return void
+     */
+    public static function save_job_retention( $payload ) {
+        $days = isset( $payload['wpfm_job_history_retention_days'] ) ? (int) $payload['wpfm_job_history_retention_days'] : 0;
+
+        if ( $days < 1 ) {
+            wp_send_json_error( array( 'message' => __( 'Retention period must be at least 1 day.', 'rex-product-feed' ) ) );
+            wp_die();
+        }
+
+        update_option( 'wpfm_job_history_retention_days', $days );
+        wp_send_json_success( array( 'saved' => $days ) );
+        wp_die();
+    }
+
+    /**
+     * Save the feed generation mode setting (ajax|scheduled_actions).
+     *
+     * @param array $payload Payload containing rex_feed_generation_mode.
+     * @return void
+     */
+    public static function save_generation_mode( $payload ) {
+        $mode = isset( $payload['rex_feed_generation_mode'] ) ? sanitize_key( $payload['rex_feed_generation_mode'] ) : '';
+        $allowed = array( 'ajax', 'scheduled_actions' );
+
+        if ( ! in_array( $mode, $allowed, true ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid generation mode.', 'rex-product-feed' ) ) );
+            wp_die();
+        }
+
+        update_option( 'rex_feed_generation_mode', $mode );
+        wp_send_json_success( array( 'saved' => $mode ) );
+        wp_die();
     }
 }
