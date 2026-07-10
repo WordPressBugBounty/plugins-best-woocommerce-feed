@@ -384,7 +384,7 @@ class Rex_Product_Filter {
 
         foreach ($filter_mappings as $group_key => $filters) {
             $filter_conditions = [];
-            $group_cfo = isset($filters['cfo']) ? strtoupper($filters['cfo']) : 'AND';
+            $group_cfo = self::normalize_logical_operator( $filters['cfo'] ?? 'AND' );
             unset($filters['cfo']); // Remove outer CFO so only rows remain
 
             foreach ($filters as $filter_key => $filter) {
@@ -395,8 +395,12 @@ class Rex_Product_Filter {
 
                 if (!empty($filter['if']) && !empty($filter['then']) && !empty($filter['condition']) && isset($filter['value'])) {
                     $if        = self::get_column_name($filter['if']);
-                    $then      = htmlspecialchars($filter['then']);
-                    $condition = htmlspecialchars($filter['condition']);
+                    if ( empty( $if ) ) {
+                        continue;
+                    }
+
+                    $then      = sanitize_key( $filter['then'] );
+                    $condition = sanitize_key( $filter['condition'] );
                     $value     = htmlspecialchars($filter['value']);
 
                     // Handle date/time conversions
@@ -438,7 +442,7 @@ class Rex_Product_Filter {
                     if (method_exists(__CLASS__, $function)) {
                         $temp_where = self::$function($if, $value, $then);
                         if ($temp_where) {
-                            $filter_cfo = isset($filter['cfo']) ? strtoupper($filter['cfo']) : 'AND';
+                            $filter_cfo = self::normalize_logical_operator( $filter['cfo'] ?? 'AND' );
                             $filter_conditions[] = [
                                 'condition' => $temp_where,
                                 'cfo' => $filter_cfo
@@ -603,6 +607,8 @@ class Rex_Product_Filter {
      * @since 7.3.0
      */
     private static function get_column_name( $column ) {
+        $column = sanitize_key( $column );
+
         if( preg_match( '/^pa_/i', $column ) ) {
             return 'term_taxonomy_id';
         }
@@ -653,6 +659,12 @@ class Rex_Product_Filter {
                 return '_sale_price_dates_from';
             case 'sale_price_dates_to':
                 return '_sale_price_dates_to';
+            case 'total_sales':
+                return 'total_sales';
+            case 'post_date_gmt':
+                return 'post_date_gmt';
+            case 'post_modified_gmt':
+                return 'post_modified_gmt';
             case 'product_cats':
             case 'product_tags':
             case 'product_brands':
@@ -661,6 +673,8 @@ class Rex_Product_Filter {
                 return 'term_taxonomy_id';
             case 'gtin':
                 return '_global_unique_id';
+            case 'tax':
+                return 'tax';
             case 'tax_class':
                 return '_tax_class';
             case 'visibility':
@@ -678,8 +692,49 @@ class Rex_Product_Filter {
             case 'virtual':
                 return '_virtual';
             default:
-                return $column;
+                if ( self::is_dynamic_meta_column( $column ) ) {
+                    return $column;
+                }
+
+                return '';
         }
+    }
+
+    /**
+     * Only allow SQL logical connectors supported by the UI.
+     *
+     * @param string $operator Raw operator value.
+     *
+     * @return string
+     * @since 7.6.1
+     */
+    private static function normalize_logical_operator( $operator ) {
+        $operator = strtoupper( sanitize_key( $operator ) );
+
+        return in_array( $operator, array( 'AND', 'OR' ), true ) ? $operator : 'AND';
+    }
+
+    /**
+     * Check whether a column is a valid dynamic meta key.
+     *
+     * @param string $column Column key from filter mapping.
+     *
+     * @return bool
+     * @since 7.6.1
+     */
+    private static function is_dynamic_meta_column( $column ) {
+        if ( preg_match( '/^va_pa_/i', $column ) ) {
+            return true;
+        }
+
+        if ( defined( 'ACF_VERSION' ) ) {
+            $acf_attributes = Rex_Feed_Attributes::get_acf_fields();
+            if ( ! empty( $acf_attributes['ACF Attributes'] ) && array_key_exists( $column, $acf_attributes['ACF Attributes'] ) ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

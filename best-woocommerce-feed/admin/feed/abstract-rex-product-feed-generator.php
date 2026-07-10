@@ -1175,7 +1175,7 @@ abstract class Rex_Product_Feed_Abstract_Generator
                         $meta_join .= " LEFT JOIN {$wpdb->postmeta} AS RexMeta{$i}";
                         $meta_join .= " ON ({$wpdb->posts}.ID = RexMeta{$i}.post_id) ";
 						if ( !empty( $meta_key ) ) {
-							$meta_join .= " AND (RexMeta{$i}.meta_key = '{$meta_key}') ";
+                            $meta_join .= $wpdb->prepare( " AND (RexMeta{$i}.meta_key = %s) ", $meta_key );
 						}
                     }
                     wpfm_set_cached_data( "rexfeed_custom_filter_meta_join_$this->id", $meta_join );
