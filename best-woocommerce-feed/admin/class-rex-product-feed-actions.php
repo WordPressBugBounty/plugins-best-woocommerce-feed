@@ -764,7 +764,7 @@ class Rex_Product_Feed_Actions {
 						}
 					}
 					$product_id   = rtrim( $product_id, ',' );
-					$view_content = "fbq(\"trackCustom\",\"Search\",{search_string:\"$search_term\", content_type:\"product\", content_ids:[{$product_id}]});";
+					$view_content = "fbq(\"trackCustom\",\"Search\",{search_string:\"" . esc_js( $search_term ) . "\", content_type:\"product\", content_ids:[{$product_id}]});";
 				}
 				elseif ( is_cart() || is_checkout() ) {
 					if ( is_checkout() && !empty( is_wc_endpoint_url( 'order-received' ) ) ) {
