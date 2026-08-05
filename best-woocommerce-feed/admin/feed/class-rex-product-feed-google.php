@@ -288,6 +288,10 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 								$item->$key($shipping_country, $shipping_region, $shipping_service, $shipping_price);
 							}
 						}
+					} elseif ('checkout_eligibility' === $key) {
+						if ($this->feed_format === 'xml' && $value !== '') {
+							$item->native_commerce($value);
+						}
 					} elseif ($key === 'tax') {
 						if (is_array($value) && !empty($value)) {
 							foreach ($value as $tax) {

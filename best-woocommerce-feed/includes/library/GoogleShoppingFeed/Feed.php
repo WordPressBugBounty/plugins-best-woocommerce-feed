@@ -228,6 +228,9 @@ class Feed
                     $this->certification->addChild( 'certification_name', $itemNode->get( 'value' ), $itemNode->get('_namespace')  );
                 } elseif ( stristr( $itemNode->get( 'name' ), 'certification_code_' ) ) {
                     $this->certification->addChild( 'certification_code', $itemNode->get( 'value' ), $itemNode->get('_namespace')  );
+                } elseif ( 'native_commerce' === $itemNode->get( 'name' ) && is_array( $itemNode->get( 'value' ) ) ) {
+                    $nc_node = $feedItemNode->addChild( 'native_commerce', null, $itemNode->get( '_namespace' ) );
+                    $nc_node->addChild( 'checkout_eligibility', htmlspecialchars( $itemNode->get( 'value' )['checkout_eligibility'] ?? '' ), $itemNode->get( '_namespace' ) );
                 } else {
                     $itemNode->attachNodeTo($feedItemNode);
                 }

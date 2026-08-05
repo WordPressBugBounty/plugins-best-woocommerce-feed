@@ -6,7 +6,7 @@ Tags: Product Feed, WooCommerce Product Feed, Google Shopping Feed, Facebook Cat
 Requires at least: 6.7
 Tested up to:  7.0
 Requires PHP: 7.4
-Stable tag:  7.6.2
+Stable tag:  7.6.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -391,73 +391,99 @@ Product Feed Manager gets your products in front of buyers across 200+ marketpla
 
 = Why should I choose the Product Feed Manager for WooCommerce? =
 Product Feed Manager for WooCommerce is dedicated to user satisfaction. You will get the best interface with simplicity and quality.
-Everything you need to generate an effective product feed is included at Product Feed Manager for WooCommerce.
 
-This plugin was customized so that you can generate product feeds for all major merchant shops, including Google Merchant shop, Facebook Dynamic Ads, etc.
+Everything you need to generate an effective product feed is included in Product Feed Manager for WooCommerce.
+
+This plugin comes with everything needed to generate product feeds for all major merchant shops, including Google Merchant Shop, Facebook Dynamic Ads, etc.
 
 Plus, you will get a support team that is always ready to help you out.
 
 You may test out our free version. If you see that Product Feed Manager for WooCommerce is easier to use than other such plugins and you are able to generate feed as required, then you may upgrade to our PRO version and enjoy our service to the fullest.
 
-= Is there a product limit? =
+= Is it really free to start? How many products can I list? =
 
-There is no limit to the number of products when generating feed. You can decide on the products you want to generate feed for, and no matter how many, the feed will be generated. However, this limitless product feed is only available for pro-users.
+Yes, you can start completely free and generate real feeds without paying. The free version covers up to 200 products per feed, which is plenty to test things out. 
 
-In the free version, you can generate product feed for up to 200 products per feed. If you are satisfied with the result, you can upgrade to the pro version and use it to the full extent.
+When you outgrow it, Pro removes the limit for unlimited products.
 
-= How do I generate WooCommerce product feed for Google Shopping? =
-Check out the easiest way to create Google Shopping feeds for your store:
-[youtube https://youtu.be/Xg-zBdYfIZM]
+= How do I get my WooCommerce products onto Google Shopping? =
+Just pick the Google Shopping template, map your categories, and hit publish. Your feed is ready in a few clicks. 
 
-= How do I create a Facebook Product feed? =
-Check out the tutorial to generate an WooCommerce facebook product feed:
-[youtube https://youtu.be/cWwsiCZu55Q]
+You can even auto-sync it straight to Google Merchant Center, so you never upload files manually. 
 
-= What file formats does this plugin generate? =
-This plugin generates product feeds in the following file formats:
+= How do I list my products on Facebook and Instagram? =
+You choose the Facebook feed template, and the plugin builds a catalog-ready feed for both Facebook and Instagram. 
 
-- XML feed
-- CSV feed
-- TEXT feed
-- TSV feed
-- RSS feed
+Map your fields once, publish, and connect it to your catalog. It comes preset to Meta's format, so you're not guessing what they require.
 
-= What is the feed auto-update feature? =
-For feeds that you extracted under certain specifications, you can now schedule it to be updated, with new products, automatically. You can choose daily, hourly or weekly updates of feed.
+= My store has thousands of products. Will generating a feed crash my site or cause server timeouts? =
+No. Product Feed Manager uses a custom batch processing engine, designed to process large product catalogs in small chunks.
 
-= Can I add attributes of my own choice? =
-Yes, with the dynamic attribute feature, you can include dynamic attributes to your product feed to be generated, without altering any details on your store.
+So your server never gets overloaded; no memory exhaustion or server timeout errors even on standard shared hosting.
 
-= Does it support product variation? =
-Yes, Product Feed Manager for WooCommerce generates feed with variations as well, if you select it.
+And for auto-updates, you can schedule it to be updated once every day, week, or month, ensuring healthy resource management.
 
-= Can I select one single variation? =
-No, Product Feed Manager for WooCommerce supports either all the variations or no variations at all. Currently, there is no option to select one single variation.
+Even if your store has 100k+ products, you will see no impact on your website performance.
 
-= Does the plugin support Google product category? ==
-Yes, you can map your WooCommece product categories according to google product categories.
+= Can I sell on other marketplaces too, or just Google Shopping and Facebook? =
+You can sell in more than 220 marketplaces. That covers TikTok, Pinterest, eBay, Bing, and loads of regional shops around the world. 
 
-= Can I add filters to my product feeds? =
-Yes, you can filter products in the feed based category, tag or any custom condition. You can even manually search for products and filter them.
+So you can expand to new channels without learning each one's format.
 
-= Will the feed, I generated for any other merchant shop, work on Google Merchant Shop? =
-We have set up the important fields and saved the feed format compatible with each merchant shop. We advise you that you generate different feeds for different Merchant shops.
-In the case of Google, they will not approve feeds unless it is mapped according to their required format.
-We have a feed format specifically organized for the Google Merchant shop. You simply need to map your product categories with the Google Merchant shop.
+= My prices and stock change often; do I have to update the feed manually every time? =
+Not at all. You can set scheduled feed updates (hourly, daily, or weekly). 
 
-=  Can I send product feed to my Merchant Shop directly from Product Feed Manager for WooCommerce? =
-Product Feed Manager for WooCommerce lets you auto-sync the product feed to be automatically sent and updated on Google Merchant Shop.
-You can easily set this up by following the steps in this <a href="https://www.youtube.com/watch?v=CVMqRunbW5g" target="_blank">tutorial</a>
-This feature is only there for Google Merchant Shops and no other merchant shops for now.
-For other shops such as eBay, you will have to download the generated feed and upload it on your Merchant shop’s feed import section manually.
+As per the schedule, the plugin will automatically regenerate the feed file, and channels like Google Merchant Center will fetch the updated pricing and inventory automatically.
+
+= My products keep getting rejected; how does this plugin prevent that? =
+If you submit valid products, rejections mostly happen due to three particular reasons: missing fields, wrong formatting, or mismatched data (feed vs site vs structured data).
+
+<em>Now, in case of mismatched data, you have to fix it manually.</em>
+
+For the other two scenarios, the plugin comes with proactive solutions so that you can avoid rejections.
+
+- The plugin maps product attributes and categories correctly.
+- It comes with a feed validator to detect possible errors beforehand.
+- You will also get features such as Data Feed Rules (Pro) to improve product titles and information in the feed.
+
+The plugin will help you ensure fewer errors, faster approval, and less back-and-forth with the marketplace. The feed validator is the most popular, as it helps you avoid rejection proactively.
+
+= Google keeps asking for GTIN, MPN, or brand; how do I add those without code? =
+With the latest WooCommerce update, you will get fields to add GTIN and brand to the product details.
+But as per MPN or additional data such as Age Group, Gender, etc., there are no fields in the default WooCommerce.
+
+With Product Feed Manager, you will get built-in custom fields to add unique identifiers and additional information (such as GTIN, MPN, UPC, Brand, EAN, Age Group, Gender, etc.) directly on your product details without needing extra plugins.
+
+You can then input these per product and map them into the product feed easily.
+
+= Google uses its own category list; do I have to rename my store categories? ==
+No, you leave your store categories exactly as they are. The category mapping feature simply matches them to Google's required list inside the feed. 
+
+Your storefront stays untouched while your feed stays compliant.
+
+= How does Product Feed Manager handle variable products (sizes, colors, etc.)? =
+You're in control of how variations appear in the feed. You can include just the parent product, list each variation separately, or combine both. 
+
+That flexibility keeps your listings accurate whether you sell simple or variable products.
+
+= Can I send only certain products instead of my whole catalog? =
+Yes, you can filter by category, tag, price, or any custom condition you like. That's easy for sale collections, specific marketplaces, or campaigns you want to control. 
+
+You decide exactly which products go into each feed.
+
+=  Is Product Feed Manager compatible with multiple languages or WPML? =
+Yes, PFM supports WPML out of the box for generating localized product feeds in multiple languages. 
+
+You will be able to generate the same feed in different languages and upload them separately in marketplaces for specific countries.
+
+Additionally, the plugin is also compatible with Aelia Currency Switcher for multi-currency feeds.
 
 =  Can I use Product Feed Manager with WPFunnels? =
-Yes. Product Feed Manager drives traffic from Google Shopping and other marketplaces. WPFunnels optimizes what happens after the click — custom checkout pages, order bumps, and upsells that increase revenue per visitor. Together they form a complete traffic-to-profit pipeline. Both plugins are built by the Linno team and designed to complement each other.
+Yes. Product Feed Manager drives traffic from Google Shopping and other marketplaces. 
 
-=  How do I upgrade to pro? =
-You may use the Product Feed Manager for WooCommerce to generate feed for up to 50 items in total in the free version. You may remove this limit and get feed for unlimited products by upgrading to PRO.
-To upgrade to PRO, you may purchase a license key from:
-WP Dashboard > Product Feed > Upgrade.
+WPFunnels optimizes what happens after the click - custom checkout pages, order bumps, and upsells that increase revenue per visitor. 
+
+Together they form a complete traffic-to-profit pipeline. Both plugins are built by the Linno team and designed to complement each other.
 
 = How can I report security bugs? =
 You can report security bugs through the [Patchstack Vulnerability Disclosure Program](https://patchstack.com/). The Patchstack team help validate, triage and handle any security vulnerabilities. If you have identified a security concern, we encourage you to utilize the platform to report it by accessing the following link: [Report a security vulnerability](https://patchstack.com/database/vdp/best-woocommerce-feed)
@@ -475,6 +501,9 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.6.3 (2026-08-05) =
+* Improvement: Add native_commerce attribute support for Google Merchant Center feeds
 
 = 7.6.2 (2026-07-14) =
 * Fix: Resolve reflected cross-site scripting (XSS) vulnerability in Facebook Pixel search tracking

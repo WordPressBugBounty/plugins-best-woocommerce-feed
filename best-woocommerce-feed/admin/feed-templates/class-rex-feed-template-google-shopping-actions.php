@@ -165,6 +165,10 @@ class Rex_Feed_Template_Google_shopping_actions extends Rex_Feed_Abstract_Templa
 			'Shopping campaigns'                  => array(
 				'google_funded_promotion_eligibility' => 'Google funded promotion eligibility [google_funded_promotion_eligibility]',
 			),
+
+			'Native Commerce'             => array(
+				'checkout_eligibility' => 'Checkout Eligibility [native_commerce]',
+			),
 		);
 	}
 

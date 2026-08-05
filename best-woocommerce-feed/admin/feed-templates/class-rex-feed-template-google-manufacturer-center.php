@@ -55,6 +55,10 @@ class Rex_Feed_Template_Google_manufacturer_center extends Rex_Feed_Abstract_Tem
 
 			'Product Detail'          => $this->get_product_detail_attributes(),
 
+			'Native Commerce'         => array(
+				'checkout_eligibility' => 'Checkout Eligibility [native_commerce]',
+			),
+
 		);
 	}
 

@@ -142,6 +142,10 @@ class Rex_Feed_Template_Google extends Rex_Feed_Abstract_Template {
 				'promotion_id' => 'Promotion Id [promotion_id]',
 			),
 
+			'Native Commerce'             => array(
+				'checkout_eligibility' => 'Checkout Eligibility [native_commerce]',
+			),
+
 			'Certificate Attributes'    => [
                 'certification_authority_1'        => 'Certification Authority 1',
                 'certification_name_1'     => 'Certification Name 1',

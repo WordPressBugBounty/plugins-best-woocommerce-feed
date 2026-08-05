@@ -603,6 +603,14 @@ class Item
 
 
     /**
+     * @param string $checkout_eligibility
+     */
+    public function native_commerce( $checkout_eligibility ) {
+        $node = new Node( 'native_commerce' );
+        $this->nodes['native_commerce'] = $node->value( [ 'checkout_eligibility' => $checkout_eligibility ] )->_namespace( $this->namespace );
+    }
+
+    /**
      * @param string $name
      * @param array $arguments
      */

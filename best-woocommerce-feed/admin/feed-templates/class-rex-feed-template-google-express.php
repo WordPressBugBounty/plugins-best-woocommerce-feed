@@ -145,6 +145,10 @@ class Rex_Feed_Template_Google_express extends Rex_Feed_Abstract_Template {
 			'Merchant Promotions Attribute'       => array(
 				'promotion_id' => 'Promotion Id [promotion_id]',
 			),
+
+			'Native Commerce'             => array(
+				'checkout_eligibility' => 'Checkout Eligibility [native_commerce]',
+			),
 		);
 	}
 
