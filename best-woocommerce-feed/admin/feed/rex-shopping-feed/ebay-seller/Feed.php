@@ -14,17 +14,20 @@ class EbaySellerFeed extends \RexTheme\RexShoppingFeed\Feed
     private function addItemsToFeedCSV(){
         
         if(count($this->items)){
-            $this->items_row[] = array_map('ucfirst', array_keys(end($this->items)->nodes()));
+            $first_item = reset($this->items);
+            $this->items_row[] = array_map('ucfirst', array_keys($first_item->nodes()));
             
             foreach ($this->items as $item) {
                 $row = array();
                 foreach ($item->nodes() as $itemNode) {
                     if (is_array($itemNode)) {
                         foreach ($itemNode as $node) {
-                            $row[] = str_replace(array("\r\n", "\n", "\r"), ' ', $node->get('value'));
+                            $val = $node->get('value');
+                            $row[] = is_string($val) ? str_replace(array("\r\n", "\n", "\r"), ' ', $val) : $val;
                         }
                     } else {
-                        $row[] = str_replace(array("\r\n", "\n", "\r"), ' ', $itemNode->get('value'));
+                        $val = $itemNode->get('value');
+                        $row[] = is_string($val) ? str_replace(array("\r\n", "\n", "\r"), ' ', $val) : $val;
                     }
                  
                 }

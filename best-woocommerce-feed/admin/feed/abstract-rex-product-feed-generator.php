@@ -604,8 +604,8 @@ abstract class Rex_Product_Feed_Abstract_Generator
                     $log->info( 'Feed Name: ' . $config[ 'info' ][ 'title' ], array( 'source' => 'WPFM', ) );
                     $log->info( 'Merchant Type: ' . $this->merchant, array( 'source' => 'WPFM', ) );
                 }
-                $log->info( 'Total Batches: ' . $this->batch, array( 'source' => 'WPFM', ) );
-                $log->info( 'Current Batch: ' . $this->tbatch, array( 'source' => 'WPFM', ) );
+                $log->info( 'Current Batch: ' . $this->batch, array( 'source' => 'WPFM', ) );
+                $log->info( 'Total Batches: ' . $this->tbatch, array( 'source' => 'WPFM', ) );
             }
             else {
                 if ( $this->batch === 1 ) {
@@ -614,8 +614,8 @@ abstract class Rex_Product_Feed_Abstract_Generator
                     $log->info( 'Feed Name: ' . $config[ 'info' ][ 'title' ], array( 'source' => 'WPFM', ) );
                     $log->info( 'Merchant Type: ' . $this->merchant, array( 'source' => 'WPFM', ) );
                 }
-                $log->info( 'Total Batches: ' . $this->batch, array( 'source' => 'WPFM', ) );
-                $log->info( 'Current Batch: ' . $this->tbatch, array( 'source' => 'WPFM', ) );
+                $log->info( 'Current Batch: ' . $this->batch, array( 'source' => 'WPFM', ) );
+                $log->info( 'Total Batches: ' . $this->tbatch, array( 'source' => 'WPFM', ) );
             }
         }
 

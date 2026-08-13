@@ -2485,3 +2485,47 @@
     align-self: center;
     align-items: flex-end;
 }
+
+.pfm-group-pane .single-merchant.feed-error-email-settings,
+.pfm-search-results-body .single-merchant.feed-error-email-settings {
+    display: block;
+    padding: 0;
+}
+.pfm-feed-error-email {
+    display: block;
+    width: 100%;
+}
+.pfm-feed-error-email__form {
+    display: block;
+}
+.pfm-feed-error-email__toggle-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 20px var(--pfm-space-6);
+    border-bottom: 1px solid var(--pfm-border);
+}
+.pfm-feed-error-email__fields {
+    display: grid;
+    gap: 8px;
+    padding: 20px var(--pfm-space-6);
+    border-bottom: 1px solid var(--pfm-border);
+    background: #fafafa;
+}
+.pfm-feed-error-email__fields[hidden] {
+    display: none;
+}
+.pfm-feed-error-email__fields label {
+    font-weight: 600;
+}
+.pfm-feed-error-email__controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.pfm-feed-error-email__fields input[type="email"] {
+    width: 360px;
+    max-width: 100%;
+}

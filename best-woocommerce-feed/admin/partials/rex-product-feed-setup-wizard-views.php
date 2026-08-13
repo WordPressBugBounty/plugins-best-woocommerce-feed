@@ -89,6 +89,25 @@
 
             <h2 class="pfm-s2-title" id="pfmConfigHeading"><?php esc_html_e( 'Setting up your feed', 'rex-product-feed' ); ?></h2>
 
+            <?php if ( ! apply_filters( 'wpfm_is_premium', false ) ) : ?>
+                <div class="pfm-free-feed-limit-notice">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <line x1="12" y1="10.5" x2="12" y2="16"></line>
+                        <circle cx="12" cy="7.5" r="0.75" fill="currentColor" stroke="none"></circle>
+                    </svg>
+                    <?php
+                    echo esc_html(
+                        sprintf(
+                            /* translators: %d: maximum products and variations in a free feed. */
+                            __( 'The free tier can generate up to %d products and variations in a feed.', 'rex-product-feed' ),
+                            WPFM_FREE_MAX_PRODUCT_LIMIT
+                        )
+                    );
+                    ?>
+                </div>
+            <?php endif; ?>
+
             <div class="pfm-field-group">
                 <label class="pfm-field-label" for="pfmFeedNameInput"><?php esc_html_e( 'Feed Name', 'rex-product-feed' ); ?></label>
                 <input type="text" id="pfmFeedNameInput" class="pfm-field-input" />

@@ -977,6 +977,7 @@ class ComposerStaticInitf7e2a128fa50df4969a88ecea0551045
         'Rex_Feed_Job_Cleanup' => __DIR__ . '/../..' . '/admin/class-rex-feed-job-cleanup.php',
         'Rex_Feed_Job_History' => __DIR__ . '/../..' . '/admin/class-rex-feed-job-history.php',
         'Rex_Feed_Merchants' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-merchants.php',
+        'Rex_Feed_Product_Count_Guard' => __DIR__ . '/../..' . '/admin/class-rex-feed-product-count-guard.php',
         'Rex_Feed_Rollback' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-rollback.php',
         'Rex_Feed_Scheduler' => __DIR__ . '/../..' . '/admin/class-rex-feed-scheduler.php',
         'Rex_Feed_Special_Occasion_Banner' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-special-occasion-banner.php',

@@ -155,9 +155,12 @@ if ( ! function_exists( 'wpfm_purge_cached_data' ) ) {
 
 if ( ! function_exists( 'wpfm_replace_special_char' ) ) {
 	function wpfm_replace_special_char( $feed ) {
+		if ( empty( $feed ) || ! is_string( $feed ) ) {
+			return $feed;
+		}
 		return str_replace(
-			array( '&#8226;', '&#8221;', '&#8220;', '&#8217;', '&#8216;', '&trade;', '&amp;trade;', '&reg;', '&amp;reg;', '&deg;', '&amp;deg;', '&#xA9;', '' ),
-			array( '•', '”', '“', '’', '‘', '™', '™', '®', '®', '°', '°', '©', "\n" ),
+			array( '&#8226;', '&#8221;', '&#8220;', '&#8217;', '&#8216;', '&trade;', '&amp;trade;', '&reg;', '&amp;reg;', '&deg;', '&amp;deg;', '&#xA9;' ),
+			array( '•', '”', '“', '’', '‘', '™', '™', '®', '®', '°', '°', '©' ),
 			$feed
 		);
 	}

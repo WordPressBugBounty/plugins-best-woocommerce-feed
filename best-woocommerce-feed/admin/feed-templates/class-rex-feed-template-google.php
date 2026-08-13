@@ -80,6 +80,8 @@ class Rex_Feed_Template_Google extends Rex_Feed_Abstract_Template {
 
 			'Product Detail'                      => $this->get_product_detail_attributes(),
 
+			'Question and Answer'                 => $this->get_question_and_answer_attributes(),
+
 			'Tax & Shipping'                      => array(
 				'tax'              => 'Tax [tax]',
 				'shipping'         => 'Shipping [shipping]',
@@ -168,6 +170,34 @@ class Rex_Feed_Template_Google extends Rex_Feed_Abstract_Template {
         for ( $i = 1; $i <= 10; $i++ ) {
             $this->attributes[ 'Product Highlights' ][ "product_highlight_$i" ] = "Product Highlight {$i}";
         }
+	}
+
+	/**
+	 * Define indexed question and answer attributes.
+	 *
+	 * @param int $count Number of question and answer pairs.
+	 * @return array
+	 */
+	protected function get_question_and_answer_attributes( $count = 10 ) {
+		$attributes = array();
+
+		for ( $i = 1; $i <= $count; $i++ ) {
+			$attributes[ "question_and_answer_question_{$i}" ] = "Question and Answer {$i} - Question [question_and_answer]";
+			$attributes[ "question_and_answer_answer_{$i}" ]   = "Question and Answer {$i} - Answer [question_and_answer]";
+		}
+
+		return $attributes;
+	}
+
+	/**
+	 * Remove Google Shopping-only question and answer attributes.
+	 *
+	 * Used by the Bing template alias, which reuses this Google template.
+	 *
+	 * @return void
+	 */
+	public function remove_question_and_answer_attributes() {
+		unset( $this->attributes['Question and Answer'] );
 	}
 
 	/**

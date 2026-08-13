@@ -215,7 +215,10 @@ class Rex_Product_Feed_Actions {
 		if ( isset( $feed_data[ 'rex_feed_cats' ] ) ) {
 			$cats = array();
 			foreach ( $feed_data[ 'rex_feed_cats' ] as $cat ) {
-				$cats[] = get_term_by('slug', $cat, 'product_cat' )->term_id;
+				$term = is_numeric( $cat ) ? get_term_by( 'id', (int) $cat, 'product_cat' ) : get_term_by( 'slug', (string) $cat, 'product_cat' );
+				if ( $term && ! is_wp_error( $term ) ) {
+					$cats[] = $term->term_id;
+				}
 			}
 			wp_set_object_terms( $post_id, $cats, 'product_cat' );
 		}
@@ -225,7 +228,10 @@ class Rex_Product_Feed_Actions {
 		if ( isset( $feed_data[ 'rex_feed_tags' ] ) ) {
 			$tags = array();
 			foreach ( $feed_data[ 'rex_feed_tags' ] as $tag ) {
-				$tags[] = get_term_by('slug', $tag, 'product_tag' )->term_id;
+				$term = is_numeric( $tag ) ? get_term_by( 'id', (int) $tag, 'product_tag' ) : get_term_by( 'slug', (string) $tag, 'product_tag' );
+				if ( $term && ! is_wp_error( $term ) ) {
+					$tags[] = $term->term_id;
+				}
 			}
 			wp_set_object_terms( $post_id, $tags, 'product_tag' );
 		}
@@ -236,7 +242,10 @@ class Rex_Product_Feed_Actions {
         if ( isset( $feed_data[ 'rex_feed_brands' ] ) ) {
             $brands = array();
             foreach ( $feed_data[ 'rex_feed_brands' ] as $brand ) {
-                $brands[] = get_term_by('slug', $brand, 'product_brand' )->term_id;
+                $term = is_numeric( $brand ) ? get_term_by( 'id', (int) $brand, 'product_brand' ) : get_term_by( 'slug', (string) $brand, 'product_brand' );
+                if ( $term && ! is_wp_error( $term ) ) {
+                    $brands[] = $term->term_id;
+                }
             }
             wp_set_object_terms( $post_id, $brands, 'product_brand' );
         }

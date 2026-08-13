@@ -37,8 +37,8 @@
     ],
     'notifications-logging': [
       '.enable-log',
-      '[data-label*="Email notification"]',
-      '[data-label*="usage tracking"]'
+      '[data-label*="usage tracking"]',
+      '.feed-error-email-settings'
     ],
     'data-privacy': [
       '.remove-plugin-data'
@@ -79,7 +79,107 @@
     initImportExport();
     initSystemStatus();
     initFreeProFilter();
+    initFeedErrorEmailSettings();
   });
+
+  /**
+   * Connects the feed-error email form to the plugin's existing AJAX helper.
+   *
+   * The notification toggle and recipient address are submitted together so
+   * validation cannot partially save the email notification settings.
+   *
+   * @returns {void}
+   */
+  function initFeedErrorEmailSettings() {
+    var form = document.getElementById('wpfm-feed-error-email-form');
+    var emailToggle = document.getElementById('wpfm_feed_error_email_enabled');
+    var adminNoticeToggle = document.getElementById('wpfm_feed_error_notice_enabled');
+    if (!form || !emailToggle || !adminNoticeToggle) return;
+
+    emailToggle.addEventListener('change', toggleFeedErrorEmailFields);
+    adminNoticeToggle.addEventListener('change', saveFeedErrorAdminNoticeSetting);
+    form.addEventListener('submit', saveFeedErrorEmailSettings);
+    toggleFeedErrorEmailFields();
+  }
+
+  /**
+   * Saves the WordPress admin feed-error alert preference as soon as its toggle changes.
+   *
+   * @param {Event} event Change event whose current target contains the requested enabled state.
+   * @returns {void}
+   */
+  function saveFeedErrorAdminNoticeSetting(event) {
+    var toggle = event.currentTarget;
+    toggle.disabled = true;
+
+    wpAjaxHelperRequest('wpfm-save-feed-error-admin-notice', {
+      enabled: toggle.checked ? 'yes' : 'no'
+    })
+      .fail(handleFeedErrorAdminNoticeSaveFailed)
+      .always(finishFeedErrorAdminNoticeRequest);
+  }
+
+  /**
+   * Restores the admin-alert toggle when its immediate save request fails.
+   *
+   * @returns {void}
+   */
+  function handleFeedErrorAdminNoticeSaveFailed() {
+    var toggle = document.getElementById('wpfm_feed_error_notice_enabled');
+    if (toggle) toggle.checked = !toggle.checked;
+  }
+
+  /**
+   * Re-enables the admin-alert toggle after its immediate save request completes.
+   *
+   * @returns {void}
+   */
+  function finishFeedErrorAdminNoticeRequest() {
+    var toggle = document.getElementById('wpfm_feed_error_notice_enabled');
+    if (toggle) toggle.disabled = false;
+  }
+
+  /**
+   * Shows the recipient address field only while email notifications are enabled.
+   *
+   * @returns {void}
+   */
+  function toggleFeedErrorEmailFields() {
+    var emailToggle = document.getElementById('wpfm_feed_error_email_enabled');
+    var emailFields = document.getElementById('wpfm-feed-error-email-fields');
+    if (!emailToggle || !emailFields) return;
+    emailFields.hidden = !emailToggle.checked;
+  }
+
+  /**
+   * Submits all feed-error email fields together through the existing AJAX helper.
+   *
+   * @param {Event} event Form submission prevented so settings save without a page reload.
+   * @returns {void}
+   */
+  function saveFeedErrorEmailSettings(event) {
+    event.preventDefault();
+
+    var form = event.currentTarget;
+    var submitButton = form.querySelector('[type="submit"]');
+    submitButton.disabled = true;
+
+    wpAjaxHelperRequest('wpfm-save-feed-error-email', {
+      enabled: document.getElementById('wpfm_feed_error_email_enabled').checked ? 'yes' : 'no',
+      recipient: form.querySelector('#wpfm_user_email').value
+    })
+      .always(finishFeedErrorEmailRequest);
+  }
+
+  /**
+   * Re-enables the email settings submit button after any AJAX result.
+   *
+   * @returns {void}
+   */
+  function finishFeedErrorEmailRequest() {
+    var form = document.getElementById('wpfm-feed-error-email-form');
+    if (form) form.querySelector('[type="submit"]').disabled = false;
+  }
 
 
   /* =======================================================

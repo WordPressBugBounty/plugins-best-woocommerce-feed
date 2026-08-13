@@ -326,10 +326,12 @@ class Rex_Feed_Scheduler {
                     }
                     Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'completed', true );
                     $this->update_total_products_from_feed_file( $feed_id );
+                    Rex_Feed_Product_Count_Guard::complete_run( $feed_id );
                     Rex_Feed_Job_Cleanup::cleanup_feed_batch_jobs( $feed_id );
                 }
             }
             catch( Exception $e ) {
+                Rex_Feed_Product_Count_Guard::fail_run( $feed_id, 'generation_exception', $e->getMessage() );
                 if( is_wpfm_logging_enabled() ) {
                     $log = wc_get_logger();
                     $log->warning( print_r( $e->getMessage(), 1 ), array( 'source' => 'WPFM_BACKGROUND_PROCESS_ERROR' ) );
@@ -370,20 +372,11 @@ class Rex_Feed_Scheduler {
         $base        = trailingslashit( $upload_dir['basedir'] ) . 'rex-feed/';
         $file        = $base . "feed-{$feed_id}.{$feed_format}";
 
-        $file_count = 0;
-        if ( file_exists( $file ) ) {
-            if ( 'xml' === $feed_format || 'rss' === $feed_format ) {
-                $contents = file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions
-                if ( $contents ) {
-                    $file_count = substr_count( $contents, '<item>' );
-                    if ( 0 === $file_count ) {
-                        $file_count = substr_count( $contents, '<entry>' );
-                    }
-                }
-            } elseif ( in_array( $feed_format, array( 'csv', 'tsv', 'txt' ), true ) ) {
-                $lines      = file( $file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
-                $file_count = $lines ? max( 0, count( $lines ) - 1 ) : 0;
-            }
+        $file_count       = 0;
+        $counted_formats  = array( 'xml', 'rss', 'csv', 'tsv', 'txt' );
+        if ( file_exists( $file ) && in_array( $feed_format, $counted_formats, true ) ) {
+            $streamed_count = Rex_Feed_Product_Count_Guard::get_file_count( $file, $feed_format );
+            $file_count     = null === $streamed_count ? 0 : $streamed_count;
         }
 
         if ( $file_count > 0 ) {
@@ -496,7 +489,9 @@ class Rex_Feed_Scheduler {
                         }
 
 	                        if( $update_single || $is_custom_executable || in_array( $schedule, [ 'hourly', 'daily', 'weekly', 'custom' ] ) ) {
-	                            update_post_meta( $feed_id, '_generation_start_time', time() );
+	                            $generation_started_at = time();
+	                            update_post_meta( $feed_id, '_generation_start_time', $generation_started_at );
+	                            Rex_Feed_Product_Count_Guard::begin_run( $feed_id, $update_single ? 'manual' : 'automatic', $generation_started_at );
 	                            $offset = 0;
 	                            $has_pending_or_new_batches = false;
 	                            $all_batches_ok             = true;

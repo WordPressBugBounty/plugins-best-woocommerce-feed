@@ -149,11 +149,30 @@ class Rex_Product_Feed_Ebay_seller extends Rex_Product_Feed_Abstract_Generator {
             parse_str( $config, $feed_config );
         }
 
+        $ebay_category     = isset( $feed_config[ 'rex_feed_ebay_seller_category' ] ) ? explode( " : ", (string) $feed_config[ 'rex_feed_ebay_seller_category' ] ) : '';
+        $this->ebay_cat_id = isset( $feed_config[ 'rex_feed_ebay_seller_category' ] ) ?
+            ( is_array( $ebay_category ) ? trim( end( $ebay_category ) ) : '' ) : '';
+
         $this->ebay_seller_config = array(
             'site_id'  => isset( $feed_config[ 'rex_feed_ebay_seller_site_id' ] ) ? (string) $feed_config[ 'rex_feed_ebay_seller_site_id' ] : '',
             'country'  => isset( $feed_config[ 'rex_feed_ebay_seller_country' ] ) ? (string) $feed_config[ 'rex_feed_ebay_seller_country' ] : '',
             'currency' => isset( $feed_config[ 'rex_feed_ebay_seller_currency' ] ) ? (string) $feed_config[ 'rex_feed_ebay_seller_currency' ] : '',
         );
+    }
+
+    /**
+     * Apply eBay Category ID consistently across attributes.
+     *
+     * @param array $attributes
+     */
+    private function apply_ebay_category( &$attributes ) {
+        if ( ! empty( $this->ebay_cat_id ) && preg_match( '#(\d+)$#', $this->ebay_cat_id, $matches ) ) {
+            if ( isset( $attributes['*Category'] ) ) {
+                $attributes['*Category'] = $matches[1];
+            } elseif ( isset( $attributes['Category'] ) ) {
+                $attributes['Category'] = $matches[1];
+            }
+        }
     }
 
 
@@ -222,11 +241,7 @@ class Rex_Product_Feed_Ebay_seller extends Rex_Product_Feed_Abstract_Generator {
                 $attributes = $this->get_product_data( $variable_product, $product_meta_keys );
                 
                 if( ( $this->rex_feed_skip_product && empty( array_keys($attributes, '') ) ) || !$this->rex_feed_skip_product ) {
-                    if (preg_match('#(\d+)$#', $this->ebay_cat_id, $matches)) {
-                        $attributes = array_slice($attributes, 0, 1, true) +
-                                      array("Category" => $matches[1]) +
-                                      array_slice($attributes, 1, count($attributes) - 1, true) ;
-                    }
+                    $this->apply_ebay_category($attributes);
 
                     // get the variation attributes of
                     // this product
@@ -288,6 +303,8 @@ class Rex_Product_Feed_Ebay_seller extends Rex_Product_Feed_Abstract_Generator {
                             $attributes = $this->get_product_data( $variation_product, $product_meta_keys );
 
                             if( ( $this->rex_feed_skip_product && empty( array_keys($attributes, '') ) ) || !$this->rex_feed_skip_product ) {
+                                $this->apply_ebay_category($attributes);
+
                                 // get the variation attributes of
                                 // this product
                                 $_variation_atts = $variation_product->get_attributes();
@@ -360,11 +377,8 @@ class Rex_Product_Feed_Ebay_seller extends Rex_Product_Feed_Abstract_Generator {
         if( ( $this->rex_feed_skip_product && empty( array_keys($attributes, '') ) ) || !$this->rex_feed_skip_product ) {
             $item = RexShoppingCustom::createItem();
 
-            if (preg_match('#(\d+)$#', $this->ebay_cat_id, $matches)) {
-                $attributes = array_slice($attributes, 0, 1, true) +
-                              array("Category" => $matches[1]) +
-                              array_slice($attributes, 1, count($attributes) - 1, true) ;
-            }
+            $this->apply_ebay_category($attributes);
+
             $attributes['Relationship'] = '';
             $attributes['RelationshipDetails'] = '';
 

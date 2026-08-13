@@ -141,6 +141,7 @@ class Rex_Product_Feed {
 		require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-create-contact.php';
         require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-linno-telemetry.php';
         require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-dashboard-banner.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-rex-feed-product-count-guard.php';
 
 		/**
 		 * Load the Feed Validator system.
@@ -182,6 +183,7 @@ class Rex_Product_Feed {
 	    $rollback               = new Rex_Feed_Rollback();
 	    $appsero_data           = new Rex_Product_Appsero_Data();
 	    $scheduler              = new Rex_Feed_Scheduler();
+	    $product_count_guard    = new Rex_Feed_Product_Count_Guard();
 	    $setup_wizard_ajax      = new Rex_Product_Feed_Setup_Wizard_Ajax();
         $dashboard_banner       = new Rex_Product_Feed_Dashboard_Banner();
 
@@ -229,6 +231,12 @@ class Rex_Product_Feed {
         $this->loader->add_action( 'untrashed_post', $feed_actions, 'handle_feed_untrash' );
         $this->loader->add_action( 'admin_init', $feed_actions, 'remove_logs' );
         $this->loader->add_action( 'admin_notices', $feed_actions, 'render_xml_error_message' );
+        $this->loader->add_action( 'admin_notices', $product_count_guard, 'render_global_notice' );
+        $this->loader->add_action( 'admin_notices', $product_count_guard, 'render_feed_detail_notice' );
+        $this->loader->add_filter( 'post_class', $product_count_guard, 'add_feed_row_class', 10, 3 );
+        $this->loader->add_action( 'before_delete_post', $product_count_guard, 'cleanup_feed_error_files' );
+        $this->loader->add_action( 'admin_post_wpfm_resolve_feed_error', $product_count_guard, 'resolve_feed_error' );
+        $this->loader->add_action( Rex_Feed_Product_Count_Guard::EMAIL_HOOK, $product_count_guard, 'send_email_batch' );
         $this->loader->add_action( 'admin_notices', $plugin_admin, 'show_demo_feed_success_notice' );
         $this->loader->add_action( 'admin_notices', $plugin_admin, 'show_feed_transient_cleanup_notice' );
         $this->loader->add_action( 'wp_ajax_wpfm_cleanup_feed_transients', $plugin_admin, 'ajax_cleanup_feed_transients' );

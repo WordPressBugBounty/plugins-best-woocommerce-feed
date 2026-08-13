@@ -928,6 +928,7 @@ return array(
     'Rex_Feed_Job_Cleanup' => $baseDir . '/admin/class-rex-feed-job-cleanup.php',
     'Rex_Feed_Job_History' => $baseDir . '/admin/class-rex-feed-job-history.php',
     'Rex_Feed_Merchants' => $baseDir . '/admin/class-rex-product-feed-merchants.php',
+    'Rex_Feed_Product_Count_Guard' => $baseDir . '/admin/class-rex-feed-product-count-guard.php',
     'Rex_Feed_Rollback' => $baseDir . '/admin/class-rex-product-feed-rollback.php',
     'Rex_Feed_Scheduler' => $baseDir . '/admin/class-rex-feed-scheduler.php',
     'Rex_Feed_Special_Occasion_Banner' => $baseDir . '/admin/class-rex-product-feed-special-occasion-banner.php',

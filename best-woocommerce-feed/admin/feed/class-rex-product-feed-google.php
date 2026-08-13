@@ -270,10 +270,11 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 				}
 
 				$product_details = $this->normalize_product_detail_entries( $attributes, $product->get_id() );
+				$questions_and_answers = in_array( $this->feed_format, array( 'xml', 'text', 'tsv' ), true ) ? $this->normalize_question_and_answer_entries( $attributes, $product->get_id() ) : array();
 
 				foreach ($attributes as $key => $value) {
 					// Skip product_detail sub-fields — handled separately below.
-					if ( $this->is_product_detail_mapping_key( $key ) ) {
+					if ( $this->is_product_detail_mapping_key( $key ) || $this->is_question_and_answer_mapping_key( $key ) ) {
 						continue;
 					}
 
@@ -323,6 +324,13 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 					$item->product_detail( $detail['section_name'], $detail['attribute_name'], $detail['attribute_value'] );
 				}
 
+				if ( in_array( $this->feed_format, array( 'xml', 'text', 'tsv' ), true ) ) {
+					// Output structured question_and_answer entries for XML and text feeds.
+					foreach ( $questions_and_answers as $entry ) {
+						$item->question_and_answer( $entry['question'], $entry['answer'] );
+					}
+				}
+
 				if ($product_type === 'variation' && $check_item_group_id === 0) {
 					$item->item_group_id($product->get_parent_id());
 				}
@@ -340,6 +348,16 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 	 */
 	private function is_product_detail_mapping_key( $attribute_key ) {
 		return (bool) preg_match( '/^product_detail_(section_name|attribute_name|attribute_value)_\d+$/', $attribute_key );
+	}
+
+	/**
+	 * Check whether an attribute key belongs to question_and_answer grouped mappings.
+	 *
+	 * @param string $attribute_key Attribute mapping key.
+	 * @return bool
+	 */
+	private function is_question_and_answer_mapping_key( $attribute_key ) {
+		return (bool) preg_match( '/^question_and_answer_(question|answer)_\d+$/', $attribute_key );
 	}
 
 	/**
@@ -390,6 +408,64 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 			wc_get_logger()->warning(
 				sprintf(
 					'Skipping malformed product_detail entries. Feed ID: %d, Product ID: %d, Indexes: %s',
+					(int) $this->id,
+					(int) $product_id,
+					implode( ',', $invalid_indexes )
+				),
+				array( 'source' => 'wpfm-google-feed' )
+			);
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize mapped question_and_answer sub-fields into a sequential list.
+	 *
+	 * @param array $attributes Product attributes from mapped feed fields.
+	 * @param int   $product_id Product ID for warning context.
+	 * @return array
+	 */
+	private function normalize_question_and_answer_entries( $attributes, $product_id = 0 ) {
+		$grouped_entries = array();
+		$normalized      = array();
+		$invalid_indexes = array();
+
+		foreach ( $attributes as $key => $value ) {
+			if ( preg_match( '/^question_and_answer_(question|answer)_(\d+)$/', $key, $matches ) && isset( $matches[1], $matches[2] ) ) {
+				$index = (int) $matches[2];
+				$field = $matches[1];
+				if ( is_scalar( $value ) || null === $value ) {
+					$grouped_entries[ $index ][ $field ] = (string) $value;
+				}
+			}
+		}
+
+		if ( empty( $grouped_entries ) ) {
+			return $normalized;
+		}
+
+		ksort( $grouped_entries );
+
+		foreach ( $grouped_entries as $index => $entry ) {
+			$question = isset( $entry['question'] ) ? trim( (string) $entry['question'] ) : '';
+			$answer   = isset( $entry['answer'] ) ? trim( (string) $entry['answer'] ) : '';
+
+			if ( '' === $question || '' === $answer ) {
+				$invalid_indexes[] = (string) $index;
+				continue;
+			}
+
+			$normalized[] = array(
+				'question' => $question,
+				'answer'   => $answer,
+			);
+		}
+
+		if ( ! empty( $invalid_indexes ) && function_exists( 'wc_get_logger' ) ) {
+			wc_get_logger()->warning(
+				sprintf(
+					'Skipping malformed question_and_answer entries. Feed ID: %d, Product ID: %d, Indexes: %s',
 					(int) $this->id,
 					(int) $product_id,
 					implode( ',', $invalid_indexes )

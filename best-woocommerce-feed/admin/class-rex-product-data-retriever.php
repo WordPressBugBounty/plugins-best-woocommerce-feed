@@ -739,21 +739,19 @@ class Rex_Product_Data_Retriever {
                     $permalink = apply_filters( 'wpml_permalink', $permalink, $this->feed->wpml_language );
                 }
 
-                if(
-                    $this->analytics_switcher
-                ) {
-                    if( is_array( $rule ) && in_array( 'decode_url', $rule, true ) ) {
-                        $permalink = add_query_arg( array_filter( $this->analytics_params ), urldecode( $permalink ) );
-                    }
-                    else {
-                        $permalink = $this->safe_char_encode_url( add_query_arg( array_filter( $this->analytics_params ), urldecode( $permalink ) ) );
-                    }
-                }
-                elseif( is_array( $rule ) && in_array( 'decode_url', $rule, true ) ) {
+                $decode_url = is_array( $rule ) && in_array( 'decode_url', $rule, true );
+
+                if ( $this->analytics_switcher ) {
+                    $permalink = add_query_arg(
+                        array_filter( $this->analytics_params ),
+                        $decode_url ? urldecode( $permalink ) : $permalink
+                    );
+                } elseif ( $decode_url ) {
                     $permalink = urldecode( $permalink );
                 }
-                else {
-                    $permalink = $this->safe_char_encode_url( urldecode( $permalink ) );
+
+                if ( ! $decode_url ) {
+                    $permalink = $this->normalize_product_url_query_spaces( $permalink );
                 }
                 /**
                  * Modify the product url before including in the feed.
@@ -3152,13 +3150,38 @@ class Rex_Product_Data_Retriever {
 				$val = preg_replace( '#\[[^\]]+\]#', '', $val );
 				return strip_shortcodes( $val );
 			case 'remove_special':
+			case 'remove_special character':
 				return sanitize_text_field( (string) $val );
 			case 'cdata':
 				return $val && '' !== $val ? "<![CDATA[ {$val} ]]>" : $val;
 			case 'cdata_without_space':
 				return $val ? "CDATA$val" : $val;
 			case 'remove_underscore':
-				return str_replace( '_', ' ', $val );
+				return str_replace( '_', '', $val );
+			case 'remove_slash':
+				return str_replace( array( '/', '\\' ), '', $val );
+			case 'remove_comma':
+				return str_replace( ',', '', $val );
+			case 'remove_exclamation':
+				return str_replace( '!', '', $val );
+			case 'remove_asterisk':
+				return str_replace( '*', '', $val );
+			case 'remove_ampersand':
+				return str_replace( array( '&', '&amp;' ), '', $val );
+			case 'remove_percentage':
+				return str_replace( '%', '', $val );
+			case 'remove_parentheses':
+				return str_replace( array( '(', ')' ), '', $val );
+			case 'remove_quotation_marks':
+				return str_replace( array( "'", '"', '‘', '’', '“', '”', '`' ), '', $val );
+			case 'remove_colon':
+				return str_replace( ':', '', $val );
+			case 'remove_semicolon':
+				return str_replace( ';', '', $val );
+			case 'remove_plus':
+				return str_replace( '+', '', $val );
+			case 'remove_punctuation':
+				return preg_replace( '/[^\p{L}\p{N}\s]/u', '', $val );
 			case 'remove_decimal':
 				if ( $this->check_if_float( $val ) ) {
 					$val = number_format( $val, 2, '.', '' );
@@ -3402,6 +3425,34 @@ class Rex_Product_Data_Retriever {
 			array( '%25', '%5b', '%5d', '%7b', '%7d', '%7c', '%20', '%22', '%3c', '%3e', '%23', '%5c', '%5e', '%7e', '%60' ),
 			$string
 		);
+	}
+
+	/**
+	 * Normalize query string spaces without changing URL path or fragment.
+	 *
+	 * @param string $url URL.
+	 *
+	 * @return string
+	 */
+	private function normalize_product_url_query_spaces( $url ) {
+		$fragment = '';
+		$fragment_position = strpos( $url, '#' );
+
+		if ( false !== $fragment_position ) {
+			$fragment = substr( $url, $fragment_position );
+			$url      = substr( $url, 0, $fragment_position );
+		}
+
+		$query_position = strpos( $url, '?' );
+
+		if ( false === $query_position ) {
+			return $url . $fragment;
+		}
+
+		$base  = substr( $url, 0, $query_position + 1 );
+		$query = substr( $url, $query_position + 1 );
+
+		return $base . str_replace( '+', '%20', $query ) . $fragment;
 	}
 
 

@@ -238,6 +238,14 @@ class Rex_Product_Feed_Ajax {
         wp_ajax_helper()->handle( 'wpfm-save-generation-mode' )
                         ->with_callback( array( 'Rex_Product_Feed_Ajax', 'save_generation_mode' ) )
                         ->with_validation( $validations );
+
+        wp_ajax_helper()->handle( 'wpfm-save-feed-error-email' )
+                        ->with_callback( array( 'Rex_Feed_Product_Count_Guard', 'save_email_settings' ) )
+                        ->with_validation( $validations );
+
+        wp_ajax_helper()->handle( 'wpfm-save-feed-error-admin-notice' )
+                        ->with_callback( array( 'Rex_Feed_Product_Count_Guard', 'save_admin_notice_setting' ) )
+                        ->with_validation( $validations );
     }
 
 
@@ -276,7 +284,14 @@ class Rex_Product_Feed_Ajax {
         $btn_id     = !empty( $payload[ 'button_id' ] ) ? $payload[ 'button_id' ] : '';
         $is_premium = apply_filters( 'wpfm_is_premium', false );
         $products   = apply_filters( 'wpfm_get_total_number_of_products', array( 'products' => WPFM_FREE_MAX_PRODUCT_LIMIT ), $feed_id );
-        $per_page   = get_option( 'rex-wpfm-product-per-batch', WPFM_FREE_MAX_PRODUCT_LIMIT );
+
+        $limit_notice = false;
+        if ( !$is_premium ) {
+            $eligible_total          = self::get_feed_product_count( $payload, $feed_id );
+            $products[ 'products' ]  = min( $eligible_total, WPFM_FREE_MAX_PRODUCT_LIMIT );
+            $limit_notice            = self::get_product_limit_notice( $eligible_total, false );
+        }
+        $per_page = get_option( 'rex-wpfm-product-per-batch', WPFM_FREE_MAX_PRODUCT_LIMIT );
 
         if ( (int) $per_page >= WPFM_FREE_MAX_PRODUCT_LIMIT && !$is_premium ) {
             $posts_per_page = WPFM_FREE_MAX_PRODUCT_LIMIT;
@@ -287,12 +302,367 @@ class Rex_Product_Feed_Ajax {
 
         update_post_meta( $feed_id, '_rex_feed_publish_btn', $btn_id );
 
-        return [
+        $response = [
             'products'    => $products[ 'products' ],
             'per_batch'   => $posts_per_page,
             'total_batch' => ceil( $products[ 'products' ] / $posts_per_page ),
             'feed_title'  => 'unique',
         ];
+
+        if ( $limit_notice ) {
+            $response[ 'product_limit' ] = $limit_notice;
+        }
+
+        return $response;
+    }
+
+    /**
+     * Count the products eligible for the submitted feed configuration.
+     *
+     * @param array      $payload Submitted feed data.
+     * @param int|string $feed_id Feed ID.
+     *
+     * @return int
+     */
+    private static function get_feed_product_count( $payload, $feed_id ) {
+        $feed_config = [];
+        if ( !empty( $payload[ 'feed_config' ] ) && is_string( $payload[ 'feed_config' ] ) ) {
+            wp_parse_str( $payload[ 'feed_config' ], $feed_config );
+        }
+
+        $product_scope = !empty( $feed_config[ 'rex_feed_products' ] )
+            ? sanitize_key( $feed_config[ 'rex_feed_products' ] )
+            : ( get_post_meta( $feed_id, '_rex_feed_products', true ) ?: get_post_meta( $feed_id, 'rex_feed_products', true ) );
+        $product_scope = $product_scope ?: 'all';
+
+        $merchant = !empty( $feed_config[ 'rex_feed_merchant' ] )
+            ? sanitize_key( $feed_config[ 'rex_feed_merchant' ] )
+            : ( get_post_meta( $feed_id, '_rex_feed_merchant', true ) ?: get_post_meta( $feed_id, 'rex_feed_merchant', true ) );
+
+        $variation_settings = [
+            'rex_feed_variations',
+            'rex_feed_default_variation',
+            'rex_feed_highest_variation',
+            'rex_feed_cheapest_variation',
+            'rex_feed_first_variation',
+            'rex_feed_last_variation',
+        ];
+        $should_fetch_variations = !$feed_id && empty( $feed_config );
+        foreach ( $variation_settings as $setting ) {
+            $value = $feed_config[ $setting ] ?? get_post_meta( $feed_id, "_{$setting}", true );
+            if ( 'yes' === $value ) {
+                $should_fetch_variations = true;
+                break;
+            }
+        }
+
+        $post_types = [ 'product' ];
+        if ( apply_filters( 'rexfeed_fetch_variation_products', $should_fetch_variations, $feed_id ) && 'skroutz' !== $merchant ) {
+            $post_types[] = 'product_variation';
+        }
+
+        $custom_filter_enabled = 'added' === ( $feed_config[ 'rex_feed_custom_filter_option_btn' ] ?? get_post_meta( $feed_id, '_rex_feed_custom_filter_option', true ) );
+        $feed_filters          = !empty( $feed_config[ 'ff' ] )
+            ? $feed_config[ 'ff' ]
+            : get_post_meta( $feed_id, '_rex_feed_feed_config_filter', true );
+        $feed_filters          = is_array( $feed_filters ) ? $feed_filters : [];
+
+        if ( $custom_filter_enabled && !empty( $feed_config[ 'ff' ] ) ) {
+            reset( $feed_filters );
+            unset( $feed_filters[ key( $feed_filters ) ] );
+        }
+
+        if ( $custom_filter_enabled && self::custom_filter_excludes_variations( $feed_filters ) ) {
+            $post_types = [ 'product' ];
+        }
+
+        $post_status = [ 'publish' ];
+        if ( 'yes' === get_option( 'wpfm_allow_private', 'no' ) ) {
+            $post_status[] = 'private';
+        }
+
+        $query_args = [
+            'post_type'              => $post_types,
+            'post_status'            => $post_status,
+            'posts_per_page'         => 1,
+            'fields'                 => 'ids',
+            'post__in'               => [],
+            'post__not_in'           => array_map( 'absint', (array) get_option( 'rex_feed_abandoned_child_list', [] ) ),
+            'no_found_rows'          => false,
+            'cache_results'          => false,
+            'update_post_meta_cache' => false,
+            'update_post_term_cache' => false,
+            'suppress_filters'       => false,
+        ];
+
+        self::apply_product_scope_to_count_query( $query_args, $feed_config, $feed_id, $product_scope );
+        self::switch_to_feed_language( $feed_config, $feed_id );
+
+        $where_filter = null;
+        $join_filter  = null;
+        $distinct_filter = static function () {
+            return 'DISTINCT';
+        };
+        add_filter( 'posts_distinct', $distinct_filter );
+
+        if ( $custom_filter_enabled && !empty( $feed_filters ) ) {
+            $custom_filter_args = Rex_Product_Filter::get_custom_filter_where_query( $feed_filters );
+            if ( !empty( $custom_filter_args[ 'where' ] ) ) {
+                $where_filter = static function ( $where ) use ( $custom_filter_args ) {
+                    return "{$where} AND ({$custom_filter_args[ 'where' ]}) ";
+                };
+                $join_filter = static function ( $join ) use ( $custom_filter_args ) {
+                    return self::add_custom_filter_count_joins( $join, $custom_filter_args );
+                };
+
+                add_filter( 'posts_where', $where_filter );
+                add_filter( 'posts_join', $join_filter );
+            }
+        }
+
+        $query = new WP_Query(
+            $query_args
+        );
+
+        if ( $where_filter ) {
+            remove_filter( 'posts_where', $where_filter );
+            remove_filter( 'posts_join', $join_filter );
+        }
+        remove_filter( 'posts_distinct', $distinct_filter );
+
+        return (int) $query->found_posts;
+    }
+
+    /**
+     * Check whether custom taxonomy filters require parent-only queries.
+     *
+     * @param array $feed_filters Feed filter groups.
+     *
+     * @return bool
+     */
+    private static function custom_filter_excludes_variations( $feed_filters ) {
+        foreach ( $feed_filters as $filters ) {
+            if ( !is_array( $filters ) ) {
+                continue;
+            }
+            foreach ( $filters as $filter_key => $filter ) {
+                if ( 'cfo' === $filter_key || !is_array( $filter ) ) {
+                    continue;
+                }
+                if ( in_array( $filter[ 'if' ] ?? '', [ 'product_cats', 'product_tags', 'product_brands' ], true ) ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Apply the selected product scope to a count query.
+     *
+     * @param array      $query_args Query arguments passed by reference.
+     * @param array      $feed_config Submitted feed configuration.
+     * @param int|string $feed_id Feed ID.
+     * @param string     $product_scope Selected product scope.
+     *
+     * @return void
+     */
+    private static function apply_product_scope_to_count_query( &$query_args, $feed_config, $feed_id, $product_scope ) {
+        $taxonomy_scopes = [
+            'product_cat'   => 'rex_feed_cats',
+            'product_tag'   => 'rex_feed_tags',
+            'product_brand' => 'rex_feed_brands',
+        ];
+
+        if ( isset( $taxonomy_scopes[ $product_scope ] ) ) {
+            $query_args[ 'post_type' ] = [ 'product' ];
+            $terms_key                 = $taxonomy_scopes[ $product_scope ];
+            $terms                     = $feed_config[ $terms_key ] ?? wp_get_post_terms( $feed_id, $product_scope, [ 'fields' => 'slugs' ] );
+            $terms                     = is_array( $terms ) ? array_map( 'sanitize_title', $terms ) : [];
+
+            if ( !empty( $terms ) ) {
+                $query_args[ 'tax_query' ] = [
+                    [
+                        'taxonomy' => $product_scope,
+                        'field'    => 'slug',
+                        'terms'    => $terms,
+                    ],
+                ];
+            }
+        }
+        elseif ( 'product_filter' === $product_scope ) {
+            $product_ids = $feed_config[ 'rex_feed_product_filter_ids' ]
+                ?? ( get_post_meta( $feed_id, '_rex_feed_product_filter_ids', true ) ?: get_post_meta( $feed_id, 'rex_feed_product_filter_ids', true ) );
+            $product_ids = array_filter( array_map( 'absint', (array) $product_ids ) );
+            $condition   = $feed_config[ 'product_filter_condition' ]
+                ?? ( get_post_meta( $feed_id, '_rex_feed_product_condition', true ) ?: get_post_meta( $feed_id, 'rex_feed_product_condition', true ) );
+            $condition   = is_array( $condition ) ? implode( '', $condition ) : $condition;
+
+            if ( !empty( $product_ids ) ) {
+                if ( 'inc' === $condition ) {
+                    $query_args[ 'post__in' ] = $product_ids;
+                }
+                else {
+                    $query_args[ 'post__not_in' ] = array_merge( $query_args[ 'post__not_in' ], $product_ids );
+                }
+            }
+        }
+        elseif ( 'featured' === $product_scope ) {
+            $query_args[ 'tax_query' ] = [
+                [
+                    'taxonomy' => 'product_visibility',
+                    'field'    => 'name',
+                    'terms'    => 'featured',
+                    'operator' => 'IN',
+                ],
+            ];
+        }
+    }
+
+    /**
+     * Switch multilingual integrations to the feed's saved language.
+     *
+     * @param array      $feed_config Submitted feed configuration.
+     * @param int|string $feed_id Feed ID.
+     *
+     * @return void
+     */
+    private static function switch_to_feed_language( $feed_config, $feed_id ) {
+        if ( !function_exists( 'wpfm_switch_site_lang' ) ) {
+            return;
+        }
+
+        $language = get_post_meta( $feed_id, '_rex_feed_wpml_language', true ) ?: get_post_meta( $feed_id, 'rex_feed_wpml_language', true );
+        if ( !$language && defined( 'ICL_LANGUAGE_CODE' ) ) {
+            $language = ICL_LANGUAGE_CODE;
+        }
+
+        $currency = !empty( $feed_config[ 'rex_feed_wcml_currency' ] )
+            ? $feed_config[ 'rex_feed_wcml_currency' ]
+            : ( function_exists( 'get_woocommerce_currency' ) ? get_woocommerce_currency() : '' );
+        wpfm_switch_site_lang( $language, $currency );
+    }
+
+    /**
+     * Add the joins required by custom feed filters.
+     *
+     * @param string $join Existing query joins.
+     * @param array  $custom_filter_args Prepared custom filter arguments.
+     *
+     * @return string
+     */
+    private static function add_custom_filter_count_joins( $join, $custom_filter_args ) {
+        global $wpdb;
+
+        $where = $custom_filter_args[ 'where' ] ?? '';
+        if ( !$where ) {
+            return $join;
+        }
+
+        if ( !empty( $custom_filter_args[ 'term_exists' ] ) ) {
+            $term_joins = preg_match_all( '/RexTerm/i', $where );
+            for ( $index = 1; $index <= $term_joins; $index++ ) {
+                $join .= " LEFT JOIN {$wpdb->term_relationships} AS RexTerm{$index}";
+                $join .= " ON ({$wpdb->posts}.ID = RexTerm{$index}.object_id) ";
+            }
+        }
+
+        if ( !empty( $custom_filter_args[ 'meta_keys' ] ) ) {
+            $meta_joins = (int) ( preg_match_all( '/RexMeta/i', $where ) / 2 );
+            for ( $index = 1; $index <= $meta_joins; $index++ ) {
+                $meta_key = $custom_filter_args[ 'meta_keys' ][ $index - 1 ] ?? '';
+                $join    .= " LEFT JOIN {$wpdb->postmeta} AS RexMeta{$index}";
+                $join    .= " ON ({$wpdb->posts}.ID = RexMeta{$index}.post_id) ";
+                if ( $meta_key ) {
+                    // The SQL alias is derived from the integer loop counter; only the meta key is user-influenced.
+                    $join .= $wpdb->prepare( " AND (RexMeta{$index}.meta_key = %s) ", $meta_key ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                }
+            }
+        }
+
+        return $join;
+    }
+
+    /**
+     * Build the product-limit notice for the current plugin state.
+     *
+     * @param int  $eligible_total Total product records matched by the feed query.
+     * @param bool $is_premium Whether a valid Pro license is active.
+     *
+     * @return array|false
+     */
+    private static function get_product_limit_notice( $eligible_total, $is_premium ) {
+        if ( $is_premium || $eligible_total <= WPFM_FREE_MAX_PRODUCT_LIMIT ) {
+            return false;
+        }
+
+        $pro_plugin   = 'best-woocommerce-feed-pro/rex-product-feed-pro.php';
+        $is_installed = file_exists( WP_PLUGIN_DIR . '/' . $pro_plugin );
+        $is_active    = false;
+
+        if ( $is_installed ) {
+            if ( !function_exists( 'is_plugin_active' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/plugin.php';
+            }
+            $is_active = is_plugin_active( $pro_plugin );
+        }
+
+        $remaining_products = $eligible_total - WPFM_FREE_MAX_PRODUCT_LIMIT;
+        $notice = [
+            'limited'         => true,
+            'total_products'  => $eligible_total,
+            'included_products' => WPFM_FREE_MAX_PRODUCT_LIMIT,
+            'remaining_products' => $remaining_products,
+            'product_limit'   => WPFM_FREE_MAX_PRODUCT_LIMIT,
+            'warning_icon'    => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/icon-svg/product-limit-warning.svg',
+            'crown_icon'      => '',
+            'button_external' => false,
+            'dismiss_label'   => __( 'Dismiss product limit notice', 'rex-product-feed' ),
+        ];
+
+        if ( !$is_installed ) {
+            $notice[ 'scenario' ]        = 'free';
+            $notice[ 'heading' ]         = __( 'Free plan product limit reached.', 'rex-product-feed' );
+            $notice[ 'message' ]         = sprintf(
+                /* translators: 1: product records processed, 2: total product records matched, 3: product records excluded by the free limit. */
+                __( 'The feed matched %2$s product records. The free plan processed %1$s, and the remaining %3$s were not processed. Upgrade to Pro to process them all.', 'rex-product-feed' ),
+                number_format_i18n( WPFM_FREE_MAX_PRODUCT_LIMIT ),
+                number_format_i18n( $eligible_total ),
+                number_format_i18n( $remaining_products )
+            );
+            $notice[ 'button_label' ]    = __( 'Upgrade to Pro', 'rex-product-feed' );
+            $notice[ 'button_url' ]      = 'https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=plugin&utm_medium=free-feed-generation&utm_campaign=upgrade-to-pro&utm_id=cro-in-plugin';
+            $notice[ 'button_external' ] = true;
+            $notice[ 'crown_icon' ]      = WPFM_PLUGIN_ASSETS_FOLDER . 'icon/icon-svg/product-limit-crown.svg?ver=' . WPFM_VERSION;
+        }
+        elseif ( !$is_active ) {
+            $notice[ 'scenario' ]     = 'pro-inactive';
+            $notice[ 'heading' ]      = __( 'PFM Pro is installed but not activated.', 'rex-product-feed' );
+            $notice[ 'message' ]      = sprintf(
+                /* translators: 1: product records processed, 2: total product records matched, 3: product records excluded by the free limit. */
+                __( 'The feed matched %2$s product records. The free plan processed %1$s, and the remaining %3$s were not processed. Activate PFM Pro to process them all.', 'rex-product-feed' ),
+                number_format_i18n( WPFM_FREE_MAX_PRODUCT_LIMIT ),
+                number_format_i18n( $eligible_total ),
+                number_format_i18n( $remaining_products )
+            );
+            $notice[ 'button_label' ] = __( 'Activate PFM Pro', 'rex-product-feed' );
+            $notice[ 'button_url' ]   = admin_url( 'plugins.php?plugin_status=inactive' );
+        }
+        else {
+            $notice[ 'scenario' ]     = 'license-inactive';
+            $notice[ 'heading' ]      = __( 'PFM Pro license activation required.', 'rex-product-feed' );
+            $notice[ 'message' ]      = sprintf(
+                /* translators: 1: product records processed, 2: total product records matched, 3: product records excluded by the free limit. */
+                __( 'The feed matched %2$s product records. The free plan processed %1$s, and the remaining %3$s were not processed. Activate your Pro license to process them all.', 'rex-product-feed' ),
+                number_format_i18n( WPFM_FREE_MAX_PRODUCT_LIMIT ),
+                number_format_i18n( $eligible_total ),
+                number_format_i18n( $remaining_products )
+            );
+            $notice[ 'button_label' ] = __( 'License Activate', 'rex-product-feed' );
+            $notice[ 'button_url' ]   = admin_url( 'edit.php?post_type=product-feed&page=wpfm-license' );
+        }
+
+        return $notice;
     }
 
 
@@ -314,7 +684,12 @@ class Rex_Product_Feed_Ajax {
         catch ( Exception $e ) {
             return $e->getMessage();
         }
-        return $merchant->make_feed();
+        $result         = $merchant->make_feed();
+        $publish_button = get_post_meta( $config[ 'info' ][ 'post_id' ], '_rex_feed_publish_btn', true );
+        if ( $config[ 'info' ][ 'batch' ] === $config[ 'info' ][ 'total_batch' ] && 'rex-bottom-preview-btn' !== $publish_button ) {
+            Rex_Feed_Product_Count_Guard::accept_manual_run( $config[ 'info' ][ 'post_id' ] );
+        }
+        return $result;
     }
 
 
@@ -1712,6 +2087,13 @@ class Rex_Product_Feed_Ajax {
      *
      * @return array
      */
+    /**
+     * Get post meta that should round-trip in feed configuration exports.
+     *
+     * @param int $feed_id Feed post ID.
+     *
+     * @return array
+     */
     private static function get_exportable_post_meta( $feed_id ) {
         $meta = get_post_meta( $feed_id );
 
@@ -1719,7 +2101,181 @@ class Rex_Product_Feed_Ajax {
             unset( $meta[ $meta_key ] );
         }
 
-        return $meta;
+        $processed_meta = array();
+
+        foreach ( $meta as $meta_key => $values ) {
+            if ( ! is_array( $values ) ) {
+                continue;
+            }
+
+            $processed_values = array();
+
+            foreach ( $values as $val ) {
+                $val = maybe_unserialize( $val );
+                $val = self::normalize_meta_term_ids_to_slugs( $meta_key, $val );
+                $processed_values[] = $val;
+            }
+
+            $processed_meta[ $meta_key ] = $processed_values;
+        }
+
+        return $processed_meta;
+    }
+
+    /**
+     * Normalize term IDs to term slugs inside meta structures for export.
+     *
+     * @param string $meta_key Meta key name.
+     * @param mixed  $val      Meta value.
+     *
+     * @return mixed
+     */
+    private static function normalize_meta_term_ids_to_slugs( $meta_key, $val ) {
+        $tax_map = array(
+            '_rex_feed_cats'   => 'product_cat',
+            'rex_feed_cats'    => 'product_cat',
+            '_rex_feed_tags'   => 'product_tag',
+            'rex_feed_tags'    => 'product_tag',
+            '_rex_feed_brands' => 'product_brand',
+            'rex_feed_brands'  => 'product_brand',
+        );
+
+        if ( isset( $tax_map[ $meta_key ] ) ) {
+            $taxonomy = $tax_map[ $meta_key ];
+            if ( is_array( $val ) ) {
+                $slugs = array();
+                foreach ( $val as $item ) {
+                    $term = is_numeric( $item ) ? get_term( (int) $item, $taxonomy ) : get_term_by( 'slug', (string) $item, $taxonomy );
+                    if ( $term && ! is_wp_error( $term ) ) {
+                        $slugs[] = $term->slug;
+                    } elseif ( is_string( $item ) && '' !== $item ) {
+                        $slugs[] = $item;
+                    }
+                }
+                return $slugs;
+            } elseif ( is_numeric( $val ) ) {
+                $term = get_term( (int) $val, $taxonomy );
+                if ( $term && ! is_wp_error( $term ) ) {
+                    return $term->slug;
+                }
+            }
+        }
+
+        if ( in_array( $meta_key, array( '_rex_feed_feed_config_filter', 'rex_feed_feed_config_filter', '_rex_feed_feed_config_rules', 'rex_feed_feed_config_rules' ), true ) && is_array( $val ) ) {
+            foreach ( $val as $idx => $rule ) {
+                if ( ! is_array( $rule ) || empty( $rule['if'] ) || ! isset( $rule['value'] ) ) {
+                    continue;
+                }
+
+                $taxonomy = self::get_taxonomy_from_filter_if( $rule['if'] );
+                if ( $taxonomy ) {
+                    $rule_val = $rule['value'];
+                    if ( is_array( $rule_val ) ) {
+                        $new_vals = array();
+                        foreach ( $rule_val as $v ) {
+                            $term       = is_numeric( $v ) ? get_term( (int) $v, $taxonomy ) : get_term_by( 'slug', (string) $v, $taxonomy );
+                            $new_vals[] = ( $term && ! is_wp_error( $term ) ) ? $term->slug : $v;
+                        }
+                        $val[ $idx ]['value'] = $new_vals;
+                    } elseif ( is_numeric( $rule_val ) ) {
+                        $term = get_term( (int) $rule_val, $taxonomy );
+                        if ( $term && ! is_wp_error( $term ) ) {
+                            $val[ $idx ]['value'] = $term->slug;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $val;
+    }
+
+    /**
+     * Resolve term slugs back to target site's integer term_ids.
+     *
+     * @param string $meta_key Meta key name.
+     * @param mixed  $val      Meta value.
+     * @param int    $post_id  Feed post ID.
+     *
+     * @return mixed
+     */
+    private static function resolve_meta_term_slugs_to_ids( $meta_key, $val, $post_id ) {
+        $tax_map = array(
+            '_rex_feed_cats'   => 'product_cat',
+            'rex_feed_cats'    => 'product_cat',
+            '_rex_feed_tags'   => 'product_tag',
+            'rex_feed_tags'    => 'product_tag',
+            '_rex_feed_brands' => 'product_brand',
+            'rex_feed_brands'  => 'product_brand',
+        );
+
+        if ( isset( $tax_map[ $meta_key ] ) ) {
+            $taxonomy = $tax_map[ $meta_key ];
+            if ( is_array( $val ) ) {
+                $term_ids   = array();
+                $term_slugs = array();
+                foreach ( $val as $item ) {
+                    $term = is_numeric( $item ) ? get_term( (int) $item, $taxonomy ) : get_term_by( 'slug', (string) $item, $taxonomy );
+                    if ( $term && ! is_wp_error( $term ) ) {
+                        $term_ids[]   = $term->term_id;
+                        $term_slugs[] = $term->slug;
+                    }
+                }
+                if ( ! empty( $term_slugs ) ) {
+                    wp_set_object_terms( $post_id, $term_slugs, $taxonomy, false );
+                }
+                return $term_ids;
+            }
+        }
+
+        if ( in_array( $meta_key, array( '_rex_feed_feed_config_filter', 'rex_feed_feed_config_filter', '_rex_feed_feed_config_rules', 'rex_feed_feed_config_rules' ), true ) && is_array( $val ) ) {
+            foreach ( $val as $idx => $rule ) {
+                if ( ! is_array( $rule ) || empty( $rule['if'] ) || ! isset( $rule['value'] ) ) {
+                    continue;
+                }
+
+                $taxonomy = self::get_taxonomy_from_filter_if( $rule['if'] );
+                if ( $taxonomy ) {
+                    $rule_val = $rule['value'];
+                    if ( is_array( $rule_val ) ) {
+                        $new_vals = array();
+                        foreach ( $rule_val as $v ) {
+                            $term       = is_numeric( $v ) ? get_term( (int) $v, $taxonomy ) : get_term_by( 'slug', (string) $v, $taxonomy );
+                            $new_vals[] = ( $term && ! is_wp_error( $term ) ) ? (string) $term->term_id : $v;
+                        }
+                        $val[ $idx ]['value'] = $new_vals;
+                    } elseif ( is_string( $rule_val ) && ! is_numeric( $rule_val ) && '' !== $rule_val ) {
+                        $term = get_term_by( 'slug', $rule_val, $taxonomy );
+                        if ( $term && ! is_wp_error( $term ) ) {
+                            $val[ $idx ]['value'] = (string) $term->term_id;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $val;
+    }
+
+    /**
+     * Map filter 'if' key to corresponding WordPress taxonomy.
+     *
+     * @param string $if_key Filter if condition key.
+     *
+     * @return string|null
+     */
+    private static function get_taxonomy_from_filter_if( $if_key ) {
+        $filter_tax_map = array(
+            'product_cats'           => 'product_cat',
+            'product_cat'            => 'product_cat',
+            'product_tags'           => 'product_tag',
+            'product_tag'            => 'product_tag',
+            'product_brands'         => 'product_brand',
+            'product_brand'          => 'product_brand',
+            'product_shipping_class' => 'product_shipping_class',
+        );
+
+        return isset( $filter_tax_map[ $if_key ] ) ? $filter_tax_map[ $if_key ] : null;
     }
 
     /**
@@ -1770,6 +2326,12 @@ class Rex_Product_Feed_Ajax {
             $meta_values = is_array( $meta_values ) ? $meta_values : array( $meta_values );
 
             foreach ( $meta_values as $meta_value ) {
+                if ( is_string( $meta_value ) ) {
+                    $meta_value = maybe_unserialize( $meta_value );
+                }
+
+                $meta_value = self::resolve_meta_term_slugs_to_ids( $meta_key, $meta_value, $post_id );
+
                 add_post_meta( $post_id, $meta_key, $meta_value );
             }
         }
@@ -1899,7 +2461,9 @@ class Rex_Product_Feed_Ajax {
 
         update_post_meta( $feed_id, '_rex_feed_total_batches', $total_batches );
         update_post_meta( $feed_id, '_rex_feed_current_batch', $start_batch - 1 );
-        update_post_meta( $feed_id, '_generation_start_time', time() );
+        $generation_started_at = time();
+        update_post_meta( $feed_id, '_generation_start_time', $generation_started_at );
+        Rex_Feed_Product_Count_Guard::begin_run( $feed_id, 'manual', $generation_started_at );
 
         $offset = ( $start_batch - 1 ) * $per_batch;
         for ( $current_batch = $start_batch; $current_batch <= $total_batches; $current_batch++ ) {

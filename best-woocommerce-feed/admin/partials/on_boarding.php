@@ -28,6 +28,8 @@ $wpfm_tiktok_pixel_enabled   = get_option( 'wpfm_tiktok_pixel_enabled', 'no' ); 
 $wpfm_fb_pixel_data          = get_option( 'wpfm_fb_pixel_value' ); // Get Facebook Pixel data
 $wpfm_enable_log             = get_option( 'wpfm_enable_log' ); // Get log enabling setting
 $current_user_email          = get_option( 'wpfm_user_email', '' ); // Get the current user's email, default to empty string
+$feed_error_notice_enabled   = get_option( Rex_Feed_Product_Count_Guard::ADMIN_NOTICE_OPTION, 'yes' );
+$feed_error_email_enabled    = $is_premium_activated ? get_option( Rex_Feed_Product_Count_Guard::EMAIL_ENABLED_OPTION, 'no' ) : 'no';
 $pro_url                     = add_query_arg( 'pfm-dashboard', '1', 'https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=go_pro_button&utm_medium=plugin&utm_campaign=pfm_pro&utm_id=pfm_pro' ); // URL for upgrading to Pro version
 $rollback_versions           = function_exists( 'rex_feed_get_roll_back_versions' ) ? rex_feed_get_roll_back_versions() : array(); // Get rollback versions if the function exists
 $wpfm_remove_plugin_data     = get_option( 'wpfm_remove_plugin_data' ); // Get plugin data removal setting
@@ -644,29 +646,6 @@ if ( $is_premium_activated ) {
                             
                         </div>
 
-                        <div class="single-merchant <?php echo !$is_premium_activated ? 'wpfm-pro' : ''; ?>" data-label="<?php echo esc_attr__( 'Email notification', 'rex-product-feed' ); ?>">
-                            <?php if ( !$is_premium_activated ) { ?>
-                                <a href="<?php echo esc_url( $pro_url ); ?>" target="_blank" title="Click to Upgrade Pro"
-                                   class="wpfm-pro-cta">
-                                    <span class="wpfm-pro-tag"><?php echo esc_html__( 'pro', 'rex-product-feed' ); ?></span>
-                                </a>
-                            <?php } ?>
-                            <div class="single-merchant-pro">
-                                <div>
-                                    <span class="title"><?php echo esc_html__( 'Email me when a feed fails', 'rex-product-feed' ); ?></span>
-                                    <p><?php echo esc_html__( 'Sends an alert if a scheduled feed regeneration errors out.', 'rex-product-feed' ); ?></p>
-                                </div>
-                                <div class="switch">
-                                    <form id="wpfm-user-email" class="wpfm-fb-pixel">
-                                        <input class="<?php echo !$is_premium_activated ? 'rexfeed-pro-disabled' : ''; ?>" placeholder="<?php echo esc_attr__( 'you@example.com', 'rex-product-feed' ); ?>" id="wpfm_user_email" type="text" name="wpfm_user_email" value="<?php echo esc_attr( $current_user_email ); ?>">
-                                        <button type="submit" class="save-user-email <?php echo !$is_premium_activated ? 'rexfeed-pro-disabled' : ''; ?>" <?php echo !$is_premium_activated ? 'disabled' : ''; ?>>
-                                            <span><?php echo esc_html__( 'Save', 'rex-product-feed' ); ?></span>
-                                            <i class="fa fa-spinner fa-pulse fa-fw"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
 
                     </section>
 
@@ -877,6 +856,42 @@ if ( $is_premium_activated ) {
                                 <span><?php echo esc_html__( 'Clean Up Now', 'rex-product-feed' ); ?></span>
                                 <i class="fa fa-spinner fa-pulse fa-fw" style="display:none;"></i>
                             </button>
+                        </div>
+
+                        <div class="single-merchant feed-error-email-settings" data-label="<?php echo esc_attr__( 'Feed error notifications', 'rex-product-feed' ); ?>">
+                            <div class="pfm-feed-error-email">
+                                <div class="pfm-feed-error-email__toggle-row">
+                                    <div>
+                                        <span class="title"><?php echo esc_html__( 'Show feed error alerts in WordPress admin', 'rex-product-feed' ); ?></span>
+                                        <p><?php echo esc_html__( 'Show an admin notice when an automatic feed run produces fewer items or fails.', 'rex-product-feed' ); ?></p>
+                                    </div>
+                                    <div class="wpfm-switcher">
+                                        <input class="switch-input" type="checkbox" id="wpfm_feed_error_notice_enabled" <?php checked( $feed_error_notice_enabled, 'yes' ); ?>>
+                                        <label class="lever" for="wpfm_feed_error_notice_enabled"></label>
+                                    </div>
+                                </div>
+
+                                <form id="wpfm-feed-error-email-form" class="pfm-feed-error-email__form">
+                                    <div class="pfm-feed-error-email__toggle-row">
+                                        <div>
+                                            <span class="title"><?php echo esc_html__( 'Get notified by email when a feed error happens', 'rex-product-feed' ); ?><?php if ( ! $is_premium_activated ) : ?> <span class="wpfm-pro-tag"><?php echo esc_html__( 'pro', 'rex-product-feed' ); ?></span><?php endif; ?></span>
+                                            <p><?php echo esc_html__( 'Receive an email when an automatic feed run produces fewer items or fails. Errors within 10 minutes of the first failed run may be included in the same email.', 'rex-product-feed' ); ?></p>
+                                        </div>
+                                        <div class="wpfm-switcher <?php echo ! $is_premium_activated ? 'disabled' : ''; ?>">
+                                            <input class="switch-input" type="checkbox" id="wpfm_feed_error_email_enabled" <?php checked( $feed_error_email_enabled, 'yes' ); ?> <?php disabled( ! $is_premium_activated ); ?>>
+                                            <label class="lever" for="wpfm_feed_error_email_enabled"></label>
+                                        </div>
+                                    </div>
+
+                                    <div id="wpfm-feed-error-email-fields" class="pfm-feed-error-email__fields" <?php echo 'yes' !== $feed_error_email_enabled ? 'hidden' : ''; ?>>
+                                        <label for="wpfm_user_email"><?php echo esc_html__( 'Recipient email', 'rex-product-feed' ); ?></label>
+                                        <div class="pfm-feed-error-email__controls">
+                                            <input id="wpfm_user_email" type="email" value="<?php echo esc_attr( $current_user_email ); ?>" placeholder="<?php echo esc_attr__( 'you@example.com', 'rex-product-feed' ); ?>" <?php disabled( ! $is_premium_activated ); ?>>
+                                            <button type="submit" class="button button-primary"><?php echo esc_html__( 'Save changes', 'rex-product-feed' ); ?></button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
 
                     </section>
@@ -1355,4 +1370,3 @@ if ( $is_premium_activated ) {
 
 
 </section>
-

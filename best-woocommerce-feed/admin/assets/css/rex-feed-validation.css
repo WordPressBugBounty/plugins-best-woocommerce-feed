@@ -63,12 +63,30 @@
     gap: 10px;
 }
 
+.rex-feed-validation-header__actions .button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
 .rex-feed-validation-header__actions .button .dashicons {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 16px;
+    font-family: dashicons !important;
     font-size: 16px;
     width: 16px;
     height: 16px;
-    margin-right: 4px;
-    vertical-align: middle;
+    margin: 0;
+    line-height: 1;
+    vertical-align: initial;
+}
+
+.rex-feed-validation-header__actions .button .dashicons::before {
+    display: block;
+    line-height: 16px;
 }
 
 /* Progress */

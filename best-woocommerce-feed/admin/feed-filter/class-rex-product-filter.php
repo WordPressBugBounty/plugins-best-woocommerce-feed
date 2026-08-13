@@ -766,9 +766,12 @@ class Rex_Product_Filter {
         elseif ('shipping_cost' === $taxonomy && method_exists(__CLASS__, 'handle_shipping_cost_filter_by_terms')) {
             return self::handle_shipping_cost_filter_by_terms($slug, $condition, $then);
         }
-        // Default term lookup by slug
+        // Default term lookup by slug with fallback to ID
         else {
             $term = get_term_by('slug', $slug, $taxonomy);
+            if ( ( !$term || is_wp_error( $term ) ) && is_numeric( $slug ) ) {
+                $term = get_term( (int) $slug, $taxonomy );
+            }
         }
 
         // Safely return term ID or null

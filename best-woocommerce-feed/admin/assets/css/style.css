@@ -9,6 +9,77 @@ body.product-feed_page_category_mapping {
   direction: ltr;
 }
 
+.post-type-product-feed .rex-feed-product-limit-notice {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 5px 0 15px;
+  padding: 1px 42px 1px 12px;
+  border-left: 4px solid #DC9300;
+  border-left-color: #DC9300 !important;
+  border-radius: 0 5px 5px 0;
+  background: #fff;
+  box-shadow: none;
+  font-family: "Roboto", sans-serif;
+}
+.post-type-product-feed .rex-feed-product-limit-notice__warning {
+  width: 23px;
+  height: 22px;
+  flex: 0 0 23px;
+}
+.post-type-product-feed .rex-feed-product-limit-notice__copy {
+  flex: 1 1 auto;
+  margin: 0.5em 0;
+  color: #2c3338;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.post-type-product-feed .rex-feed-product-limit-notice__copy strong {
+  font-weight: 600;
+}
+.post-type-product-feed .rex-feed-product-limit-notice__button {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  min-height: 40px;
+  line-height: 1;
+  padding: 0 20px;
+  font-size: 14px;
+  color: #fff;
+  border-radius: 5px;
+  white-space: nowrap;
+  text-decoration: none;
+  border: 1px solid #216df0;
+}
+
+.post-type-product-feed .rex-feed-product-limit-notice__button:hover{
+  background-color: #fff;
+  border: 1px solid #d2d2d2;
+  color: #3c3c3c;
+}
+
+.post-type-product-feed .rex-feed-product-limit-notice__button img {
+  width: 17px;
+  height: 14px;
+  flex: 0 0 17px;
+}
+
+@media (max-width: 600px) {
+  .post-type-product-feed .rex-feed-product-limit-notice {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding-right: 42px;
+  }
+  .post-type-product-feed .rex-feed-product-limit-notice__button {
+    margin: 0 0 8px;
+  }
+}
+
 .rex-onboarding {
   /*-----------heading tag Typography------------*/
 }
@@ -5313,11 +5384,11 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
 .post-type-product-feed div.updated {
   border-left-color: #00a32a;
 }
-.post-type-product-feed .notice-success,
+.post-type-product-feed .notice-error,
 .post-type-product-feed div.error {
   border-left-color: #d63638;
 }
-.post-type-product-feed .notice-success,
+.post-type-product-feed .notice-error,
 .post-type-product-feed div.notice-error {
   border-left-color: #d63638;
 }

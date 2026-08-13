@@ -1777,6 +1777,30 @@ select.mapping-select.type-select {
 }
 .pfm-propagation-notice svg { flex-shrink: 0; margin-top: 1px; }
 
+.pfm-free-feed-limit-notice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 20px;
+    padding: 14px 16px;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    background: #fffaf5;
+    color: #1f2937;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.pfm-free-feed-limit-notice svg {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
 /* Divider */
 .pfm-divider { border: none; border-top: 1px solid #f1eeff; margin: 20px 0; }
 

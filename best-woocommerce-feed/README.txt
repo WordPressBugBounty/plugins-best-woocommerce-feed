@@ -6,7 +6,7 @@ Tags: Product Feed, WooCommerce Product Feed, Google Shopping Feed, Facebook Cat
 Requires at least: 6.7
 Tested up to:  7.0
 Requires PHP: 7.4
-Stable tag:  7.6.3
+Stable tag:  7.7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -501,6 +501,19 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.7.0 (2026-08-12) =
+* New: Add smart feed health monitoring with admin notices and email alerts for failed or
+incomplete feed runs.
+* New: Add support for Google Merchant Center Question & Answer (question_and_answer) grouped attributes in XML, TXT, and TSV feeds.
+* New: Add new character removal and punctuation strip options to attribute output filters.
+* Fix: Correct URL encoding and percent-encoding for variation product URLs containing special characters and ampersands.
+* Fix: Resolve CSV structural breakage and column shifting in eBay Seller Center feeds caused by description formatting and unescaped line breaks.
+* Fix: Correct swapped current and total batch numbers in feed generation logs.
+* Fix: Prevent serialized meta corruption and map taxonomy term IDs to slugs during feed export and import.
+
+= 7.6.4 (2026-08-12) =
+* Enhancement: Added product limit notification modal when feed generation exceeds 200 products on Free or unlicensed Pro setups.
 
 = 7.6.3 (2026-08-05) =
 * Improvement: Add native_commerce attribute support for Google Merchant Center feeds

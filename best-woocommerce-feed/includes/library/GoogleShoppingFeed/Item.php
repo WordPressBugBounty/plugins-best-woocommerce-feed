@@ -563,6 +563,36 @@ class Item
     }
 
     /**
+     * Adds a question_and_answer entry with nested sub-attributes.
+     *
+     * @param string|null $question Required question.
+     * @param string|null $answer   Required answer.
+     */
+    public function question_and_answer( $question = null, $answer = null )
+    {
+        if ( null === $question || null === $answer ) {
+            return;
+        }
+
+        $question = trim( (string) $question );
+        $answer   = trim( (string) $answer );
+        if ( '' === $question || '' === $answer ) {
+            return;
+        }
+
+        $node  = new Node( 'question_and_answer' );
+        $value = array(
+            'question' => $question,
+            'answer'   => $answer,
+        );
+
+        if ( ! isset( $this->nodes['question_and_answer'] ) ) {
+            $this->nodes['question_and_answer'] = array();
+        }
+        $this->nodes['question_and_answer'][] = $node->value( $value )->_namespace( $this->namespace );
+    }
+
+    /**
      * @param $material
      */
     public function material($material)

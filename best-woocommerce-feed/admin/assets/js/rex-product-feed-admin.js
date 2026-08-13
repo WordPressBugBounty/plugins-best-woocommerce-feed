@@ -3,6 +3,12 @@
 
     let backup_data = [];
     let progressWidth = 0;
+    let productLimitNoticeData = null;
+    let productLimitStatusTimer = null;
+    let productLimitStatusPollCount = 0;
+    const PRODUCT_LIMIT_NOTICE_TTL = 24 * 60 * 60 * 1000;
+    const PRODUCT_LIMIT_NOTICE_STATUS_INTERVAL = 3000;
+    const PRODUCT_LIMIT_NOTICE_MAX_STATUS_POLLS = 100;
     let config_btn = rex_wpfm_admin_translate_strings.google_cat_map_btn;
     let optimize_pr_title_btn = rex_wpfm_admin_translate_strings.optimize_pr_title_btn;
 
@@ -18,6 +24,7 @@
                     1200
                 );
         });
+        show_pending_product_limit_notice();
     });
 
     /**
@@ -1294,6 +1301,13 @@
                     alert( 'Please set an unique feed title!' );
                 }
                 else {
+                    productLimitNoticeData = !is_preview && response.product_limit
+                        ? response.product_limit
+                        : null;
+                    if (!productLimitNoticeData && !is_preview) {
+                        clear_product_limit_notice($("#post_ID").val() || rex_wpfm_ajax.feed_id);
+                    }
+
                     $( '#publishing-action span.spinner' ).addClass( 'is-active' );
                     $( '.post-type-product-feed input#publish' ).addClass( 'disabled' );
                     $(".rex-feed-publish-btn span.spinner").addClass("is-active");
@@ -1328,6 +1342,339 @@
                 $(".rex-feed-publish-btn span.spinner").removeClass("is-active");
                 console.log("Uh, oh!");
             });
+    }
+
+    /**
+     * Display the product-limit message as a standard WordPress admin notice.
+     *
+     * @param {Object} notice Product-limit notice data.
+     */
+    function show_product_limit_notice(notice) {
+        var $container = $("#wpbody-content");
+
+        if (!$container.length) {
+            return;
+        }
+
+        dismiss_product_limit_notice(false);
+
+        var $notice = $("<div>", {
+            class: "notice notice-warning is-dismissible rex-feed-notice rex-feed-product-limit-notice",
+            role: "alert",
+        });
+        var $warning = $("<img>", {
+            class: "rex-feed-product-limit-notice__warning",
+            src: notice.warning_icon,
+            alt: "",
+            width: 23,
+            height: 22,
+        });
+        var $copy = $("<p>", {
+            class: "rex-feed-product-limit-notice__copy",
+        });
+        var $heading = $("<strong>", {
+            text: notice.heading,
+        });
+        var $message = $("<span>", {
+            text: " " + notice.message,
+        });
+        var $button = $("<a>", {
+            class: "btn waves-effect waves-light btn-default rex-feed-product-limit-notice__button",
+            href: notice.button_url,
+            text: notice.button_label,
+        });
+        if (notice.crown_icon) {
+            $button.prepend($("<img>", {
+                src: notice.crown_icon,
+                alt: "",
+                width: 17,
+                height: 14,
+            }));
+        }
+        var $close = $("<button>", {
+            class: "notice-dismiss",
+            type: "button",
+        });
+        var $closeLabel = $("<span>", {
+            class: "screen-reader-text",
+            text: "Dismiss this notice.",
+        });
+
+        if (notice.button_external) {
+            $button.attr({
+                target: "_blank",
+                rel: "noopener noreferrer",
+            });
+        }
+
+        $copy.append($heading, $message);
+        $close.append($closeLabel);
+        $close.on("click", function () {
+            $notice.remove();
+        });
+        $notice.append($warning, $copy, $button, $close);
+
+        var $messageNotice = $container.find("#message").first();
+        if ($messageNotice.length) {
+            $messageNotice.after($notice);
+        } else {
+            $container.append($notice);
+        }
+    }
+
+    /**
+     * Remove the product-limit notice.
+     */
+    function dismiss_product_limit_notice() {
+        clearTimeout(productLimitStatusTimer);
+        $(".rex-feed-product-limit-notice").remove();
+    }
+
+    /**
+     * Save the feed's pending or completed product-limit notice.
+     *
+     * @param {boolean} isReady Whether feed generation has completed.
+     */
+    function store_product_limit_notice(isReady) {
+        var feedId = $("#post_ID").val() || rex_wpfm_ajax.feed_id;
+        var storage = get_product_limit_notice_storage();
+
+        if (!productLimitNoticeData || !feedId || !storage) {
+            return;
+        }
+
+        var storageKey = "rex_feed_product_limit_notice_" + feedId;
+        var storedRecord = read_product_limit_notice_record(storageKey);
+        var createdAt = storedRecord && storedRecord.created_at
+            ? storedRecord.created_at
+            : Date.now();
+
+        write_product_limit_notice_record(storageKey, {
+            notice: productLimitNoticeData,
+            state: isReady ? "ready" : "pending",
+            created_at: createdAt,
+        });
+    }
+
+    /**
+     * Return persistent storage for a pending product-limit notice.
+     *
+     * localStorage keeps the notice available when background generation outlives
+     * the current tab. Fall back to sessionStorage when persistent storage is
+     * unavailable.
+     *
+     * @return {Storage|null} Browser storage.
+     */
+    function get_product_limit_notice_storage() {
+        try {
+            if (typeof localStorage !== "undefined") {
+                var testKey = "rex_feed_product_limit_storage_test";
+                localStorage.setItem(testKey, "1");
+                localStorage.removeItem(testKey);
+                return localStorage;
+            }
+        } catch (error) {
+            // Access may be blocked by the browser's privacy settings.
+        }
+
+        try {
+            if (typeof sessionStorage !== "undefined") {
+                return sessionStorage;
+            }
+        } catch (error) {
+            // Access may be blocked by the browser's privacy settings.
+        }
+
+        return null;
+    }
+
+    /**
+     * Read and normalize a stored product-limit notice.
+     *
+     * @param {string} storageKey Storage key.
+     * @return {Object|null} Normalized storage record.
+     */
+    function read_product_limit_notice_record(storageKey) {
+        var storage = get_product_limit_notice_storage();
+        if (!storage) {
+            return null;
+        }
+
+        try {
+            var storedValue = storage.getItem(storageKey);
+            if (!storedValue) {
+                return null;
+            }
+
+            var parsedValue = JSON.parse(storedValue);
+            if (parsedValue && parsedValue.notice) {
+                parsedValue.created_at = Number.isFinite(Number(parsedValue.created_at))
+                    ? Number(parsedValue.created_at)
+                    : Date.now();
+                parsedValue.state = "pending" === parsedValue.state ? "pending" : "ready";
+                return parsedValue;
+            }
+
+            // Backward compatibility with the original unwrapped notice shape.
+            return {
+                notice: parsedValue,
+                state: "ready",
+                created_at: Date.now(),
+            };
+        } catch (error) {
+            clear_product_limit_notice(storageKey.replace("rex_feed_product_limit_notice_", ""));
+            return null;
+        }
+    }
+
+    /**
+     * Write a product-limit notice record.
+     *
+     * @param {string} storageKey Storage key.
+     * @param {Object} record Notice record.
+     */
+    function write_product_limit_notice_record(storageKey, record) {
+        var storage = get_product_limit_notice_storage();
+        if (!storage) {
+            return;
+        }
+
+        try {
+            storage.setItem(storageKey, JSON.stringify(record));
+        } catch (error) {
+            console.error("Unable to store the product limit notice.", error);
+        }
+    }
+
+    /**
+     * Remove a product-limit notice from all supported storage types.
+     *
+     * @param {string|number} feedId Feed ID.
+     */
+    function clear_product_limit_notice(feedId) {
+        var storageKey = "rex_feed_product_limit_notice_" + feedId;
+
+        try {
+            if (typeof localStorage !== "undefined") {
+                localStorage.removeItem(storageKey);
+            }
+        } catch (error) {
+            // Ignore blocked storage and continue with the fallback.
+        }
+
+        try {
+            if (typeof sessionStorage !== "undefined") {
+                sessionStorage.removeItem(storageKey);
+            }
+        } catch (error) {
+            // Ignore blocked storage.
+        }
+    }
+
+    /**
+     * Poll a background generation until its pending notice is ready.
+     *
+     * @param {string|number} feedId Feed ID.
+     * @param {string} storageKey Storage key.
+     * @param {Object} noticeRecord Stored notice record.
+     */
+    function wait_for_product_limit_notice(feedId, storageKey, noticeRecord) {
+        clearTimeout(productLimitStatusTimer);
+        productLimitStatusPollCount++;
+
+        wpAjaxHelperRequest("rexfeed-get-feed-generation-status", {feed_id: feedId})
+            .done(function (response) {
+                if (response && "completed" === response.status) {
+                    noticeRecord.state = "ready";
+                    write_product_limit_notice_record(storageKey, noticeRecord);
+
+                    try {
+                        sessionStorage.setItem("rex_feed_just_generated_" + feedId, "true");
+                    } catch (error) {
+                        // Validation can still be run manually when storage is blocked.
+                    }
+                    window.location.reload();
+                    return;
+                }
+
+                if (response && ("error" === response.status || "failed" === response.status)) {
+                    clear_product_limit_notice(feedId);
+                    return;
+                }
+
+                if (
+                    productLimitStatusPollCount < PRODUCT_LIMIT_NOTICE_MAX_STATUS_POLLS &&
+                    Date.now() - noticeRecord.created_at < PRODUCT_LIMIT_NOTICE_TTL
+                ) {
+                    productLimitStatusTimer = setTimeout(function () {
+                        wait_for_product_limit_notice(feedId, storageKey, noticeRecord);
+                    }, PRODUCT_LIMIT_NOTICE_STATUS_INTERVAL);
+                } else if (Date.now() - noticeRecord.created_at >= PRODUCT_LIMIT_NOTICE_TTL) {
+                    clear_product_limit_notice(feedId);
+                }
+            })
+            .fail(function () {
+                if (
+                    productLimitStatusPollCount < PRODUCT_LIMIT_NOTICE_MAX_STATUS_POLLS &&
+                    Date.now() - noticeRecord.created_at < PRODUCT_LIMIT_NOTICE_TTL
+                ) {
+                    productLimitStatusTimer = setTimeout(function () {
+                        wait_for_product_limit_notice(feedId, storageKey, noticeRecord);
+                    }, PRODUCT_LIMIT_NOTICE_STATUS_INTERVAL);
+                } else if (Date.now() - noticeRecord.created_at >= PRODUCT_LIMIT_NOTICE_TTL) {
+                    clear_product_limit_notice(feedId);
+                }
+            });
+    }
+
+    /**
+     * Display a product-limit notice only after the capped feed has completed.
+     */
+    function show_pending_product_limit_notice() {
+        var feedId = $("#post_ID").val() || rex_wpfm_ajax.feed_id;
+
+        if (!feedId) {
+            return;
+        }
+
+        if (!get_product_limit_notice_storage()) {
+            return;
+        }
+
+        var storageKey = "rex_feed_product_limit_notice_" + feedId;
+        var noticeRecord = read_product_limit_notice_record(storageKey);
+
+        if (!noticeRecord || !noticeRecord.notice) {
+            return;
+        }
+
+        if (Date.now() - noticeRecord.created_at >= PRODUCT_LIMIT_NOTICE_TTL) {
+            clear_product_limit_notice(feedId);
+            return;
+        }
+
+        if ("ready" !== noticeRecord.state) {
+            wait_for_product_limit_notice(feedId, storageKey, noticeRecord);
+            return;
+        }
+
+        var validationFlag = null;
+        try {
+            validationFlag = sessionStorage.getItem("rex_feed_just_generated_" + feedId);
+        } catch (error) {
+            // Show the notice immediately when validation storage is unavailable.
+        }
+        var hasActiveValidator = $(".rex-feed-validate-btn:not(:disabled)").length > 0;
+
+        // Supported validators perform one additional reload after their
+        // automatic validation. Keep the notice pending until that reload
+        // finishes so the user has time to read and act on it.
+        if ("true" === validationFlag && hasActiveValidator) {
+            return;
+        }
+
+        clear_product_limit_notice(feedId);
+        show_product_limit_notice(noticeRecord.notice);
     }
 
     /**
@@ -1405,8 +1752,9 @@
         wpAjaxHelperRequest("rexfeed-generate-feed", $payload)
             .done(function (response) {
                 console.log("Woohoo!");
-                var msg =
-                    '<div id="message" class="error notice notice-error is-dismissible rex-feed-notice"><p>Your feed exceed the limit.Please <a href="edit.php?post_type=product-feed&page=best-woocommerce-feed-pricing">Upgrade!!!</a> </p><button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button></div>';
+                if (productLimitNoticeData) {
+                    store_product_limit_notice(false);
+                }
                 if (response == "false" || response == "") {
                     generate_feed(product, offset, batch, per_batch, total_batch);
                 } else if (response.msg == "finish") {
@@ -1419,27 +1767,32 @@
                     $(document).off("click", "#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn", get_product_number);
                     
                     // Set flag to auto-trigger validation after page reload
+                    store_product_limit_notice(true);
                     if (typeof(sessionStorage) !== "undefined") {
                         sessionStorage.setItem('rex_feed_just_generated_' + $("#post_ID").val(), 'true');
                     }
                     
                     $("#publish").trigger("click");
                 } else if (response.msg == "failForInvalidEntry") {
+                    clear_product_limit_notice($("#post_ID").val() || rex_wpfm_ajax.feed_id);
                     alert("Please set proper values for the mandatory field like Shipping Id, Who made, When made, Taxonomy Id.");
                     rex_feed_feed_generation_error_helper();
                     $(".post-type-product-feed #rex_feed_progress_bar").fadeOut();
                     return false;
                 } else if (response.msg == "failToAuthorize") {
+                    clear_product_limit_notice($("#post_ID").val() || rex_wpfm_ajax.feed_id);
                     alert("No Authorization detected, Need Authorization From Etsy first.");
                     rex_feed_feed_generation_error_helper();
                     $(".post-type-product-feed #rex_feed_progress_bar").fadeOut();
                     return false;
                 } else if (response.msg == "failForAuthExpire") {
+                    clear_product_limit_notice($("#post_ID").val() || rex_wpfm_ajax.feed_id);
                     alert("Expire you authorization with etsy, Need Authorization From Etsy first.");
                     rex_feed_feed_generation_error_helper();
                     $(".post-type-product-feed #rex_feed_progress_bar").fadeOut();
                     return false;
                 } else if (response.msg == "failForEmptyProduct") {
+                    clear_product_limit_notice($("#post_ID").val() || rex_wpfm_ajax.feed_id);
                     alert("Product sending failed - No available products");
                     rex_feed_feed_generation_error_helper();
                     $(".post-type-product-feed #rex_feed_progress_bar").fadeOut();
@@ -1477,6 +1830,7 @@
                 }
             })
             .fail(function (response) {
+                clear_product_limit_notice($("#post_ID").val() || rex_wpfm_ajax.feed_id);
                 $(".progressbar-bar").css("background", "#ff0000");
                 $(".progressbar-bar").css("border-color", "#ff0000");
                 $(".progress-msg span").css("color", "#ff0000");
@@ -1575,6 +1929,7 @@
                         $("#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn").removeClass("disabled");
                         $(document).off("click", "#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn", get_product_number);
 
+                        store_product_limit_notice(true);
                         if (typeof sessionStorage !== "undefined") {
                             sessionStorage.setItem("rex_feed_just_generated_" + feedId, "true");
                         }
@@ -4228,7 +4583,3 @@ document.addEventListener("DOMContentLoaded", () => {
         toggleContentVisibility();
     }
 });
-
-
-
-

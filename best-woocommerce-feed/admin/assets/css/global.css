@@ -68,6 +68,21 @@
   line-height: 21px;
 }
 
+body.post-type-product-feed tr.rex-feed-row-has-error > th,
+body.post-type-product-feed tr.rex-feed-row-has-error > td {
+  background-color: #fff5f5;
+}
+body.post-type-product-feed tr.rex-feed-row-has-error > .check-column {
+  border-inline-start: 4px solid #dc3232;
+}
+.rex-feed-error-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0;
+}
+
 /*Upgrade Notice*/
 .rex-feed-major-update-warning + p {
   display: none;

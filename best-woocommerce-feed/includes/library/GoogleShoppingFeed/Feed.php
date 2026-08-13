@@ -216,6 +216,14 @@ class Feed
                             continue;
                         }
 
+                        if ( 'question_and_answer' === $node->get( 'name' ) && is_array( $node->get( 'value' ) ) ) {
+                            $question_and_answer = $node->get( 'value' );
+                            $qa_node             = $feedItemNode->addChild( 'question_and_answer', null, $node->get( '_namespace' ) );
+                            $qa_node->addChild( 'question', htmlspecialchars( htmlspecialchars( (string) $question_and_answer['question'] ) ), $node->get( '_namespace' ) );
+                            $qa_node->addChild( 'answer', htmlspecialchars( htmlspecialchars( (string) $question_and_answer['answer'] ) ), $node->get( '_namespace' ) );
+                            continue;
+                        }
+
                         $feedItemNode->addChild($node->get('name'), $node->get('value'), $node->get('_namespace'));
                     }
                 }
@@ -274,6 +282,8 @@ class Feed
                         if (is_array($itemNode)) {
                             if ( 'product_detail' === $field ) {
                                 $row[] = $this->formatProductDetailNodesForText( $itemNode );
+                            } elseif ( 'question_and_answer' === $field ) {
+                                $row[] = $this->formatQuestionAndAnswerNodesForText( $itemNode );
                             } else {
                                 foreach ($itemNode as $node) {
                                     $row[] = str_replace(array("\r\n", "\n", "\r"), ' ', $node->get('value'));
@@ -364,6 +374,46 @@ class Feed
         }
 
         return implode( ',', $details );
+    }
+
+    /**
+     * Convert question_and_answer nodes to Google text-feed format.
+     *
+     * @param array $nodes Question and answer nodes.
+     * @return string
+     */
+    private function formatQuestionAndAnswerNodesForText( $nodes ) {
+        $entries = array();
+
+        foreach ( $nodes as $node ) {
+            $value = $node->get( 'value' );
+            if ( ! is_array( $value ) ) {
+                continue;
+            }
+
+            $question = isset( $value['question'] ) ? trim( (string) $value['question'] ) : '';
+            $answer   = isset( $value['answer'] ) ? trim( (string) $value['answer'] ) : '';
+            if ( '' === $question || '' === $answer ) {
+                continue;
+            }
+
+            $entries[] = $this->quoteQuestionAndAnswerTextPart( $question ) . ':' . $this->quoteQuestionAndAnswerTextPart( $answer );
+        }
+
+        return implode( ', ', $entries );
+    }
+
+    /**
+     * Quote a question_and_answer sub-attribute for text output.
+     *
+     * @param string $value Sub-attribute value.
+     * @return string
+     */
+    private function quoteQuestionAndAnswerTextPart( $value ) {
+        $value = str_replace( array( "\r\n", "\n", "\r", "\t" ), ' ', (string) $value );
+        $value = str_replace( '"', '""', $value );
+
+        return '"' . $value . '"';
     }
 
     /**
