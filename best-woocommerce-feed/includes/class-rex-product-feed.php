@@ -112,12 +112,21 @@ class Rex_Product_Feed {
 	private function load_dependencies() {
 
 		/**
-		 * Get Composer Autoloader.
+		 * Get Composer Autoloader and Scoped Vendor Autoloader.
 		 */
-		$autoload_file_array = apply_filters( 'wpfm_autoload_file_array', array( plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/autoload.php' ) );
+		$default_autoloaders = array(
+			plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/autoload.php',
+		);
+		$prefixed_autoloader = plugin_dir_path( dirname( __FILE__ ) ) . 'includes/vendor-prefixed/autoload.php';
+		if ( file_exists( $prefixed_autoloader ) ) {
+			$default_autoloaders[] = $prefixed_autoloader;
+		}
+		$autoload_file_array = apply_filters( 'wpfm_autoload_file_array', $default_autoloaders );
 
 		foreach ( $autoload_file_array as $file ) {
-			require_once $file;
+			if ( file_exists( $file ) ) {
+				require_once $file;
+			}
 		}
 
 		/**

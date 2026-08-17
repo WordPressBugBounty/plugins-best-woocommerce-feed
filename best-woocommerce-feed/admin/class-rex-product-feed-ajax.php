@@ -1,4 +1,17 @@
 <?php
+
+use RexFeed\Vendor\Google\ApiCore\ApiException;
+use RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\Client\DataSourcesServiceClient;
+use RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\CreateDataSourceRequest;
+use RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\UpdateDataSourceRequest;
+use RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\FetchDataSourceRequest;
+use RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\DataSource;
+use RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\FileInput;
+use RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\FileInput\FetchSettings;
+use RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\PrimaryProductDataSource;
+use RexFeed\Vendor\Google\Protobuf\FieldMask;
+use RexFeed\Vendor\Google\Type\TimeOfDay;
+
 /**
  * Class Rex_Product_Feed_Ajax
  *
@@ -104,6 +117,16 @@ class Rex_Product_Feed_Ajax {
         // Send to Google Merchant Center.
         wp_ajax_helper()->handle( 'rexfeed-send-to-google' )
                         ->with_callback( array( 'Rex_Product_Feed_Ajax', 'send_to_google' ) )
+                        ->with_validation( $validations );
+
+        // Fetch Google DataSource (Merchant API v1).
+        wp_ajax_helper()->handle( 'rexfeed-fetch-google-datasource' )
+                        ->with_callback( array( 'Rex_Product_Feed_Ajax', 'fetch_google_datasource' ) )
+                        ->with_validation( $validations );
+
+        // Migrate existing Content API feed to Merchant API.
+        wp_ajax_helper()->handle( 'rexfeed-migrate-to-merchant-api' )
+                        ->with_callback( array( 'Rex_Product_Feed_Ajax', 'migrate_to_merchant_api' ) )
                         ->with_validation( $validations );
 
         // Database Update.
@@ -901,9 +924,268 @@ class Rex_Product_Feed_Ajax {
      * @return array
      */
     public static function send_to_google( $payload ) {
-        $feed_id             = !empty( $payload[ 'feed_id' ] ) ? $payload[ 'feed_id' ] : null;
-        $rex_google_merchant = new Rex_Google_Merchant_Settings_Api();
-        if ( $feed_id && $rex_google_merchant->is_authenticate() ) {
+        $feed_id = !empty( $payload[ 'feed_id' ] ) ? $payload[ 'feed_id' ] : null;
+
+        if ( ! $feed_id ) {
+            return array( 'success' => false, 'message' => __( 'Feed ID missing.', 'rex-product-feed' ) );
+        }
+
+        $data_source_id = get_post_meta( $feed_id, '_rex_feed_google_data_source_id', true );
+        $data_feed_id   = get_post_meta( $feed_id, '_rex_feed_google_data_feed_id', true ) ?: get_post_meta( $feed_id, 'rex_feed_google_data_feed_id', true );
+
+        // Route: Always use Merchant API — Content API retires August 18, 2026 and is disabled.
+        // The Merchant API path handles missing credentials with a clear error message.
+        // Old feeds with only data_feed_id (no data_source_id) are auto-migrated on first send.
+        $use_merchant_api = true;
+
+        if ( $use_merchant_api ) {
+            // Merchant API uses UserRefreshCredentials (auto-refreshes) — no access-token expiry check needed.
+            $result = self::send_to_google_merchant_api( $feed_id, $payload, $data_source_id );
+            if ( isset( $result[ 'success' ] ) && false === $result[ 'success' ] ) {
+                return $result;
+            }
+            // Propagate migrated flag so the UI can show a migration notice.
+            if ( ! empty( $result[ 'migrated' ] ) ) {
+                return array_merge(
+                    $result,
+                    array( 'message' => __( 'Feed automatically migrated to Merchant API v1 and sent to Google Merchant Center.', 'rex-product-feed' ) )
+                );
+            }
+        } else {
+            // Legacy Content API — requires a valid (non-expired) access token.
+            $rex_google_merchant = new Rex_Google_Merchant_Settings_Api();
+            if ( ! $rex_google_merchant->is_authenticate() ) {
+                return array( 'success' => false, 'message' => __( 'Not authenticated with Google. Please re-authorize on the Merchant Settings page.', 'rex-product-feed' ) );
+            }
+            $result = self::send_to_google_content_api( $feed_id, $payload, $rex_google_merchant );
+            if ( isset( $result[ 'success' ] ) && false === $result[ 'success' ] ) {
+                return $result;
+            }
+        }
+
+        // Persist schedule meta.
+        if ( isset( $payload[ 'schedule' ] ) ) {
+            update_post_meta( $feed_id, '_rex_feed_google_schedule', $payload[ 'schedule' ] );
+        }
+        if ( isset( $payload[ 'hour' ] ) ) {
+            update_post_meta( $feed_id, '_rex_feed_google_schedule_time', $payload[ 'hour' ] );
+        }
+        if ( isset( $payload[ 'month' ] ) ) {
+            update_post_meta( $feed_id, '_rex_feed_google_schedule_month', $payload[ 'month' ] );
+        }
+        if ( isset( $payload[ 'day' ] ) ) {
+            update_post_meta( $feed_id, '_rex_feed_google_schedule_week_day', $payload[ 'day' ] );
+        }
+        if ( isset( $payload[ 'country' ] ) ) {
+            update_post_meta( $feed_id, '_rex_feed_google_target_country', $payload[ 'country' ] );
+        }
+        if ( isset( $payload[ 'language' ] ) ) {
+            update_post_meta( $feed_id, '_rex_feed_google_target_language', $payload[ 'language' ] );
+        }
+
+        return array( 'success' => true );
+    }
+
+    /**
+     * Merchant API v1 path for send_to_google().
+     *
+     * Creates or updates a DataSource in GMC using the DataSources API, then triggers a fetch.
+     *
+     * @param int|string $feed_id
+     * @param array      $payload
+     * @param string     $data_source_id  Existing DataSource resource name, or empty string.
+     * @return array     Success/error array.
+     */
+    private static function send_to_google_merchant_api( $feed_id, array $payload, string $data_source_id ): array {
+        try {
+            $merchant_client = Rex_Feed_Merchant_API_Client::from_stored_credentials();
+            if ( ! $merchant_client ) {
+                if ( wp_get_environment_type() === 'local' || wp_get_environment_type() === 'development' ) {
+                    if ( ! $data_source_id ) {
+                        $mock_id = 'accounts/123456789/dataSources/mock_' . $feed_id;
+                        update_post_meta( $feed_id, '_rex_feed_google_data_source_id', $mock_id );
+                        error_log( sprintf( '[Local Mock] Bypassed DataSource creation for feed_id=%d and set mock ID: %s', (int) $feed_id, $mock_id ) );
+                    } else {
+                        error_log( sprintf( '[Local Mock] Bypassed DataSource update for feed_id=%d, ID: %s', (int) $feed_id, $data_source_id ) );
+                    }
+                    return array( 'success' => true );
+                }
+                // Diagnose which piece is missing so the error message is actionable.
+                $token_data    = get_option( 'rex_google_access_token', '' );
+                $token_data    = is_array( $token_data ) ? $token_data : json_decode( $token_data, true );
+                $has_refresh   = ! empty( $token_data['refresh_token'] ?? '' );
+                $has_client_id = ! empty( get_option( 'rex_google_client_id', '' ) );
+                $has_secret    = ! empty( get_option( 'rex_google_client_secret', '' ) );
+
+                if ( $has_client_id && $has_secret && ! $has_refresh ) {
+                    return array(
+                        'success' => false,
+                        'message' => __( 'Your Google credentials need to be refreshed. Please click "Re-authenticate" on the Google Merchant settings page, then try again.', 'rex-product-feed' ),
+                    );
+                }
+                return array(
+                    'success' => false,
+                    'message' => __( 'Google Merchant API credentials not configured. Please enter your Client ID, Client Secret, and Merchant ID on the Google Merchant settings page, then authenticate.', 'rex-product-feed' ),
+                );
+            }
+
+            $merchant_id  = get_option( 'rex_google_merchant_id', '' );
+            $feed_url     = self::get_or_restore_feed_url( (int) $feed_id );
+            $feed_title   = get_the_title( $feed_id );
+            $country      = isset( $payload[ 'country' ] ) ? sanitize_text_field( $payload[ 'country' ] ) : ( get_post_meta( $feed_id, '_rex_feed_google_target_country', true ) ?: 'US' );
+            $language     = isset( $payload[ 'language' ] ) ? sanitize_text_field( $payload[ 'language' ] ) : ( get_post_meta( $feed_id, '_rex_feed_google_target_language', true ) ?: 'en' );
+            $hour         = isset( $payload[ 'hour' ] ) ? absint( $payload[ 'hour' ] ) : 22;
+
+            if ( ! $feed_url ) {
+                return array(
+                    'success' => false,
+                    'message' => __( 'Feed file URL not found. Please generate the feed first.', 'rex-product-feed' ),
+                );
+            }
+
+            $fetch_settings = ( new FetchSettings() )
+                ->setEnabled( true )
+                ->setTimeOfDay( ( new TimeOfDay() )->setHours( $hour ) )
+                ->setFrequency( FetchSettings\Frequency::FREQUENCY_DAILY )
+                ->setFetchUri( $feed_url );
+
+            $default_rule = ( new \RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\PrimaryProductDataSource\DefaultRule() )
+                ->setTakeFromDataSources( array(
+                    ( new \RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\DataSourceReference() )->setSelf( true )
+                ) );
+
+            // Only FREE_LISTINGS (int 4) is used here — SHOPPING_ADS (int 1) maps to SHOPPING_PLUS
+            // in the current server proto which requires account enrollment. Users can enable
+            // additional destinations directly in the Google Merchant Center UI.
+            $destinations = array(
+                ( new \RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\PrimaryProductDataSource\Destination() )
+                    ->setDestination( \RexFeed\Vendor\Google\Shopping\Type\Destination\DestinationEnum::FREE_LISTINGS )
+                    ->setState( \RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\PrimaryProductDataSource\Destination\State::ENABLED ),
+            );
+
+            $data_source_obj = ( new DataSource() )
+                ->setDisplayName( $feed_title )
+                ->setPrimaryProductDataSource(
+                    ( new PrimaryProductDataSource() )
+                        ->setCountries( array( $country ) )
+                        ->setContentLanguage( $language )
+                        ->setFeedLabel( $country )
+                        ->setDestinations( $destinations )
+                        ->setDefaultRule( $default_rule )
+                );
+
+            $ds_client = $merchant_client->get_datasources_client();
+
+            if ( $data_source_id ) {
+                $data_source_obj->setName( $data_source_id );
+                $update_request = ( new UpdateDataSourceRequest() )
+                    ->setDataSource( $data_source_obj )
+                    ->setUpdateMask(
+                        // Do not include file_input in update to avoid immutable fileName validation errors.
+                        new FieldMask( array( 'paths' => array( 'display_name', 'primary_product_data_source' ) ) )
+                    );
+                $ds_client->updateDataSource( $update_request );
+                // Trigger GMC to re-fetch the file.
+                $ds_client->fetchDataSource( ( new FetchDataSourceRequest() )->setName( $data_source_id ) );
+                error_log( sprintf( '[Merchant API] Data source updated and fetch triggered. feed_id=%d, data_source_id=%s', (int) $feed_id, $data_source_id ) );
+            } else {
+                $create_request = ( new CreateDataSourceRequest() )
+                    ->setParent( "accounts/{$merchant_id}" )
+                    ->setDataSource( $data_source_obj );
+                // API behavior differs by account: some accept fetch-only input, others require fileName.
+                // Try fetch-only first, then retry with fileName only when explicitly required.
+                $data_source_obj->setFileInput( ( new FileInput() )->setFetchSettings( $fetch_settings ) );
+                try {
+                    $response = $ds_client->createDataSource( $create_request );
+                } catch ( ApiException $create_exception ) {
+                    if ( false !== strpos( $create_exception->getMessage(), 'Required field not provided: fileInput.fileName' ) ) {
+                        $data_source_obj->setFileInput(
+                            ( new FileInput() )
+                                ->setFileName( basename( $feed_url ) )
+                                ->setFetchSettings( $fetch_settings )
+                        );
+                        $create_request->setDataSource( $data_source_obj );
+                        $response = $ds_client->createDataSource( $create_request );
+                    } else {
+                        throw $create_exception;
+                    }
+                }
+                $new_id   = $response->getName();
+                update_post_meta( $feed_id, '_rex_feed_google_data_source_id', $new_id );
+                // Allow Google backend to finish indexing the newly created DataSource resource.
+                sleep( 2 );
+                // Trigger initial fetch with retry for eventual consistency.
+                try {
+                    $ds_client->fetchDataSource( ( new FetchDataSourceRequest() )->setName( $new_id ) );
+                } catch ( ApiException $fetch_e ) {
+                    if ( false !== strpos( $fetch_e->getMessage(), 'was not found' ) ) {
+                        sleep( 3 );
+                        try {
+                            $ds_client->fetchDataSource( ( new FetchDataSourceRequest() )->setName( $new_id ) );
+                        } catch ( ApiException $fetch_e2 ) {
+                            error_log( sprintf( '[Merchant API] Initial fetch trigger deferred for feed_id=%d: %s', (int) $feed_id, $fetch_e2->getMessage() ) );
+                        }
+                    } else {
+                        throw $fetch_e;
+                    }
+                }
+                error_log( sprintf( '[Merchant API] New Data source created and fetch triggered. feed_id=%d, new_data_source_id=%s', (int) $feed_id, $new_id ) );
+                // Signal to the caller that this was an auto-migration from Content API.
+                return array( 'success' => true, 'migrated' => true, 'data_source_id' => $new_id );
+            }
+        } catch ( ApiException $e ) {
+            error_log( sprintf( '[Merchant API] API Exception encountered. feed_id=%d, status=%s, message=%s', (int) $feed_id, (string) $e->getStatus(), $e->getMessage() ) );
+            // If DataSource was deleted in GMC, clear stale ID and recreate.
+            $stale_ds_id = $data_source_id ?: get_post_meta( $feed_id, '_rex_feed_google_data_source_id', true );
+            if ( $stale_ds_id && false !== strpos( $e->getStatus(), 'NOT_FOUND' ) && false === strpos( $e->getMessage(), 'was not found' ) ) {
+                delete_post_meta( $feed_id, '_rex_feed_google_data_source_id' );
+                return self::send_to_google_merchant_api( $feed_id, $payload, '' );
+            }
+            $normalized = Rex_Feed_Merchant_API_Client::normalize_api_error( $e );
+            // GCP project not registered with this Merchant Center account — auto-register silently.
+            if ( 'project_not_registered' === ( $normalized['error_type'] ?? '' ) ) {
+                // Must use the authenticated Google account email, not the WordPress user email.
+                $developer_email = $merchant_client->get_google_email();
+                $reg_result      = $merchant_client->register_gcp( $merchant_id, $developer_email );
+                if ( $reg_result['success'] ) {
+                    return array(
+                        'success'    => false,
+                        'error_type' => 'registration_complete',
+                        'message'    => __( 'Your Google Cloud project has been registered with your Merchant Center account. Please wait 5 minutes, then click "Send to Google Merchant" again.', 'rex-product-feed' ),
+                    );
+                }
+                return $reg_result;
+            }
+            $log = wc_get_logger();
+            $log->error(
+                sprintf( '[Merchant API] send_to_google failed: %s (status: %s)', $e->getMessage(), $e->getStatus() ),
+                array( 'source' => 'WPFM-google-merchant-api' )
+            );
+            return $normalized;
+        } catch ( \Throwable $e ) {
+            $log = wc_get_logger();
+            $log->error(
+                sprintf( '[Merchant API] send_to_google unexpected error: %s in %s:%d', $e->getMessage(), $e->getFile(), $e->getLine() ),
+                array( 'source' => 'WPFM-google-merchant-api' )
+            );
+            return array(
+                'success' => false,
+                'message' => $e->getMessage(),
+            );
+        }
+
+        return array( 'success' => true );
+    }
+
+    /**
+     * Legacy Content API path for send_to_google() — used only for feeds not yet migrated.
+     *
+     * @param int|string               $feed_id
+     * @param array                    $payload
+     * @param Rex_Google_Merchant_Settings_Api $rex_google_merchant
+     * @return array
+     */
+    private static function send_to_google_content_api( $feed_id, array $payload, Rex_Google_Merchant_Settings_Api $rex_google_merchant ): array {
             $feed_url      = get_post_meta( $feed_id, '_rex_feed_xml_file', true ) ?: get_post_meta( $feed_id, 'rex_feed_xml_file', true );
             $feed_title    = get_the_title( $feed_id );
             $client        = $rex_google_merchant::get_client();
@@ -917,7 +1199,6 @@ class Rex_Product_Feed_Ajax {
             $client->setScopes( 'https://www.googleapis.com/auth/content' );
             $client->setAccessToken( $access_token );
 
-            // Initialize service and datafeed.
             $service  = new RexFeed\Google\Service\ShoppingContent( $client );
             $datafeed = new RexFeed\Google\Service\ShoppingContent\Datafeed();
             $target   = new RexFeed\Google\Service\ShoppingContent\DatafeedTarget();
@@ -937,17 +1218,16 @@ class Rex_Product_Feed_Ajax {
             $datafeed->setContentType( 'products' );
             $datafeed->setTargets( array( $target ) );
 
-            if ( !$rex_google_merchant->feed_exists( $feed_id ) ) {
+            $feed_exists = $rex_google_merchant->feed_exists( $feed_id );
+            if ( ! $feed_exists ) {
                 $datafeed->setFileName( $filename );
-            }
-            else {
+            } else {
                 $data_feed_file = get_post_meta( $feed_id, '_rex_feed_google_data_feed_file_name', true ) ?: get_post_meta( $feed_id, 'rex_feed_google_data_feed_file_name', true );
                 $datafeed->setFileName( $data_feed_file );
             }
 
-            // Initialize Schedule.
             $fetch_schedule = new RexFeed\Google\Service\ShoppingContent\DatafeedFetchSchedule();
-            if ( !empty( $payload[ 'schedule' ] ) ) {
+            if ( ! empty( $payload[ 'schedule' ] ) ) {
                 if ( 'monthly' === $payload[ 'schedule' ] && isset( $payload[ 'month' ] ) ) {
                     $fetch_schedule->setDayOfMonth( $payload[ 'month' ] );
                 }
@@ -955,25 +1235,22 @@ class Rex_Product_Feed_Ajax {
                     $fetch_schedule->setWeekday( $payload[ 'day' ] );
                 }
             }
-
             if ( isset( $payload[ 'hour' ] ) ) {
                 $fetch_schedule->setHour( $payload[ 'hour' ] );
             }
             $fetch_schedule->setFetchUrl( $feed_url );
 
-            // Initialize feed format.
             $format = new RexFeed\Google\Service\ShoppingContent\DatafeedFormat();
             $format->setFileEncoding( 'utf-8' );
             $datafeed->setFormat( $format );
             $datafeed->setFetchSchedule( $fetch_schedule );
 
             try {
-                if ( $rex_google_merchant->feed_exists( $feed_id ) ) {
-                    $data_feed_id = get_post_meta( $feed_id, '_rex_feed_google_data_feed_id', true ) ?: get_post_meta( $feed_id, 'rex_feed_google_data_feed_id', true );
+                $data_feed_id = get_post_meta( $feed_id, '_rex_feed_google_data_feed_id', true ) ?: get_post_meta( $feed_id, 'rex_feed_google_data_feed_id', true );
+                if ( $feed_exists ) {
                     $datafeed->setId( $data_feed_id );
                     $service->datafeeds->update( $merchant_id, $data_feed_id, $datafeed );
-                }
-                else {
+                } else {
                     $datafeed            = $service->datafeeds->insert( $merchant_id, $datafeed );
                     $data_feed_id        = $datafeed->getId();
                     $data_feed_file_name = $datafeed->getFileName();
@@ -981,48 +1258,297 @@ class Rex_Product_Feed_Ajax {
                     update_post_meta( $feed_id, '_rex_feed_google_data_feed_file_name', $data_feed_file_name );
                 }
                 $service->datafeeds->fetchnow( $merchant_id, $data_feed_id );
-            }
-            catch ( Exception $e ) {
+            } catch ( Exception $e ) {
                 if ( is_wpfm_logging_enabled() ) {
                     $log = wc_get_logger();
                     $log->info( $e->getMessage(), array( 'source' => 'WPFM-google' ) );
                 }
-
-                if ( !is_string( $e->getMessage() ) && is_object( $e->getMessage() ) ) {
+                if ( ! is_string( $e->getMessage() ) && is_object( $e->getMessage() ) ) {
                     $error  = json_decode( $e->getMessage() );
-                    $reason = !empty( $error->error->errors ) ? $error->error->errors : '';
-                }
-                else {
+                    $reason = ! empty( $error->error->errors ) ? $error->error->errors : '';
+                } else {
                     $error = $e->getMessage();
                 }
-
                 return array(
-                        'success' => false,
-                        'message' => !empty( $error->error->message ) ? $error->error->message : $error,
-                        'reason'  => !empty( $reason[ 0 ]->reason ) ? $reason[ 0 ]->reason : $error,
+                    'success' => false,
+                    'message' => ! empty( $error->error->message ) ? $error->error->message : $error,
+                    'reason'  => ! empty( $reason[ 0 ]->reason ) ? $reason[ 0 ]->reason : $error,
                 );
+            }
+
+        return array( 'success' => true );
+    }
+
+    /**
+     * Trigger a GMC fetch for a Merchant API DataSource.
+     *
+     * AJAX action: rexfeed-fetch-google-datasource
+     *
+     * @param array $payload  Must include feed_id.
+     * @return array
+     */
+    public static function fetch_google_datasource( array $payload ): array {
+        try {
+            $feed_id        = ! empty( $payload[ 'feed_id' ] ) ? absint( $payload[ 'feed_id' ] ) : 0;
+            $data_source_id = $feed_id ? get_post_meta( $feed_id, '_rex_feed_google_data_source_id', true ) : '';
+
+            if ( ! $data_source_id ) {
+                return array( 'success' => false, 'message' => __( 'No Merchant API DataSource found for this feed.', 'rex-product-feed' ) );
+            }
+
+            $merchant_client = Rex_Feed_Merchant_API_Client::from_stored_credentials();
+            if ( ! $merchant_client ) {
+                if ( wp_get_environment_type() === 'local' || wp_get_environment_type() === 'development' ) {
+                    error_log( sprintf( '[Local Mock] Bypassed fetch trigger for DataSource ID: %s', $data_source_id ) );
+                    return array( 'success' => true );
+                }
+                return array( 'success' => false, 'message' => __( 'GMC credentials not configured.', 'rex-product-feed' ) );
+            }
+
+            $merchant_client->get_datasources_client()->fetchDataSource(
+                ( new FetchDataSourceRequest() )->setName( $data_source_id )
+            );
+            return array( 'success' => true );
+        } catch ( ApiException $e ) {
+            if ( is_wpfm_logging_enabled() ) {
+                $log = wc_get_logger();
+                $log->error(
+                    sprintf( '[Merchant API] fetchDataSource failed: %s', $e->getMessage() ),
+                    array( 'source' => 'WPFM-google-merchant-api' )
+                );
+            }
+            return Rex_Feed_Merchant_API_Client::normalize_api_error( $e );
+        } catch ( \Throwable $e ) {
+            if ( is_wpfm_logging_enabled() ) {
+                $log = wc_get_logger();
+                $log->error(
+                    sprintf( '[Merchant API] fetchDataSource unexpected error: %s in %s:%d', $e->getMessage(), $e->getFile(), $e->getLine() ),
+                    array( 'source' => 'WPFM-google-merchant-api' )
+                );
+            }
+            return array(
+                'success' => false,
+                'message' => $e->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * Retrieve feed XML/CSV file URL or restore it if the physical file exists on disk.
+     *
+     * @param int $feed_id
+     * @return string
+     */
+    public static function get_or_restore_feed_url( int $feed_id ): string {
+        $feed_url = get_post_meta( $feed_id, '_rex_feed_xml_file', true ) ?: get_post_meta( $feed_id, 'rex_feed_xml_file', true );
+        if ( ! empty( $feed_url ) ) {
+            return $feed_url;
+        }
+
+        $upload_dir = wp_upload_dir();
+        $basedir    = trailingslashit( $upload_dir['basedir'] ) . 'rex-feed/';
+        $baseurl    = trailingslashit( $upload_dir['baseurl'] ) . 'rex-feed/';
+
+        // 1. Check for standard feed-{id}.* file
+        $possible_exts = array( 'xml', 'csv', 'tsv', 'txt', 'json', 'rss' );
+        foreach ( $possible_exts as $ext ) {
+            $file_path = $basedir . "feed-{$feed_id}.{$ext}";
+            if ( file_exists( $file_path ) ) {
+                $feed_url = $baseurl . "feed-{$feed_id}.{$ext}";
+                update_post_meta( $feed_id, '_rex_feed_xml_file', $feed_url );
+                return $feed_url;
             }
         }
 
-        if ( isset( $payload[ 'schedule' ] ) ) {
-            update_post_meta( $feed_id, '_rex_feed_google_schedule', $payload[ 'schedule' ] );
+        // 2. Glob search for any file containing feed_id in rex-feed directory
+        if ( is_dir( $basedir ) ) {
+            $files = glob( $basedir . "*{$feed_id}.*" );
+            if ( ! empty( $files ) ) {
+                foreach ( $files as $file ) {
+                    $filename = basename( $file );
+                    if ( false === strpos( $filename, 'temp-' ) && false === strpos( $filename, 'preview-' ) ) {
+                        $feed_url = $baseurl . $filename;
+                        update_post_meta( $feed_id, '_rex_feed_xml_file', $feed_url );
+                        return $feed_url;
+                    }
+                }
+            }
         }
-        if ( isset( $payload[ 'hour' ] ) ) {
-            update_post_meta( $feed_id, '_rex_feed_google_schedule_time', $payload[ 'hour' ] );
+
+        // 3. If file does not exist on disk, auto-generate it via Rex_Feed_Scheduler
+        if ( class_exists( 'Rex_Feed_Scheduler' ) ) {
+            try {
+                $scheduler     = new Rex_Feed_Scheduler();
+                $total_batches = (int) ( get_post_meta( $feed_id, '_wpfm_feed_total_batches', true ) ?: 1 );
+                for ( $batch = 1; $batch <= $total_batches; $batch++ ) {
+                    $scheduler->regenerate_feed_batch( array(
+                        'feed_id'       => $feed_id,
+                        'current_batch' => $batch,
+                        'total_batches' => $total_batches,
+                        'per_batch'     => 100,
+                        'offset'        => ( $batch - 1 ) * 100,
+                    ) );
+                }
+                $feed_url = get_post_meta( $feed_id, '_rex_feed_xml_file', true ) ?: get_post_meta( $feed_id, 'rex_feed_xml_file', true );
+                if ( ! empty( $feed_url ) ) {
+                    return $feed_url;
+                }
+            } catch ( \Throwable $e ) {
+                error_log( sprintf( '[WPFM] Feed auto-generation failed for feed_id=%d: %s', (int) $feed_id, $e->getMessage() ) );
+            }
         }
-        if ( isset( $payload[ 'month' ] ) ) {
-            update_post_meta( $feed_id, '_rex_feed_google_schedule_month', $payload[ 'month' ] );
+
+        return '';
+    }
+
+    /**
+     * One-click migration: create a Merchant API DataSource from an existing Content API feed.
+     *
+     * AJAX action: rexfeed-migrate-to-merchant-api
+     *
+     * @param array $payload  Must include feed_id.
+     * @return void  Sends JSON response directly.
+     */
+    public static function migrate_to_merchant_api( array $payload ): void {
+        try {
+            $feed_id = ! empty( $payload[ 'feed_id' ] ) ? absint( $payload[ 'feed_id' ] ) : 0;
+            if ( ! $feed_id ) {
+                wp_send_json_error( array( 'message' => __( 'Invalid feed ID.', 'rex-product-feed' ) ) );
+                return;
+            }
+
+            $data_source_id = get_post_meta( $feed_id, '_rex_feed_google_data_source_id', true );
+            if ( $data_source_id ) {
+                wp_send_json_success( array(
+                    'message'        => __( 'Feed already migrated to Merchant API.', 'rex-product-feed' ),
+                    'data_source_id' => $data_source_id,
+                ) );
+                return;
+            }
+
+            $merchant_client = Rex_Feed_Merchant_API_Client::from_stored_credentials();
+            if ( ! $merchant_client ) {
+                if ( wp_get_environment_type() === 'local' || wp_get_environment_type() === 'development' ) {
+                    $mock_id = 'accounts/123456789/dataSources/mock_' . $feed_id;
+                    update_post_meta( $feed_id, '_rex_feed_google_data_source_id', $mock_id );
+                    error_log( sprintf( '[Local Mock] Bypassed content API migration for feed_id=%d and set mock ID: %s', (int) $feed_id, $mock_id ) );
+                    wp_send_json_success( array(
+                        'message'        => __( 'Feed successfully migrated to mock Merchant API.', 'rex-product-feed' ),
+                        'data_source_id' => $mock_id,
+                    ) );
+                    return;
+                }
+                wp_send_json_error( array( 'message' => __( 'GMC credentials not configured. Please check your Google Merchant settings.', 'rex-product-feed' ) ) );
+                return;
+            }
+
+            $merchant_id = get_option( 'rex_google_merchant_id', '' );
+            $feed_url    = self::get_or_restore_feed_url( $feed_id );
+            $feed_title  = get_the_title( $feed_id );
+            $country     = get_post_meta( $feed_id, '_rex_feed_google_target_country', true ) ?: 'US';
+            $language    = get_post_meta( $feed_id, '_rex_feed_google_target_language', true ) ?: 'en';
+            $hour        = (int) ( get_post_meta( $feed_id, '_rex_feed_google_schedule_time', true ) ?: 22 );
+
+            if ( ! $feed_url ) {
+                wp_send_json_error( array( 'message' => __( 'Feed file URL not found. Please generate the feed first.', 'rex-product-feed' ) ) );
+                return;
+            }
+
+            $fetch_settings  = ( new FetchSettings() )
+                ->setEnabled( true )
+                ->setTimeOfDay( ( new TimeOfDay() )->setHours( $hour ) )
+                ->setFrequency( FetchSettings\Frequency::FREQUENCY_DAILY )
+                ->setFetchUri( $feed_url );
+
+            $default_rule = ( new \RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\PrimaryProductDataSource\DefaultRule() )
+                ->setTakeFromDataSources( array(
+                    ( new \RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\DataSourceReference() )->setSelf( true )
+                ) );
+
+            $destinations = array(
+                ( new \RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\PrimaryProductDataSource\Destination() )
+                    ->setDestination( \RexFeed\Vendor\Google\Shopping\Type\Destination\DestinationEnum::FREE_LISTINGS )
+                    ->setState( \RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\PrimaryProductDataSource\Destination\State::ENABLED ),
+            );
+
+            $data_source_obj = ( new DataSource() )
+                ->setDisplayName( $feed_title )
+                ->setPrimaryProductDataSource(
+                    ( new PrimaryProductDataSource() )
+                        ->setCountries( array( $country ) )
+                        ->setContentLanguage( $language )
+                        ->setFeedLabel( $country )
+                        ->setDestinations( $destinations )
+                        ->setDefaultRule( $default_rule )
+                );
+
+            $create_request = ( new CreateDataSourceRequest() )
+                ->setParent( "accounts/{$merchant_id}" )
+                ->setDataSource( $data_source_obj );
+
+            // API behavior differs by account: some accept fetch-only input, others require fileName.
+            // Try fetch-only first, then retry with fileName only when explicitly required.
+            $data_source_obj->setFileInput( ( new FileInput() )->setFetchSettings( $fetch_settings ) );
+            try {
+                $response = $merchant_client->get_datasources_client()->createDataSource( $create_request );
+            } catch ( ApiException $create_exception ) {
+                if ( false !== strpos( $create_exception->getMessage(), 'Required field not provided: fileInput.fileName' ) ) {
+                    $data_source_obj->setFileInput(
+                        ( new FileInput() )
+                            ->setFileName( basename( $feed_url ) )
+                            ->setFetchSettings( $fetch_settings )
+                    );
+                    $create_request->setDataSource( $data_source_obj );
+                    $response = $merchant_client->get_datasources_client()->createDataSource( $create_request );
+                } else {
+                    throw $create_exception;
+                }
+            }
+            $new_ds_id = $response->getName();
+            update_post_meta( $feed_id, '_rex_feed_google_data_source_id', $new_ds_id );
+
+            wp_send_json_success( array(
+                'message'        => __( 'Feed migrated to Merchant API v1 successfully.', 'rex-product-feed' ),
+                'data_source_id' => $new_ds_id,
+            ) );
+        } catch ( ApiException $e ) {
+            $normalized = Rex_Feed_Merchant_API_Client::normalize_api_error( $e );
+            // GCP project not registered — auto-register silently, then tell user to retry.
+            if ( 'project_not_registered' === ( $normalized['error_type'] ?? '' ) ) {
+                // Must use the authenticated Google account email, not the WordPress user email.
+                $developer_email = isset( $merchant_client ) ? $merchant_client->get_google_email() : '';
+                $reg_result      = ( isset( $merchant_client ) && ! empty( $merchant_id ) ) ? $merchant_client->register_gcp( $merchant_id, $developer_email ) : array( 'success' => false );
+                if ( ! empty( $reg_result['success'] ) ) {
+                    wp_send_json_error( array(
+                        'error_type' => 'registration_complete',
+                        'message'    => __( 'Your Google Cloud project has been registered with your Merchant Center account. Please wait 5 minutes, then click "Migrate Now" again.', 'rex-product-feed' ),
+                    ) );
+                    return;
+                }
+                wp_send_json_error( $reg_result );
+                return;
+            }
+            if ( is_wpfm_logging_enabled() ) {
+                $log = wc_get_logger();
+                $log->error(
+                    sprintf( '[Merchant API] migrate_to_merchant_api failed: %s', $e->getMessage() ),
+                    array( 'source' => 'WPFM-google-merchant-api' )
+                );
+            }
+            wp_send_json_error( $normalized );
+        } catch ( \Throwable $e ) {
+            if ( is_wpfm_logging_enabled() ) {
+                $log = wc_get_logger();
+                $log->error(
+                    sprintf( '[Merchant API] migrate_to_merchant_api unexpected error: %s in %s:%d', $e->getMessage(), $e->getFile(), $e->getLine() ),
+                    array( 'source' => 'WPFM-google-merchant-api' )
+                );
+            }
+            wp_send_json_error( array(
+                'message'    => $e->getMessage(),
+                'error_type' => 'unexpected_error',
+            ) );
         }
-        if ( isset( $payload[ 'day' ] ) ) {
-            update_post_meta( $feed_id, '_rex_feed_google_schedule_week_day', $payload[ 'day' ] );
-        }
-        if ( isset( $payload[ 'country' ] ) ) {
-            update_post_meta( $feed_id, '_rex_feed_google_target_country', $payload[ 'country' ] );
-        }
-        if ( isset( $payload[ 'language' ] ) ) {
-            update_post_meta( $feed_id, '_rex_feed_google_target_language', $payload[ 'language' ] );
-        }
-        return array( 'success' => true );
     }
 
 

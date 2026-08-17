@@ -1556,11 +1556,11 @@ class Rex_Product_Data_Retriever {
 					} else {
                         $product_id = $this->product->get_id();
 					}
-                    $attr_val = get_the_post_thumbnail_url( $product_id, 'thumbnail' );
+                    $attr_val = get_the_post_thumbnail_url( $product_id, 'thumbnail' ) ?: '';
 					break;
 
 				case 'featured_image':
-                    $attr_val = wp_get_attachment_url( $this->product->get_image_id() );
+                    $attr_val = wp_get_attachment_url( $this->product->get_image_id() ) ?: '';
 					break;
 
 				case 'all_image_array':
@@ -1576,7 +1576,7 @@ class Rex_Product_Data_Retriever {
 					break;
 
 				case 'variation_img':
-					$attr_val = wp_get_attachment_url( $this->product->get_image_id() );
+					$attr_val = wp_get_attachment_url( $this->product->get_image_id() ) ?: '';
 					break;
 
 				default:
@@ -1585,7 +1585,7 @@ class Rex_Product_Data_Retriever {
 					break;
 			}
 		}
-		return $attr_val;
+		return $attr_val ?: '';
 	}
 
 	/**

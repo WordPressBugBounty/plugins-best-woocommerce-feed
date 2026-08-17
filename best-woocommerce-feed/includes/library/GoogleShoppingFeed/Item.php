@@ -357,6 +357,20 @@ class Item
     }
 
     /**
+     * @param string|null $title
+     */
+    public function item_group_title( $title = null )
+    {
+        $title = trim( (string) $title );
+        if ( '' === $title ) {
+            return;
+        }
+
+        $node = new Node( 'item_group_title' );
+        $this->nodes['item_group_title'] = $node->value( $title )->_namespace( $this->namespace );
+    }
+
+    /**
      * @param string $customLabel
      */
     public function custom_label_0($customLabel)
@@ -570,26 +584,71 @@ class Item
      */
     public function question_and_answer( $question = null, $answer = null )
     {
-        if ( null === $question || null === $answer ) {
-            return;
-        }
-
-        $question = trim( (string) $question );
-        $answer   = trim( (string) $answer );
-        if ( '' === $question || '' === $answer ) {
-            return;
-        }
-
-        $node  = new Node( 'question_and_answer' );
-        $value = array(
-            'question' => $question,
-            'answer'   => $answer,
+        $this->add_grouped_node(
+            'question_and_answer',
+            array(
+                'question' => $question,
+                'answer'   => $answer,
+            )
         );
+    }
 
-        if ( ! isset( $this->nodes['question_and_answer'] ) ) {
-            $this->nodes['question_and_answer'] = array();
+    /**
+     * Adds a variant_option entry with nested sub-attributes.
+     *
+     * @param string|null $name  Required option name.
+     * @param string|null $value Required option value.
+     */
+    public function variant_option( $name = null, $value = null )
+    {
+        $this->add_grouped_node(
+            'variant_option',
+            array(
+                'name'  => $name,
+                'value' => $value,
+            )
+        );
+    }
+
+    /**
+     * Adds a related_product entry with nested sub-attributes.
+     *
+     * @param string|null $relationship_type Required relationship type.
+     * @param string|null $identifier_type   Required identifier type.
+     * @param string|null $identifier        Required product identifier.
+     */
+    public function related_product( $relationship_type = null, $identifier_type = null, $identifier = null )
+    {
+        $this->add_grouped_node(
+            'related_product',
+            array(
+                'relationship_type' => $relationship_type,
+                'identifier_type'   => $identifier_type,
+                'identifier'        => $identifier,
+            )
+        );
+    }
+
+    /**
+     * Adds a repeated group node when every required value exists.
+     *
+     * @param string $name Group attribute name.
+     * @param array  $values Sub-attribute values.
+     */
+    private function add_grouped_node( $name, $values )
+    {
+        foreach ( $values as $key => $value ) {
+            $values[ $key ] = trim( (string) $value );
+            if ( '' === $values[ $key ] ) {
+                return;
+            }
         }
-        $this->nodes['question_and_answer'][] = $node->value( $value )->_namespace( $this->namespace );
+
+        $node = new Node( $name );
+        if ( ! isset( $this->nodes[ $name ] ) ) {
+            $this->nodes[ $name ] = array();
+        }
+        $this->nodes[ $name ][] = $node->value( $values )->_namespace( $this->namespace );
     }
 
     /**
@@ -628,6 +687,27 @@ class Item
             $node = new Node('additional_image_link');
             $imageLink = $this->safeCharEncodeURL(urldecode($imagesLink));
             array_push($this->nodes['additional_image_link'], $node->value($imagesLink)->_namespace($this->namespace)->addCdata());
+        }
+    }
+
+    /**
+     * Adds up to five document links from a value or comma-separated list.
+     *
+     * @param string|array|null $document_links Document links.
+     */
+    public function document_link( $document_links = null )
+    {
+        $document_links = is_array( $document_links ) ? $document_links : explode( ',', (string) $document_links );
+        $document_links = array_slice( $document_links, 0, 5 );
+
+        foreach ( $document_links as $document_link ) {
+            $document_link = trim( (string) $document_link );
+            if ( '' === $document_link ) {
+                continue;
+            }
+
+            $node = new Node( 'document_link' );
+            $this->nodes['document_link'][] = $node->value( $document_link )->_namespace( $this->namespace );
         }
     }
 

@@ -52,6 +52,16 @@ class  Rex_Feed_Handle_Google_Product {
 	 *
 	 * @since 7.4.20
 	 */
+	/**
+	 * Convert a decimal price to Merchant API v1 amountMicros integer.
+	 *
+	 * @param float $price Decimal price (e.g. 9.99).
+	 * @return int Price × 1,000,000 rounded to nearest integer.
+	 */
+	public static function price_to_micros( float $price ): int {
+		return (int) round( $price * 1_000_000 );
+	}
+
 	public static function set_price( Product &$google_product, float $value, string $currency = '' ) {
 		$price = new Price();
 		$price->setValue( $value );

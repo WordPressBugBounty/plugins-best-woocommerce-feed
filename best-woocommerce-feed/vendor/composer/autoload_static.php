@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitf7e2a128fa50df4969a88ecea0551045
+class ComposerStaticInit731543957fc71d8a251c7eb7a3a22534
 {
     public static $files = array (
         'aed659f3655c497c30e044c41fa917c6' => __DIR__ . '/..' . '/linno/telemetry/src/helpers.php',
@@ -976,6 +976,7 @@ class ComposerStaticInitf7e2a128fa50df4969a88ecea0551045
         'Rex_Feed_Handle_Google_Product' => __DIR__ . '/../..' . '/admin/api-data-handlers/class-rex-feed-google-product-data-handler.php',
         'Rex_Feed_Job_Cleanup' => __DIR__ . '/../..' . '/admin/class-rex-feed-job-cleanup.php',
         'Rex_Feed_Job_History' => __DIR__ . '/../..' . '/admin/class-rex-feed-job-history.php',
+        'Rex_Feed_Merchant_API_Client' => __DIR__ . '/../..' . '/admin/api/class-rex-feed-merchant-api-client.php',
         'Rex_Feed_Merchants' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-merchants.php',
         'Rex_Feed_Product_Count_Guard' => __DIR__ . '/../..' . '/admin/class-rex-feed-product-count-guard.php',
         'Rex_Feed_Rollback' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-rollback.php',
@@ -1296,9 +1297,9 @@ class ComposerStaticInitf7e2a128fa50df4969a88ecea0551045
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitf7e2a128fa50df4969a88ecea0551045::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitf7e2a128fa50df4969a88ecea0551045::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitf7e2a128fa50df4969a88ecea0551045::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit731543957fc71d8a251c7eb7a3a22534::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit731543957fc71d8a251c7eb7a3a22534::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit731543957fc71d8a251c7eb7a3a22534::$classMap;
 
         }, null, ClassLoader::class);
     }

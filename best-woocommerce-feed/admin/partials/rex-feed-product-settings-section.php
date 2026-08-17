@@ -83,10 +83,10 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
             ?>
             <div class="<?php echo esc_attr( $this->prefix ) . 'is_google_content_api'; ?> pl-10" <?php echo $display;?>>
                 <label for="<?php echo esc_attr( $this->prefix ) . 'is_google_content_api'; ?>">
-                    <?php esc_html_e( 'Send Products via Google Content API', 'rex-product-feed' ); ?>
+										<?php esc_html_e( 'Sync Products to Google Merchant Center', 'rex-product-feed' ); ?>
                     <span class="rex_feed-tooltip">
 						<?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . $icon_question;?>
-						<p><?php esc_html_e( 'Sync Products using Google Content API.', 'rex-product-feed' ); ?></p>
+						<p><?php esc_html_e( 'Enable product sync for this feed. The plugin routes automatically: Merchant API v1 for migrated feeds, Content API fallback for unmigrated legacy feeds.', 'rex-product-feed' ); ?></p>
 					</span>
                 </label>
 

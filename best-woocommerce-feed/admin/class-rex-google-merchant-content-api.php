@@ -86,6 +86,7 @@ class Rex_Google_Merchant_Settings_Api {
 		self::$client->setRedirectUri( $redirect_uri );
 		self::$client->setScopes( 'https://www.googleapis.com/auth/content' );
 		self::$client->setAccessType( 'offline' );
+		self::$client->setPrompt( 'consent' );
 		return self::$client;
 	}
 
@@ -134,17 +135,39 @@ class Rex_Google_Merchant_Settings_Api {
 	}
 
 	/**
-	 * Check if feed already exists in merchant
+	 * Check if feed already exists in merchant.
+	 *
+	 * Routes to Merchant API v1 when `_rex_feed_google_data_source_id` is set,
+	 * otherwise falls back to the legacy Content API `datafeeds->get()` call.
 	 *
 	 * @param string|int $feed_id Feed id.
 	 *
 	 * @return bool
 	 */
 	public function feed_exists( $feed_id ) {
-		$client_obj   = $this->init_client();
-		$service      = new RexFeed\Google\Service\ShoppingContent( $client_obj );
+		$data_source_id = get_post_meta( $feed_id, '_rex_feed_google_data_source_id', true );
+
+		if ( $data_source_id ) {
+			// Merchant API path.
+			$merchant_client = Rex_Feed_Merchant_API_Client::from_stored_credentials();
+			if ( ! $merchant_client ) {
+				return false;
+			}
+			try {
+				$request = new \RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\GetDataSourceRequest();
+				$request->setName( $data_source_id );
+				$merchant_client->get_datasources_client()->getDataSource( $request );
+				return true;
+			} catch ( \RexFeed\Vendor\Google\ApiCore\ApiException $e ) {
+				return false;
+			}
+		}
+
+		// Content API fallback path.
 		$data_feed_id = get_post_meta( $feed_id, '_rex_feed_google_data_feed_id', true ) ?: get_post_meta( $feed_id, 'rex_feed_google_data_feed_id', true );
 		if ( $data_feed_id ) {
+			$client_obj = $this->init_client();
+			$service    = new RexFeed\Google\Service\ShoppingContent( $client_obj );
 			try {
 				$service->datafeeds->get( self::$merchant_id, $data_feed_id );
 				return true;
@@ -152,6 +175,7 @@ class Rex_Google_Merchant_Settings_Api {
 				return false;
 			}
 		}
+
 		return false;
 	}
 }

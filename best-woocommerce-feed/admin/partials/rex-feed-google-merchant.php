@@ -8,22 +8,48 @@ $value        = $value ?: 'US';
 $schedule_val = get_post_meta( $feed_id, '_rex_feed_google_schedule', true );
 $schedule_val = $schedule_val ?: get_post_meta( $feed_id, 'rex_feed_google_schedule', true );
 $display_none = 'style="display: none"';
-$is_google_content_api = 'yes' === get_post_meta( $feed_id, '_rex_feed_is_google_content_api', true );
-?>
+$is_google_content_api = 'yes' === get_post_meta( $feed_id, '_rex_feed_is_google_content_api', true ) || 'yes' === get_post_meta( $feed_id, 'rex_feed_is_google_content_api', true );
 
+// Migration banner: show only for Google feeds on the legacy Content API path.
+$_data_source_id = get_post_meta( $feed_id, '_rex_feed_google_data_source_id', true );
+$_data_feed_id   = get_post_meta( $feed_id, '_rex_feed_google_data_feed_id', true ) ?: get_post_meta( $feed_id, 'rex_feed_google_data_feed_id', true );
+$_feed_merchant  = get_post_meta( $feed_id, '_rex_feed_merchant', true ) ?: get_post_meta( $feed_id, 'rex_feed_merchant', true );
+$_show_migration_banner = ( 'google' === $_feed_merchant ) && ( $is_google_content_api || ! empty( $_data_feed_id ) ) && empty( $_data_source_id );
+?>
+<style>
+@media (max-width: 768px) {
+	.rex-merchant-api-migration-banner {
+		flex-direction: column;
+		align-items: flex-start !important;
+		gap: 8px !important;
+	}
+	.rex-merchant-api-migration-banner button {
+		align-self: flex-start;
+	}
+}
+</style>
+
+<?php if ( $is_google_content_api ) : ?>
+	<style>
+		#rex_feed_google_merchant .rex_feed_google_schedule_all__content,
+		#send-to-google {
+			display: none;
+		}
+	</style>
+<?php endif; ?>
 
 <div class="<?php echo esc_attr( $this->prefix ) . 'google_merchant_content__area'; ?>">
 
 	<div class="<?php echo esc_attr( $this->prefix ) . 'google_desc__area'; ?>">
 		<p>
             <?php
-            esc_html_e( 'You can send the feed to Google Merchant Center through direct upload method or by using the Content API.', 'rex-product-feed' );
+            esc_html_e( 'You can send the feed to Google Merchant Center through direct upload method or by using the Merchant API v1.', 'rex-product-feed' );
             ?>
         </p>
         <br>
 		<div class="<?php echo esc_attr( $this->prefix ) . 'google_desc__link';?>">
             <a href="<?php echo esc_url( 'https://rextheme.com/docs/upload-woocomerce-product-feed-directly-to-google-merchant-center/?utm_source=plugin&utm_medium=google_form_direct_upload_link&utm_campaign=pfm_plugin' )?>" target="_blank"><?php esc_html_e('Direct Upload Method (No need for authorization)', 'rex-product-feed')?></a>
-			<a href="<?php echo esc_url( 'https://rextheme.com/docs/how-to-auto-sync-product-feed-to-google-merchant-shop/?utm_source=plugin&utm_medium=get_started_auto_sync_link&utm_campaign=pfm_plugin' )?>" target="_blank"><?php esc_html_e('API Method (Require authorization)', 'rex-product-feed')?></a>
+			<a href="<?php echo esc_url( 'https://rextheme.com/docs/how-to-auto-sync-product-feed-to-google-merchant-shop/?utm_source=plugin&utm_medium=get_started_auto_sync_link&utm_campaign=pfm_plugin' )?>" target="_blank"><?php esc_html_e('Merchant API Method (Require authorization)', 'rex-product-feed')?></a>
             <a href="<?php echo esc_url( 'https://rextheme.com/google-country-codes-list/?utm_source=plugin&utm_medium=google_form_abbreviation_link&utm_campaign=pfm_plugin' )?>" target="_blank"><?php esc_html_e('Check Abbreviation Lists','rex-product-feed')?></a>
 		</div>
 
@@ -153,6 +179,20 @@ $is_google_content_api = 'yes' === get_post_meta( $feed_id, '_rex_feed_is_google
 			</div>
 
 		</div>
+
+		<?php if ( $_show_migration_banner ) : ?>
+		<div class="rex-merchant-api-migration-banner" id="rex-merchant-api-migration-banner" style="background:#fff3cd;border:1px solid #ffc107;border-radius:4px;padding:12px 16px;margin-top:20px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+			<span style="font-size:13px;">
+				<strong><?php esc_html_e( 'Action required:', 'rex-product-feed' ); ?></strong>
+				<?php esc_html_e( 'Google Content API retires August 18, 2026. Migrate this feed to Merchant API v1 now.', 'rex-product-feed' ); ?>
+			</span>
+			<button type="button" id="rex-migrate-to-merchant-api" class="button button-primary" data-feed-id="<?php echo esc_attr( $feed_id ); ?>"
+				style="white-space:nowrap;flex-shrink:0;">
+				<?php esc_html_e( 'Migrate Now', 'rex-product-feed' ); ?>
+			</button>
+		</div>
+		<div id="rex-migration-status" style="display:none;margin-bottom:10px;padding:8px 12px;border-radius:4px;font-size:13px;"></div>
+		<?php endif; ?>
 		
 		<?php 
 			$feed_merchant = get_post_meta( $feed_id, '_rex_feed_merchant', true );
@@ -170,7 +210,16 @@ $is_google_content_api = 'yes' === get_post_meta( $feed_id, '_rex_feed_is_google
                     $button  = esc_html__( 'Configure', 'rex-product-feed' );
                 }
 				
-				if ( !( $rex_google_merchant->is_authenticate() ) ) {
+				if ( $_data_source_id ) {
+					// Feed is on Merchant API v1 — UserRefreshCredentials handles token refresh automatically.
+					// No need to block on access token expiry.
+					if ( !empty( $feed_url ) ) {
+						echo '<a class="btn waves-effect waves-light" id="send-to-google" href="#">
+								' . esc_attr__( 'Send to google merchant', 'rex-product-feed' ) . '
+							</a> ';
+					}
+				} elseif ( !( $rex_google_merchant->is_authenticate() ) ) {
+					// Content API path — requires a valid (non-expired) access token.
 					echo '<div class="google-status-area">';
 					echo sprintf(
 						'<p class="google-status">%s</p>',
@@ -180,9 +229,8 @@ $is_google_content_api = 'yes' === get_post_meta( $feed_id, '_rex_feed_is_google
 						'<a href="%s" class="btn-default">' . esc_html( $button ) . '</a>',
 						esc_url( admin_url( 'admin.php?page=merchant_settings' ) ) );
 
-						echo '</div>';
-				}
-				else if ( !empty( $feed_url ) ) {
+					echo '</div>';
+				} elseif ( !empty( $feed_url ) ) {
 					echo '<a class="btn waves-effect waves-light" id="send-to-google" href="#">
 							' . esc_attr__( 'Send to google merchant', 'rex-product-feed' ) . '
 						</a> ';

@@ -31,6 +31,11 @@ class Rex_Feed_Template_Google extends Rex_Feed_Abstract_Template {
 				'description'              => 'Product Description [description]',
 				'link'                     => 'Product URL [link]',
 				'mobile_link'              => 'Product URL [mobile_link]',
+				'link_template'            => 'Link Template [link_template]',
+				'mobile_link_template'     => 'Mobile Link Template [mobile_link_template]',
+				'pickup_link_template'     => 'Pickup Link Template [pickup_link_template]',
+				'pickup_method'            => 'Pickup Method [pickup_method]',
+				'pickup_sla'               => 'Pickup SLA [pickup_sla]',
 				'product_type'             => 'Product Categories [product_type] ',
 				'google_product_category'  => 'Google Product Category [google_product_category]',
 				'image_link'               => 'Main Image [image_link]',
@@ -67,20 +72,37 @@ class Rex_Feed_Template_Google extends Rex_Feed_Abstract_Template {
 			),
 
 			'Detailed Product Attributes'         => array(
-				'item_group_id' => 'Item Group Id [item_group_id]',
-				'color'         => 'Color [color]',
-				'gender'        => 'Gender [gender]',
-				'age_group'     => 'Age Group [age_group]',
-				'material'      => 'Material [material]',
-				'pattern'       => 'Pattern [pattern]',
-				'size'          => 'Size of the item [size]',
-				'size_type'     => 'Size Type [size_type]',
-				'size_system'   => 'Size System [size_system]',
+				'item_group_id'    => 'Item Group Id [item_group_id]',
+				'item_group_title' => 'Item Group Title [item_group_title]',
+				'color'            => 'Color [color]',
+				'gender'           => 'Gender [gender]',
+				'age_group'        => 'Age Group [age_group]',
+				'material'         => 'Material [material]',
+				'pattern'          => 'Pattern [pattern]',
+				'size'             => 'Size of the item [size]',
+				'size_type'        => 'Size Type [size_type]',
+				'size_system'      => 'Size System [size_system]',
+			),
+
+			'Variant Option'                      => $this->get_grouped_attribute_fields(
+				'variant_option',
+				'Variant Option',
+				array( 'name' => 'Name', 'value' => 'Value' )
 			),
 
 			'Product Detail'                      => $this->get_product_detail_attributes(),
 
 			'Question and Answer'                 => $this->get_question_and_answer_attributes(),
+
+			'Related Product'                     => $this->get_grouped_attribute_fields(
+				'related_product',
+				'Related Product',
+				array(
+					'relationship_type' => 'Relationship Type',
+					'identifier_type'   => 'Identifier Type',
+					'identifier'        => 'Identifier',
+				)
+			),
 
 			'Tax & Shipping'                      => array(
 				'tax'              => 'Tax [tax]',
@@ -121,6 +143,7 @@ class Rex_Feed_Template_Google extends Rex_Feed_Abstract_Template {
 				'excluded_destination' => 'Excluded Destination [excluded_destination]',
 				"included_destination" => "Included Destination[included_destination]",
 				'expiration_date'      => 'Expiration Date [expiration_date]',
+				'document_link'        => 'Document Links [document_link]',
 			),
 
 			'Unit Prices (EU Countries and Switzerland Only)' => array(
@@ -179,25 +202,50 @@ class Rex_Feed_Template_Google extends Rex_Feed_Abstract_Template {
 	 * @return array
 	 */
 	protected function get_question_and_answer_attributes( $count = 10 ) {
+		return $this->get_grouped_attribute_fields(
+			'question_and_answer',
+			'Question and Answer',
+			array( 'question' => 'Question', 'answer' => 'Answer' ),
+			$count
+		);
+	}
+
+	/**
+	 * Define indexed fields for a repeated group attribute.
+	 *
+	 * @param string $attribute_name Attribute name.
+	 * @param string $label Attribute label.
+	 * @param array  $sub_attributes Sub-attribute labels keyed by name.
+	 * @param int    $count Number of groups.
+	 * @return array
+	 */
+	protected function get_grouped_attribute_fields( $attribute_name, $label, $sub_attributes, $count = 10 ) {
 		$attributes = array();
 
 		for ( $i = 1; $i <= $count; $i++ ) {
-			$attributes[ "question_and_answer_question_{$i}" ] = "Question and Answer {$i} - Question [question_and_answer]";
-			$attributes[ "question_and_answer_answer_{$i}" ]   = "Question and Answer {$i} - Answer [question_and_answer]";
+			foreach ( $sub_attributes as $sub_attribute => $sub_label ) {
+				$attributes[ "{$attribute_name}_{$sub_attribute}_{$i}" ] = "{$label} {$i} - {$sub_label} [{$attribute_name}]";
+			}
 		}
 
 		return $attributes;
 	}
 
 	/**
-	 * Remove Google Shopping-only question and answer attributes.
+	 * Remove Google Shopping-only conversational attributes.
 	 *
 	 * Used by the Bing template alias, which reuses this Google template.
 	 *
 	 * @return void
 	 */
 	public function remove_question_and_answer_attributes() {
-		unset( $this->attributes['Question and Answer'] );
+		unset(
+			$this->attributes['Variant Option'],
+			$this->attributes['Question and Answer'],
+			$this->attributes['Related Product'],
+			$this->attributes['Detailed Product Attributes']['item_group_title'],
+			$this->attributes['Additional Attributes']['document_link']
+		);
 	}
 
 	/**

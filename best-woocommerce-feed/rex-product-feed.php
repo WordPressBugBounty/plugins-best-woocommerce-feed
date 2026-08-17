@@ -15,7 +15,7 @@
  * Plugin Name:       Product Feed Manager for WooCommerce
  * Plugin URI:        https://rextheme.com
  * Description:       Generate and maintain your WooCommerce product feed for Google Shopping, Social Catalogs, Yandex, Idealo, Vivino, Pinterest, eBay MIP, BestPrice, Skroutz, Fruugo, Bonanza & 200+ Merchants.
- * Version:           7.7.0
+ * Version:           7.8.0
  * Author:            RexTheme
  * Author URI:        https://rextheme.com
  * License:           GPL-2.0+
@@ -38,7 +38,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 if( !defined( 'WPFM_VERSION' ) ) {
-	define( 'WPFM_VERSION', '7.7.0' );
+	define( 'WPFM_VERSION', '7.8.0' );
 }
 if ( !defined( 'WPFM__FILE__' ) ) {
 	define( 'WPFM__FILE__', __FILE__ );
@@ -165,11 +165,35 @@ function wpfm_get_plugin_version( $file ) {
 
 
 /**
+ * Show PHP version notice when below 8.1 (required by Merchant API packages).
+ */
+function wpfm_php_version_notice() {
+	?>
+	<div class="notice notice-error">
+		<p>
+			<strong><?php esc_html_e( 'Product Feed Manager for WooCommerce', 'rex-product-feed' ); ?></strong>
+			<?php
+			printf(
+				/* translators: %s: current PHP version */
+				esc_html__( ' requires PHP 8.1 or higher. Your server is running PHP %s. Google Merchant Center features are disabled until you upgrade PHP.', 'rex-product-feed' ),
+				esc_html( PHP_VERSION )
+			);
+			?>
+		</p>
+	</div>
+	<?php
+}
+
+/**
  * Run dependency check and abort if required.
  **/
 function rex_check_dependency() {
 	$wpfm_pro_abs  = WP_PLUGIN_DIR . WPFM_PRO;
 	$wpfm_etsy_abs = WP_PLUGIN_DIR . WPFM_ETSY;
+
+	if ( version_compare( PHP_VERSION, '8.1', '<' ) ) {
+		add_action( 'admin_notices', 'wpfm_php_version_notice' );
+	}
 
 	if ( ! rex_is_woocommerce_active() ) {
 		add_action( 'admin_init', 'rex_product_feed_deactivate' );

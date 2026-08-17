@@ -334,6 +334,7 @@
     });
 
     $(document).on("click", "#send-to-google", send_to_google);
+    $(document).on("click", "#rex-migrate-to-merchant-api", migrate_to_merchant_api);
 
     $(document).on("click", ".rex-reset-btn", reset_form);
 
@@ -2013,8 +2014,44 @@
      * Send feed to Google
      * Merchant Center
      */
+    function gmcErrorHtml(response) {
+        var type    = response.error_type || 'api_error';
+        var message = response.message    || 'Unknown error.';
+        var url     = response.action_url || '';
+
+        if ( type === 'registration_complete' ) {
+            return '<p class="rex-gmc-error-title" style="color:#0a6b00;">&#10003; Setup complete</p>' +
+                '<p>' + message + '</p>';
+        }
+
+        if ( type === 'service_disabled' ) {
+            var html = '<p class="rex-gmc-error-title">&#9888; Merchant API not enabled in your GCP project</p>';
+            if ( url ) {
+                html += '<a href="' + url + '" target="_blank" rel="noopener" class="button button-secondary">Enable in Google Cloud Console &rarr;</a>';
+            }
+            return html;
+        }
+
+        // Generic: linkify any URLs in the message.
+        var linked = message.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+        return '<p class="rex-gmc-error-title">Feed not sent to Google</p><p>' + linked + '</p>';
+    }
+
+    var GMC_BLOCKING_ERRORS = ['registration_complete', 'service_disabled'];
+
+    function gmcSetStatus($el, type, html, errorType) {
+        $el.removeClass('info success warning error').addClass(type).html(html).show();
+        var $btn = $('#send-to-google');
+        if ( errorType && GMC_BLOCKING_ERRORS.indexOf(errorType) !== -1 ) {
+            $btn.addClass('rex-gmc-btn-blocked');
+        } else {
+            $btn.removeClass('rex-gmc-btn-blocked');
+        }
+    }
+
     function send_to_google(event) {
         event.preventDefault();
+        $('#send-to-google').removeClass('rex-gmc-btn-blocked');
         $("#rex_feed_config_heading .inside .rex-loading-spinner").css("display", "flex");
 
         const $scheduleSelectedOption = $( '#rex_feed_google_schedule option:selected' );
@@ -2036,46 +2073,76 @@
             payload["day"] = "";
         }
         const $rexGoogleStatus = $( '.rex-google-status' );
-        $rexGoogleStatus.removeClass("info");
-        $rexGoogleStatus.removeClass("success");
-        $rexGoogleStatus.removeClass("warning");
-        $rexGoogleStatus.removeClass("error");
-        $rexGoogleStatus.addClass("info");
-        $rexGoogleStatus.show();
-        $rexGoogleStatus.html("<p>Feed is sending. Please wait...</p>");
+        gmcSetStatus($rexGoogleStatus, 'info', '<p>Sending feed to Google&hellip; please wait.</p>', null);
         wpAjaxHelperRequest("rexfeed-send-to-google", payload)
             .success(function (response) {
-                if (response.success) {
-                    $rexGoogleStatus.removeClass("info");
-                    $rexGoogleStatus.removeClass("success");
-                    $rexGoogleStatus.removeClass("warning");
-                    $rexGoogleStatus.removeClass("error");
-                    $rexGoogleStatus.addClass("success");
-                    $rexGoogleStatus.show();
-                    $rexGoogleStatus.html("<p>Feed sent to google successfully.</p>");
-                    console.log("Woohoo!");
+                if (response.success && response.migrated) {
+                    var migMsg = response.message || 'Feed automatically migrated to Merchant API v1 and sent to Google Merchant Center.';
+                    gmcSetStatus($rexGoogleStatus, 'success', '<p>&#10003; ' + migMsg + '</p>', null);
+                    // Hide any stale migration banner since the feed is now on Merchant API.
+                    $('#rex-merchant-api-migration-banner').hide();
+                    setTimeout(function () { location.reload(); }, 3000);
+                } else if (response.success) {
+                    gmcSetStatus($rexGoogleStatus, 'success', '<p>&#10003; Feed sent to Google successfully.</p>', null);
                     location.reload();
+                } else if ( response.error_type === 'registration_complete' ) {
+                    gmcSetStatus($rexGoogleStatus, 'info', gmcErrorHtml(response), response.error_type);
+                    console.log('[GMC registration complete]', response);
                 } else {
-                    $rexGoogleStatus.removeClass("info");
-                    $rexGoogleStatus.removeClass("success");
-                    $rexGoogleStatus.removeClass("warning");
-                    $rexGoogleStatus.removeClass("error");
-                    $rexGoogleStatus.addClass("warning");
-                    $rexGoogleStatus.show();
-                    $rexGoogleStatus.html("<p>Feed not sent to google. Please check.</p><p>" + response.reason + ": " + response.message + "</p>");
-                    console.log(response);
+                    gmcSetStatus($rexGoogleStatus, 'warning', gmcErrorHtml(response), response.error_type);
+                    console.log('[GMC send error]', response);
                 }
             })
-            .error(function (response) {
-                $rexGoogleStatus.removeClass("info");
-                $rexGoogleStatus.removeClass("success");
-                $rexGoogleStatus.removeClass("warning");
-                $rexGoogleStatus.removeClass("error");
-                $rexGoogleStatus.addClass("error");
-                $rexGoogleStatus.show();
-                $rexGoogleStatus.html("<p>Something wrong happened. Please check.</p><p>" + response.reason + ": " + response.message + "</p>");
-                console.log("Uh, oh!");
-                console.log(response);
+            .error(function (jqXHR) {
+                var errRes  = jqXHR.responseJSON || {};
+                var errHtml = errRes.error_type ? gmcErrorHtml(errRes) :
+                    '<p class="rex-gmc-error-title">Unexpected server error</p><p>' +
+                    ( errRes.message || jqXHR.statusText || 'No details available.' ) + '</p>';
+                gmcSetStatus($rexGoogleStatus, 'error', errHtml, errRes.error_type || null);
+                console.log('[GMC server error]', jqXHR);
+            });
+    }
+
+    function migrate_to_merchant_api(event) {
+        event.preventDefault();
+        var $btn    = $(this);
+        var feedId  = $btn.data("feed-id") || $("#post_ID").val();
+        var $status = $("#rex-migration-status");
+        var $banner = $("#rex-merchant-api-migration-banner");
+
+        $btn.prop("disabled", true).text(rex_wpfm_admin_translate_strings.migrating || "Migrating…");
+        $status.hide().removeClass("notice notice-success notice-error");
+
+        wpAjaxHelperRequest("rexfeed-migrate-to-merchant-api", { feed_id: feedId })
+            .success(function (response) {
+                // wp_send_json_error() wraps payload in .data; wp_send_json_success() does the same.
+                var data    = response.data || response;
+                var msg     = data.message  || '';
+                var errType = data.error_type || '';
+                if (response.success) {
+                    $banner.hide();
+                    $status.addClass("notice notice-success")
+                           .html("<p>" + (msg || "Feed migrated to Merchant API v1.") + "</p>")
+                           .show();
+                } else if ( errType === 'registration_complete' ) {
+                    $btn.prop("disabled", false).text("Migrate Now");
+                    $status.addClass("notice notice-warning")
+                           .html("<p>&#10003; " + msg + "</p>")
+                           .show();
+                } else {
+                    $btn.prop("disabled", false).text("Migrate Now");
+                    $status.addClass("notice notice-error")
+                           .html("<p>" + (msg || "Migration failed. Please try again.") + "</p>")
+                           .show();
+                }
+            })
+            .error(function (jqXHR) {
+                $btn.prop("disabled", false).text("Migrate Now");
+                var errRes = (jqXHR && jqXHR.responseJSON) ? (jqXHR.responseJSON.data || jqXHR.responseJSON) : {};
+                var msg = errRes.message || (jqXHR && jqXHR.statusText) || "Migration failed. Please try again.";
+                $status.addClass("notice notice-error")
+                       .html("<p>" + msg + "</p>")
+                       .show();
             });
     }
 
@@ -4336,8 +4403,9 @@ function addCustomFilterOuterHiddenSelectInputField(row, newRowId, value) {
 
    const handleGoogleMerchantApiContent = ( merchant ) => {
        if ('google' === merchant) {
-           $( '#rex_feed_google_merchant' ).show();
            $('.rex_feed_is_google_content_api').show();
+           const isChecked = $( '#rex_feed_is_google_content_api' ).is( ':checked' );
+           showGoogleMerchantContentApiContent( isChecked );
        } else {
            $( '#rex_feed_google_merchant' ).hide();
            $('.rex_feed_is_google_content_api').hide();
@@ -4349,13 +4417,23 @@ function addCustomFilterOuterHiddenSelectInputField(row, newRowId, value) {
         showGoogleMerchantContentApiContent( isChecked );
     });
    
-   const showGoogleMerchantContentApiContent = ( isChecked ) => {
-       if ( isChecked ) {
-           $( '.rex_feed_google_schedule_all__content' ).hide();
-       } else {
-           $( '.rex_feed_google_schedule_all__content' ).show();
-       }
-   }
+    const showGoogleMerchantContentApiContent = ( isChecked ) => {
+        const merchant = $('select#rex_feed_merchant').val() || $('select#rex_feed_merchant option:selected').val();
+        if ('google' !== merchant) {
+            $( '#rex_feed_google_merchant' ).hide();
+            return;
+        }
+
+        $( '#rex_feed_google_merchant' ).show();
+        if ( isChecked ) {
+            $( '#rex_feed_google_merchant .rex_feed_google_schedule_all__content' ).hide();
+            $( '#send-to-google' ).hide();
+            $( '#rex_feed_google_merchant .rex_feed_google_desc__area, #rex_feed_google_merchant .rex_feed_google_target__area, #rex_feed_google_merchant .google-status-area, #rex_feed_google_merchant h2' ).show();
+        } else {
+            $( '#send-to-google' ).show();
+            $( '#rex_feed_google_merchant .rex_feed_google_desc__area, #rex_feed_google_merchant .rex_feed_google_target__area, #rex_feed_google_merchant .rex_feed_google_schedule_all__content, #rex_feed_google_merchant .google-status-area, #rex_feed_google_merchant h2' ).show();
+        }
+    }
 
 
     $(document).ready(function($) {

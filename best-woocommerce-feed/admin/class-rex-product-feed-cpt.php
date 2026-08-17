@@ -116,6 +116,16 @@ class Rex_Product_CPT {
 			case 'merchant':
 				$feed_merchant = get_post_meta( $post_id, '_rex_feed_merchant', true ) ?: get_post_meta( $post_id, 'rex_feed_merchant', true );
 				echo esc_html( ucwords( str_replace( '_', ' ', $feed_merchant ) ) );
+				if ( 'google' === $feed_merchant ) {
+					$_ds_id  = get_post_meta( $post_id, '_rex_feed_google_data_source_id', true );
+					$_df_id  = get_post_meta( $post_id, '_rex_feed_google_data_feed_id', true ) ?: get_post_meta( $post_id, 'rex_feed_google_data_feed_id', true );
+					$_is_content_api = 'yes' === get_post_meta( $post_id, '_rex_feed_is_google_content_api', true );
+					if ( $_ds_id ) {
+						echo '<br><span style="font-size:11px;color:#2271b1;font-weight:600;">Merchant API v1</span>';
+					} elseif ( $_df_id || $_is_content_api ) {
+						echo '<br><span style="font-size:11px;color:#d63638;font-weight:600;">Content API (legacy)</span>';
+					}
+				}
 				break;
 			case 'xml_feed':
 				$feed_url = get_post_meta( $post_id, '_rex_feed_xml_file', true ) ?: get_post_meta( $post_id, 'rex_feed_xml_file', true );

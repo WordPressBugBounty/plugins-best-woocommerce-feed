@@ -1052,10 +1052,6 @@ abstract class Rex_Product_Feed_Abstract_Generator
             Rex_Product_Feed_Data_Handle::save_settings_drawer_data( $this->id, $settings_data );
         }
 
-		if ( $this->is_google_content_api ) {
-			delete_post_meta( $this->id, '_rex_feed_xml_file' );
-		}
-
         /**
          * Fires after saving settings drawer data
          *

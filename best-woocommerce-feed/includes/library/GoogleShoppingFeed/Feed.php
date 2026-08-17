@@ -216,13 +216,19 @@ class Feed
                             continue;
                         }
 
-                        if ( 'question_and_answer' === $node->get( 'name' ) && is_array( $node->get( 'value' ) ) ) {
-                            $question_and_answer = $node->get( 'value' );
-                            $qa_node             = $feedItemNode->addChild( 'question_and_answer', null, $node->get( '_namespace' ) );
-                            $qa_node->addChild( 'question', htmlspecialchars( htmlspecialchars( (string) $question_and_answer['question'] ) ), $node->get( '_namespace' ) );
-                            $qa_node->addChild( 'answer', htmlspecialchars( htmlspecialchars( (string) $question_and_answer['answer'] ) ), $node->get( '_namespace' ) );
-                            continue;
-                        }
+						$grouped_fields = $this->getGroupedAttributeFields( $node->get( 'name' ) );
+						if ( ! empty( $grouped_fields ) && is_array( $node->get( 'value' ) ) ) {
+							$group_node = $feedItemNode->addChild( $node->get( 'name' ), null, $node->get( '_namespace' ) );
+							foreach ( $grouped_fields as $field ) {
+								$group_node->addChild( $field, htmlspecialchars( htmlspecialchars( (string) $node->get( 'value' )[ $field ] ) ), $node->get( '_namespace' ) );
+							}
+							continue;
+						}
+
+						if ( 'document_link' === $node->get( 'name' ) ) {
+							$feedItemNode->addChild( 'document_link', htmlspecialchars( (string) $node->get( 'value' ) ), $node->get( '_namespace' ) );
+							continue;
+						}
 
                         $feedItemNode->addChild($node->get('name'), $node->get('value'), $node->get('_namespace'));
                     }
@@ -282,8 +288,10 @@ class Feed
                         if (is_array($itemNode)) {
                             if ( 'product_detail' === $field ) {
                                 $row[] = $this->formatProductDetailNodesForText( $itemNode );
-                            } elseif ( 'question_and_answer' === $field ) {
-                                $row[] = $this->formatQuestionAndAnswerNodesForText( $itemNode );
+							} elseif ( ! empty( $this->getGroupedAttributeFields( $field ) ) ) {
+								$row[] = $this->formatGroupedNodesForText( $itemNode, $this->getGroupedAttributeFields( $field ) );
+							} elseif ( 'document_link' === $field ) {
+								$row[] = $this->formatRepeatedNodesForText( $itemNode );
                             } else {
                                 foreach ($itemNode as $node) {
                                     $row[] = str_replace(array("\r\n", "\n", "\r"), ' ', $node->get('value'));
@@ -317,9 +325,13 @@ class Feed
                 $row = array();
                 foreach ($item->nodes() as $key => $itemNode) {
                     if (is_array($itemNode)) {
-                        if ( 'product_detail' === $key ) {
-                            $row[] = $this->formatProductDetailNodesForText( $itemNode );
-                        } else {
+						if ( 'product_detail' === $key ) {
+							$row[] = $this->formatProductDetailNodesForText( $itemNode );
+						} elseif ( ! empty( $this->getGroupedAttributeFields( $key ) ) ) {
+							$row[] = $this->formatGroupedNodesForText( $itemNode, $this->getGroupedAttributeFields( $key ) );
+						} elseif ( 'document_link' === $key ) {
+							$row[] = $this->formatRepeatedNodesForText( $itemNode );
+						} else {
                             foreach ($itemNode as $node) {
                                 $row[] = str_replace(array("\r\n", "\n", "\r"), ' ', $node->get('value'));
                             }
@@ -377,44 +389,83 @@ class Feed
     }
 
     /**
-     * Convert question_and_answer nodes to Google text-feed format.
-     *
-     * @param array $nodes Question and answer nodes.
-     * @return string
-     */
-    private function formatQuestionAndAnswerNodesForText( $nodes ) {
-        $entries = array();
+	 * Return required fields for a supported repeated group attribute.
+	 *
+	 * @param string $attribute_name Group attribute name.
+	 * @return array
+	 */
+	private function getGroupedAttributeFields( $attribute_name ) {
+		$attributes = array(
+			'question_and_answer' => array( 'question', 'answer' ),
+			'variant_option'      => array( 'name', 'value' ),
+			'related_product'     => array( 'relationship_type', 'identifier_type', 'identifier' ),
+		);
 
-        foreach ( $nodes as $node ) {
-            $value = $node->get( 'value' );
-            if ( ! is_array( $value ) ) {
-                continue;
-            }
+		return isset( $attributes[ $attribute_name ] ) ? $attributes[ $attribute_name ] : array();
+	}
 
-            $question = isset( $value['question'] ) ? trim( (string) $value['question'] ) : '';
-            $answer   = isset( $value['answer'] ) ? trim( (string) $value['answer'] ) : '';
-            if ( '' === $question || '' === $answer ) {
-                continue;
-            }
+	/**
+	 * Convert repeated group nodes to Google text-feed format.
+	 *
+	 * @param array $nodes Group nodes.
+	 * @param array $fields Ordered sub-attribute names.
+	 * @return string
+	 */
+	private function formatGroupedNodesForText( $nodes, $fields ) {
+		$entries = array();
 
-            $entries[] = $this->quoteQuestionAndAnswerTextPart( $question ) . ':' . $this->quoteQuestionAndAnswerTextPart( $answer );
-        }
+		foreach ( $nodes as $node ) {
+			$value = $node->get( 'value' );
+			if ( ! is_array( $value ) ) {
+				continue;
+			}
 
-        return implode( ', ', $entries );
-    }
+			$parts = array();
+			foreach ( $fields as $field ) {
+				$field_value = isset( $value[ $field ] ) ? trim( (string) $value[ $field ] ) : '';
+				if ( '' === $field_value ) {
+					continue 2;
+				}
+				$parts[] = $this->quoteGroupedTextPart( $field_value );
+			}
 
-    /**
-     * Quote a question_and_answer sub-attribute for text output.
+			$entries[] = implode( ':', $parts );
+		}
+
+		return implode( ', ', $entries );
+	}
+
+	/**
+	 * Quote a grouped sub-attribute for text output.
      *
      * @param string $value Sub-attribute value.
      * @return string
      */
-    private function quoteQuestionAndAnswerTextPart( $value ) {
-        $value = str_replace( array( "\r\n", "\n", "\r", "\t" ), ' ', (string) $value );
-        $value = str_replace( '"', '""', $value );
+	private function quoteGroupedTextPart( $value ) {
+		$value = str_replace( array( "\r\n", "\n", "\r", "\t" ), ' ', (string) $value );
+		$value = str_replace( '"', '""', $value );
 
-        return '"' . $value . '"';
-    }
+		return '"' . $value . '"';
+	}
+
+	/**
+	 * Convert repeated scalar nodes to one comma-separated text value.
+	 *
+	 * @param array $nodes Repeated nodes.
+	 * @return string
+	 */
+	private function formatRepeatedNodesForText( $nodes ) {
+		$values = array();
+
+		foreach ( $nodes as $node ) {
+			$value = trim( str_replace( array( "\r\n", "\n", "\r", "\t" ), ' ', (string) $node->get( 'value' ) ) );
+			if ( '' !== $value ) {
+				$values[] = $value;
+			}
+		}
+
+		return implode( ', ', $values );
+	}
 
     /**
      * Escape a product_detail sub-attribute value for text output.
