@@ -272,7 +272,7 @@
     rail.querySelectorAll('.pfm-rail-item').forEach(function (item) {
       var group = item.dataset.group;
       var groupPane = pane.querySelector('[data-group="' + group + '"]');
-      var count = groupPane ? groupPane.querySelectorAll(':scope > .single-merchant').length : 0;
+      var count = groupPane ? groupPane.querySelectorAll(':scope > .single-merchant:not(.feed-error-email-settings)').length : 0;
       var badge = item.querySelector('.pfm-rail-count');
       if (badge) badge.textContent = count;
     });

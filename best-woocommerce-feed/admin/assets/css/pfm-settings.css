@@ -2529,3 +2529,9 @@
     width: 360px;
     max-width: 100%;
 }
+
+/* Temporarily hide feed health-monitor settings while automatic guarding is disabled. */
+.pfm-group-pane .single-merchant.feed-error-email-settings,
+.pfm-search-results-body .single-merchant.feed-error-email-settings {
+    display: none;
+}

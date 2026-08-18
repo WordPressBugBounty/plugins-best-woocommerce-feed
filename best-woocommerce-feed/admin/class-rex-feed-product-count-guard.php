@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Rex_Feed_Product_Count_Guard {
 
+	const AUTOMATIC_RUN_GUARD_ENABLED = false;
 	const RUN_META             = '_rex_feed_product_count_run';
 	const ERROR_META           = '_rex_feed_error_state';
 	const ERROR_IDS_OPTION     = 'wpfm_active_feed_error_ids';
@@ -40,6 +41,10 @@ class Rex_Feed_Product_Count_Guard {
 	public static function begin_run( $feed_id, $source, $started_at ) {
 		$feed_id = absint( $feed_id );
 		$source  = 'automatic' === $source ? 'automatic' : 'manual';
+
+		if ( 'automatic' === $source && ! self::AUTOMATIC_RUN_GUARD_ENABLED ) {
+			return;
+		}
 
 		if ( ! $feed_id || 'product-feed' !== get_post_type( $feed_id ) ) {
 			return;

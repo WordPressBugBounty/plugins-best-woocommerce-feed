@@ -181,7 +181,7 @@ require_once plugin_dir_path( __FILE__ ) . 'loading-spinner.php';
 					<?php esc_html_e( 'Need help setting up your Google Merchant Center integration? Use these quick links to view step-by-step guides.', 'rex-product-feed' ); ?>
 				</p>
 				<div class="single-merchant_pdf__link">
-					<a href="<?php echo esc_url( 'https://rextheme.com/docs/how-to-auto-sync-product-feed-to-google-merchant-shop/?utm_source=plugin&utm_medium=get_started_auto_sync_link&utm_campaign=pfm_plugin' ); ?>" target="_blank" style="margin-bottom:8px; display:inline-block;">
+					<a href="<?php echo esc_url( 'https://rextheme.com/docs/auto-sync-products-to-google-merchant-center-using-merchant-api/?utm_source=plugin&utm_medium=get_started_auto_sync_link&utm_campaign=pfm_plugin' ); ?>" target="_blank" style="margin-bottom:8px; display:inline-block;">
 						<?php esc_html_e( 'Merchant API v1 Setup Guide (Requires OAuth)', 'rex-product-feed' ); ?>
 					</a>
 					<a href="<?php echo esc_url( 'https://rextheme.com/docs/upload-woocomerce-product-feed-directly-to-google-merchant-center/?utm_source=plugin&utm_medium=google_form_direct_upload_link&utm_campaign=pfm_plugin' ); ?>" target="_blank" style="margin-bottom:8px; display:inline-block;">

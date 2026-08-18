@@ -807,7 +807,7 @@ class Rex_Feed_Google_Shopping_Api {
                            target="_blank">
 							<?php esc_html_e( 'Direct Upload Method (No need for authorization)', 'rex-product-feed' ); ?>
                         </a>
-                        <a href="<?php echo esc_url( 'https://rextheme.com/docs/how-to-auto-sync-product-feed-to-google-merchant-shop/?utm_source=plugin&utm_medium=get_started_auto_sync_link&utm_campaign=pfm_plugin' ); ?>"
+                        <a href="<?php echo esc_url( 'https://rextheme.com/docs/auto-sync-products-to-google-merchant-center-using-merchant-api/?utm_source=plugin&utm_medium=get_started_auto_sync_link&utm_campaign=pfm_plugin' ); ?>"
                            target="_blank">
 							<?php esc_html_e( 'Merchant API v1 Method (Require authorization)', 'rex-product-feed' ); ?>
                         </a>

@@ -49,7 +49,7 @@ $_show_migration_banner = ( 'google' === $_feed_merchant ) && ( $is_google_conte
         <br>
 		<div class="<?php echo esc_attr( $this->prefix ) . 'google_desc__link';?>">
             <a href="<?php echo esc_url( 'https://rextheme.com/docs/upload-woocomerce-product-feed-directly-to-google-merchant-center/?utm_source=plugin&utm_medium=google_form_direct_upload_link&utm_campaign=pfm_plugin' )?>" target="_blank"><?php esc_html_e('Direct Upload Method (No need for authorization)', 'rex-product-feed')?></a>
-			<a href="<?php echo esc_url( 'https://rextheme.com/docs/how-to-auto-sync-product-feed-to-google-merchant-shop/?utm_source=plugin&utm_medium=get_started_auto_sync_link&utm_campaign=pfm_plugin' )?>" target="_blank"><?php esc_html_e('Merchant API Method (Require authorization)', 'rex-product-feed')?></a>
+			<a href="<?php echo esc_url( 'https://rextheme.com/docs/auto-sync-products-to-google-merchant-center-using-merchant-api/?utm_source=plugin&utm_medium=get_started_auto_sync_link&utm_campaign=pfm_plugin' )?>" target="_blank"><?php esc_html_e('Merchant API Method (Require authorization)', 'rex-product-feed')?></a>
             <a href="<?php echo esc_url( 'https://rextheme.com/google-country-codes-list/?utm_source=plugin&utm_medium=google_form_abbreviation_link&utm_campaign=pfm_plugin' )?>" target="_blank"><?php esc_html_e('Check Abbreviation Lists','rex-product-feed')?></a>
 		</div>
 
