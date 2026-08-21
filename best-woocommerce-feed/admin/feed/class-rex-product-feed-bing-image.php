@@ -508,7 +508,7 @@ class Rex_Product_Feed_Bing_image extends Rex_Product_Feed_Abstract_Generator
 		update_post_meta( $this->id, '_rex_feed_merchant', $this->merchant );
 
 		if ( $this->batch == 1 ) {
-			return file_put_contents( $file, json_encode( $this->feed ) ) ? 'true' : 'false';
+			return file_put_contents( $file, json_encode( $this->feed ), LOCK_EX ) ? 'true' : 'false';
 		}
 		else {
 			$languageCulture = 'de-CH';
@@ -521,7 +521,7 @@ class Rex_Product_Feed_Bing_image extends Rex_Product_Feed_Abstract_Generator
 			$tempArray = explode( '>', $inp );
 			$result    = array_merge( $tempArray, $this->feed );
 			$jsonData  = json_encode( $result );
-			return file_put_contents( $file, $jsonData ) ? 'true' : 'false';
+			return file_put_contents( $file, $jsonData, LOCK_EX ) ? 'true' : 'false';
 		}
 	}
 

@@ -245,7 +245,21 @@ class Rex_Feed_Google_Shopping_Api {
 		
 		try {
 			$client = $this->get_client();
-			return ! $client->isAccessTokenExpired();
+			if ( ! $client->isAccessTokenExpired() ) {
+				return true;
+			}
+
+			// If access token is expired, attempt to refresh it using the refresh token.
+			if ( ! empty( $access_token['refresh_token'] ) ) {
+				$this->save_access_token( $access_token['refresh_token'], 'fetchAccessTokenWithRefreshToken' );
+				$refreshed_token = $this->get_access_token();
+				if ( ! empty( $refreshed_token ) && empty( $refreshed_token['error'] ) ) {
+					$client = $this->get_client();
+					return ! $client->isAccessTokenExpired();
+				}
+			}
+
+			return false;
 		} catch ( Exception $e ) {
 			// If there's an error checking the token, consider it unauthorized
 			$log = wc_get_logger();

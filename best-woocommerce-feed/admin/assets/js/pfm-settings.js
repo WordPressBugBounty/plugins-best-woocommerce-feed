@@ -1039,6 +1039,7 @@
   function ensureTransferStatus(container) {
     var status;
     var host;
+    var title;
 
     if (!container) {
       return null;
@@ -1053,10 +1054,12 @@
     status.className = 'rex-feed-transfer-status';
     status.setAttribute('role', 'status');
     status.setAttribute('aria-live', 'polite');
-    host = container.firstElementChild && container.firstElementChild.tagName === 'DIV'
-      ? container.firstElementChild
-      : container;
-    host.appendChild(status);
+    title = container.querySelector('.title');
+
+    if (title) {
+      host = title.parentElement;
+      host.appendChild(status);
+    }
 
     return status;
   }

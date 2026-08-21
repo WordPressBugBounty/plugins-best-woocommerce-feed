@@ -324,6 +324,24 @@ class Rex_Product_Metabox
 
         $status = get_post_meta( $feed_id, '_rex_feed_status', true ) ?: get_post_meta( $feed_id, 'rex_feed_status', true );
 
+        if ( 'failed' === $status ) {
+            $last_error = get_post_meta( $feed_id, '_rex_feed_last_error', true );
+            $err_msg    = is_array( $last_error ) && ! empty( $last_error['message'] ) ? $last_error['message'] : '';
+            ?>
+            <div class="notice notice-error rex-feed-notice">
+                <p>
+                    <strong><?php esc_html_e( 'Feed Generation Failed', 'rex-product-feed' ); ?></strong>
+                    <?php if ( $err_msg ) : ?>
+                        &mdash; <?php echo esc_html( $err_msg ); ?>
+                    <?php else : ?>
+                        &mdash; <?php esc_html_e( 'The previous feed generation encountered an error or timed out. Click "Update" or "Publish" to retry.', 'rex-product-feed' ); ?>
+                    <?php endif; ?>
+                </p>
+            </div>
+            <?php
+            return;
+        }
+
         if ( 'In queue' !== $status && 'processing' !== $status ) {
             return;
         }
@@ -342,10 +360,16 @@ class Rex_Product_Metabox
                 $total
             );
         ?>
-        <div class="notice notice-info rex-feed-notice">
-            <p>
-                <strong><?php esc_html_e( 'Feed Generating in Background', 'rex-product-feed' ); ?></strong>
-                &mdash; <?php echo wp_kses_post( $status_label ); ?>
+        <div class="notice notice-info rex-feed-notice wpfm-feed-generating-notice">
+            <p style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <span>
+                    <strong><?php esc_html_e( 'Feed Generating in Background', 'rex-product-feed' ); ?></strong>
+                    &mdash; <?php echo wp_kses_post( $status_label ); ?>
+                </span>
+                <button type="button" class="button button-secondary wpfm-clear-batch" data-feed-id="<?php echo esc_attr( $feed_id ); ?>">
+                    <span><?php esc_html_e( 'Cancel / Clear Batch', 'rex-product-feed' ); ?></span>
+                    <i class="fa fa-spinner fa-pulse fa-fw" style="display: none;"></i>
+                </button>
             </p>
         </div>
         <?php

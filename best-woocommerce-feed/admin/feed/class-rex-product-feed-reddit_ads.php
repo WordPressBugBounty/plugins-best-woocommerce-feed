@@ -488,7 +488,7 @@ class Rex_Product_Feed_Reddit_ads extends Rex_Product_Feed_Abstract_Generator {
 		}
 
 		// Save feed to file
-		$result = file_put_contents( $file_path, $this->feed );
+		$result = file_put_contents( $file_path, $this->feed, LOCK_EX );
 
 		if ( $result ) {
 			// Update feed meta

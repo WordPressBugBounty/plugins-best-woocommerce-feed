@@ -304,31 +304,41 @@ class Rex_Product_Feed_Ajax {
             }
         }
 
-        $btn_id     = !empty( $payload[ 'button_id' ] ) ? $payload[ 'button_id' ] : '';
-        $is_premium = apply_filters( 'wpfm_is_premium', false );
-        $products   = apply_filters( 'wpfm_get_total_number_of_products', array( 'products' => WPFM_FREE_MAX_PRODUCT_LIMIT ), $feed_id );
+        $btn_id         = !empty( $payload[ 'button_id' ] ) ? $payload[ 'button_id' ] : '';
+        $is_premium     = apply_filters( 'wpfm_is_premium', false );
+        $eligible_total = self::get_feed_product_count( $payload, $feed_id );
 
         $limit_notice = false;
         if ( !$is_premium ) {
-            $eligible_total          = self::get_feed_product_count( $payload, $feed_id );
-            $products[ 'products' ]  = min( $eligible_total, WPFM_FREE_MAX_PRODUCT_LIMIT );
-            $limit_notice            = self::get_product_limit_notice( $eligible_total, false );
+            $total_products = min( $eligible_total, WPFM_FREE_MAX_PRODUCT_LIMIT );
+            $limit_notice   = self::get_product_limit_notice( $eligible_total, false );
         }
+        else {
+            $total_products = $eligible_total;
+        }
+
+        $products = [
+            'products' => $total_products,
+        ];
         $per_page = get_option( 'rex-wpfm-product-per-batch', WPFM_FREE_MAX_PRODUCT_LIMIT );
 
         if ( (int) $per_page >= WPFM_FREE_MAX_PRODUCT_LIMIT && !$is_premium ) {
             $posts_per_page = WPFM_FREE_MAX_PRODUCT_LIMIT;
         }
         else {
-            $posts_per_page = (int) $per_page;
+            $posts_per_page = max( 1, (int) $per_page );
         }
 
-        update_post_meta( $feed_id, '_rex_feed_publish_btn', $btn_id );
+        if ( $feed_id && $btn_id ) {
+            update_post_meta( $feed_id, '_rex_feed_publish_btn', $btn_id );
+        }
+
+        $total_batch = max( 1, (int) ceil( (int) $products[ 'products' ] / $posts_per_page ) );
 
         $response = [
             'products'    => $products[ 'products' ],
             'per_batch'   => $posts_per_page,
-            'total_batch' => ceil( $products[ 'products' ] / $posts_per_page ),
+            'total_batch' => $total_batch,
             'feed_title'  => 'unique',
         ];
 
@@ -372,7 +382,7 @@ class Rex_Product_Feed_Ajax {
         ];
         $should_fetch_variations = !$feed_id && empty( $feed_config );
         foreach ( $variation_settings as $setting ) {
-            $value = $feed_config[ $setting ] ?? get_post_meta( $feed_id, "_{$setting}", true );
+            $value = $feed_config[ $setting ] ?? ( get_post_meta( $feed_id, "_{$setting}", true ) ?: get_post_meta( $feed_id, $setting, true ) );
             if ( 'yes' === $value ) {
                 $should_fetch_variations = true;
                 break;
@@ -1593,46 +1603,169 @@ class Rex_Product_Feed_Ajax {
 
 
     /**
-     * Clear current batch
+     * Helper to clean up batch generation state and metadata for a specific feed.
      *
+     * @param int $feed_id Feed post ID.
      * @return void
-     * @since 1.0.0
      */
-    public static function clear_batch() {
-        global $wpdb;
-
-        try {
-            $wpdb->update(
-                    $wpdb->actionscheduler_actions,
-                    [ 'status' => 'failed' ],
-                    [
-                            'hook'   => 'rex_feed_regenerate_feed_batch',
-                            'status' => 'processing',
-                    ],
-            );
-            $wpdb->update(
-                    $wpdb->actionscheduler_actions,
-                    [ 'status' => 'failed' ],
-                    [
-                            'hook'   => 'rex_feed_regenerate_feed_batch',
-                            'status' => 'pending',
-                    ],
-            );
-            $wpdb->update(
-                    $wpdb->postmeta,
-                    [ 'meta_value' => 'completed' ],
-                    [ 'meta_key' => '_rex_feed_status' ],
-            );
+    public static function clean_feed_batch_state( $feed_id ) {
+        $feed_id = absint( $feed_id );
+        if ( ! $feed_id || 'product-feed' !== get_post_type( $feed_id ) ) {
+            return;
         }
-        catch( Exception $e ) {
-            if( is_wpfm_logging_enabled() ) {
-                $log = wc_get_logger();
-                $log->warning( print_r( $e->getMessage(), 1 ), array( 'source' => 'WPFM' ) );
+
+        $group = "wpfm-feed-{$feed_id}";
+        $hook  = defined( 'SINGLE_SCHEDULE_HOOK' ) ? SINGLE_SCHEDULE_HOOK : 'rex_feed_regenerate_feed_batch';
+
+        // Cancel / unschedule pending ActionScheduler actions for this feed.
+        if ( function_exists( 'as_unschedule_all_actions' ) ) {
+            as_unschedule_all_actions( $hook, array(), $group );
+            as_unschedule_all_actions( '', array(), $group );
+        }
+
+        if ( function_exists( 'as_get_scheduled_actions' ) && class_exists( 'ActionScheduler_Store' ) ) {
+            $store = ActionScheduler_Store::instance();
+            foreach ( array( 'pending', 'in-progress' ) as $status ) {
+                $actions = as_get_scheduled_actions( array(
+                    'group'    => $group,
+                    'status'   => $status,
+                    'per_page' => 500,
+                ) );
+                foreach ( $actions as $action_id => $action ) {
+                    try {
+                        $store->cancel_action( $action_id );
+                    } catch ( Exception $cancel_exception ) {
+                        $store->delete_action( $action_id );
+                    }
+                }
             }
         }
 
-        wp_send_json_success( 'success' );
-        wp_die();
+        // Reset feed status to failed (never mark completed on clear/cancel).
+        Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'failed', false );
+
+        // Delete batch progress and generation metadata.
+        delete_post_meta( $feed_id, '_rex_feed_current_batch' );
+        delete_post_meta( $feed_id, 'rex_feed_current_batch' );
+        delete_post_meta( $feed_id, '_rex_feed_total_batches' );
+        delete_post_meta( $feed_id, 'rex_feed_total_batches' );
+        delete_post_meta( $feed_id, '_generation_start_time' );
+        delete_post_meta( $feed_id, 'generation_start_time' );
+
+        // Clean up temporary XML/CSV files and meta.
+        $temp_xml_url = get_post_meta( $feed_id, '_rex_feed_temp_xml_file', true ) ?: get_post_meta( $feed_id, 'rex_feed_temp_xml_file', true );
+        if ( $temp_xml_url ) {
+            $upload_dir = wp_upload_dir();
+            $temp_path  = str_replace( $upload_dir['baseurl'], $upload_dir['basedir'], $temp_xml_url );
+            if ( file_exists( $temp_path ) ) {
+                @unlink( $temp_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+            }
+        }
+        delete_post_meta( $feed_id, '_rex_feed_temp_xml_file' );
+        delete_post_meta( $feed_id, 'rex_feed_temp_xml_file' );
+
+        // Clean up guard run meta and backup if present.
+        if ( class_exists( 'Rex_Feed_Product_Count_Guard' ) ) {
+            $run = get_post_meta( $feed_id, Rex_Feed_Product_Count_Guard::RUN_META, true );
+            if ( is_array( $run ) && ! empty( $run['backup_path'] ) && file_exists( $run['backup_path'] ) ) {
+                @unlink( $run['backup_path'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+            }
+            delete_post_meta( $feed_id, Rex_Feed_Product_Count_Guard::RUN_META );
+        }
+
+        // Delete temporary feed transients and filesystem batch cache.
+        if ( class_exists( 'Rex_Feed_Generator_Helper' ) ) {
+            Rex_Feed_Generator_Helper::wpfm_delete_feed_transients( $feed_id );
+        }
+    }
+
+
+    /**
+     * Clear batch generation for a specific feed, or all active feeds if no ID provided.
+     *
+     * @param array $payload Payload containing optional feed_id.
+     * @return void
+     * @since 1.0.0
+     */
+    public static function clear_batch( $payload = array() ) {
+        $feed_id = 0;
+        if ( is_array( $payload ) && ! empty( $payload['feed_id'] ) ) {
+            $feed_id = absint( $payload['feed_id'] );
+        } elseif ( ! empty( $_POST['feed_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            $feed_id = absint( $_POST['feed_id'] );
+        }
+
+        try {
+            // Case 1: Scoped clear for a single feed.
+            if ( $feed_id ) {
+                if ( 'product-feed' !== get_post_type( $feed_id ) ) {
+                    wp_send_json_error( array(
+                        'message' => __( 'Invalid feed ID.', 'rex-product-feed' ),
+                    ) );
+                    wp_die();
+                }
+
+                self::clean_feed_batch_state( $feed_id );
+
+                wp_send_json_success( array(
+                    'feed_id' => $feed_id,
+                    'message' => __( 'Batch queue and progress metadata cleared successfully.', 'rex-product-feed' ),
+                ) );
+                wp_die();
+            }
+
+            // Case 2: Global clear (e.g. from Settings page) - Clean all active / stuck feeds safely.
+            $active_feed_ids = get_posts( array(
+                'post_type'      => 'product-feed',
+                'post_status'    => 'any',
+                'posts_per_page' => -1,
+                'fields'         => 'ids',
+                'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+                    'relation' => 'OR',
+                    array(
+                        'key'     => '_rex_feed_status',
+                        'value'   => array( 'processing', 'In queue' ),
+                        'compare' => 'IN',
+                    ),
+                    array(
+                        'key'     => 'rex_feed_status',
+                        'value'   => array( 'processing', 'In queue' ),
+                        'compare' => 'IN',
+                    ),
+                ),
+            ) );
+
+            if ( ! empty( $active_feed_ids ) ) {
+                foreach ( $active_feed_ids as $active_id ) {
+                    self::clean_feed_batch_state( $active_id );
+                }
+            }
+
+            // Cancel any orphaned / un-grouped single batch actions.
+            if ( function_exists( 'as_unschedule_all_actions' ) ) {
+                $hook = defined( 'SINGLE_SCHEDULE_HOOK' ) ? SINGLE_SCHEDULE_HOOK : 'rex_feed_regenerate_feed_batch';
+                as_unschedule_all_actions( $hook );
+            }
+
+            wp_send_json_success( array(
+                'cleared_count' => count( $active_feed_ids ),
+                'message'       => sprintf(
+                    /* translators: %d: number of feeds reset */
+                    __( 'Batch queues cleared for %d active feed(s).', 'rex-product-feed' ),
+                    count( $active_feed_ids )
+                ),
+            ) );
+            wp_die();
+        } catch ( Exception $e ) {
+            if ( is_wpfm_logging_enabled() ) {
+                $log = wc_get_logger();
+                $log->warning( print_r( $e->getMessage(), 1 ), array( 'source' => 'WPFM' ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+            }
+            wp_send_json_error( array(
+                'message' => $e->getMessage(),
+            ) );
+            wp_die();
+        }
     }
 
     /**
@@ -2922,6 +3055,7 @@ class Rex_Product_Feed_Ajax {
             '_rex_feed_status',
             'rex_feed_status',
             '_generation_start_time',
+            '_rex_feed_last_active_time',
             '_rex_feed_google_data_feed_id',
             'rex_feed_google_data_feed_id',
             '_rex_mas_last_sync',
@@ -2989,7 +3123,12 @@ class Rex_Product_Feed_Ajax {
         update_post_meta( $feed_id, '_rex_feed_current_batch', $start_batch - 1 );
         $generation_started_at = time();
         update_post_meta( $feed_id, '_generation_start_time', $generation_started_at );
+        update_post_meta( $feed_id, '_rex_feed_last_active_time', $generation_started_at );
         Rex_Feed_Product_Count_Guard::begin_run( $feed_id, 'manual', $generation_started_at );
+
+        if ( function_exists( 'as_unschedule_all_actions' ) ) {
+            as_unschedule_all_actions( 'rex_feed_regenerate_feed_batch', [], "wpfm-feed-{$feed_id}" );
+        }
 
         $offset = ( $start_batch - 1 ) * $per_batch;
         for ( $current_batch = $start_batch; $current_batch <= $total_batches; $current_batch++ ) {
@@ -3003,12 +3142,9 @@ class Rex_Product_Feed_Ajax {
                 ],
             ];
 
-            $is_scheduled = as_has_scheduled_action( 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
-            if ( !$is_scheduled ) {
-                $scheduled = as_schedule_single_action( time(), 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
-                if ( $start_batch === $current_batch && !is_wp_error( $scheduled ) && $scheduled ) {
-                    Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'In queue', false );
-                }
+            $scheduled = as_schedule_single_action( time(), 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
+            if ( $start_batch === $current_batch && !is_wp_error( $scheduled ) && $scheduled ) {
+                Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'In queue', false );
             }
 
             $offset += $per_batch;
@@ -3062,6 +3198,13 @@ class Rex_Product_Feed_Ajax {
 
         if ( 'completed' === $status ) {
             $response[ 'feed_url' ] = get_post_meta( $feed_id, '_rex_feed_xml_file', true ) ?: get_post_meta( $feed_id, 'rex_feed_xml_file', true );
+        } elseif ( 'failed' === $status ) {
+            $last_error = get_post_meta( $feed_id, '_rex_feed_last_error', true );
+            if ( is_array( $last_error ) && ! empty( $last_error['message'] ) ) {
+                $response['message'] = $last_error['message'];
+            } elseif ( is_string( $last_error ) && ! empty( $last_error ) ) {
+                $response['message'] = $last_error;
+            }
         }
 
         return $response;

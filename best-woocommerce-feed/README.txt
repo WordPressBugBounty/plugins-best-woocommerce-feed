@@ -4,9 +4,9 @@ Contributors: rextheme, coderexltd, coderexco
 Donate link: https://rextheme.com/best-WooCommerce-product-feed/
 Tags: Product Feed, WooCommerce Product Feed, Google Shopping Feed, Facebook Catalog, Product Feed Management
 Requires at least: 6.7
-Tested up to:  7.0
+Tested up to:  7.1
 Requires PHP: 7.4
-Stable tag:  7.8.1
+Stable tag:  7.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -502,6 +502,16 @@ You can report security bugs through the [Patchstack Vulnerability Disclosure Pr
 
 = Product feed manager (Free) =
 
+= 7.9.0 (2026-08-21) =
+* Feature: Implement fatal error recovery and automated lock watchdog for stuck feeds
+* Feature: Add caching for WooCommerce tax rates during feed generation
+* Enhancement: Release abandoned postmeta locks during scheduled job cleanup sweep
+* Enhancement: Prevent cron job stacking, ensure feed-specific product calculations, and add atomic file locking
+* Fix: Properly scope clear batch AJAX action to feed ID and clear batch metadata
+* Fix: Resolve Skroutz feed product query when including variations with parent products
+* Fix: Fix documentation links and layout issues in settings and controls tab
+* Fix: Align GTIN attribute schema with Google Merchant API v1 requirements (`gtins` array under `productAttributes`) to resolve product sync payload errors.
+ 
 = 7.8.1 (2026-08-18) =
 * Tweak: Temporarily disabled the Feed Health Monitor proactive error alerts
 

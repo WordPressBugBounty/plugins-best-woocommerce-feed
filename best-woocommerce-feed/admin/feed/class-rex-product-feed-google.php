@@ -569,7 +569,7 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 			$attrs['multipack'] = (int) $attributes['multipack'];
 		}
 
-		// Array attribute: gtin (repeated string).
+		// Array attribute: gtins (repeated string).
 		if ( ! empty( $attributes['gtin'] ) && false !== $attributes['gtin'] ) {
 			$gtin_arr   = is_array( $attributes['gtin'] ) ? $attributes['gtin'] : array( (string) $attributes['gtin'] );
 			$gtin_clean = array_values( array_filter( array_map( function( $v ) {
@@ -578,7 +578,7 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 				return '' !== $v;
 			} ) );
 			if ( ! empty( $gtin_clean ) ) {
-				$attrs['gtin'] = $gtin_clean;
+				$attrs['gtins'] = $gtin_clean;
 			}
 		}
 

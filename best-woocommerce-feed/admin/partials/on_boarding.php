@@ -71,7 +71,7 @@ if ( $is_premium_activated ) {
 			<p class="pfm-page-header__subtitle"><?php echo esc_html__( 'Configure how your WooCommerce products are exported to ad platforms and marketplaces.', 'rex-product-feed' ); ?></p>
 		</div>
 		<div class="pfm-page-header__actions">
-			<a href="https://rextheme.com/docs/best-woocommerce-product-feed/" target="_blank" rel="noopener" class="pfm-btn pfm-btn--ghost">
+			<a href="https://rextheme.com/docs-category/product-feed-manager" target="_blank" rel="noopener" class="pfm-btn pfm-btn--ghost">
 				<?php echo esc_html__( 'Documentation', 'rex-product-feed' ); ?>
 			</a>
 			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=product-feed' ) ); ?>" class="pfm-btn pfm-btn--primary">
@@ -904,14 +904,17 @@ if ( $is_premium_activated ) {
                                     <span class="wpfm-pro-tag"><?php echo esc_html__( 'pro', 'rex-product-feed' ); ?></span>
                                 </a>
                             <?php endif; ?>
-                            <div>
-                                <span class="title"><?php echo esc_html__( 'Export feed configurations', 'rex-product-feed' ); ?></span>
-                                <p><?php echo esc_html__( 'Download a JSON file containing all of your feed setups.', 'rex-product-feed' ); ?></p>
-                            </div>
-                            <button type="button" id="rex-feed-export-btn" class="rex-feed-export-btn" <?php echo ! $is_premium_activated ? 'disabled' : ''; ?>>
-                                <span><?php echo esc_html__( 'Export', 'rex-product-feed' ); ?></span>
-                                <i class="fa fa-spinner fa-pulse fa-fw"></i>
-                            </button>
+
+                    
+                                <div>
+                                    <span class="title"><?php echo esc_html__( 'Export feed configurations', 'rex-product-feed' ); ?></span>
+                                    <p><?php echo esc_html__( 'Download a JSON file containing all of your feed setups.', 'rex-product-feed' ); ?></p>
+                                </div>
+
+                                <button type="button" id="rex-feed-export-btn" class="rex-feed-export-btn" <?php echo ! $is_premium_activated ? 'disabled' : ''; ?>>
+                                    <span><?php echo esc_html__( 'Export', 'rex-product-feed' ); ?></span>
+                                    <i class="fa fa-spinner fa-pulse fa-fw"></i>
+                                </button>
                         </div>
 
                         <div class="single-merchant rex-feed-import <?php echo ! $is_premium_activated ? 'wpfm-pro' : ''; ?>" data-label="<?php echo esc_attr__( 'Import feed configurations', 'rex-product-feed' ); ?>">
@@ -920,6 +923,8 @@ if ( $is_premium_activated ) {
                                     <span class="wpfm-pro-tag"><?php echo esc_html__( 'pro', 'rex-product-feed' ); ?></span>
                                 </a>
                             <?php endif; ?>
+
+                            
                             <div>
                                 <span class="title"><?php echo esc_html__( 'Import feed configurations', 'rex-product-feed' ); ?></span>
                                 <p><?php echo esc_html__( 'Upload a JSON export from another site to restore feeds.', 'rex-product-feed' ); ?></p>

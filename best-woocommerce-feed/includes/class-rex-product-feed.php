@@ -275,6 +275,7 @@ class Rex_Product_Feed {
         $this->loader->add_action( WEEKLY_SCHEDULE_HOOK, $scheduler, 'weekly_cron_handler' );
         $this->loader->add_action( SINGLE_SCHEDULE_HOOK, $scheduler, 'regenerate_feed_batch' );
         $this->loader->add_action( CUSTOM_SCHEDULE_HOOK, $scheduler, 'custom_cron_handler' );
+        $this->loader->add_action( WATCHDOG_SCHEDULE_HOOK, $scheduler, 'watchdog_stuck_feeds_handler' );
 
 	    $this->loader->add_action( 'woocommerce_update_non_option_setting', $plugin_admin, 'delete_shipping_transient', 99 );
 

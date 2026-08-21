@@ -38,6 +38,9 @@ class Rex_Product_Feed_Deactivator {
             as_unschedule_action( DAILY_SCHEDULE_HOOK, [], 'wpfm' );
             as_unschedule_action( WEEKLY_SCHEDULE_HOOK, [], 'wpfm' );
 			as_unschedule_action( CUSTOM_SCHEDULE_HOOK, [], 'wpfm' );
+			if ( defined( 'WATCHDOG_SCHEDULE_HOOK' ) ) {
+				as_unschedule_action( WATCHDOG_SCHEDULE_HOOK, [], 'wpfm' );
+			}
         }
         wp_clear_scheduled_hook( 'wpfm_orphan_cleanup_tick' );
         wp_clear_scheduled_hook( 'wpfm_orphan_cleanup_weekly' );

@@ -31,6 +31,9 @@ class Rex_Feed_Scheduler {
 
         // On init, try to register the custom scheduler if pro is active but scheduler not present yet
         add_action( 'init', [ $this, 'maybe_register_custom_scheduler' ] );
+
+        // On init, ensure watchdog scheduler is registered
+        add_action( 'init', [ $this, 'maybe_register_watchdog_scheduler' ] );
     }
 
     /**
@@ -107,6 +110,35 @@ class Rex_Feed_Scheduler {
                  */
                 apply_filters( 'rexfeed_custom_cron_interval', 3600 ),
                 CUSTOM_SCHEDULE_HOOK,
+                [],
+                'wpfm'
+            );
+        }
+    }
+
+    /**
+     * Register the watchdog recurring Action Scheduler job if not already scheduled.
+     *
+     * @return void
+     */
+    public function maybe_register_watchdog_scheduler() {
+        if ( ! function_exists( 'as_has_scheduled_action' ) || ! function_exists( 'as_schedule_recurring_action' ) ) {
+            return;
+        }
+
+        $watchdog_hook = defined( 'WATCHDOG_SCHEDULE_HOOK' ) ? WATCHDOG_SCHEDULE_HOOK : 'rex_feed_watchdog_stuck_feeds';
+        $watchdog_schedule = as_has_scheduled_action( $watchdog_hook, null, 'wpfm' );
+        if ( ! $watchdog_schedule ) {
+            as_schedule_recurring_action(
+                time(),
+                /**
+                 * Apply a filter to set the interval for the stuck feed watchdog cron job in seconds.
+                 *
+                 * @param int $interval The interval in seconds for the watchdog cron job (default 15 minutes / 900s).
+                 * @return int The modified interval in seconds.
+                 */
+                apply_filters( 'rexfeed_watchdog_cron_interval', 15 * 60 ),
+                $watchdog_hook,
                 [],
                 'wpfm'
             );
@@ -227,6 +259,22 @@ class Rex_Feed_Scheduler {
 					WEEKLY_SCHEDULE_HOOK, [], 'wpfm'
                 );
             }
+
+            $watchdog_hook = defined( 'WATCHDOG_SCHEDULE_HOOK' ) ? WATCHDOG_SCHEDULE_HOOK : 'rex_feed_watchdog_stuck_feeds';
+            $watchdog_schedule = as_has_scheduled_action( $watchdog_hook, null, 'wpfm' );
+            if( !$watchdog_schedule ) {
+                as_schedule_recurring_action(
+					time(),
+	                /**
+	                 * Apply a filter to set the interval for the stuck feed watchdog cron job in seconds.
+	                 *
+	                 * @param int $interval The interval in seconds for the watchdog cron job (default 15 minutes / 900s).
+	                 * @return int The modified interval in seconds.
+	                 */
+					apply_filters( 'rexfeed_watchdog_cron_interval', 15 * 60 ),
+					$watchdog_hook, [], 'wpfm'
+                );
+            }
         }
     }
 
@@ -286,6 +334,106 @@ class Rex_Feed_Scheduler {
     }
 
     /**
+     * Callback function to Watchdog Stuck Feeds Hook.
+     * Checks for feeds stuck in 'processing' or 'In queue' with no activity older than 6 hours,
+     * marks them as 'failed', unschedules dangling tasks, and clears locks.
+     *
+     * @return array List of recovered feed IDs.
+     */
+    public function watchdog_stuck_feeds_handler() {
+        $timeout_seconds = (int) apply_filters( 'wpfm_feed_stuck_timeout_seconds', 6 * HOUR_IN_SECONDS );
+        $cutoff_time     = time() - $timeout_seconds;
+        $recovered_feeds = array();
+
+        $feeds = get_posts( array(
+            'post_type'      => 'product-feed',
+            'post_status'    => array( 'publish', 'draft', 'pending', 'private', 'future' ),
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'meta_query'     => array(
+                'relation' => 'OR',
+                array(
+                    'key'     => '_rex_feed_status',
+                    'value'   => array( 'processing', 'In queue' ),
+                    'compare' => 'IN',
+                ),
+                array(
+                    'key'     => 'rex_feed_status',
+                    'value'   => array( 'processing', 'In queue' ),
+                    'compare' => 'IN',
+                ),
+            ),
+        ) );
+
+        if ( empty( $feeds ) || is_wp_error( $feeds ) ) {
+            return $recovered_feeds;
+        }
+
+        foreach ( $feeds as $feed_id ) {
+            $feed_id       = (int) $feed_id;
+            $activity_time = get_post_meta( $feed_id, '_rex_feed_last_active_time', true );
+
+            // Fallback 1: If _rex_feed_last_active_time is missing (e.g. older plugin version), check _generation_start_time
+            if ( ! $activity_time ) {
+                $activity_time = get_post_meta( $feed_id, '_generation_start_time', true );
+            }
+
+            // Fallback 2: If both meta are missing, check post_modified_gmt as fallback
+            if ( ! $activity_time ) {
+                $post          = get_post( $feed_id );
+                $activity_time = ( $post && ! empty( $post->post_modified_gmt ) ) ? strtotime( $post->post_modified_gmt ) : 0;
+            } else {
+                $activity_time = (int) $activity_time;
+            }
+
+            if ( $activity_time && $activity_time < $cutoff_time ) {
+                if ( function_exists( 'as_unschedule_all_actions' ) ) {
+                    as_unschedule_all_actions( '', array(), "wpfm-feed-{$feed_id}" );
+                }
+
+                Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'failed', true );
+                delete_post_meta( $feed_id, '_generation_start_time' );
+                delete_post_meta( $feed_id, '_rex_feed_last_active_time' );
+                delete_post_meta( $feed_id, '_rex_feed_product_count_run' );
+
+                $timeout_hours = round( $timeout_seconds / HOUR_IN_SECONDS );
+                if ( $timeout_hours >= 1 ) {
+                    $error_msg = sprintf(
+                        _n( 'Feed generation timed out after %d hour without completion.', 'Feed generation timed out after %d hours without completion.', $timeout_hours, 'rex-product-feed' ),
+                        $timeout_hours
+                    );
+                } else {
+                    $timeout_minutes = max( 1, round( $timeout_seconds / MINUTE_IN_SECONDS ) );
+                    $error_msg = sprintf(
+                        _n( 'Feed generation timed out after %d minute without completion.', 'Feed generation timed out after %d minutes without completion.', $timeout_minutes, 'rex-product-feed' ),
+                        $timeout_minutes
+                    );
+                }
+
+                update_post_meta( $feed_id, '_rex_feed_last_error', array(
+                    'type'      => 'watchdog_timeout',
+                    'message'   => $error_msg,
+                    'timestamp' => time(),
+                ) );
+
+                Rex_Feed_Product_Count_Guard::fail_run( $feed_id, 'watchdog_timeout', $error_msg );
+
+                if ( is_wpfm_logging_enabled() ) {
+                    $log = wc_get_logger();
+                    $log->warning(
+                        sprintf( 'Watchdog: Feed %d was stuck in processing for > %d seconds. Marked as failed and cleared locks.', $feed_id, $timeout_seconds ),
+                        array( 'source' => 'WPFM_BACKGROUND_PROCESS_ERROR' )
+                    );
+                }
+
+                $recovered_feeds[] = $feed_id;
+            }
+        }
+
+        return $recovered_feeds;
+    }
+
+    /**
      * Generate single batch scheduled in background
      *
      * @param array $data Feed information.
@@ -315,11 +463,69 @@ class Rex_Feed_Scheduler {
                 Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'processing', false );
             }
 
+            // Reserve memory for shutdown handler in case of memory exhaustion (OOM).
+            $memory_reserve = str_repeat( ' ', 64 * 1024 );
+
+            // Register fatal shutdown handler to catch script halts (OOM, timeout, parse/fatal errors).
+            register_shutdown_function( function() use ( $feed_id, $current_batch, &$memory_reserve ) {
+                $memory_reserve = null;
+                unset( $memory_reserve );
+
+                $error = error_get_last();
+                if ( ! $error ) {
+                    return;
+                }
+
+                $fatal_error_types = array( E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR );
+                if ( ! in_array( $error['type'], $fatal_error_types, true ) ) {
+                    return;
+                }
+
+                $status = get_post_meta( $feed_id, '_rex_feed_status', true ) ?: get_post_meta( $feed_id, 'rex_feed_status', true );
+                if ( in_array( $status, array( 'processing', 'In queue' ), true ) ) {
+                    Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'failed', true );
+                    delete_post_meta( $feed_id, '_generation_start_time' );
+                    delete_post_meta( $feed_id, '_rex_feed_last_active_time' );
+                    delete_post_meta( $feed_id, '_rex_feed_product_count_run' );
+
+                    update_post_meta( $feed_id, '_rex_feed_last_error', array(
+                        'type'      => 'fatal_error',
+                        'message'   => $error['message'],
+                        'file'      => $error['file'],
+                        'line'      => $error['line'],
+                        'batch'     => $current_batch,
+                        'timestamp' => time(),
+                    ) );
+
+                    if ( function_exists( 'as_unschedule_all_actions' ) ) {
+                        as_unschedule_all_actions( '', array(), "wpfm-feed-{$feed_id}" );
+                    }
+
+                    Rex_Feed_Product_Count_Guard::fail_run( $feed_id, 'fatal_shutdown', $error['message'] );
+
+                    if ( is_wpfm_logging_enabled() ) {
+                        $log = wc_get_logger();
+                        $log->error(
+                            sprintf(
+                                'Fatal error during feed generation for feed %d (batch %s): %s in %s:%d',
+                                $feed_id,
+                                $current_batch,
+                                $error['message'],
+                                $error['file'],
+                                $error['line']
+                            ),
+                            array( 'source' => 'WPFM_BACKGROUND_PROCESS_ERROR' )
+                        );
+                    }
+                }
+            } );
+
             try {
                 $payload  = $this->get_feed_settings_payload( $feed_id, $current_batch, $total_batches, $per_batch, $offset );
                 $merchant = Rex_Product_Feed_Factory::build( $payload, true );
                 $merchant->make_feed();
                 update_post_meta( $feed_id, '_rex_feed_current_batch', $current_batch );
+                update_post_meta( $feed_id, '_rex_feed_last_active_time', time() );
                 if( empty( $scheduled_actions ) ) {
                     if ( in_array( get_post_status( $feed_id ), array( 'auto-draft', 'draft' ), true ) ) {
                         wp_update_post( array( 'ID' => $feed_id, 'post_status' => 'publish' ) );
@@ -327,10 +533,29 @@ class Rex_Feed_Scheduler {
                     Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'completed', true );
                     $this->update_total_products_from_feed_file( $feed_id );
                     Rex_Feed_Product_Count_Guard::complete_run( $feed_id );
+                    delete_post_meta( $feed_id, '_rex_feed_last_active_time' );
                     Rex_Feed_Job_Cleanup::cleanup_feed_batch_jobs( $feed_id );
                 }
             }
-            catch( Exception $e ) {
+            catch( Throwable $e ) {
+                Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'failed', true );
+                delete_post_meta( $feed_id, '_generation_start_time' );
+                delete_post_meta( $feed_id, '_rex_feed_last_active_time' );
+                delete_post_meta( $feed_id, '_rex_feed_product_count_run' );
+
+                update_post_meta( $feed_id, '_rex_feed_last_error', array(
+                    'type'      => 'exception',
+                    'message'   => $e->getMessage(),
+                    'file'      => $e->getFile(),
+                    'line'      => $e->getLine(),
+                    'batch'     => $current_batch,
+                    'timestamp' => time(),
+                ) );
+
+                if ( function_exists( 'as_unschedule_all_actions' ) ) {
+                    as_unschedule_all_actions( '', array(), "wpfm-feed-{$feed_id}" );
+                }
+
                 Rex_Feed_Product_Count_Guard::fail_run( $feed_id, 'generation_exception', $e->getMessage() );
                 if( is_wpfm_logging_enabled() ) {
                     $log = wc_get_logger();
@@ -444,6 +669,64 @@ class Rex_Feed_Scheduler {
     }
 
     /**
+     * Check whether a feed is actively being generated or has running ActionScheduler jobs.
+     * If the generation has stalled past the timeout, cleans up stale tasks and returns false.
+     *
+     * @param int $feed_id Feed ID.
+     * @return bool True if actively generating within timeout, false if idle or stalled.
+     * @since 7.4.61
+     */
+    public function is_feed_actively_processing( $feed_id ) {
+        $feed_id = absint( $feed_id );
+        if ( ! $feed_id ) {
+            return false;
+        }
+
+        $status               = get_post_meta( $feed_id, '_rex_feed_status', true ) ?: get_post_meta( $feed_id, 'rex_feed_status', true );
+        $is_generating_status = in_array( $status, [ 'processing', 'In queue' ], true );
+
+        $has_active_actions = false;
+        if ( function_exists( 'as_get_scheduled_actions' ) ) {
+            $pending_actions = as_get_scheduled_actions( [
+                'hook'     => 'rex_feed_regenerate_feed_batch',
+                'group'    => "wpfm-feed-{$feed_id}",
+                'status'   => 'pending',
+                'per_page' => 1,
+            ] );
+            if ( ! empty( $pending_actions ) ) {
+                $has_active_actions = true;
+            } else {
+                $running_actions = as_get_scheduled_actions( [
+                    'hook'     => 'rex_feed_regenerate_feed_batch',
+                    'group'    => "wpfm-feed-{$feed_id}",
+                    'status'   => 'in-progress',
+                    'per_page' => 1,
+                ] );
+                $has_active_actions = ! empty( $running_actions );
+            }
+        }
+
+        if ( ! $is_generating_status && ! $has_active_actions ) {
+            return false;
+        }
+
+        $generation_start = (int) ( get_post_meta( $feed_id, '_rex_feed_last_active_time', true ) ?: ( get_post_meta( $feed_id, '_generation_start_time', true ) ?: 0 ) );
+        $timeout          = (int) apply_filters( 'wpfm_feed_generation_timeout', 1800, $feed_id ); // 30 minutes
+
+        if ( $generation_start > 0 && ( time() - $generation_start ) < $timeout ) {
+            return true;
+        }
+
+        // Exceeded timeout or orphaned state without start time: clean up stale actions and allow recovery
+        if ( function_exists( 'as_unschedule_all_actions' ) ) {
+            as_unschedule_all_actions( 'rex_feed_regenerate_feed_batch', [], "wpfm-feed-{$feed_id}" );
+        }
+        Rex_Feed_Job_Cleanup::cleanup_feed_batch_jobs( $feed_id );
+
+        return false;
+    }
+
+    /**
      * Configure feed merchant in single batch wise
      * and schedule as a single process
      *
@@ -454,86 +737,111 @@ class Rex_Feed_Scheduler {
      * @throws Exception
      */
     public function schedule_merchant_single_batch_object( $feed_ids, $update_single = false ) {
-        if( !is_wp_error( $feed_ids ) && !empty( $feed_ids ) ) {
-            $products_info = wpfm_get_cached_data( 'cron_products_info' );
+        if ( is_wp_error( $feed_ids ) || ! is_array( $feed_ids ) || empty( $feed_ids ) ) {
+            return;
+        }
 
-            if( is_wp_error( $products_info ) || !is_array( $products_info ) || empty( $products_info ) ) {
-                try {
-                    $products_info = Rex_Product_Feed_Ajax::get_product_number( [ 'feed_id' => '' ] );
-                }
-                catch( Exception $e ) {
-                    $products_info = [];
-                    if( is_wpfm_logging_enabled() ) {
-                        $log = wc_get_logger();
-                        $log->warning( print_r( $e->getMessage(), 1 ), array( 'source' => 'WPFM_BACKGROUND_PROCESS_ERROR' ) );
-                    }
-                }
-                wpfm_set_cached_data( 'cron_products_info', $products_info );
+        $last_product_change = $this->get_last_product_change_timestamp();
+
+        foreach ( $feed_ids as $feed_id ) {
+            $feed_id = absint( $feed_id );
+            if ( ! $feed_id ) {
+                continue;
             }
 
-            $per_batch     = !empty( $products_info[ 'per_batch' ] ) ? $products_info[ 'per_batch' ] : 0;
-            $total_batches = !empty( $products_info[ 'total_batch' ] ) ? $products_info[ 'total_batch' ] : 1;
-
-	            $last_product_change = $this->get_last_product_change_timestamp();
-	            if( $per_batch && $total_batches ) {
-	                foreach( $feed_ids as $feed_id ) {
-	                    $update_on_product_change = get_post_meta( $feed_id, '_rex_feed_update_on_product_change', true ) ?: get_post_meta( $feed_id, 'rex_feed_update_on_product_change', true );
-	                    $is_triggered_by_product_change = ( 'yes' === $update_on_product_change && $this->feed_has_pending_product_changes( $feed_id, $last_product_change ) );
-
-	                    if( $update_single || $is_triggered_by_product_change || ( !$update_on_product_change || 'no' === $update_on_product_change ) ) {
-	                        $is_custom_executable = '';
-                        if( !$update_single ) {
-                            $schedule             = $this->get_feed_schedule_settings( $feed_id );
-                            $schedule_time        = get_post_meta( $feed_id, '_rex_feed_custom_time', true ) ?: get_post_meta( $feed_id, 'rex_feed_custom_time', true );
-                            $is_custom_executable = 'custom' === $schedule;
-                        }
-
-	                        if( $update_single || $is_custom_executable || in_array( $schedule, [ 'hourly', 'daily', 'weekly', 'custom' ] ) ) {
-	                            $generation_started_at = time();
-	                            update_post_meta( $feed_id, '_generation_start_time', $generation_started_at );
-	                            Rex_Feed_Product_Count_Guard::begin_run( $feed_id, $update_single ? 'manual' : 'automatic', $generation_started_at );
-	                            $offset = 0;
-	                            $has_pending_or_new_batches = false;
-	                            $all_batches_ok             = true;
-	                            for( $current_batch = 1; $current_batch <= $total_batches; $current_batch++ ) {
-	                                $data         = [];
-	                                $data[]       = [
-                                    'feed_id'       => $feed_id,
-                                    'current_batch' => $current_batch,
-                                    'total_batches' => $total_batches,
-                                    'per_batch'     => $per_batch,
-                                    'offset'        => $offset,
-	                                ];
-	                                $is_scheduled = function_exists( 'as_has_scheduled_action' ) && as_has_scheduled_action( 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
-	                                if ( $is_scheduled ) {
-	                                    $has_pending_or_new_batches = true;
-	                                }
-	                                if( !$is_scheduled ) {
-	                                    $scheduled = function_exists( 'as_schedule_single_action' ) && as_schedule_single_action( time(), 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
-	                                    if( 1 === $current_batch && !is_wp_error( $scheduled ) && $scheduled ) {
-	                                        Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'In queue', false );
-	                                    }
-	                                    if ( ! is_wp_error( $scheduled ) && $scheduled ) {
-	                                        $has_pending_or_new_batches = true;
-	                                    } else {
-	                                        $all_batches_ok = false;
-	                                    }
-	                                }
-	                                $offset += $per_batch;
-	                            }
-
-	                            if ( $is_triggered_by_product_change && $has_pending_or_new_batches && $all_batches_ok ) {
-	                                // Mark the change as processed for this feed only.
-	                                // Only advance when every batch is confirmed scheduled/pending so
-	                                // a partial scheduling failure does not suppress an automatic retry.
-	                                // This keeps one feed's scheduled run from suppressing other due feeds.
-	                                update_post_meta( $feed_id, '_rex_feed_last_product_change_processed', $last_product_change );
-	                            }
-	                        }
-	                    }
-	                }
+            // Bail if the feed was trashed or deleted.
+            $post_status = get_post_status( $feed_id );
+            if ( false === $post_status || 'trash' === $post_status ) {
+                continue;
             }
-            wpfm_purge_cached_data( 'cron_products_info' );
+
+            $update_on_product_change       = get_post_meta( $feed_id, '_rex_feed_update_on_product_change', true ) ?: get_post_meta( $feed_id, 'rex_feed_update_on_product_change', true );
+            $is_triggered_by_product_change = ( 'yes' === $update_on_product_change && $this->feed_has_pending_product_changes( $feed_id, $last_product_change ) );
+
+            if ( ! $update_single && ! $is_triggered_by_product_change && 'yes' === $update_on_product_change ) {
+                continue;
+            }
+
+            $is_custom_executable = false;
+            $schedule             = '';
+            if ( ! $update_single ) {
+                $schedule             = $this->get_feed_schedule_settings( $feed_id );
+                $is_custom_executable = 'custom' === $schedule;
+                if ( ! $is_custom_executable && ! in_array( $schedule, [ 'hourly', 'daily', 'weekly', 'custom' ], true ) ) {
+                    continue;
+                }
+            }
+
+            // Skip if feed is already processing or has active running jobs (unless timed out)
+            if ( $this->is_feed_actively_processing( $feed_id ) ) {
+                continue;
+            }
+
+            // Calculate feed-specific product count and batch parameters
+            try {
+                $products_info = Rex_Product_Feed_Ajax::get_product_number( [ 'feed_id' => $feed_id ] );
+            }
+            catch ( Exception $e ) {
+                $products_info = [];
+                if ( is_wpfm_logging_enabled() ) {
+                    $log = wc_get_logger();
+                    $log->warning( print_r( $e->getMessage(), 1 ), [ 'source' => 'WPFM_BACKGROUND_PROCESS_ERROR' ] );
+                }
+            }
+
+            $per_batch     = ! empty( $products_info['per_batch'] ) ? (int) $products_info['per_batch'] : 200;
+            $total_batches = ! empty( $products_info['total_batch'] ) ? (int) $products_info['total_batch'] : 1;
+
+            if ( ! $per_batch || ! $total_batches ) {
+                continue;
+            }
+
+            $generation_started_at = time();
+            update_post_meta( $feed_id, '_generation_start_time', $generation_started_at );
+            update_post_meta( $feed_id, '_rex_feed_last_active_time', $generation_started_at );
+            update_post_meta( $feed_id, '_rex_feed_total_batches', $total_batches );
+            update_post_meta( $feed_id, '_rex_feed_current_batch', 0 );
+            Rex_Feed_Product_Count_Guard::begin_run( $feed_id, $update_single ? 'manual' : 'automatic', $generation_started_at );
+
+            // Clean up any stale scheduled actions for this feed before scheduling batches
+            if ( function_exists( 'as_unschedule_all_actions' ) ) {
+                as_unschedule_all_actions( 'rex_feed_regenerate_feed_batch', [], "wpfm-feed-{$feed_id}" );
+            }
+
+            $offset                     = 0;
+            $has_pending_or_new_batches = false;
+            $all_batches_ok             = true;
+
+            for ( $current_batch = 1; $current_batch <= $total_batches; $current_batch++ ) {
+                $data = [
+                    [
+                        'feed_id'       => $feed_id,
+                        'current_batch' => $current_batch,
+                        'total_batches' => $total_batches,
+                        'per_batch'     => $per_batch,
+                        'offset'        => $offset,
+                    ],
+                ];
+
+                $scheduled = function_exists( 'as_schedule_single_action' ) && as_schedule_single_action( time(), 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
+                if ( 1 === $current_batch && ! is_wp_error( $scheduled ) && $scheduled ) {
+                    Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'In queue', false );
+                }
+                if ( ! is_wp_error( $scheduled ) && $scheduled ) {
+                    $has_pending_or_new_batches = true;
+                } else {
+                    $all_batches_ok = false;
+                }
+                $offset += $per_batch;
+            }
+
+            if ( $is_triggered_by_product_change && $has_pending_or_new_batches && $all_batches_ok ) {
+                // Mark the change as processed for this feed only.
+                // Only advance when every batch is confirmed scheduled/pending so
+                // a partial scheduling failure does not suppress an automatic retry.
+                // This keeps one feed's scheduled run from suppressing other due feeds.
+                update_post_meta( $feed_id, '_rex_feed_last_product_change_processed', $last_product_change );
+            }
         }
     }
 
@@ -546,7 +854,7 @@ class Rex_Feed_Scheduler {
      * @since 7.3.0
      */
     public function get_feeds( $schedule ) {
-        $status = [ 'canceled', 'completed' ];
+        $status = [ 'canceled', 'completed', 'failed' ];
 
         $meta_queries = [
             'relation' => 'AND',

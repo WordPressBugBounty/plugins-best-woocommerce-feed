@@ -1126,7 +1126,11 @@ class Rex_Product_Feed_Other extends Rex_Product_Feed_Abstract_Generator {
                     $this->add_to_feed( $variable_product, $product_meta_keys, 'variable' );
                 }
 
-                if( $this->should_process_parent_variations() || $this->product_scope === 'product_cat' || $this->product_scope === 'product_tag' || $this->custom_filter_var_exclude ) {
+                $should_process_skroutz_variations = 'skroutz' === $this->merchant
+                    && $this->variable_product
+                    && $this->variations;
+
+                if( $should_process_skroutz_variations || $this->should_process_parent_variations() || $this->product_scope === 'product_cat' || $this->product_scope === 'product_tag' || $this->custom_filter_var_exclude ) {
                     if ( $this->exclude_hidden_products ) {
                         $variations = $product->get_visible_children();
                     }
@@ -1194,10 +1198,6 @@ class Rex_Product_Feed_Other extends Rex_Product_Feed_Abstract_Generator {
      */
     private function add_to_feed( $product, $meta_keys, $product_type = '' ) {
         $attributes = $this->get_product_data( $product, $meta_keys );
-
-        if( 'variable' === $product_type && 'skroutz' === $this->merchant && $this->variations ) {
-            $attributes = $this->get_variation_attributes( $product, $meta_keys, $attributes );
-        }
 
         if( ( !empty( $attributes ) && is_array( $attributes ) )
             && ( ( $this->rex_feed_skip_product

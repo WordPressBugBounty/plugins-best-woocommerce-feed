@@ -1389,18 +1389,18 @@ abstract class Rex_Product_Feed_Abstract_Generator
                     if ( $this->tbatch > 1 ) {
                         $this->footer_replace();
                     }
-                    file_put_contents( $file, $this->feed );
+                    file_put_contents( $file, $this->feed, LOCK_EX );
                 }
                 else {
                     $feed = $this->get_items();
-                    file_put_contents( $file, $feed, FILE_APPEND );
+                    file_put_contents( $file, $feed, FILE_APPEND | LOCK_EX );
                 }
             }
             else {
                 if ( (int) $this->tbatch > 1 ) {
                     $this->footer_replace();
                 }
-                file_put_contents( $file, $this->feed, FILE_APPEND );
+                file_put_contents( $file, $this->feed, FILE_APPEND | LOCK_EX );
             }
 
             if ( $this->batch === $this->tbatch && file_exists( $file ) && function_exists( 'rename' ) ) {
@@ -1441,17 +1441,17 @@ abstract class Rex_Product_Feed_Abstract_Generator
 
                 if( file_exists( $file ) ) {
                     if( $this->batch === 1 ) {
-                        file_put_contents( $file, $this->feed );
+                        file_put_contents( $file, $this->feed, LOCK_EX );
                     }
                     else {
                         $feed = $this->feed;
                         if( $feed ) {
-                            file_put_contents( $file, $feed, FILE_APPEND );
+                            file_put_contents( $file, $feed, FILE_APPEND | LOCK_EX );
                         }
                     }
                 }
                 else {
-                    file_put_contents( $file, $this->feed );
+                    file_put_contents( $file, $this->feed, LOCK_EX );
                 }
             }
 
@@ -1470,7 +1470,7 @@ abstract class Rex_Product_Feed_Abstract_Generator
 
             if ( file_exists( $file ) ) {
                 if ( 1 === (int)$this->batch ) {
-                    file_put_contents( $file, $this->feed );
+                    file_put_contents( $file, $this->feed, LOCK_EX );
                 }
                 else {
                     $feed = $this->feed;
@@ -1478,12 +1478,12 @@ abstract class Rex_Product_Feed_Abstract_Generator
                     $feed = ltrim(str_replace( $first_element, '', $feed ));
 
                     if ( $feed ) {
-                        file_put_contents( $file, $feed, FILE_APPEND );
+                        file_put_contents( $file, $feed, FILE_APPEND | LOCK_EX );
                     }
                 }
             }
             else {
-                file_put_contents( $file, $this->feed );
+                file_put_contents( $file, $this->feed, LOCK_EX );
             }
             if( $this->batch === $this->tbatch ) {
                 if( 'publish' === $publish_btn ) {
@@ -1517,27 +1517,39 @@ abstract class Rex_Product_Feed_Abstract_Generator
 
             if ( file_exists( $file ) ) {
                 if ( $this->batch === 1 ) {
-                    file_put_contents( $file, $this->feed );
+                    file_put_contents( $file, $this->feed, LOCK_EX );
                 } else {
-                    // For batched JSON, we need to merge the arrays
-                    $existing_content = file_get_contents( $file );
-                    $existing_data = json_decode( $existing_content, true );
-                    $new_data = json_decode( $this->feed, true );
-                    
-                    if ( is_array( $existing_data ) && is_array( $new_data ) ) {
-                        // Merge products arrays if they exist
-                        if ( isset( $existing_data['products'] ) && isset( $new_data['products'] ) ) {
-                            $existing_data['products'] = array_merge( $existing_data['products'], $new_data['products'] );
-                        } else {
-                            $existing_data = array_merge( $existing_data, $new_data );
+                    // For batched JSON, merge arrays with exclusive lock to prevent concurrency race conditions
+                    $fp = fopen( $file, 'c+' );
+                    if ( $fp ) {
+                        if ( flock( $fp, LOCK_EX ) ) {
+                            $file_size        = filesize( $file );
+                            $existing_content = $file_size > 0 ? fread( $fp, $file_size ) : '';
+                            $existing_data    = json_decode( $existing_content, true );
+                            $new_data         = json_decode( $this->feed, true );
+
+                            if ( is_array( $existing_data ) && is_array( $new_data ) ) {
+                                if ( isset( $existing_data['products'] ) && isset( $new_data['products'] ) ) {
+                                    $existing_data['products'] = array_merge( $existing_data['products'], $new_data['products'] );
+                                } else {
+                                    $existing_data = array_merge( $existing_data, $new_data );
+                                }
+                                $json_output = json_encode( $existing_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+                                ftruncate( $fp, 0 );
+                                rewind( $fp );
+                                fwrite( $fp, $json_output );
+                            } else {
+                                fseek( $fp, 0, SEEK_END );
+                                fwrite( $fp, $this->feed );
+                            }
+                            fflush( $fp );
+                            flock( $fp, LOCK_UN );
                         }
-                        file_put_contents( $file, json_encode( $existing_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
-                    } else {
-                        file_put_contents( $file, $this->feed, FILE_APPEND );
+                        fclose( $fp );
                     }
                 }
             } else {
-                file_put_contents( $file, $this->feed );
+                file_put_contents( $file, $this->feed, LOCK_EX );
             }
             return 'true';
         }
@@ -1550,7 +1562,7 @@ abstract class Rex_Product_Feed_Abstract_Generator
             if ( file_exists( $file ) ) {
                 if ( $this->batch === 1 ) {
                     $this->footer_replace();
-                    return file_put_contents( $file, $this->feed ) ? 'true' : 'false';
+                    return file_put_contents( $file, $this->feed, LOCK_EX ) ? 'true' : 'false';
                 }
                 else {
                     $feed = $this->get_items();
@@ -1566,12 +1578,12 @@ abstract class Rex_Product_Feed_Abstract_Generator
                         }
                     }
 
-                    file_put_contents( $file, $feed, FILE_APPEND );
+                    file_put_contents( $file, $feed, FILE_APPEND | LOCK_EX );
                     return 'true';
                 }
             }
             else {
-                return file_put_contents( $file, $this->feed ) ? 'true' : 'false';
+                return file_put_contents( $file, $this->feed, LOCK_EX ) ? 'true' : 'false';
             }
         }
     }

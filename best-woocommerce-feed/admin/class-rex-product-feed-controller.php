@@ -46,6 +46,7 @@ class Rex_Product_Feed_Controller {
             if ( $is_scheduled_run ) {
                 do_action( 'rex_product_feed_scheduler_generate', $feed_id );
                 delete_post_meta( $feed_id, '_generation_start_time' );
+                delete_post_meta( $feed_id, '_rex_feed_last_active_time' );
             }
         }
     }

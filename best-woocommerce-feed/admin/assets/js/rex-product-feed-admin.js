@@ -321,7 +321,7 @@
         $("section.rex-xml-popup").hide();
     });
 
-    $(document).on("click", "#wpfm-clear-batch", wpfm_clear_batch);
+    $(document).on("click", "#wpfm-clear-batch, .wpfm-clear-batch", wpfm_clear_batch);
 
     $(document).on("click", "#wpfm-log-copy", wpfm_copy_log);
 
@@ -1892,12 +1892,13 @@
         var pollInterval = setInterval(function () {
             wpAjaxHelperRequest("rexfeed-get-feed-generation-status", pollPayload)
                 .done(function (res) {
-                    if (!res || res.status === "error") {
+                    if (!res || res.status === "error" || res.status === "failed") {
                         clearInterval(pollInterval);
                         $(".progressbar-bar").css("background", "#ff0000");
                         $(".progressbar-bar").css("border-color", "#ff0000");
                         $(".progress-msg span").css("color", "#ff0000");
-                        $(".progress-msg span").html("Feed generation failed.");
+                        var errMsg = (res && res.message) ? res.message : "Feed generation failed.";
+                        $(".progress-msg span").html(errMsg);
                         rex_feed_feed_generation_error_helper();
                         return;
                     }
@@ -2312,12 +2313,21 @@
         $btn.addClass('is-loading').prop('disabled', true).find('span').text('Working…');
         $btn.find('i').hide();
 
-        wpAjaxHelperRequest("rex-product-clear-batch")
+        var feedId = $btn.data('feed-id') || $btn.attr('data-feed-id') || $('#post_ID').val() || $('#feed_id').val() || '';
+        var payload = feedId ? { feed_id: feedId } : {};
+
+        wpAjaxHelperRequest("rex-product-clear-batch", payload)
             .success(function () {
                 $btn.removeClass('is-loading').addClass('is-success').find('span').text('Done!');
-                setTimeout(function () {
-                    $btn.removeClass('is-success').prop('disabled', false).find('span').text(originalText);
-                }, 2000);
+                if (feedId && $('#post_ID').length) {
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    setTimeout(function () {
+                        $btn.removeClass('is-success').prop('disabled', false).find('span').text(originalText);
+                    }, 2000);
+                }
             })
             .error(function () {
                 $btn.removeClass('is-loading').addClass('is-error').find('span').text('Error — try again');

@@ -124,7 +124,7 @@ msgstr "Aelia-valuta"
 
 #: admin/class-rex-product-feed-metabox.php:225
 msgid "All Featured Products"
-msgstr "Alle aanbevolen producten"
+msgstr "Alle uitgelichte producten"
 
 #: admin/class-rex-product-feed-cpt.php:43
 msgid "All Product Feeds"
@@ -337,7 +337,7 @@ msgid ""
 "Filter %s - Category Filter %s - Tag Filter %s - Custom Filter %s - Product "
 "Filter (Pro) %s - Product Rule (Pro)"
 msgstr ""
-"Klik op deze productfilterknop om: %s - gebruik alle aanbevolen producten "
+"Klik op deze productfilterknop om: %s - gebruik alle uitgelichte producten "
 "filter %s - Categorie filter %s - tag filter %s - aangepaste filter %s - "
 "productfilter (pro) %s - productregel (Pro)"
 
@@ -425,9 +425,7 @@ msgstr "Aangepast filter"
 
 #: admin/class-rex-product-feed-metabox.php:195
 msgid "Daily"
-msgstr ""
-"\n"
-"Dagelijks"
+msgstr "Dagelijks"
 
 #: admin/class-rex-product-feed-actions.php:509
 msgid "Dashboard"

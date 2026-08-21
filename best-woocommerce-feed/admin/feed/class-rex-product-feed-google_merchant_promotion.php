@@ -187,30 +187,35 @@ class Rex_Product_Feed_Google_merchant_promotion {
 
         if($format === 'xml'){
             $file = trailingslashit($path) . "feed-{$this->id}.xml";
-            return file_put_contents($file, $this->feed) ? 'true' : 'false';
+            return file_put_contents($file, $this->feed, LOCK_EX) ? 'true' : 'false';
         }
         elseif ($format === 'text'){
             $file = trailingslashit($path) . "feed-{$this->id}.txt";
-            return file_put_contents($file, $this->feed) ? 'true' : 'false';
+            return file_put_contents($file, $this->feed, LOCK_EX) ? 'true' : 'false';
         }
         elseif ($format === 'csv'){
             $file = trailingslashit($path) . "feed-{$this->id}.csv";
             if(file_exists($file)){
                 unlink($file);
             }
-            $file = fopen($file,"a+");
-
+            $file_handle = fopen($file,"a+");
+            if ( ! $file_handle ) {
+                return 'false';
+            }
+            flock( $file_handle, LOCK_EX );
             $list = $this->feed;
             foreach ($list as $line)
             {
-                fputcsv($file,$line);
+                fputcsv($file_handle,$line);
             }
-            fclose($file);
+            fflush( $file_handle );
+            flock( $file_handle, LOCK_UN );
+            fclose($file_handle);
             return 'true';
         }
         else{
             $file = trailingslashit($path) . "feed-{$this->id}.xml";
-            return file_put_contents($file, $this->feed) ? 'true' : 'false';
+            return file_put_contents($file, $this->feed, LOCK_EX) ? 'true' : 'false';
         }
     }
 }

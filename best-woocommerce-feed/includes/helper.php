@@ -276,6 +276,12 @@ if ( ! function_exists( 'wpfm_generate_csv_feed' ) ) {
 			apply_filters( 'rexfeed_csv_fopen_mode', 'a' )
 		);
 
+		if ( ! $file ) {
+			return 'false';
+		}
+
+		flock( $file, LOCK_EX );
+
 		foreach ( $list as $line ) {
 			$lines = array();
 			foreach ( $line as $l ) {
@@ -292,6 +298,9 @@ if ( ! function_exists( 'wpfm_generate_csv_feed' ) ) {
 				fputcsv( $file, $lines );
 			}
 		}
+
+		fflush( $file );
+		flock( $file, LOCK_UN );
 		fclose( $file );
 
 		return 'true';

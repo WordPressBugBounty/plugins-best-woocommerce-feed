@@ -18,6 +18,30 @@
 class Rex_Product_Feed_Tax {
 
 	/**
+	 * WooCommerce tax rates cached by normalized tax class for current request.
+	 *
+	 * @var array
+	 */
+	private static $tax_rates_by_class = array();
+
+	/**
+	 * Get WooCommerce tax rates for a class, once per request.
+	 *
+	 * @param string $tax_class WooCommerce tax class.
+	 *
+	 * @return array Tax rates for class.
+	 */
+	public static function get_wc_tax_rates_for_class( $tax_class ) {
+		$tax_class = WC_Tax::format_tax_rate_class( $tax_class );
+
+		if ( !array_key_exists( $tax_class, self::$tax_rates_by_class ) ) {
+			self::$tax_rates_by_class[ $tax_class ] = WC_Tax::get_rates_for_tax_class( $tax_class );
+		}
+
+		return self::$tax_rates_by_class[ $tax_class ];
+	}
+
+	/**
 	 * Get the WooCommerce tax rate ID for a product based on its tax class and the feed country code.
 	 *
 	 * This function is used to find the appropriate tax rate ID for a product based on its tax class
@@ -33,7 +57,7 @@ class Rex_Product_Feed_Tax {
 	public static function get_wc_tax_rate_id( $product, $feed_country_code ) {
 		$tax_rate_id = null;
 		// Retrieve tax rates for the product's tax class.
-		$wc_tax_rates = WC_Tax::get_rates_for_tax_class( $product->get_tax_class() );
+		$wc_tax_rates = self::get_wc_tax_rates_for_class( $product->get_tax_class() );
 
 		// Iterate through the tax rates to find a matching one.
 		foreach( $wc_tax_rates as $rate ) {
@@ -64,7 +88,7 @@ class Rex_Product_Feed_Tax {
         $wc_tax_rates   = [];
 
         foreach( $wc_tax_classes as $tax_class ) {
-            $wc_tax_rates = array_merge( $wc_tax_rates, WC_Tax::get_rates_for_tax_class( $tax_class ) );
+            $wc_tax_rates = array_merge( $wc_tax_rates, self::get_wc_tax_rates_for_class( $tax_class ) );
         }
         return $wc_tax_rates;
     }

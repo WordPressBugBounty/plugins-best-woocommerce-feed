@@ -1195,8 +1195,7 @@ class Rex_Product_Data_Retriever {
 
             case 'tax':
                 $tax_class = $product ? $product->get_tax_class() : '';
-                $tax_rates = wpfm_get_cached_data( 'wc_tax_rates_' . $tax_class );
-                return $tax_rates ?: WC_Tax::get_rates_for_tax_class( $tax_class );
+                return Rex_Product_Feed_Tax::get_wc_tax_rates_for_class( $tax_class );
             default:
                 return '';
         }

@@ -394,6 +394,10 @@
   min-height: 720px;
 }
 
+#tab2 .pfm-settings-card {
+  display: block;
+}
+
 /* Left rail */
 .pfm-ctrl-rail {
   width: 240px;
@@ -776,6 +780,7 @@
   width: 0;
   height: 0;
   pointer-events: none;
+  border: 0;
 }
 
 /* =========================================================
@@ -895,7 +900,7 @@
 /* Rollback option area */
 .wpfm-rollback-option-area {
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   gap: var(--pfm-space-2);
 }
 
@@ -1185,6 +1190,11 @@
     color: #64748B;
     letter-spacing: 0.05em;
     text-transform: uppercase;
+}
+
+.single-merchant.rex-feed-export.wpfm-pro,
+.single-merchant.rex-feed-import.wpfm-pro {
+    padding-left: 70px;
 }
 
 .pfm-log-viewing-filename {

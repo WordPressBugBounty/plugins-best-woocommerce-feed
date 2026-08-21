@@ -165,6 +165,16 @@ class Rex_Product_CPT {
 						<?php
 						echo '<div class="blink">' . esc_html( ucfirst( $feed_update_status ) ) . '<span>.</span><span>.</span><span>.</span></div>';
 					}
+					elseif ( 'failed' === $feed_update_status ) {
+						$last_error = get_post_meta( $post_id, '_rex_feed_last_error', true );
+						$err_title  = '';
+						if ( is_array( $last_error ) && ! empty( $last_error['message'] ) ) {
+							$err_title = esc_attr( $last_error['message'] );
+						} elseif ( is_string( $last_error ) && ! empty( $last_error ) ) {
+							$err_title = esc_attr( $last_error );
+						}
+						echo '<span class="rex-feed-status-failed" style="color: #d63638; font-weight: 600;"' . ( $err_title ? ' title="' . $err_title . '"' : '' ) . '>' . esc_html__( 'Failed', 'rex-product-feed' ) . '</span>';
+					}
 					else {
 						echo esc_html( ucfirst( $feed_update_status ) );
 					}
@@ -174,7 +184,8 @@ class Rex_Product_CPT {
 				}
 				break;
 			case 'update_feed' :
-				echo '<a class="button rex-feed-update-single-feed" data-feed-id="' . $post_id . '" ' . $disabled . '>' . __( 'Update', 'rex-product-feed' ) .  '</a> ';
+				$button_label = ( 'failed' === $feed_update_status ) ? __( 'Retry', 'rex-product-feed' ) : __( 'Update', 'rex-product-feed' );
+				echo '<a class="button rex-feed-update-single-feed" data-feed-id="' . $post_id . '" ' . $disabled . '>' . esc_html( $button_label ) .  '</a> ';
 				break;
 			case 'view_feed':
 				$feed_status = get_post_status( $post_id );
