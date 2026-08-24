@@ -1160,6 +1160,16 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 
 		// Merchant API v1 path: if DataSource ID exists OR if it's a new feed (no data_feed_id), execute via Merchant API.
 		if ( $data_source_id || ! $data_feed_id ) {
+			if ( version_compare( PHP_VERSION, '8.1', '<' ) ) {
+				if ( $data_feed_id ) {
+					return $this->sync_products_legacy( $data_feed_id, $log );
+				}
+				return array(
+					'success' => false,
+					'message' => esc_html__( 'Google Merchant API sync requires PHP 8.1 or higher. Please upgrade PHP on your server.', 'rex-product-feed' ),
+				);
+			}
+
 			$merchant_client = Rex_Feed_Merchant_API_Client::from_stored_credentials();
 			if ( ! $merchant_client ) {
 				if ( wp_get_environment_type() === 'local' || wp_get_environment_type() === 'development' ) {

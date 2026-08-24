@@ -18,22 +18,22 @@ use RexFeed\Vendor\Google\Shopping\Merchant\Reports\V1\Client\ReportServiceClien
 class Rex_Feed_Merchant_API_Client {
 
 	/** @var DataSourcesServiceClient|null */
-	private ?DataSourcesServiceClient $datasources_client = null;
+	private $datasources_client = null;
 
 	/** @var ReportServiceClient|null */
-	private ?ReportServiceClient $reports_client = null;
+	private $reports_client = null;
 
 	/** @var CredentialsWrapper */
-	private CredentialsWrapper $credentials;
+	private $credentials;
 
 	/** @var UserRefreshCredentials */
-	private UserRefreshCredentials $user_creds;
+	private $user_creds;
 
 	/**
-	 * @param CredentialsWrapper     $credentials Pre-built credentials wrapper.
-	 * @param UserRefreshCredentials $user_creds  Raw refresh credentials (used for token fetching in REST calls).
+	 * @param mixed $credentials Pre-built credentials wrapper.
+	 * @param mixed $user_creds  Raw refresh credentials (used for token fetching in REST calls).
 	 */
-	public function __construct( CredentialsWrapper $credentials, UserRefreshCredentials $user_creds ) {
+	public function __construct( $credentials, $user_creds ) {
 		$this->credentials = $credentials;
 		$this->user_creds  = $user_creds;
 	}
@@ -41,9 +41,13 @@ class Rex_Feed_Merchant_API_Client {
 	/**
 	 * Build a client instance from the plugin's stored OAuth2 token.
 	 *
-	 * @return static|null  null when credentials are incomplete.
+	 * @return static|null  null when credentials are incomplete or PHP < 8.1.
 	 */
 	public static function from_stored_credentials(): ?self {
+		if ( version_compare( PHP_VERSION, '8.1', '<' ) ) {
+			return null;
+		}
+
 		$token_data    = get_option( 'rex_google_access_token', '' );
 		$token_data    = is_array( $token_data ) ? $token_data : json_decode( $token_data, true );
 		$refresh_token = $token_data['refresh_token'] ?? '';

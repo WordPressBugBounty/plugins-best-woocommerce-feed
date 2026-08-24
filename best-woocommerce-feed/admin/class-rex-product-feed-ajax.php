@@ -1007,6 +1007,12 @@ class Rex_Product_Feed_Ajax {
      * @return array     Success/error array.
      */
     private static function send_to_google_merchant_api( $feed_id, array $payload, string $data_source_id ): array {
+        if ( version_compare( PHP_VERSION, '8.1', '<' ) ) {
+            return array(
+                'success' => false,
+                'message' => __( 'Direct Google Merchant Center API sync requires PHP 8.1 or higher. Please upgrade your server PHP version or use the feed file URL method in Google Merchant Center.', 'rex-product-feed' ),
+            );
+        }
         try {
             $merchant_client = Rex_Feed_Merchant_API_Client::from_stored_credentials();
             if ( ! $merchant_client ) {
@@ -1298,6 +1304,12 @@ class Rex_Product_Feed_Ajax {
      * @return array
      */
     public static function fetch_google_datasource( array $payload ): array {
+        if ( version_compare( PHP_VERSION, '8.1', '<' ) ) {
+            return array(
+                'success' => false,
+                'message' => __( 'Google Merchant API v1 requires PHP 8.1 or higher.', 'rex-product-feed' ),
+            );
+        }
         try {
             $feed_id        = ! empty( $payload[ 'feed_id' ] ) ? absint( $payload[ 'feed_id' ] ) : 0;
             $data_source_id = $feed_id ? get_post_meta( $feed_id, '_rex_feed_google_data_source_id', true ) : '';
@@ -1420,6 +1432,12 @@ class Rex_Product_Feed_Ajax {
      * @return void  Sends JSON response directly.
      */
     public static function migrate_to_merchant_api( array $payload ): void {
+        if ( version_compare( PHP_VERSION, '8.1', '<' ) ) {
+            wp_send_json_error( array(
+                'message' => __( 'Google Merchant API v1 migration requires PHP 8.1 or higher. Please upgrade your server PHP version to migrate this feed.', 'rex-product-feed' ),
+            ) );
+            return;
+        }
         try {
             $feed_id = ! empty( $payload[ 'feed_id' ] ) ? absint( $payload[ 'feed_id' ] ) : 0;
             if ( ! $feed_id ) {

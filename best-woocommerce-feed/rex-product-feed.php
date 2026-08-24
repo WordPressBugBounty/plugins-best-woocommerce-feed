@@ -15,7 +15,7 @@
  * Plugin Name:       Product Feed Manager for WooCommerce
  * Plugin URI:        https://rextheme.com
  * Description:       Generate and maintain your WooCommerce product feed for Google Shopping, Social Catalogs, Yandex, Idealo, Vivino, Pinterest, eBay MIP, BestPrice, Skroutz, Fruugo, Bonanza & 200+ Merchants.
- * Version:           7.9.0
+ * Version:           7.9.1
  * Author:            RexTheme
  * Author URI:        https://rextheme.com
  * License:           GPL-2.0+
@@ -38,7 +38,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 if( !defined( 'WPFM_VERSION' ) ) {
-	define( 'WPFM_VERSION', '7.9.0' );
+	define( 'WPFM_VERSION', '7.9.1' );
 }
 if ( !defined( 'WPFM__FILE__' ) ) {
 	define( 'WPFM__FILE__', __FILE__ );
@@ -169,17 +169,23 @@ function wpfm_get_plugin_version( $file ) {
 
 
 /**
- * Show PHP version notice when below 8.1 (required by Merchant API packages).
+ * Show PHP version notice when below 8.1 (required by Google Merchant API v1 packages).
  */
 function wpfm_php_version_notice() {
+	if ( function_exists( 'get_current_screen' ) ) {
+		$screen = get_current_screen();
+		if ( $screen && 'product-feed' !== $screen->post_type && false === strpos( $screen->id, 'merchant_settings' ) && false === strpos( $screen->id, 'rex-product-feed' ) && false === strpos( $screen->id, 'product-feed' ) ) {
+			return;
+		}
+	}
 	?>
-	<div class="notice notice-error">
+	<div class="notice notice-warning is-dismissible">
 		<p>
-			<strong><?php esc_html_e( 'Product Feed Manager for WooCommerce', 'rex-product-feed' ); ?></strong>
+			<strong><?php esc_html_e( 'Product Feed Manager for WooCommerce', 'rex-product-feed' ); ?>:</strong>
 			<?php
 			printf(
 				/* translators: %s: current PHP version */
-				esc_html__( ' requires PHP 8.1 or higher. Your server is running PHP %s. Google Merchant Center features are disabled until you upgrade PHP.', 'rex-product-feed' ),
+				esc_html__( 'Your server is running PHP %s, which doesn\'t meet Google\'s requirement for direct Merchant API syncing or scheduling. Don\'t worry, you can still generate your XML feed as usual and connect it to Google Merchant Center using the feed file URL or direct upload method instead.', 'rex-product-feed' ),
 				esc_html( PHP_VERSION )
 			);
 			?>
