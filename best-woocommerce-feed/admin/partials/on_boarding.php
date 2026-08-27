@@ -963,7 +963,7 @@ if ( $is_premium_activated ) {
                         // Define categories
                         $categories = [
                             'social_media' => ['label' => 'Social Media', 'keys' => ['facebook', 'instagram', 'twitter', 'pinterest', 'snapchat', 'tiktok', 'reddit_ads']],
-                            'search_engine' => ['label' => 'Search Engine', 'keys' => ['google', 'bing', 'yandex', 'yahoo', 'google_local_inventory_ads', 'google_express', 'google_manufacturer_center', 'google_css_center', 'google_Ad', 'drm']],
+                            'search_engine' => ['label' => 'Search Engine', 'keys' => ['google', 'bing', 'yandex', 'yahoo', 'openai', 'chatgpt_ads', 'google_local_inventory_ads', 'google_express', 'google_manufacturer_center', 'google_css_center', 'google_Ad', 'drm']],
                             'deal_sites' => ['label' => 'Deal Sites', 'keys' => ['groupon', 'sparmedo', 'deals4u', 'mydeal']],
                             'custom' => ['label' => 'Custom', 'keys' => ['custom']],
                             'marketplace' => ['label' => 'Marketplace', 'keys' => ['amazon', 'walmart', 'ebay', 'ebay_seller', 'ebay_seller_tickets', 'etsy', 'catch', 'jet', 'bonanza', 'newegg', 'lazada', 'shopee', 'fruugo', 'bol', 'wish', 'rozetka', 'kogan', 'mirakl', 'rakuten', 'rakuten_advertising', 'emag', 'target']]

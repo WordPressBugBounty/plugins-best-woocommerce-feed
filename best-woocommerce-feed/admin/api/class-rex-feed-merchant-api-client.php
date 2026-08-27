@@ -1,53 +1,63 @@
 <?php
 
-use RexFeed\Vendor\Google\ApiCore\ApiException;
-use RexFeed\Vendor\Google\ApiCore\CredentialsWrapper;
-use RexFeed\Vendor\Google\Auth\Credentials\UserRefreshCredentials;
-use RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\Client\DataSourcesServiceClient;
-use RexFeed\Vendor\Google\Shopping\Merchant\Reports\V1\Client\ReportServiceClient;
-
 /**
- * Facade for Merchant API v1 service clients.
+ * Lightweight REST client for Google Merchant API v1.
  *
- * Lazily initialises DataSourcesServiceClient and ReportServiceClient using
- * the plugin's stored OAuth2 credentials. All callers share one instance per
- * request via the static factory below.
+ * Replaces the heavy Google Cloud PHP SDK with standard WordPress HTTP API
+ * requests (wp_remote_*), providing 100% compatibility with PHP 7.4 through 8.4+
+ * without third-party vendor dependency bloat.
  *
  * @since 7.7.0
+ * @package Rex_Product_Feed/admin/api
  */
 class Rex_Feed_Merchant_API_Client {
 
-	/** @var DataSourcesServiceClient|null */
-	private $datasources_client = null;
-
-	/** @var ReportServiceClient|null */
-	private $reports_client = null;
-
-	/** @var CredentialsWrapper */
-	private $credentials;
-
-	/** @var UserRefreshCredentials */
-	private $user_creds;
+	/**
+	 * @var string Google OAuth client ID.
+	 */
+	private $client_id;
 
 	/**
-	 * @param mixed $credentials Pre-built credentials wrapper.
-	 * @param mixed $user_creds  Raw refresh credentials (used for token fetching in REST calls).
+	 * @var string Google OAuth client secret.
 	 */
-	public function __construct( $credentials, $user_creds ) {
-		$this->credentials = $credentials;
-		$this->user_creds  = $user_creds;
+	private $client_secret;
+
+	/**
+	 * @var string Google OAuth refresh token.
+	 */
+	private $refresh_token;
+
+	/**
+	 * @var string|null Cached access token for the current request.
+	 */
+	private $access_token = null;
+
+	/**
+	 * Base URL for Google Merchant API.
+	 */
+	const API_BASE_URL = 'https://merchantapi.googleapis.com/';
+
+	/**
+	 * Constructor.
+	 *
+	 * @param string $client_id
+	 * @param string $client_secret
+	 * @param string $refresh_token
+	 */
+	public function __construct( $client_id, $client_secret, $refresh_token ) {
+		$this->client_id     = (string) $client_id;
+		$this->client_secret = (string) $client_secret;
+		$this->refresh_token = (string) $refresh_token;
 	}
 
 	/**
 	 * Build a client instance from the plugin's stored OAuth2 token.
 	 *
-	 * @return static|null  null when credentials are incomplete or PHP < 8.1.
+	 * Compatible with all PHP versions >= 7.4.
+	 *
+	 * @return static|null null when credentials are incomplete.
 	 */
 	public static function from_stored_credentials(): ?self {
-		if ( version_compare( PHP_VERSION, '8.1', '<' ) ) {
-			return null;
-		}
-
 		$token_data    = get_option( 'rex_google_access_token', '' );
 		$token_data    = is_array( $token_data ) ? $token_data : json_decode( $token_data, true );
 		$refresh_token = $token_data['refresh_token'] ?? '';
@@ -58,76 +68,254 @@ class Rex_Feed_Merchant_API_Client {
 			return null;
 		}
 
-		$user_creds  = new UserRefreshCredentials(
-			[ 'https://www.googleapis.com/auth/content' ],
-			[
-				'client_id'     => $client_id,
-				'client_secret' => $client_secret,
-				'refresh_token' => $refresh_token,
-			]
+		return new self( $client_id, $client_secret, $refresh_token );
+	}
+
+	/**
+	 * Fetch a valid OAuth access token using stored credentials.
+	 * Reuses valid cached token if available; otherwise refreshes via OAuth2 endpoint.
+	 *
+	 * @param bool $force_refresh
+	 * @return string|null Access token or null on failure.
+	 */
+	public function get_access_token( bool $force_refresh = false ): ?string {
+		if ( ! $force_refresh && ! empty( $this->access_token ) ) {
+			return $this->access_token;
+		}
+
+		$stored     = get_option( 'rex_google_access_token', '' );
+		$stored_arr = is_array( $stored ) ? $stored : ( json_decode( $stored, true ) ?: array() );
+
+		// Check if stored access token is still valid (with 60s buffer).
+		if ( ! $force_refresh && ! empty( $stored_arr['access_token'] ) && ! empty( $stored_arr['created'] ) ) {
+			$expires_in = (int) ( $stored_arr['expires_in'] ?? 3600 );
+			if ( time() < ( $stored_arr['created'] + $expires_in - 60 ) ) {
+				$this->access_token = $stored_arr['access_token'];
+				return $this->access_token;
+			}
+		}
+
+		// Refresh token via Google OAuth2 endpoint.
+		$response = wp_remote_post(
+			'https://oauth2.googleapis.com/token',
+			array(
+				'headers' => array( 'Content-Type' => 'application/x-www-form-urlencoded' ),
+				'body'    => array(
+					'client_id'     => $this->client_id,
+					'client_secret' => $this->client_secret,
+					'refresh_token' => $this->refresh_token,
+					'grant_type'    => 'refresh_token',
+				),
+				'timeout' => 20,
+			)
 		);
-		// CredentialsWrapper::build() only accepts keyFile, not a FetchAuthTokenInterface.
-		// Construct directly with the UserRefreshCredentials fetcher.
-		$credentials = new CredentialsWrapper( $user_creds );
 
-		return new self( $credentials, $user_creds );
-	}
-
-	/**
-	 * Return (and lazily create) the DataSources service client.
-	 *
-	 * @return DataSourcesServiceClient
-	 */
-	public function get_datasources_client(): DataSourcesServiceClient {
-		if ( null === $this->datasources_client ) {
-			$this->datasources_client = new DataSourcesServiceClient(
-				[ 'credentials' => $this->credentials ]
-			);
+		if ( is_wp_error( $response ) ) {
+			return null;
 		}
-		return $this->datasources_client;
-	}
 
-	/**
-	 * Return (and lazily create) the Reports service client.
-	 *
-	 * @return ReportServiceClient
-	 */
-	public function get_reports_client(): ReportServiceClient {
-		if ( null === $this->reports_client ) {
-			$this->reports_client = new ReportServiceClient(
-				[ 'credentials' => $this->credentials ]
-			);
-		}
-		return $this->reports_client;
-	}
+		$body = wp_remote_retrieve_body( $response );
+		$data = json_decode( $body, true );
 
-	/**
-	 * Fetch a fresh OAuth access token using stored refresh credentials.
-	 *
-	 * @return string|null
-	 */
-	public function get_access_token(): ?string {
-		$token_data = $this->user_creds->fetchAuthToken();
-		if ( ! empty( $token_data['access_token'] ) ) {
-			$stored     = get_option( 'rex_google_access_token', '' );
-			$stored_arr = is_array( $stored ) ? $stored : ( json_decode( $stored, true ) ?: array() );
-			$merged     = array_merge( $stored_arr, $token_data );
-			if ( empty( $merged['refresh_token'] ) && ! empty( $stored_arr['refresh_token'] ) ) {
-				$merged['refresh_token'] = $stored_arr['refresh_token'];
+		if ( ! empty( $data['access_token'] ) ) {
+			$merged = array_merge( $stored_arr, $data );
+			$merged['created'] = time();
+			if ( empty( $merged['refresh_token'] ) && ! empty( $this->refresh_token ) ) {
+				$merged['refresh_token'] = $this->refresh_token;
 			}
 			update_option( 'rex_google_access_token', wp_json_encode( $merged ) );
-			return $token_data['access_token'];
+			$this->access_token = $data['access_token'];
+			return $this->access_token;
 		}
-		return $token_data['access_token'] ?? null;
+
+		return null;
+	}
+
+	/**
+	 * Send an authenticated request to the Google Merchant REST API.
+	 *
+	 * @param string     $method       HTTP method (GET, POST, PATCH, DELETE).
+	 * @param string     $path         API path relative to base URL (e.g. 'datasources/v1/accounts/123/dataSources').
+	 * @param array      $query_params Optional query parameters.
+	 * @param array|null $body         Optional request body (array will be JSON-encoded).
+	 * @return array
+	 */
+	public function request( string $method, string $path, array $query_params = array(), $body = null ): array {
+		$access_token = $this->get_access_token();
+		if ( ! $access_token ) {
+			return array(
+				'success'    => false,
+				'message'    => __( 'Could not obtain a valid Google access token. Please re-authenticate your Google Merchant account.', 'rex-product-feed' ),
+				'error_type' => 'auth_error',
+			);
+		}
+
+		$url = self::API_BASE_URL . ltrim( $path, '/' );
+		if ( ! empty( $query_params ) ) {
+			$url = add_query_arg( $query_params, $url );
+		}
+
+		$args = array(
+			'method'  => strtoupper( $method ),
+			'headers' => array(
+				'Authorization' => "Bearer {$access_token}",
+				'Content-Type'  => 'application/json',
+			),
+			'timeout' => 30,
+		);
+
+		if ( null !== $body ) {
+			$args['body'] = is_string( $body ) ? $body : wp_json_encode( $body );
+		}
+
+		$response = wp_remote_request( $url, $args );
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success'    => false,
+				'message'    => $response->get_error_message(),
+				'error_type' => 'network_error',
+			);
+		}
+
+		$status_code   = (int) wp_remote_retrieve_response_code( $response );
+		$response_body = wp_remote_retrieve_body( $response );
+		$data          = json_decode( $response_body, true );
+
+		if ( $status_code >= 200 && $status_code < 300 ) {
+			return array(
+				'success' => true,
+				'data'    => $data ?: array(),
+			);
+		}
+
+		return self::normalize_api_error( array(
+			'code'          => $status_code,
+			'response_body' => $data,
+			'raw_body'      => $response_body,
+		) );
+	}
+
+	/**
+	 * Create a DataSource via Google Merchant API v1.
+	 *
+	 * @param string $merchant_id
+	 * @param array  $data_source
+	 * @return array
+	 */
+	public function create_data_source( string $merchant_id, array $data_source ): array {
+		return $this->request(
+			'POST',
+			"datasources/v1/accounts/{$merchant_id}/dataSources",
+			array(),
+			$data_source
+		);
+	}
+
+	/**
+	 * Get a DataSource by full resource name (accounts/{account}/dataSources/{datasource}) or numeric ID.
+	 *
+	 * @param string $name Full resource name or DataSource ID.
+	 * @return array
+	 */
+	public function get_data_source( string $name ): array {
+		if ( false === strpos( $name, 'accounts/' ) ) {
+			$merchant_id = get_option( 'rex_google_merchant_id', '' );
+			$name        = "accounts/{$merchant_id}/dataSources/{$name}";
+		}
+		return $this->request(
+			'GET',
+			"datasources/v1/{$name}"
+		);
+	}
+
+	/**
+	 * Update an existing DataSource.
+	 *
+	 * @param string $name Full resource name or DataSource ID.
+	 * @param array  $data_source
+	 * @param string $update_mask Comma-separated fields to update.
+	 * @return array
+	 */
+	public function update_data_source( string $name, array $data_source, string $update_mask = 'display_name,primary_product_data_source' ): array {
+		if ( false === strpos( $name, 'accounts/' ) ) {
+			$merchant_id = get_option( 'rex_google_merchant_id', '' );
+			$name        = "accounts/{$merchant_id}/dataSources/{$name}";
+		}
+		return $this->request(
+			'PATCH',
+			"datasources/v1/{$name}",
+			array( 'updateMask' => $update_mask ),
+			$data_source
+		);
+	}
+
+	/**
+	 * Delete an existing DataSource.
+	 *
+	 * @param string $name Full resource name or DataSource ID.
+	 * @return array
+	 */
+	public function delete_data_source( string $name ): array {
+		if ( false === strpos( $name, 'accounts/' ) ) {
+			$merchant_id = get_option( 'rex_google_merchant_id', '' );
+			$name        = "accounts/{$merchant_id}/dataSources/{$name}";
+		}
+		return $this->request(
+			'DELETE',
+			"datasources/v1/{$name}"
+		);
+	}
+
+	/**
+	 * Trigger an immediate DataSource fetch.
+	 *
+	 * @param string $name Full resource name or DataSource ID.
+	 * @return array
+	 */
+	public function fetch_data_source( string $name ): array {
+		if ( false === strpos( $name, 'accounts/' ) ) {
+			$merchant_id = get_option( 'rex_google_merchant_id', '' );
+			$name        = "accounts/{$merchant_id}/dataSources/{$name}";
+		}
+		return $this->request(
+			'POST',
+			"datasources/v1/{$name}:fetch",
+			array(),
+			new \stdClass()
+		);
+	}
+
+	/**
+	 * Search Reports via Google Merchant API v1 Reports API.
+	 *
+	 * @param string      $parent     Resource name of the parent account (accounts/{account}).
+	 * @param string      $query      Merchant query language (MQL) string.
+	 * @param int         $page_size  Number of rows to return per page.
+	 * @param string|null $page_token Page token.
+	 * @return array
+	 */
+	public function search_reports( string $parent, string $query, int $page_size = 10, ?string $page_token = null ): array {
+		$body = array(
+			'query'    => $query,
+			'pageSize' => $page_size,
+		);
+		if ( ! empty( $page_token ) ) {
+			$body['pageToken'] = $page_token;
+		}
+
+		return $this->request(
+			'POST',
+			"reports/v1/{$parent}/reports:search",
+			array(),
+			$body
+		);
 	}
 
 	/**
 	 * Return the email address of the authenticated Google account.
 	 *
-	 * Calls the Google UserInfo endpoint with the current access token.
-	 * Used for GCP developer registration which requires a Google account email.
-	 *
-	 * @return string  Email address, or empty string on failure.
+	 * @return string Email address, or empty string on failure.
 	 */
 	public function get_google_email(): string {
 		$access_token = $this->get_access_token();
@@ -154,10 +342,6 @@ class Rex_Feed_Merchant_API_Client {
 	/**
 	 * Register this plugin's GCP project with the given Merchant Center account.
 	 *
-	 * Called automatically when a createDataSource / updateDataSource call returns
-	 * PERMISSION_DENIED with "project not registered". On success the caller should
-	 * instruct the user to wait ~5 minutes before retrying.
-	 *
 	 * @param string $merchant_id    Numeric merchant account ID.
 	 * @param string $developer_email Email to associate with the registration.
 	 * @return array{success: bool, message?: string, error_type?: string}
@@ -174,8 +358,8 @@ class Rex_Feed_Merchant_API_Client {
 		}
 
 		$merchant_id = absint( $merchant_id );
-		$url         = "https://merchantapi.googleapis.com/accounts/v1/accounts/{$merchant_id}/developerRegistration:registerGcp";
-		$response = wp_remote_post(
+		$url         = self::API_BASE_URL . "accounts/v1/accounts/{$merchant_id}/developerRegistration:registerGcp";
+		$response    = wp_remote_post(
 			$url,
 			array(
 				'headers' => array(
@@ -211,55 +395,54 @@ class Rex_Feed_Merchant_API_Client {
 	}
 
 	/**
-	 * Normalise an ApiException into the plugin's standard error array.
+	 * Normalise an API error array or exception into standard error format.
 	 *
-	 * @param ApiException $e
-	 * @return array{success: false, message: string, status: string, code: int}
+	 * @param mixed $error
+	 * @return array{success: false, message: string, status: string, code: int, action_url: string, error_type: string}
 	 */
-	public static function normalize_api_error( ApiException $e ): array {
-		$raw     = $e->getMessage();
-		$status  = $e->getStatus();
-		$message = $raw;
-		$action_url = '';
+	public static function normalize_api_error( $error ): array {
+		if ( is_array( $error ) && isset( $error['success'] ) && false === $error['success'] && isset( $error['error_type'] ) ) {
+			return $error;
+		}
 
-		// Extract human-readable message and activation URL from JSON error body.
-		$decoded = json_decode( $raw, true );
-		if ( is_array( $decoded ) ) {
-			if ( isset( $decoded['message'] ) ) {
-				$message = $decoded['message'];
-			}
-			// Pull activation URL — check top-level errorInfoMetadata first, then details[].metadata.
-			if ( isset( $decoded['errorInfoMetadata']['activationUrl'] ) ) {
-				$action_url = $decoded['errorInfoMetadata']['activationUrl'];
-			} elseif ( isset( $decoded['details'] ) ) {
-				foreach ( $decoded['details'] as $detail ) {
-					if ( isset( $detail['metadata']['activationUrl'] ) ) {
-						$action_url = $detail['metadata']['activationUrl'];
-						break;
-					}
+		$code        = is_array( $error ) ? ( $error['code'] ?? 0 ) : ( is_object( $error ) && method_exists( $error, 'getCode' ) ? $error->getCode() : 0 );
+		$decoded     = is_array( $error ) ? ( $error['response_body'] ?? array() ) : array();
+		$raw_message = $decoded['error']['message'] ?? ( is_string( $error ) ? $error : ( is_object( $error ) && method_exists( $error, 'getMessage' ) ? $error->getMessage() : '' ) );
+		$status      = $decoded['error']['status'] ?? ( is_object( $error ) && method_exists( $error, 'getStatus' ) ? $error->getStatus() : '' );
+		$message     = $raw_message ?: ( is_array( $error ) && ! empty( $error['raw_body'] ) ? $error['raw_body'] : 'Unknown Google API error' );
+		$action_url  = '';
+
+		if ( isset( $decoded['error']['errorInfoMetadata']['activationUrl'] ) ) {
+			$action_url = $decoded['error']['errorInfoMetadata']['activationUrl'];
+		} elseif ( isset( $decoded['error']['details'] ) && is_array( $decoded['error']['details'] ) ) {
+			foreach ( $decoded['error']['details'] as $detail ) {
+				if ( isset( $detail['metadata']['activationUrl'] ) ) {
+					$action_url = $detail['metadata']['activationUrl'];
+					break;
 				}
 			}
 		}
 
-		// Classify into a known error type for targeted UI messaging.
 		$error_type = 'api_error';
-		if ( ! empty( $decoded['reason'] ) && 'SERVICE_DISABLED' === $decoded['reason'] ) {
+		$reason     = $decoded['error']['reason'] ?? '';
+		if ( 'SERVICE_DISABLED' === $reason ) {
 			$error_type = 'service_disabled';
-		} elseif ( false !== strpos( $message, 'is not registered with the merchant account' ) ) {
+		} elseif ( false !== strpos( $message, 'is not registered with the merchant account' ) || false !== strpos( $message, 'project not registered' ) ) {
 			$error_type = 'project_not_registered';
-			// Docs link is embedded in the message — extract it as the action URL.
 			if ( ! $action_url && preg_match( '/https?:\/\/\S+/', $message, $url_match ) ) {
 				$action_url = rtrim( $url_match[0], '.' );
 			}
+		} elseif ( false !== strpos( $status, 'NOT_FOUND' ) || 404 === $code ) {
+			$error_type = 'not_found';
 		}
 
-		return [
+		return array(
 			'success'    => false,
 			'message'    => $message,
-			'status'     => $status,
-			'code'       => $e->getCode(),
+			'status'     => (string) $status,
+			'code'       => (int) $code,
 			'action_url' => $action_url,
 			'error_type' => $error_type,
-		];
+		);
 	}
 }

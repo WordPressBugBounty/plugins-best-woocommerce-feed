@@ -370,53 +370,50 @@ class Rex_Feed_Google_Shopping_Api {
 			return $data;
 		}
 
-		try {
-			$request = new \RexFeed\Vendor\Google\Shopping\Merchant\Reports\V1\SearchRequest();
-			$request->setParent( "accounts/{$merchant_id}" );
-			$request->setQuery( 'SELECT aggregated_reporting_context_status FROM product_view' );
+		$response = $merchant_client->search_reports(
+			"accounts/{$merchant_id}",
+			'SELECT aggregated_reporting_context_status FROM product_view'
+		);
 
-			$response = $merchant_client->get_reports_client()->search( $request );
-
-			$counts = array(
-				'ELIGIBLE'            => 0,
-				'ELIGIBLE_LIMITED'    => 0,
-				'DISAPPROVED'         => 0,
-				'PENDING'             => 0,
-			);
-
-			foreach ( $response->iterateAllElements() as $row ) {
-				$pv     = $row->getProductView();
-				$status = $pv ? $pv->getAggregatedReportingContextStatus() : null;
-				if ( null !== $status ) {
-					$name = \RexFeed\Vendor\Google\Shopping\Merchant\Reports\V1\ProductView\AggregatedReportingContextStatus::name( $status );
-					if ( isset( $counts[ $name ] ) ) {
-						$counts[ $name ]++;
-					}
-				}
-			}
-
-			$active      = $counts['ELIGIBLE'] + $counts['ELIGIBLE_LIMITED'];
-			$disapproved = $counts['DISAPPROVED'];
-			$pending     = $counts['PENDING'];
-			$total       = $active + $disapproved + $pending;
-
-			if ( $total > 0 ) {
-				$data['total']                  = $total;
-				$data['active']['count']        = $active;
-				$data['active']['rate']         = round( ( $active / $total ) * 100 ) . '%';
-				$data['disapproved']['count']   = $disapproved;
-				$data['disapproved']['rate']    = round( ( $disapproved / $total ) * 100 ) . '%';
-				$data['pending']['count']       = $pending;
-				$data['pending']['rate']        = round( ( $pending / $total ) * 100 ) . '%';
-			}
-		} catch ( \RexFeed\Vendor\Google\ApiCore\ApiException $e ) {
+		if ( ! $response['success'] ) {
 			if ( is_wpfm_logging_enabled() ) {
 				$log = wc_get_logger();
 				$log->error(
-					sprintf( '[Merchant API] get_product_stats_summery_merchant_api: %s', $e->getMessage() ),
+					sprintf( '[Merchant API] get_product_stats_summery_merchant_api: %s', $response['message'] ?? '' ),
 					array( 'source' => 'WPFM-google-merchant-api' )
 				);
 			}
+			return $data;
+		}
+
+		$counts = array(
+			'ELIGIBLE'         => 0,
+			'ELIGIBLE_LIMITED' => 0,
+			'DISAPPROVED'      => 0,
+			'PENDING'          => 0,
+		);
+
+		$results = $response['data']['results'] ?? array();
+		foreach ( $results as $row ) {
+			$status = $row['productView']['aggregatedReportingContextStatus'] ?? null;
+			if ( $status && isset( $counts[ $status ] ) ) {
+				$counts[ $status ]++;
+			}
+		}
+
+		$active      = $counts['ELIGIBLE'] + $counts['ELIGIBLE_LIMITED'];
+		$disapproved = $counts['DISAPPROVED'];
+		$pending     = $counts['PENDING'];
+		$total       = $active + $disapproved + $pending;
+
+		if ( $total > 0 ) {
+			$data['total']                = $total;
+			$data['active']['count']      = $active;
+			$data['active']['rate']       = round( ( $active / $total ) * 100 ) . '%';
+			$data['disapproved']['count'] = $disapproved;
+			$data['disapproved']['rate']  = round( ( $disapproved / $total ) * 100 ) . '%';
+			$data['pending']['count']     = $pending;
+			$data['pending']['rate']      = round( ( $pending / $total ) * 100 ) . '%';
 		}
 
 		return $data;
@@ -428,7 +425,7 @@ class Rex_Feed_Google_Shopping_Api {
 	 * Returns the same array shape as get_product_detailed_stats() so the display
 	 * layer needs no changes.
 	 *
-	 * @param string|null $page_token  Pagination token (not used — Reports API uses iterateAllElements).
+	 * @param string|null $page_token  Pagination token.
 	 * @param int         $max_results Limit on rows returned.
 	 *
 	 * @return array
@@ -439,86 +436,81 @@ class Rex_Feed_Google_Shopping_Api {
 
 		if ( ! $merchant_id ) {
 			return array(
-				'error'   => true,
-				'message' => __( 'Invalid Merchant ID. Please check your Google Merchant Center settings.', 'rex-product-feed' ),
+				'error'    => true,
+				'message'  => __( 'Invalid Merchant ID. Please check your Google Merchant Center settings.', 'rex-product-feed' ),
 				'products' => array(),
 			);
 		}
 		if ( ! $merchant_client ) {
 			return array(
-				'error'   => true,
-				'message' => __( 'Authorization required. Please re-authorize your Google Merchant Center account.', 'rex-product-feed' ),
+				'error'    => true,
+				'message'  => __( 'Authorization required. Please re-authorize your Google Merchant Center account.', 'rex-product-feed' ),
 				'products' => array(),
 			);
 		}
 
-		try {
-			$request = new \RexFeed\Vendor\Google\Shopping\Merchant\Reports\V1\SearchRequest();
-			$request->setParent( "accounts/{$merchant_id}" );
-			$request->setQuery(
-				'SELECT offer_id, id, title, item_issues FROM product_view WHERE item_issues IS NOT NULL'
-			);
-			$request->setPageSize( $max_results );
+		$response = $merchant_client->search_reports(
+			"accounts/{$merchant_id}",
+			'SELECT offer_id, id, title, item_issues FROM product_view WHERE item_issues IS NOT NULL',
+			$max_results,
+			$page_token
+		);
 
-			$response = $merchant_client->get_reports_client()->search( $request );
-			$products = array();
-			$count    = 0;
-
-			foreach ( $response->iterateAllElements() as $row ) {
-				if ( $count >= $max_results ) {
-					break;
-				}
-				$pv = $row->getProductView();
-				if ( ! $pv ) {
-					continue;
-				}
-
-				$item_issues = array();
-				foreach ( $pv->getItemIssues() as $issue ) {
-					$item_issues[] = array(
-						'attribute'     => $issue->getItemIssueType() ? $issue->getItemIssueType()->getAttribute() : '',
-						'description'   => $issue->getItemIssueType() ? $issue->getItemIssueType()->getDescription() : '',
-						'detail'        => '',
-						'documentation' => '',
-						'status'        => $issue->getItemIssueSeverity() ? 'disapproved' : '',
-					);
-				}
-
-				$raw_offer_id = $pv->getOfferId();
-				$parent_id    = function_exists( 'wpfm_get_wc_parent_product' ) ? wpfm_get_wc_parent_product( $raw_offer_id ) : $raw_offer_id;
-				$product_id   = ! empty( $parent_id ) ? $parent_id : $raw_offer_id;
-
-				$products[] = array(
-					'title'     => $pv->getTitle() ?? '',
-					'edit_link' => get_edit_post_link( $product_id ),
-					'issues'    => $item_issues,
-				);
-
-				$count++;
-			}
-
-			return array(
-				'error'           => false,
-				'prev_page_token' => null,
-				'next_page_token' => null,
-				'products'        => $products,
-			);
-
-		} catch ( \RexFeed\Vendor\Google\ApiCore\ApiException $e ) {
+		if ( ! $response['success'] ) {
 			if ( is_wpfm_logging_enabled() ) {
 				$log = wc_get_logger();
 				$log->error(
-					sprintf( '[Merchant API] get_product_detailed_stats_merchant_api: %s', $e->getMessage() ),
+					sprintf( '[Merchant API] get_product_detailed_stats_merchant_api: %s', $response['message'] ?? '' ),
 					array( 'source' => 'WPFM-google-merchant-api' )
 				);
 			}
 			return array(
 				'error'           => true,
 				'message'         => __( 'Failed to fetch product data from Google Merchant Center via Merchant API v1.', 'rex-product-feed' ),
-				'technical_error' => $e->getMessage(),
+				'technical_error' => $response['message'] ?? '',
 				'products'        => array(),
 			);
 		}
+
+		$products = array();
+		$results  = $response['data']['results'] ?? array();
+
+		foreach ( $results as $row ) {
+			$pv = $row['productView'] ?? null;
+			if ( ! $pv ) {
+				continue;
+			}
+
+			$item_issues = array();
+			$issues_raw  = $pv['itemIssues'] ?? array();
+			foreach ( $issues_raw as $issue ) {
+				$issue_type = $issue['type'] ?? array();
+				$item_issues[] = array(
+					'attribute'     => $issue_type['canonicalAttribute'] ?? ( $issue_type['attribute'] ?? '' ),
+					'description'   => $issue_type['description'] ?? ( $issue_type['code'] ?? '' ),
+					'detail'        => '',
+					'documentation' => '',
+					'status'        => ! empty( $issue['severity'] ) ? 'disapproved' : '',
+				);
+			}
+
+			$raw_offer_id = $pv['offerId'] ?? '';
+			$parent_id    = function_exists( 'wpfm_get_wc_parent_product' ) ? wpfm_get_wc_parent_product( $raw_offer_id ) : $raw_offer_id;
+			$product_id   = ! empty( $parent_id ) ? $parent_id : $raw_offer_id;
+
+			$products[] = array(
+				'title'     => $pv['title'] ?? '',
+				'edit_link' => get_edit_post_link( $product_id ),
+				'issues'    => $item_issues,
+			);
+		}
+
+		return array(
+			'error'           => false,
+			'prev_page_token' => null,
+			'next_page_token' => $response['data']['nextPageToken'] ?? null,
+			'products'        => $products,
+		);
 	}
 
 	/**

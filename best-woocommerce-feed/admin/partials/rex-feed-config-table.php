@@ -44,9 +44,9 @@ include_once plugin_dir_path( __FILE__ ) . 'rex-product-feed-google-missing-attr
 <div id="rex-feed-footer-btn" class="rex-feed-footer-btn" style="display: none;">
     <div class="rex-feed-attr-btn-area">
        
-        <div class="rex-dropdown">
+        <div class="rex-dropdown rex-feed-attr-dropdown">
             <button
-                class="button dropdown-toggle"
+                class="button rex-feed-attr-dropdown-toggle"
                 type="button">
                 <?php echo esc_attr__( 'Add New Attribute', 'rex-product-feed' ) ?>
                 <div class="icon-overlay">
@@ -54,13 +54,13 @@ include_once plugin_dir_path( __FILE__ ) . 'rex-product-feed-google-missing-attr
                 </div>
             </button>
             
-            <div class="dropdown-menu">
-                <a id="rex-new-attr">
+            <div class="rex-feed-attr-dropdown-menu">
+                <button type="button" id="rex-new-attr">
                     <?php echo esc_attr__( 'New Attribute', 'rex-product-feed' ) ?>
-                </a>
-                <a id="rex-new-custom-attr">
+                </button>
+                <button type="button" id="rex-new-custom-attr">
                     <?php echo esc_attr__( 'New Custom Attribute', 'rex-product-feed' ) ?>
-                </a>
+                </button>
             </div>
         </div>
 

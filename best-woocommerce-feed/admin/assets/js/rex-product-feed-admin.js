@@ -6,11 +6,44 @@
     let productLimitNoticeData = null;
     let productLimitStatusTimer = null;
     let productLimitStatusPollCount = 0;
+    let rex_feed_scroll_state = null;
     const PRODUCT_LIMIT_NOTICE_TTL = 24 * 60 * 60 * 1000;
     const PRODUCT_LIMIT_NOTICE_STATUS_INTERVAL = 3000;
     const PRODUCT_LIMIT_NOTICE_MAX_STATUS_POLLS = 100;
     let config_btn = rex_wpfm_admin_translate_strings.google_cat_map_btn;
     let optimize_pr_title_btn = rex_wpfm_admin_translate_strings.optimize_pr_title_btn;
+
+    function rex_feed_lock_page_scroll() {
+        if ( rex_feed_scroll_state ) {
+            return;
+        }
+
+        rex_feed_scroll_state = {
+            html_overflow: document.documentElement.style.overflow,
+            html_height: document.documentElement.style.height,
+            body_overflow: document.body.style.overflow,
+        };
+
+        $( "html" ).css({
+            overflow: "hidden",
+            height: "100%",
+        });
+
+        $( "body" ).css({
+            overflow: "auto",
+        });
+    }
+
+    function rex_feed_restore_page_scroll() {
+        if ( ! rex_feed_scroll_state ) {
+            return;
+        }
+
+        document.documentElement.style.overflow = rex_feed_scroll_state.html_overflow;
+        document.documentElement.style.height = rex_feed_scroll_state.html_height;
+        document.body.style.overflow = rex_feed_scroll_state.body_overflow;
+        rex_feed_scroll_state = null;
+    }
 
     $(function () {
         $(".meter > span").each(function () {
@@ -397,16 +430,7 @@
     // New changes messages ENDS
 
     $(document).on("click", "#rex-feed-settings-btn", function () {
-
-        $("html").css({
-            "overflow": "hidden", // Hide main scroll
-            "height": "100%" 
-        });
-
-    
-        $("body").css({
-            "overflow": "auto" // Keep background scrolling
-        });
+        rex_feed_lock_page_scroll();
 
         $(".post-type-product-feed #wpcontent .clear").remove();
         $(".post-type-product-feed #wpcontent").append('<div id="body-overlay"></div>');
@@ -507,15 +531,7 @@
     });
     
     $(document).on("click", "#rex-pr-filter-btn", function () {
-        
-        $("html").css({
-            "overflow": "hidden", // Hide main scroll
-            "height": "100%" 
-        });
-    
-        $("body").css({
-            "overflow": "auto" // Keep background scrolling
-        });
+        rex_feed_lock_page_scroll();
 
         $(".post-type-product-feed #wpcontent .clear").remove();
         $(".post-type-product-feed #wpcontent").append('<div id="body-overlay"></div>');
@@ -3735,6 +3751,7 @@ function addCustomFilterOuterHiddenSelectInputField(row, newRowId, value) {
         $(".post-type-product-feed #wpcontent #body-overlay").remove();
         $("#rex_feed_product_settings").removeClass("show-settings");
         $("section#rex_settings_changes_save_warning_popup").hide();
+        rex_feed_restore_page_scroll();
     }
 
     /**
@@ -3776,6 +3793,7 @@ function addCustomFilterOuterHiddenSelectInputField(row, newRowId, value) {
             .prop("disabled", true);
             $(".post-type-product-feed #wpcontent #body-overlay").remove();
             $("#rex_feed_product_filters").removeClass("show-filters");
+            rex_feed_restore_page_scroll();
         }
     }
     
@@ -4353,6 +4371,10 @@ function addCustomFilterOuterHiddenSelectInputField(row, newRowId, value) {
             $("#rex_feed_feed_format").val("json").trigger("change");
         }
 
+        if (feed_merchant === "chatgpt_ads") {
+            $("#rex_feed_feed_format").val("csv").trigger("change");
+        }
+
     });
 
     $(document).on('change', 'select', function(e) {
@@ -4478,26 +4500,6 @@ function addCustomFilterOuterHiddenSelectInputField(row, newRowId, value) {
 
 })(jQuery);
 
-/* When the user clicks on the button,
-toggle between hiding and showing the dropdown content */
-function myFunction() {
-    document.getElementById("myDropdown").classList.toggle("show");
-}
-
-// Close the dropdown if the user clicks outside of it
-window.onclick = function (event) {
-    if (!event.target.matches(".dropdown-arrow")) {
-        let dropdowns = document.getElementsByClassName("dropdown-menu");
-        let i;
-        for (i = 0; i < dropdowns.length; i++) {
-            let openDropdown = dropdowns[i];
-            if (openDropdown.classList.contains("show")) {
-                openDropdown.classList.remove("show");
-            }
-        }
-    }
-};
-
 // accordion section
 
 function handleClass(node, className, action = "add") {
@@ -4539,13 +4541,10 @@ function setupDropdownArea(dropdownToggle) {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    
-    //   You can get different selectors (class, id, tags...)
-    const button = document.querySelector(".dropdown-toggle");
-    const dropdown = document.querySelector(".dropdown-menu");
+    const button = document.querySelector(".rex-feed-attr-dropdown-toggle");
+    const dropdown = document.querySelector(".rex-feed-attr-dropdown-menu");
 
     if (button && dropdown) {
-        // Global open/close functions
         const open = () => {
             button.classList.add("open-button");
             dropdown.classList.add("open-dropdown");
@@ -4556,8 +4555,8 @@ document.addEventListener("DOMContentLoaded", () => {
             dropdown.classList.remove("open-dropdown");
         };
 
-        // Check click on button
-        button.addEventListener("mousedown", () => {
+        button.addEventListener("click", (event) => {
+            event.preventDefault();
             if (!button.classList.contains("open-button")) {
                 open();
             } else {
@@ -4565,10 +4564,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // Close when user click outside
-        document.body.addEventListener("mousedown", (e) => {
-            let isClickInsideButton = button.contains(e.target);
-            let isClickInsideDropdown = dropdown.contains(e.target);
+        document.addEventListener("click", (event) => {
+            let isClickInsideButton = button.contains(event.target);
+            let isClickInsideDropdown = dropdown.contains(event.target);
 
             if (!isClickInsideButton && !isClickInsideDropdown) {
                 close();
@@ -4580,13 +4578,13 @@ document.addEventListener("DOMContentLoaded", () => {
         
         if (newAttr) {
           newAttr.addEventListener("click", () => {
-            close(); // close the dropdown
+            close();
           });
         }
         
         if (newCustomAttr) {
           newCustomAttr.addEventListener("click", () => {
-            close(); // close the dropdown
+            close();
           });
         }
 

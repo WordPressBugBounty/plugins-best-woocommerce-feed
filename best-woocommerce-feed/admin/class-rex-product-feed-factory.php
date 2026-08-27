@@ -265,6 +265,7 @@ class Rex_Product_Feed_Factory {
             'google_css_center',
             'temu_seller_center',
 			'openai',
+			'chatgpt_ads',
 			'reddit_ads',
 			'youtube_shopping',
 		];

@@ -89,25 +89,7 @@ require_once plugin_dir_path( __FILE__ ) . 'loading-spinner.php';
 	<!-- left-merchant -->
 
 	<div class="right-merchant">
-		<?php if ( version_compare( PHP_VERSION, '8.1', '<' ) ) : ?>
-		<div class="single-merchant-area">
-			<div class="single-merchant-block" style="border-left: 4px solid #dba617; background: #fff8e5; padding: 14px 16px; margin-bottom: 15px;">
-				<h3 style="margin: 0 0 6px; font-size: 14px; color: #613e00; font-weight: 600;">
-					<span class="dashicons dashicons-warning" style="color: #dba617; vertical-align: -2px;"></span>
-					<?php esc_html_e( 'PHP 8.1+ Required for Direct Merchant API Sync', 'rex-product-feed' ); ?>
-				</h3>
-				<p style="margin: 0; font-size: 13px; color: #613e00; line-height: 1.5;">
-					<?php
-					printf(
-						/* translators: %s: current PHP version */
-						esc_html__( 'Your server is running PHP %s, which doesn\'t meet Google\'s requirement for direct Merchant API syncing or scheduling. Don\'t worry, you can still generate your XML feed as usual and connect it to Google Merchant Center using the feed file URL or direct upload method instead.', 'rex-product-feed' ),
-						esc_html( PHP_VERSION )
-					);
-					?>
-				</p>
-			</div>
-		</div>
-		<?php endif; ?>
+
 		<?php if ( $is_authorized ) :
 			$legacy_count = count( get_posts( array(
 				'post_type'      => 'product-feed',

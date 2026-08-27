@@ -47,6 +47,12 @@ class Rex_Feed_Merchants {
 				'name'    => 'OpenAI Commerce (ChatGPT)',
 				'formats' => array( 'json', 'xml', 'csv', 'tsv' ),
 			),
+			'chatgpt_ads' => array(
+				'free'           => true,
+				'name'           => 'ChatGPT Ads',
+				'formats'        => array( 'csv', 'tsv', 'xml', 'json' ),
+				'csv_separators' => array( 'comma', 'semi_colon' ),
+			),
 			'tiktok'  => array(
 				'free'           => true,
 				'name'           => 'TikTok Ads Catalog',

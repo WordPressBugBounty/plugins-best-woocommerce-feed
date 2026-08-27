@@ -100,6 +100,9 @@ class Rex_Feed_Validator_Loader {
 
         // Load OpenAI validator
         require_once $validator_path . 'class-rex-feed-validator-openai.php';
+
+        // Load ChatGPT Ads validator
+        require_once $validator_path . 'class-rex-feed-validator-chatgpt-ads.php';
     }
 
     /**
@@ -151,7 +154,7 @@ class Rex_Feed_Validator_Loader {
         }
 
         // Only auto-validate for supported merchants
-        $supported_merchants = array( 'google', 'google_shopping', 'google_local', 'google_local_inventory', 'facebook', 'facebook_marketplace', 'instagram', 'instagram_shopping', 'openai', 'openai_commerce' );
+        $supported_merchants = array( 'google', 'google_shopping', 'google_local', 'google_local_inventory', 'facebook', 'facebook_marketplace', 'instagram', 'instagram_shopping', 'openai', 'openai_commerce', 'chatgpt_ads' );
         $merchant_normalized = strtolower( str_replace( ' ', '_', $merchant ) );
         
         if ( ! in_array( $merchant_normalized, $supported_merchants, true ) ) {

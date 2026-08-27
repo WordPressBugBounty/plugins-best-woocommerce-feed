@@ -153,14 +153,8 @@ class Rex_Google_Merchant_Settings_Api {
 			if ( ! $merchant_client ) {
 				return false;
 			}
-			try {
-				$request = new \RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\GetDataSourceRequest();
-				$request->setName( $data_source_id );
-				$merchant_client->get_datasources_client()->getDataSource( $request );
-				return true;
-			} catch ( \RexFeed\Vendor\Google\ApiCore\ApiException $e ) {
-				return false;
-			}
+			$res = $merchant_client->get_data_source( $data_source_id );
+			return ! empty( $res['success'] );
 		}
 
 		// Content API fallback path.

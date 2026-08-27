@@ -185,20 +185,10 @@ $_show_migration_banner = ( 'google' === $_feed_merchant ) && ( $is_google_conte
 			<span style="font-size:13px;">
 				<strong><?php esc_html_e( 'Action required:', 'rex-product-feed' ); ?></strong>
 				<?php esc_html_e( 'Google Content API retires August 18, 2026. Migrate this feed to Merchant API v1.', 'rex-product-feed' ); ?>
-				<?php if ( version_compare( PHP_VERSION, '8.1', '<' ) ) : ?>
-					<br><span style="color:#856404;"><?php esc_html_e( '(PHP 8.1+ is required to migrate to Merchant API v1)', 'rex-product-feed' ); ?></span>
-				<?php endif; ?>
-			</span>
-			<?php if ( version_compare( PHP_VERSION, '8.1', '>=' ) ) : ?>
 			<button type="button" id="rex-migrate-to-merchant-api" class="button button-primary" data-feed-id="<?php echo esc_attr( $feed_id ); ?>"
 				style="white-space:nowrap;flex-shrink:0;">
 				<?php esc_html_e( 'Migrate Now', 'rex-product-feed' ); ?>
 			</button>
-			<?php else : ?>
-			<span class="button button-secondary" style="opacity:0.6;cursor:not-allowed;white-space:nowrap;flex-shrink:0;" title="<?php esc_attr_e( 'Please upgrade PHP to 8.1+ to migrate', 'rex-product-feed' ); ?>">
-				<?php esc_html_e( 'Requires PHP 8.1+', 'rex-product-feed' ); ?>
-			</span>
-			<?php endif; ?>
 		</div>
 		<div id="rex-migration-status" style="display:none;margin-bottom:10px;padding:8px 12px;border-radius:4px;font-size:13px;"></div>
 		<?php endif; ?>

@@ -231,7 +231,7 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 		}
 
 		$data_feed_id = get_post_meta( $this->id, '_rex_feed_google_data_feed_id', true ) ?: get_post_meta( $this->id, 'rex_feed_google_data_feed_id', true );
-		if ( ! empty( $data_feed_id ) || $this->is_google_content_api ) {
+		if ( ! empty( $data_feed_id ) ) {
 			if ( $this->is_logging_enabled ) {
 				$log = wc_get_logger();
 				$log->debug(
@@ -1160,16 +1160,6 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 
 		// Merchant API v1 path: if DataSource ID exists OR if it's a new feed (no data_feed_id), execute via Merchant API.
 		if ( $data_source_id || ! $data_feed_id ) {
-			if ( version_compare( PHP_VERSION, '8.1', '<' ) ) {
-				if ( $data_feed_id ) {
-					return $this->sync_products_legacy( $data_feed_id, $log );
-				}
-				return array(
-					'success' => false,
-					'message' => esc_html__( 'Google Merchant API sync requires PHP 8.1 or higher. Please upgrade PHP on your server.', 'rex-product-feed' ),
-				);
-			}
-
 			$merchant_client = Rex_Feed_Merchant_API_Client::from_stored_credentials();
 			if ( ! $merchant_client ) {
 				if ( wp_get_environment_type() === 'local' || wp_get_environment_type() === 'development' ) {
@@ -1202,94 +1192,11 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 
 			// If DataSource ID does not exist yet on a new feed, auto-create it via Merchant API v1.
 			if ( ! $data_source_id ) {
-				try {
-					$merchant_id = get_option( 'rex_google_merchant_id', '' );
-					$feed_title  = get_the_title( $this->id );
-					$country     = get_post_meta( $this->id, '_rex_feed_google_target_country', true ) ?: 'US';
-					$language    = get_post_meta( $this->id, '_rex_feed_google_target_language', true ) ?: 'en';
-
-					$data_source_obj = ( new \RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\DataSource() )
-						->setDisplayName( $feed_title )
-						->setPrimaryProductDataSource(
-							( new \RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\PrimaryProductDataSource() )
-								->setCountries( array( $country ) )
-								->setContentLanguage( $language )
-								->setFeedLabel( $country )
-						);
-
-					$ds_client      = $merchant_client->get_datasources_client();
-					$create_request = ( new \RexFeed\Vendor\Google\Shopping\Merchant\DataSources\V1\CreateDataSourceRequest() )
-						->setParent( "accounts/{$merchant_id}" )
-						->setDataSource( $data_source_obj );
-
-					$response       = $ds_client->createDataSource( $create_request );
-					$data_source_id = $response->getName();
-					update_post_meta( $this->id, '_rex_feed_google_data_source_id', $data_source_id );
-
-					// Allow Google backend to finish indexing the newly created DataSource resource.
-					sleep( 2 );
-
-					if ( $this->is_logging_enabled ) {
-						$log->debug(
-							sprintf( '[Google Feed] Auto-created Merchant API DataSource ID=%s for feed_id=%d', $data_source_id, (int) $this->id ),
-							array( 'source' => 'WPFM-google-merchant-api' )
-						);
-					}
-				} catch ( \RexFeed\Vendor\Google\ApiCore\ApiException $e ) {
-					$normalized = Rex_Feed_Merchant_API_Client::normalize_api_error( $e );
-					if ( 'project_not_registered' === ( $normalized['error_type'] ?? '' ) ) {
-						$developer_email = $merchant_client->get_google_email() ?: ( wp_get_current_user()->user_email ?: get_bloginfo( 'admin_email' ) );
-						$reg_result      = $merchant_client->register_gcp( $merchant_id, $developer_email );
-
-						if ( isset( $reg_result['success'] ) && true === $reg_result['success'] ) {
-							$human_msg = __( 'Google Cloud project registration has been submitted to Google. Google requires up to 5 minutes for permissions to activate. Please wait 5 minutes and try again.', 'rex-product-feed' );
-							$log->info(
-								sprintf( '[Google Feed] GCP project auto-registered for feed_id=%d', (int) $this->id ),
-								array( 'source' => 'WPFM-google-merchant-api' )
-							);
-							return array(
-								'success' => false,
-								'message' => $human_msg,
-							);
-						}
-
-						// If automatic registration returned an error or requirement:
-						$reg_msg = ! empty( $reg_result['message'] ) ? $reg_result['message'] : ( $normalized['message'] ?? $e->getMessage() );
-						$log->error(
-							sprintf( '[Google Feed] GCP project registration failed for feed_id=%d: %s', (int) $this->id, $reg_msg ),
-							array( 'source' => 'WPFM-google-merchant-api' )
-						);
-
-						$help_url = ! empty( $normalized['action_url'] ) ? $normalized['action_url'] : 'https://developers.google.com/merchant/api/guides/quickstart/direct-api-calls#step_1_register_as_a_developer';
-						return array(
-							'success' => false,
-							'message' => sprintf(
-								__( 'GCP Project Registration Error: %s. Please ensure your Google Merchant Center account has developer access enabled (%s).', 'rex-product-feed' ),
-								$reg_msg,
-								$help_url
-							),
-						);
-					}
-
-					$user_msg = ! empty( $normalized['message'] ) ? $normalized['message'] : $e->getMessage();
-					$log->error(
-						sprintf( '[Google Feed] Auto-creation of DataSource failed for feed_id=%d: %s', (int) $this->id, $user_msg ),
-						array( 'source' => 'WPFM-google-merchant-api' )
-					);
-					return array(
-						'success' => false,
-						'message' => sprintf( __( 'Google Merchant API error: %s', 'rex-product-feed' ), $user_msg ),
-					);
-				} catch ( \Throwable $e ) {
-					$log->error(
-						sprintf( '[Google Feed] Auto-creation of DataSource failed for feed_id=%d: %s', (int) $this->id, $e->getMessage() ),
-						array( 'source' => 'WPFM-google-merchant-api' )
-					);
-					return array(
-						'success' => false,
-						'message' => sprintf( __( 'Failed to auto-create Merchant API DataSource: %s', 'rex-product-feed' ), $e->getMessage() ),
-					);
+				$create_res = $this->create_merchant_data_source( $merchant_client );
+				if ( ! $create_res['success'] ) {
+					return $create_res;
 				}
+				$data_source_id = $create_res['data_source_id'];
 			}
 
 			$this->merchant_api_batch_mode = true;
@@ -1316,6 +1223,9 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 			}
 			foreach ( $chunks as $chunk ) {
 				$batch_result = $this->send_merchant_api_batch( $chunk, $data_source_id, $merchant_client );
+				if ( ! empty( $batch_result['data_source_id'] ) ) {
+					$data_source_id = $batch_result['data_source_id'];
+				}
 				if ( isset( $batch_result['success'] ) && false === $batch_result['success'] ) {
 					if ( $this->is_logging_enabled ) {
 						$log->debug(
@@ -1377,6 +1287,106 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 		}
 
 		return array( 'success' => true );
+	}
+
+	/**
+	 * Create a Merchant API primary product DataSource for this feed.
+	 *
+	 * @param Rex_Feed_Merchant_API_Client $merchant_client
+	 * @return array Array with success: bool, and data_source_id: string on success, or message on failure.
+	 */
+	private function create_merchant_data_source( Rex_Feed_Merchant_API_Client $merchant_client ): array {
+		$log = wc_get_logger();
+		try {
+			$merchant_id = get_option( 'rex_google_merchant_id', '' );
+			$feed_title  = get_the_title( $this->id );
+			$country     = get_post_meta( $this->id, '_rex_feed_google_target_country', true ) ?: 'US';
+			$language    = get_post_meta( $this->id, '_rex_feed_google_target_language', true ) ?: 'en';
+
+			$data_source_obj = array(
+				'displayName'              => $feed_title,
+				'primaryProductDataSource' => array(
+					'countries'       => array( $country ),
+					'contentLanguage' => $language,
+					'feedLabel'       => $country,
+				),
+			);
+
+			$create_res = $merchant_client->create_data_source( $merchant_id, $data_source_obj );
+
+			if ( ! $create_res['success'] ) {
+				$normalized = $create_res;
+				if ( 'project_not_registered' === ( $normalized['error_type'] ?? '' ) ) {
+					$developer_email = $merchant_client->get_google_email() ?: ( wp_get_current_user()->user_email ?: get_bloginfo( 'admin_email' ) );
+					$reg_result      = $merchant_client->register_gcp( $merchant_id, $developer_email );
+
+					if ( isset( $reg_result['success'] ) && true === $reg_result['success'] ) {
+						$human_msg = __( 'Google Cloud project registration has been submitted to Google. Google requires up to 5 minutes for permissions to activate. Please wait 5 minutes and try again.', 'rex-product-feed' );
+						$log->info(
+							sprintf( '[Google Feed] GCP project auto-registered for feed_id=%d', (int) $this->id ),
+							array( 'source' => 'WPFM-google-merchant-api' )
+						);
+						return array(
+							'success' => false,
+							'message' => $human_msg,
+						);
+					}
+
+					$reg_msg = ! empty( $reg_result['message'] ) ? $reg_result['message'] : ( $normalized['message'] ?? 'Registration failed' );
+					$log->error(
+						sprintf( '[Google Feed] GCP project registration failed for feed_id=%d: %s', (int) $this->id, $reg_msg ),
+						array( 'source' => 'WPFM-google-merchant-api' )
+					);
+
+					$help_url = ! empty( $normalized['action_url'] ) ? $normalized['action_url'] : 'https://developers.google.com/merchant/api/guides/quickstart/direct-api-calls#step_1_register_as_a_developer';
+					return array(
+						'success' => false,
+						'message' => sprintf(
+							__( 'GCP Project Registration Error: %s. Please ensure your Google Merchant Center account has developer access enabled (%s).', 'rex-product-feed' ),
+							$reg_msg,
+							$help_url
+						),
+					);
+				}
+
+				$user_msg = ! empty( $normalized['message'] ) ? $normalized['message'] : 'Creation failed';
+				$log->error(
+					sprintf( '[Google Feed] Auto-creation of DataSource failed for feed_id=%d: %s', (int) $this->id, $user_msg ),
+					array( 'source' => 'WPFM-google-merchant-api' )
+				);
+				return array(
+					'success' => false,
+					'message' => sprintf( __( 'Google Merchant API error: %s', 'rex-product-feed' ), $user_msg ),
+				);
+			}
+
+			$data_source_id = $create_res['data']['name'] ?? '';
+			update_post_meta( $this->id, '_rex_feed_google_data_source_id', $data_source_id );
+
+			// Allow Google backend to finish indexing the newly created DataSource resource.
+			sleep( 2 );
+
+			if ( $this->is_logging_enabled ) {
+				$log->debug(
+					sprintf( '[Google Feed] Auto-created Merchant API DataSource ID=%s for feed_id=%d', $data_source_id, (int) $this->id ),
+					array( 'source' => 'WPFM-google-merchant-api' )
+				);
+			}
+
+			return array(
+				'success'        => true,
+				'data_source_id' => $data_source_id,
+			);
+		} catch ( \Throwable $e ) {
+			$log->error(
+				sprintf( '[Google Feed] Auto-creation of DataSource failed for feed_id=%d: %s', (int) $this->id, $e->getMessage() ),
+				array( 'source' => 'WPFM-google-merchant-api' )
+			);
+			return array(
+				'success' => false,
+				'message' => sprintf( __( 'Failed to auto-create Merchant API DataSource: %s', 'rex-product-feed' ), $e->getMessage() ),
+			);
+		}
 	}
 
 	/**
@@ -1470,7 +1480,11 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 					if ( empty( $first_error ) ) {
 						$first_error = $result['error'];
 					}
-					if ( false !== strpos( $result['error'], 'Data source with id' ) && false !== strpos( $result['error'], 'was not found' ) ) {
+					if (
+						( ! empty( $result['reason'] ) && 'NOT_FOUND_DATA_SOURCE' === $result['reason'] )
+						|| ( false !== stripos( $result['error'], 'data source' ) && false !== stripos( $result['error'], 'not found' ) )
+						|| ( false !== stripos( $result['error'], 'datasource' ) && false !== stripos( $result['error'], 'not found' ) )
+					) {
 						$datasource_not_found = true;
 					}
 					if ( $this->is_logging_enabled ) {
@@ -1482,16 +1496,48 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 				}
 			}
 
-			// If Google returns "Data source was not found" due to eventual consistency, wait and retry once.
+			// If Google returns "Data source was not found" (e.g. DataSource was deleted in GMC, or eventual consistency delay):
 			if ( $datasource_not_found && ! $retry_attempt ) {
-				if ( $this->is_logging_enabled ) {
-					$log->debug(
-						sprintf( '[Merchant API] DataSource not yet propagated on Google backend for feed_id=%d. Waiting 3 seconds to retry...', (int) $this->id ),
-						array( 'source' => 'WPFM-google-merchant-api' )
-					);
+				// Check if the DataSource still exists in GMC
+				$ds_check = $merchant_client->get_data_source( $data_source_id );
+				$is_missing_in_gmc = ( isset( $ds_check['error_type'] ) && 'not_found' === $ds_check['error_type'] )
+					|| ( isset( $ds_check['code'] ) && 404 === (int) $ds_check['code'] )
+					|| ( ! empty( $ds_check['message'] ) && false !== stripos( $ds_check['message'], 'not found' ) )
+					|| ( empty( $ds_check['success'] ) && false !== stripos( $ds_check['message'] ?? '', '404' ) );
+
+				if ( $is_missing_in_gmc || ! $ds_check['success'] ) {
+					// The DataSource was deleted from GMC or no longer exists. Delete stale postmeta and auto-create a new one.
+					delete_post_meta( $this->id, '_rex_feed_google_data_source_id' );
+					error_log( sprintf( '[Merchant API] Stale DataSource (%s) not found on GMC for feed_id=%d. Re-creating DataSource...', $data_source_id, (int) $this->id ) );
+					if ( $this->is_logging_enabled ) {
+						$log->info(
+							sprintf( '[Merchant API] Stale DataSource (%s) not found on GMC for feed_id=%d. Re-creating DataSource...', $data_source_id, (int) $this->id ),
+							array( 'source' => 'WPFM-google-merchant-api' )
+						);
+					}
+
+					$create_res = $this->create_merchant_data_source( $merchant_client );
+					if ( ! $create_res['success'] ) {
+						return $create_res;
+					}
+
+					$new_data_source_id = $create_res['data_source_id'];
+					$retry_res          = $this->send_merchant_api_batch( $chunk, $new_data_source_id, $merchant_client, true );
+					if ( ! empty( $retry_res['success'] ) ) {
+						$retry_res['data_source_id'] = $new_data_source_id;
+					}
+					return $retry_res;
+				} else {
+					// The DataSource exists in GMC but productInputs is lagging (eventual consistency). Wait 3 seconds and retry.
+					if ( $this->is_logging_enabled ) {
+						$log->debug(
+							sprintf( '[Merchant API] DataSource not yet propagated on Google backend for feed_id=%d. Waiting 3 seconds to retry...', (int) $this->id ),
+							array( 'source' => 'WPFM-google-merchant-api' )
+						);
+					}
+					sleep( 3 );
+					return $this->send_merchant_api_batch( $chunk, $data_source_id, $merchant_client, true );
 				}
-				sleep( 3 );
-				return $this->send_merchant_api_batch( $chunk, $data_source_id, $merchant_client, true );
 			}
 
 			error_log(
@@ -1586,8 +1632,9 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 				// Extract error message from JSON body if present.
 				$json_start = strpos( $part, '{' );
 				if ( false !== $json_start ) {
-					$json = json_decode( substr( $part, $json_start ), true );
-					$result['error'] = $json['error']['message'] ?? 'HTTP ' . $status;
+					$json             = json_decode( substr( $part, $json_start ), true );
+					$result['error']  = $json['error']['message'] ?? 'HTTP ' . $status;
+					$result['reason'] = $json['error']['details'][0]['metadata']['REASON'] ?? ( $json['error']['status'] ?? '' );
 				} else {
 					$result['error'] = 'HTTP ' . $status;
 				}

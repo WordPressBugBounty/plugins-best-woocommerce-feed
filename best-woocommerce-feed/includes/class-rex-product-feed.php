@@ -117,10 +117,6 @@ class Rex_Product_Feed {
 		$default_autoloaders = array(
 			plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/autoload.php',
 		);
-		$prefixed_autoloader = plugin_dir_path( dirname( __FILE__ ) ) . 'includes/vendor-prefixed/autoload.php';
-		if ( version_compare( PHP_VERSION, '8.1', '>=' ) && file_exists( $prefixed_autoloader ) ) {
-			$default_autoloaders[] = $prefixed_autoloader;
-		}
 		$autoload_file_array = apply_filters( 'wpfm_autoload_file_array', $default_autoloaders );
 
 		foreach ( $autoload_file_array as $file ) {

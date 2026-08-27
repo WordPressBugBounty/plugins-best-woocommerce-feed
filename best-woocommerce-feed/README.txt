@@ -3,9 +3,9 @@ Contributors: rextheme, coderexltd, coderexco
 Donate link: https://rextheme.com/best-WooCommerce-product-feed/
 Tags: woocommerce product feed, google shopping feed, google merchant center, facebook catalog, google merchant api
 Requires at least: 6.0
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 7.9.1
+Stable tag: 7.10.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -135,9 +135,9 @@ Your prices, stock levels, and product information can be regenerated automatica
 
 List your WooCommerce products on TikTok Shop and TikTok catalog ads with a ready-made TikTok feed template - correct attribute names, image specs, and availability values out of the box.
 
-== ChatGPT Shopping & AI product feeds (OpenAI Commerce) ==
+== ChatGPT Organic Shopping & ChatGPT Ads Product Feed (OpenAI Commerce) ==
 
-Get your WooCommerce products recommended inside ChatGPT. Product Feed Manager (RexFeed) includes an OpenAI Commerce feed template - in JSONL, XML, CSV, or TSV - with all required attributes pre-mapped, plus a built-in Feed Validator that catches spec issues before you submit to OpenAI. 
+Get your WooCommerce products recommended inside ChatGPT organic shopping and sponsored ads. Product Feed Manager (RexFeed) includes an OpenAI Commerce feed template - in JSONL, XML, CSV, or TSV - with all required attributes pre-mapped, plus a built-in Feed Validator that catches spec issues before you submit to OpenAI. 
 
 AI assistants are becoming a real product discovery channel; PFM makes your catalog visible there in a few clicks.
 
@@ -351,7 +351,7 @@ A WooCommerce product feed is a structured file containing product information s
 
 Yes. Select the Google Shopping template, map your WooCommerce product information, generate the feed, and connect it with Google Merchant Center.
 
-= Can I create a ChatGPT Shopping feed from WooCommerce? =
+= Can I create a ChatGPT Shopping and ads feed from WooCommerce? =
 
 Yes. Product Feed Manager includes an OpenAI Commerce feed template with all required attributes pre-mapped, plus a built-in Feed Validator that checks your feed against OpenAI's specification before you submit it.
 
@@ -409,17 +409,27 @@ You can use the WordPress support forum, product documentation, video tutorials,
 1. Generate WooCommerce product feed in 3 simple steps
 2. Map your WooCommerce product categories according to your preferred merchant (Example: Google Merchant Category)
 3. Exclude or include products in your feed using filters and conditions
-4. Configure your feed settings
+4. Change Your WPML Currency easily 
 5. Authorize your Google Merchant Center account to send your Google Shopping Feed via the Content API method
-6. Find out all the product feed information on a single page
+6. Create ChatGPT product feed with OpenAI Commerce to show your products on ChatGPT
 7. Create Facebook Catalog Feed easily
 8. Create your first feed with automated tooltip guide
+9. Configure your feed settings
 
 
 
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.10.0 (2026-08-27) =
+* New: Add ChatGPT Ads merchant template with CSV, TSV, XML, and JSON format support
+* New: Add built-in ChatGPT Ads feed validator to verify compliance with OpenAI Ads specifications
+* Enhancement: Add OpenAI Commerce and ChatGPT Ads channels to onboarding categories
+* Enhancement: Rewrite Google Merchant API integration with native WordPress HTTP API (wp_remote_post/get) for full PHP 7.4+ compatibility without external SDK dependencies
+* Fix: Automatically recreate missing or deleted Google Merchant Center DataSources and retry product batch synchronization without failing the feed run
+* Fix: Isolate feed editor UI elements and page scroll management to prevent conflicts with third-party themes
+
 
 = 7.9.1 (2026-08-24) =
 * Fix: Ensure full backward compatibility for PHP versions below 8.1 by conditionally loading Google Merchant API v1 scoped dependencies

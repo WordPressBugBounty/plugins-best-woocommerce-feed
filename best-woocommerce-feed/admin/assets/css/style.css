@@ -5731,23 +5731,34 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
   color: #3c3c3c;
 }
 .post-type-product-feed #post-body.columns-2 #postbox-container-1 #rex_feed_file_link.postbox a {
-  background-color: #216df0;
-  border: 1px solid #216df0;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100% !important;
+  min-height: 48px;
+  box-sizing: border-box;
+  background: #216df0 !important;
+  border: 1px solid #216df0 !important;
   padding: 10px;
   font-size: 16px;
   line-height: 1.5;
-  color: #fff;
+  color: #fff !important;
+  text-align: center !important;
+  text-decoration: none !important;
   border-radius: 5px;
   margin: 8px 0;
   transition: all 0.3s ease;
 }
-.post-type-product-feed #post-body.columns-2 #postbox-container-1 #rex_feed_file_link.postbox a i {
-  margin-right: 10px;
+.post-type-product-feed #post-body.columns-2 #postbox-container-1 #rex_feed_file_link.postbox a i,
+.post-type-product-feed #post-body.columns-2 #postbox-container-1 #rex_feed_file_link.postbox a .dashicons {
+  margin: 0 !important;
+  color: inherit !important;
 }
 .post-type-product-feed #post-body.columns-2 #postbox-container-1 #rex_feed_file_link.postbox a:hover {
-  background-color: #fff;
-  border: 1px solid #d2d2d2;
-  color: #3c3c3c;
+  background: #fff !important;
+  border: 1px solid #d2d2d2 !important;
+  color: #3c3c3c !important;
 }
 .post-type-product-feed #post-body.columns-2 #postbox-container-1 #rex_feed_file_link.postbox .inside {
   padding: 0;
@@ -7112,7 +7123,7 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
   outline: none;
   box-shadow: none;
 }
-.rex-feed-attr-btn-area .dropdown-menu {
+.rex-feed-attr-btn-area .rex-feed-attr-dropdown-menu {
   display: none;
   background: #FFFFFF;
   position: absolute;
@@ -7123,14 +7134,24 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
   border-radius: 0px 0px 10px 10px;
   width: 100%;
   padding: 15px;
-  z-index: 33;
+  z-index: 11;
 }
-.rex-feed-attr-btn-area .dropdown-menu a:hover {
+.rex-feed-attr-btn-area .rex-feed-attr-dropdown-menu button {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #333333;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+.rex-feed-attr-btn-area .rex-feed-attr-dropdown-menu button:hover {
   letter-spacing: 0.2px;
   text-decoration-line: underline;
   color: #216DF0;
 }
-.rex-feed-attr-btn-area .dropdown-menu > * {
+.rex-feed-attr-btn-area .rex-feed-attr-dropdown-menu > * {
   padding: 5px 0;
 }
 .rex-feed-attr-btn-area .open-dropdown {

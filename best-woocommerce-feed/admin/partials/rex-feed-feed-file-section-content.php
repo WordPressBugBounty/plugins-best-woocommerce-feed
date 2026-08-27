@@ -17,7 +17,7 @@ $is_csv = strpos($feed_url, '.csv') !== false;
 
 <?php if(!$is_csv) {?>
     <a href="<?php echo esc_url( $feed_url ); ?>" target="_blank" class="btn waves-effect waves-light btn-default">
-        <i class="fa fa-external-link" aria-hidden="true"></i>
+        <span class="dashicons dashicons-external" aria-hidden="true"></span>
         <?php esc_html_e( 'View Feed', 'rex-product-feed' ); ?>
     </a>
 <?php }; ?>
