@@ -2027,6 +2027,10 @@ abstract class Rex_Product_Feed_Abstract_Generator
      * @since 7.4.55
      */
     protected function should_include_variation( $product, $productId ) {
+        if ( ! $this->is_variation_feedable( $product ) ) {
+            return false;
+        }
+
         if ( $this->default_variation ) {
             return $this->is_default_variation( $product, $productId );
         } elseif ( $this->highest_variation ) {
@@ -2043,6 +2047,36 @@ abstract class Rex_Product_Feed_Abstract_Generator
         }
         
         return false;
+    }
+
+    /**
+     * Check whether variation and parent product statuses allow feed output.
+     *
+     * @param WC_Product $product Variation product.
+     * @return bool
+     * @since 7.4.78
+     */
+    protected function is_variation_feedable( $product ) {
+        if ( ! $product || ! $product->is_type( 'variation' ) ) {
+            return false;
+        }
+
+        $allowed_statuses = array( 'publish' );
+        if ( 'yes' === get_option( 'wpfm_allow_private', 'no' ) ) {
+            $allowed_statuses[] = 'private';
+        }
+
+        $variation_status = get_post_status( $product->get_id() );
+        if ( ! in_array( $variation_status, $allowed_statuses, true ) ) {
+            return false;
+        }
+
+        $parent_id = $product->get_parent_id();
+        if ( ! $parent_id || 'product' !== get_post_type( $parent_id ) ) {
+            return false;
+        }
+
+        return in_array( get_post_status( $parent_id ), $allowed_statuses, true );
     }
 
     /**

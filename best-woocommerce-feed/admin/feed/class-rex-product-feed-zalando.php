@@ -129,8 +129,12 @@ class Rex_Product_Feed_Zalando extends Rex_Product_Feed_Abstract_Generator {
                 if( $variations ) {
                     foreach ($variations as $variation) {
                         if($this->variations) {
-                            $variation_products[] = $variation;
                             $variation_product = wc_get_product( $variation );
+                            if ( ! $this->is_variation_feedable( $variation_product ) ) {
+                                continue;
+                            }
+
+                            $variation_products[] = $variation;
                             $atts[] = $this->get_product_data( $variation_product, $product_meta_keys );
                         }
                     }
@@ -174,6 +178,10 @@ class Rex_Product_Feed_Zalando extends Rex_Product_Feed_Abstract_Generator {
 
             if( $this->product_scope === 'all' || $this->product_scope =='product_filter' || $this->custom_filter_option) {
 		        if ( $product->get_type() === 'variation' ) {
+			        if ( ! $this->is_variation_feedable( $product ) ) {
+				        continue;
+			        }
+
 			        $variation_products[] = $productId;
 			        $item = RexShopping::createItem();
 			        $atts = $this->get_product_data($product, $product_meta_keys);

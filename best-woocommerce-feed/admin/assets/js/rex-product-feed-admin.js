@@ -10,6 +10,81 @@
     const PRODUCT_LIMIT_NOTICE_TTL = 24 * 60 * 60 * 1000;
     const PRODUCT_LIMIT_NOTICE_STATUS_INTERVAL = 3000;
     const PRODUCT_LIMIT_NOTICE_MAX_STATUS_POLLS = 100;
+    const REX_FEED_ATTR_MATCH_THRESHOLD = 0.75;
+    const REX_FEED_ATTR_NOISE_WORDS = [
+        "product",
+        "item",
+        "woocommerce",
+        "woo",
+        "wpfm",
+        "default",
+        "field",
+        "from",
+        "db",
+        "without",
+        "underscore",
+        "the",
+        "of",
+        "with",
+        "separator",
+        "format",
+    ];
+    const REX_FEED_ATTR_SYNONYM_CLUSTERS = {
+        title: ["title", "name"],
+        brand: ["brand", "manufacturer", "make", "vendor", "producer", "oem", "designer"],
+        gtin: ["gtin", "upc", "ean", "barcode", "jan", "isbn", "itf", "alg ean", "mantella ean"],
+        mpn: ["mpn", "sku", "model", "model number", "part number", "number", "manufacturer part number"],
+        weight: ["weight", "shipping weight"],
+        length: ["length", "shipping length", "dimension length"],
+        width: ["width", "shipping width", "dimension width"],
+        height: ["height", "shipping height", "dimension height"],
+        color: ["color", "colour", "shade"],
+        size: ["size", "dimensions", "apparel size"],
+        gender: ["gender", "sex", "target gender"],
+        age_group: ["age group", "age", "age range", "target age"],
+        material: ["material", "fabric", "composition"],
+        pattern: ["pattern", "graphic", "print"],
+        image: ["image", "image link", "featured image", "main image", "thumbnail image"],
+        additional_image: [
+            "additional image",
+            "additional image link",
+            "additional image 1",
+            "additional image link 1",
+            "additional image 2",
+            "additional image link 2",
+            "additional image 3",
+            "additional image link 3",
+            "additional image 4",
+            "additional image link 4",
+            "additional image 5",
+            "additional image link 5",
+            "additional image 6",
+            "additional image link 6",
+            "additional image 7",
+            "additional image link 7",
+            "additional image 8",
+            "additional image link 8",
+            "additional image 9",
+            "additional image link 9",
+            "additional image 10",
+            "additional image link 10",
+            "gallery image",
+            "gallery image 1",
+            "product gallery",
+            "extra image",
+        ],
+        price: ["price", "regular price", "current price", "price tax"],
+        sale_price: ["sale price", "discount price", "offer price", "special price", "sale price tax"],
+        category: ["type", "category", "categories", "cats", "cats path", "google category", "google product category"],
+        stock: ["availability", "stock", "stock status", "in stock", "quantity", "inventory"],
+        description: ["description", "body", "details"],
+        short_desc: ["short desc", "short description", "excerpt", "summary", "brief"],
+        url: ["link", "url", "permalink"],
+        condition: ["condition", "state"],
+        rating: ["rating", "rating average", "average rating", "rating total", "total rating", "reviews"],
+        tax: ["tax", "tax class", "tax rate"],
+        shipping: ["shipping", "shipping cost", "shipping class"],
+    };
     let config_btn = rex_wpfm_admin_translate_strings.google_cat_map_btn;
     let optimize_pr_title_btn = rex_wpfm_admin_translate_strings.optimize_pr_title_btn;
 
@@ -169,14 +244,19 @@
 
         updateFormNameAtts($row, rowId, filter);
 
+        $row.find("select.attr-dropdown").val("");
+        $row.find("select.type-dropdown").val("");
+        $row.find("select.attr-val-dropdown").val("").removeData("rexFeedSuggestedValue");
+
         rex_feed_define_custom_fields_select2($row, rowId);
+        rex_feed_auto_suggest_attribute_mapping($row, true);
 
         $('input[name="fc[' + rowId + '][limit]"]').attr("readonly", false);
 
         $('input[name="fc[' + rowId + '][st_value]"]').attr("readonly", false);
 
         backup_data[rowId] = {
-            "select.attr-dropdown": "id",
+            "select.attr-dropdown": "",
             "select.type-dropdown": "",
             "select.attr-val-dropdown": "",
             "select.sanitize-dropdown": [""],
@@ -273,6 +353,9 @@
         $row.find("td:eq(0)").append(' <div class="attributes-wrapper"><p class="attr-full-name" style="display: none"></p><input type="text" class="rex-custom-attribute" name="fc[0][cust_attr]" value=""></div>');
         updateFormNameAtts($row, rowId, filter);
 
+        $row.find("select.type-dropdown").val("");
+        $row.find("select.attr-val-dropdown").val("").removeData("rexFeedSuggestedValue");
+
         rex_feed_define_custom_fields_select2($row, rowId);
 
         $('input[name="fc[' + rowId + '][limit]"]').attr("readonly", false);
@@ -280,7 +363,7 @@
         $('input[name="fc[' + rowId + '][st_value]"]').attr("readonly", false);
 
         backup_data[rowId] = {
-            "select.attr-dropdown": "id",
+            "select.attr-dropdown": "",
             "select.type-dropdown": "",
             "select.attr-val-dropdown": "",
             "select.sanitize-dropdown": [""],
@@ -606,6 +689,10 @@
         } else {
             $(this).closest("td").next("td").find(".static-input").hide();
             $(this).closest("td").next("td").find(".meta-dropdown").show();
+
+            if (selected === "meta") {
+                rex_feed_auto_suggest_attribute_mapping($(this).closest("tr"), false);
+            }
         }
     });
 
@@ -736,9 +823,33 @@
     $(document).on("change", "#rex_feed_cats_check_all_btn, #rex_feed_tags_check_all_btn, #rex_feed_brands_check_all_btn", rex_feed_check_uncheck_all_tax);
     $(document).on("change", ".rex_feed_cats, .rex_feed_tags, .rex_feed_brands", rex_feed_sync_check_all_tax);
 
-    $(document).on("change", "select.attr-dropdown, select.attr-val-dropdown", rex_feed_auto_select_google_shipping_tax);
+    $(document).on("change", "select.attr-dropdown", function () {
+        const $row = $(this).closest("tr");
+        rex_feed_auto_suggest_attribute_mapping($row, true);
+    });
 
-    $(document).on("change", "select.attr-dropdown, select.attr-val-dropdown", rex_feed_auto_select_google_shipping_tax);
+    $(document).on("change", "select.attr-val-dropdown", function (_event, changeSource) {
+        if (changeSource !== "rex-feed-auto-suggest") {
+            $(this).removeData("rexFeedSuggestedValue");
+        }
+    });
+
+    $(document).on("input propertychange", "input.rex-custom-attribute", function () {
+        const $input = $(this);
+        const oldTimer = $input.data("rexFeedSuggestionTimer");
+
+        if (oldTimer) {
+            window.clearTimeout(oldTimer);
+        }
+
+        $input.data(
+            "rexFeedSuggestionTimer",
+            window.setTimeout(function () {
+                $input.removeData("rexFeedSuggestionTimer");
+                rex_feed_auto_suggest_attribute_mapping($input.closest("tr"), true);
+            }, 250)
+        );
+    });
 
     $(document).on("submit", "#rex-google-merchant", save_google_merchant_settings);
 
@@ -3501,26 +3612,297 @@ function addCustomFilterOuterHiddenSelectInputField(row, newRowId, value) {
     }
 
     /**
-     * @desc Auto select attribute/attribute value
-     * if user select shipping/tax attributes for google format
-     * @since 7.3.0
+     * Normalizes an attribute key or label for deterministic matching.
+     *
+     * @param {string} str Raw attribute key or label.
+     * @return {string} Normalized attribute name.
      */
-    function rex_feed_auto_select_google_shipping_tax() {
-        let $this = $(this);
-        let selected_val = $this.val();
+    function rex_feed_normalize_attr_name(str) {
+        if (!str || typeof str !== "string") {
+            return "";
+        }
 
-        if ($this.hasClass("attr-dropdown")) {
-            if ("shipping" === selected_val || "tax" === selected_val) {
-                $this.parent().siblings(":first").children().val("meta");
-                $this.parent().siblings(":nth-child(3)").children().hide();
-                $this.parent().siblings(":nth-child(3)").children(":first").show();
-                $this.parent().siblings(":nth-child(3)").children(":first").children("select.attr-val-dropdown").val(selected_val).trigger("change");
-            }
-        } else {
-            if ("shipping" === selected_val || "tax" === selected_val) {
-                $this.parent().parent().siblings(":first").children("select.attr-dropdown").val(selected_val);
+        let normalized = str.toLowerCase().trim();
+        normalized = normalized.replace(/\[[^\]]*\]/g, " ");
+        normalized = normalized.replace(/\([^\)]*\)/g, " ");
+        normalized = normalized.replace(/^(?:bwf_attr_pa_|custom_attributes__wpfm_product_|custom_attributes__|custom_attributes_|pa_|woo_product_|woo_|_alg_|_mantella_)+/g, "");
+        normalized = normalized.replace(/^[_-]+|[_-]+$/g, "");
+        normalized = normalized.replace(/[^a-z0-9]+/g, " ");
+
+        return normalized
+            .split(/\s+/)
+            .filter(function (token) {
+                return token && REX_FEED_ATTR_NOISE_WORDS.indexOf(token) === -1;
+            })
+            .join(" ");
+    }
+
+    /**
+     * Resolves a normalized attribute name to an ecommerce synonym cluster.
+     * Exact aliases avoid substring collisions such as age/image and price/sale_price.
+     *
+     * @param {string} token Normalized attribute name.
+     * @return {string} Synonym cluster key, or an empty string.
+     */
+    function rex_feed_get_synonym_cluster(token) {
+        if (!token) {
+            return "";
+        }
+
+        for (const cluster in REX_FEED_ATTR_SYNONYM_CLUSTERS) {
+            if (
+                Object.prototype.hasOwnProperty.call(REX_FEED_ATTR_SYNONYM_CLUSTERS, cluster) &&
+                REX_FEED_ATTR_SYNONYM_CLUSTERS[cluster].indexOf(token) !== -1
+            ) {
+                return cluster;
             }
         }
+
+        return "";
+    }
+
+    /**
+     * Calculates Sorensen-Dice character bigram similarity.
+     *
+     * @param {string} a First normalized string.
+     * @param {string} b Second normalized string.
+     * @return {number} Similarity from 0 to 1.
+     */
+    function rex_feed_dice_similarity(a, b) {
+        if (!a || !b) {
+            return 0;
+        }
+        if (a === b) {
+            return 1;
+        }
+        if (a.length < 2 || b.length < 2) {
+            return 0;
+        }
+
+        const bigramCounts = {};
+        let matches = 0;
+
+        for (let i = 0; i < a.length - 1; i++) {
+            const bigram = a.substring(i, i + 2);
+            bigramCounts[bigram] = (bigramCounts[bigram] || 0) + 1;
+        }
+
+        for (let i = 0; i < b.length - 1; i++) {
+            const bigram = b.substring(i, i + 2);
+            if (bigramCounts[bigram]) {
+                matches++;
+                bigramCounts[bigram]--;
+            }
+        }
+
+        return (2 * matches) / (a.length + b.length - 2);
+    }
+
+    /**
+     * Calculates match confidence between a feed attribute and WooCommerce field.
+     *
+     * @param {string} srcKey Feed attribute key.
+     * @param {string} srcLabel Feed attribute label.
+     * @param {string} targetVal WooCommerce option value.
+     * @param {string} targetLabel WooCommerce option label.
+     * @param {string} targetGroup WooCommerce option group.
+     * @return {number} Confidence score from 0 to 1.
+     */
+    function rex_feed_calculate_attr_match_score(srcKey, srcLabel, targetVal, targetLabel, targetGroup) {
+        const sourceNames = [rex_feed_normalize_attr_name(srcKey), rex_feed_normalize_attr_name(srcLabel)].filter(function (name, index, names) {
+            return name && names.indexOf(name) === index;
+        });
+        const targetNames = [rex_feed_normalize_attr_name(targetVal), rex_feed_normalize_attr_name(targetLabel)].filter(function (name, index, names) {
+            return name && names.indexOf(name) === index;
+        });
+
+        if (!sourceNames.length || !targetNames.length) {
+            return 0;
+        }
+
+        let score = 0;
+        let sourceCluster = "";
+        const targetClusters = [];
+
+        sourceNames.forEach(function (sourceName) {
+            sourceCluster = sourceCluster || rex_feed_get_synonym_cluster(sourceName);
+
+            targetNames.forEach(function (targetName) {
+                if (sourceName === targetName) {
+                    score = Math.max(score, 0.95);
+                }
+            });
+        });
+
+        targetNames.forEach(function (targetName) {
+            const cluster = rex_feed_get_synonym_cluster(targetName);
+            if (cluster && targetClusters.indexOf(cluster) === -1) {
+                targetClusters.push(cluster);
+            }
+        });
+
+        if (sourceCluster && targetClusters.indexOf(sourceCluster) !== -1) {
+            score = Math.max(score, 0.92);
+        }
+
+        sourceNames.forEach(function (sourceName) {
+            const sourceTokens = sourceName.split(" ").filter(Boolean);
+
+            targetNames.forEach(function (targetName) {
+                const targetTokens = targetName.split(" ").filter(Boolean);
+                const sharedTokens = sourceTokens.filter(function (token, index, tokens) {
+                    return tokens.indexOf(token) === index && targetTokens.indexOf(token) !== -1;
+                });
+
+                if (sharedTokens.length) {
+                    score = Math.max(score, (sharedTokens.length / Math.min(sourceTokens.length, targetTokens.length)) * 0.85);
+                } else {
+                    score = Math.max(score, rex_feed_dice_similarity(sourceName.replace(/\s+/g, ""), targetName.replace(/\s+/g, "")) * 0.8);
+                }
+            });
+        });
+
+        if (
+            ["Primary Attributes", "Price Attributes", "Image Attributes", "Shipping Attributes", "Tax Attributes", "Date Attributes"].indexOf(targetGroup) !== -1
+        ) {
+            score += 0.05;
+        } else if (
+            ["Product Attributes", "Product Custom Attributes", "Product Variation Attributes", "Product Custom Taxonomies", "WPFM Custom Attributes"].indexOf(targetGroup) !== -1
+        ) {
+            score += 0.04;
+        }
+
+        const sourceText = sourceNames.join(" ");
+        const targetText = targetNames.join(" ");
+        const sourceTokens = sourceText.split(" ");
+        const targetTokens = targetText.split(" ");
+
+        // Prefer canonical feed values where multiple semantic matches tie.
+        if (sourceCluster === "title" && targetVal === "title") {
+            score += 0.08;
+        } else if (sourceCluster === "mpn" && targetVal === "sku") {
+            score += 0.08;
+        } else if (sourceCluster === "category" && targetVal === "product_cats") {
+            score += 0.04;
+        } else if (sourceCluster === "category" && targetVal === "product_cats_path") {
+            score += 0.02;
+        } else if (sourceCluster === "image" && sourceNames.indexOf("image link") !== -1 && targetVal === "featured_image") {
+            score += 0.04;
+        } else if (sourceCluster === "additional_image" && targetVal === "additional_image_1") {
+            score += 0.04;
+        }
+
+        const srcNumber = (sourceText.match(/\b(\d+)\b/) || [])[1];
+        const targetNumber = (targetText.match(/\b(\d+)\b/) || [])[1];
+        if (srcNumber && targetNumber) {
+            if (srcNumber === targetNumber) {
+                score += 0.05;
+            } else {
+                score -= 0.30;
+            }
+        }
+
+        if (sourceNames.indexOf("image link") !== -1 && targetVal === "main_image") {
+            score -= 0.02;
+        }
+
+        if (sourceTokens.indexOf("image") !== -1 && (targetVal === "link" || targetVal === "url" || targetClusters.indexOf("url") !== -1)) {
+            score -= 0.50;
+        }
+        if (sourceTokens.indexOf("sale") === -1 && targetTokens.indexOf("sale") !== -1) {
+            score -= 0.25;
+        }
+        if (sourceTokens.indexOf("tax") === -1 && targetTokens.indexOf("tax") !== -1) {
+            score -= 0.25;
+        }
+        if (sourceTokens.indexOf("download") === -1 && targetTokens.indexOf("download") !== -1) {
+            score -= 0.25;
+        }
+
+        return Math.min(1, Math.max(0, score));
+    }
+
+    /**
+     * Finds highest-confidence WooCommerce field in a row's full option list.
+     *
+     * @param {string} srcKey Feed attribute key.
+     * @param {string} srcLabel Feed attribute label.
+     * @param {jQuery} $valDropdown Assigned Values dropdown.
+     * @return {string} Suggested option value, or an empty string.
+     */
+    function rex_feed_find_suggested_attribute_match(srcKey, srcLabel, $valDropdown) {
+        let bestValue = "";
+        let highestScore = 0;
+
+        $valDropdown.find("option").each(function () {
+            const $option = $(this);
+            const value = $option.val();
+
+            if (!value || $option.is(":disabled")) {
+                return;
+            }
+
+            const score = rex_feed_calculate_attr_match_score(
+                srcKey,
+                srcLabel,
+                value,
+                $option.text(),
+                $option.parent("optgroup").attr("label") || ""
+            );
+
+            if (score > highestScore) {
+                highestScore = score;
+                bestValue = value;
+            }
+        });
+
+        return highestScore >= REX_FEED_ATTR_MATCH_THRESHOLD ? bestValue : "";
+    }
+
+    /**
+     * Suggests an Assigned Value while preserving explicit user selections.
+     *
+     * @param {jQuery} $row Feed configuration row.
+     * @param {boolean} forceOverride Re-evaluate after source attribute changes.
+     * @return {void}
+     */
+    function rex_feed_auto_suggest_attribute_mapping($row, forceOverride) {
+        if (!$row || !$row.length || $row.find("select.type-dropdown").val() !== "meta") {
+            return;
+        }
+
+        const $valDropdown = $row.find("select.attr-val-dropdown");
+        if (!$valDropdown.length) {
+            return;
+        }
+
+        const currentValue = $valDropdown.val() || "";
+        const previousSuggestedValue = $valDropdown.data("rexFeedSuggestedValue") || "";
+
+        if (currentValue && !forceOverride && currentValue !== previousSuggestedValue) {
+            return;
+        }
+
+        const $attrDropdown = $row.find("select.attr-dropdown");
+        const $customInput = $row.find("input.rex-custom-attribute");
+        const customValue = $customInput.length ? $.trim($customInput.val()) : "";
+        let sourceKey = $attrDropdown.val() || "";
+        let sourceLabel = $attrDropdown.find("option:selected").text() || "";
+
+        if (customValue) {
+            sourceKey = customValue;
+            sourceLabel = customValue;
+        }
+
+        const matchedValue = sourceKey || sourceLabel ? rex_feed_find_suggested_attribute_match(sourceKey, sourceLabel, $valDropdown) : "";
+
+        if (matchedValue === currentValue) {
+            $valDropdown.data("rexFeedSuggestedValue", matchedValue);
+            return;
+        }
+
+        $valDropdown.data("rexFeedSuggestedValue", matchedValue);
+        $valDropdown.val(matchedValue).trigger("change", ["rex-feed-auto-suggest"]);
     }
 
     function disable_all_config_table_fields() {
@@ -3714,6 +4096,16 @@ function addCustomFilterOuterHiddenSelectInputField(row, newRowId, value) {
         $("select.select2-attr-dropdown").select2();
         $("select.type-dropdowns").select2({
             minimumResultsForSearch: -1,
+        });
+
+        $("#config-table tbody tr").each(function () {
+            const $row = $(this);
+            const type = $row.find("select.type-dropdowns, select.type-dropdown").val();
+            const $valDropdown = $row.find("select.attr-val-dropdown");
+
+            if (type === "meta" && !$valDropdown.val()) {
+                rex_feed_auto_suggest_attribute_mapping($row, false);
+            }
         });
     }
 

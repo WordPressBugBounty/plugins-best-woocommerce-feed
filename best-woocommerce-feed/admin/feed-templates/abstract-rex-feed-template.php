@@ -164,7 +164,10 @@ abstract class Rex_Feed_Abstract_Template {
         }
 
         echo '<select class="' .esc_attr( $class ). '" name="fc['.esc_attr( $key ).'][' . esc_attr( $name ) . ']' .esc_attr( $array ). '" ' . esc_attr( $multiple ) . '>';
-        echo "<option value='-1' disabled>".__( 'Please Select', 'rex-product-feed' )."</option>";
+        if ( empty( $multiple ) ) {
+            $is_selected = ( empty( $selected ) || $selected === '-1' ) ? "selected='selected'" : '';
+            echo "<option value='' {$is_selected}>" . esc_html__( 'Please Select', 'rex-product-feed' ) . '</option>';
+        }
         $i = 1;
         foreach ($items as $groupLabel => $group) {
             if ( !empty($groupLabel)) {
@@ -172,7 +175,7 @@ abstract class Rex_Feed_Abstract_Template {
             }
 
             foreach ($group as $key => $item) {
-                if ( ( is_array( $selected ) && in_array( $key, $selected ) ) || ( $selected === $key ) ) {
+                if ( ( is_array( $selected ) && in_array( $key, $selected ) ) || ( $selected === $key && $selected !== '' ) ) {
                     echo "<option value='".esc_attr($key)."' selected='selected'>".esc_attr($item)."</option>";
                 }
                 else{

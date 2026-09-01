@@ -15,6 +15,22 @@ class Rex_Product_Feed_Linno_Telemetry {
     private $posthog_api_key = 'phc_h9bEsVUzRaHIJmF3sHWFdjM1mLHdntzXnebp5FRwlLr';
 
     /**
+     * Release cutoff for the temporary feed_created no-consent counter.
+     *
+     * Sites installed before this timestamp are pre-existing and are never counted.
+     * See docs/TELEMETRY_EVENTS.md.
+     */
+    private const FEED_CREATED_RELEASE_CUTOFF = '2026-09-01T00:00:00+00:00';
+
+    /**
+     * Window length, in days, that the feed_created counter stays active for.
+     *
+     * After FEED_CREATED_RELEASE_CUTOFF + this many days, the event stops firing
+     * for every site — including ones that installed during the window.
+     */
+    private const FEED_CREATED_WINDOW_DAYS = 7;
+
+    /**
      * Bootstrap telemetry hooks.
      */
     public function __construct() {
@@ -22,6 +38,7 @@ class Rex_Product_Feed_Linno_Telemetry {
         add_action( 'transition_post_status', array( $this, 'maybe_track_manual_publish' ), 10, 3 );
         add_action( 'rex_product_feed_feed_published', array( $this, 'maybe_track_aha' ) );
         add_action( 'rex_product_feed_feed_published', array( $this, 'accumulate_feed_publish' ), 10, 2 );
+        add_action( 'rex_product_feed_feed_published', array( $this, 'maybe_track_feed_created' ), 10, 2 );
         add_action( 'rex_product_feed_consent_updated', array( $this, 'handle_consent_updated' ) );
         add_action( 'rex_product_feed_setup_completed', array( $this, 'track_onboarding' ) );
         add_action( 'wpfm_flush_feed_telemetry', array( $this, 'flush_daily_telemetry' ) );
@@ -86,7 +103,13 @@ class Rex_Product_Feed_Linno_Telemetry {
     }
 
     /**
-     * Determine whether the current request is setup wizard feed creation.
+     * Determine whether the current request is setup-wizard feed creation.
+     *
+     * Covers both the wizard's own "create feed" step (pfm_create_feed) and the
+     * demo feed inserted by dismiss_wizard() when the user skips without creating
+     * one (pfm_wizard_dismiss) — that handler only ever inserts the demo feed post,
+     * so excluding its action name here is safe and doesn't hide any genuine
+     * manual publish.
      *
      * @return bool
      */
@@ -97,7 +120,7 @@ class Rex_Product_Feed_Linno_Telemetry {
 
         $action = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '';
 
-        return 'pfm_create_feed' === $action;
+        return in_array( $action, array( 'pfm_create_feed', 'pfm_wizard_dismiss' ), true );
     }
 
     /**
@@ -141,6 +164,67 @@ class Rex_Product_Feed_Linno_Telemetry {
             )
         );
         $telemetry_client->mark_event_sent( $event_key );
+    }
+
+    /**
+     * Track a feed-created count, without consent, for new installs only, for a fixed window.
+     *
+     * Two independent conditions gate this — both must pass on every call:
+     * 1. The site's install time must be after FEED_CREATED_RELEASE_CUTOFF, so pre-existing
+     *    sites (installed via a silent version update, with no activation-equivalent signal)
+     *    are excluded entirely.
+     * 2. The current time must still be inside the FEED_CREATED_WINDOW_DAYS window from the
+     *    cutoff. This is a hard stop for every site, including ones that install during the
+     *    window — once the window closes, nothing fires for anyone, ever again.
+     *
+     * Sent via dispatch_minimal (same no-consent path as activation/deactivation): no __identify
+     * block, no email/name, just site_url + unique_id + the feed's merchant/format.
+     *
+     * @param int    $feed_id Feed post ID.
+     * @param string $source  'manual' or 'scheduled'.
+     *
+     * @return void
+     */
+    public function maybe_track_feed_created( $feed_id, $source = '' ) {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'getDispatcher' ) ) {
+            return;
+        }
+
+        // Manual creation only — excludes wizard-created feeds ('wizard' source) and
+        // scheduled/regeneration completions ('automatic' source).
+        if ( 'manual' !== $source ) {
+            return;
+        }
+
+        // Belt-and-suspenders: wizard and demo-on-skip feeds are tagged with this meta.
+        // Guards against the demo feed (created via the wizard-dismiss AJAX action) being
+        // mislabeled 'manual' upstream, since is_setup_wizard_create_request() only
+        // recognizes the pfm_create_feed action.
+        if ( get_post_meta( $feed_id, 'pfm_feed_created_by', true ) ) {
+            return;
+        }
+
+        $cutoff = strtotime( self::FEED_CREATED_RELEASE_CUTOFF );
+
+        $installed_time = (int) get_option( 'rex_wpfm_installed_time', 0 );
+        if ( $installed_time <= $cutoff ) {
+            return;
+        }
+
+        if ( time() >= $cutoff + ( self::FEED_CREATED_WINDOW_DAYS * DAY_IN_SECONDS ) ) {
+            return;
+        }
+
+        $telemetry_client->getDispatcher()->dispatch_minimal(
+            'activation/feed_created',
+            array(
+                'site_url'    => esc_url_raw( get_site_url() ),
+                'unique_id'   => sanitize_text_field( $telemetry_client->get_unique_id() ),
+                'merchant'    => (string) get_post_meta( $feed_id, '_rex_feed_merchant', true ),
+                'feed_format' => (string) get_post_meta( $feed_id, '_rex_feed_feed_format', true ),
+            )
+        );
     }
 
     /**

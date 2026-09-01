@@ -2,10 +2,10 @@
 Contributors: rextheme, coderexltd, coderexco
 Donate link: https://rextheme.com/best-WooCommerce-product-feed/
 Tags: woocommerce product feed, google shopping feed, google merchant center, facebook catalog, google merchant api
-Requires at least: 6.0
+Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 7.10.0
+Stable tag: 7.11.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -421,6 +421,10 @@ You can use the WordPress support forum, product documentation, video tutorials,
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.11.0 (2026-09-01) =
+* New: Add intelligent suggested matches for required and custom feed attributes
+* Fix: Exclude product variations from feed when parent product is pending, draft, or trashed
 
 = 7.10.0 (2026-08-27) =
 * New: Add ChatGPT Ads merchant template with CSV, TSV, XML, and JSON format support
