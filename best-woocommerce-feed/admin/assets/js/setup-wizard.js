@@ -430,6 +430,9 @@ jQuery(document).ready(function ($) {
         plugin  : 'product-feed-manager',
         version : '1.0.0',
         telemetry: {
+            onSetupStarted        : function () {
+                $.ajax({ url: ajaxurl, type: 'POST', data: { action: 'pfm_track_setup_start', security: pfmNonce } });
+            },
             onSetupCompleted      : function () {},
             onFirstStrikeCompleted: function () {}
         },
@@ -545,6 +548,16 @@ jQuery(document).ready(function ($) {
         if (step && step.mount) {
             step.mount(document.getElementById('pfm-wizard-app'), engine.getStepContext());
         }
+    });
+
+    // Funnel drop-off telemetry: fires once per step a user finishes (merchant, configure).
+    var wizardStepIds = ['merchant', 'configure', 'aha'];
+    tracker.on('step_completed', function (payload) {
+        var stepId = payload && payload.stepId;
+        $.ajax({
+            url: ajaxurl, type: 'POST',
+            data: { action: 'pfm_track_setup_step', security: pfmNonce, step_id: stepId, step_index: wizardStepIds.indexOf(stepId) }
+        });
     });
 
     // Initial render

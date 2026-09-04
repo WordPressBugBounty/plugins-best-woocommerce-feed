@@ -40,11 +40,17 @@ class Rex_Product_Feed_Linno_Telemetry {
         add_action( 'rex_product_feed_feed_published', array( $this, 'accumulate_feed_publish' ), 10, 2 );
         add_action( 'rex_product_feed_feed_published', array( $this, 'maybe_track_feed_created' ), 10, 2 );
         add_action( 'rex_product_feed_consent_updated', array( $this, 'handle_consent_updated' ) );
+        add_action( 'rex_product_feed_setup_started', array( $this, 'track_setup_started' ) );
+        add_action( 'rex_product_feed_setup_step_completed', array( $this, 'track_setup_step_completed' ), 10, 2 );
         add_action( 'rex_product_feed_setup_completed', array( $this, 'track_onboarding' ) );
         add_action( 'wpfm_flush_feed_telemetry', array( $this, 'flush_daily_telemetry' ) );
-        if ( ! wp_next_scheduled( 'wpfm_flush_feed_telemetry' ) ) {
-            wp_schedule_event( strtotime( 'tomorrow midnight' ), 'daily', 'wpfm_flush_feed_telemetry' );
-        }
+        $this->maybe_migrate_flush_cron_to_weekly();
+
+        add_action( 'rex_product_feed_generation_failed', array( $this, 'track_generation_failed' ), 10, 2 );
+        add_action( 'rex_product_feed_validation_completed', array( $this, 'track_validation_completed' ), 10, 3 );
+        add_action( 'rex_product_feed_google_merchant_connected', array( $this, 'track_gmc_connected' ) );
+        add_action( 'rex_product_feed_upgrade_prompt_shown', array( $this, 'track_upgrade_prompt_shown' ) );
+        add_action( 'rex_product_feed_upgrade_prompt_clicked', array( $this, 'track_upgrade_prompt_clicked' ) );
 
         add_filter( 'product-feed-manager_telemetry_deactivation_reasons', array( $this, 'override_deactivation_reasons' ) );
         add_filter( 'product-feed-manager_deactivation_payload', array( $this, 'enrich_deactivation_payload' ), 10, 3 );
@@ -77,6 +83,34 @@ class Rex_Product_Feed_Linno_Telemetry {
             )
         );
 
+    }
+
+    /**
+     * Schedule the retention/feature_used flush cron, migrating existing
+     * daily-scheduled sites to weekly exactly once.
+     *
+     * New sites (never scheduled) go straight to weekly. Sites already on the
+     * old daily schedule are cleared and rescheduled, then flagged so this
+     * only ever runs once per site.
+     *
+     * @return void
+     */
+    private function maybe_migrate_flush_cron_to_weekly() {
+        $migrated_option = '_wpfm_feed_telemetry_cron_migrated';
+
+        if ( ! wp_next_scheduled( 'wpfm_flush_feed_telemetry' ) ) {
+            wp_schedule_event( strtotime( 'tomorrow midnight' ), 'weekly', 'wpfm_flush_feed_telemetry' );
+            update_option( $migrated_option, 'yes', false );
+            return;
+        }
+
+        if ( 'yes' === get_option( $migrated_option ) ) {
+            return;
+        }
+
+        wp_clear_scheduled_hook( 'wpfm_flush_feed_telemetry' );
+        wp_schedule_event( strtotime( 'tomorrow midnight' ), 'weekly', 'wpfm_flush_feed_telemetry' );
+        update_option( $migrated_option, 'yes', false );
     }
 
     /**
@@ -136,6 +170,70 @@ class Rex_Product_Feed_Linno_Telemetry {
             return;
         }
         $telemetry_client->set_optin_state( $is_consent_given ? 'yes' : 'no' );
+    }
+
+    /**
+     * Track setup wizard start without consent — no PII, just site_url + unique_id.
+     *
+     * Fires on rex_product_feed_setup_started, mirroring the same no-consent
+     * pattern used for onboarding_completed/plugin_activated/deactivated.
+     *
+     * @return void
+     */
+    public function track_setup_started() {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'has_sent_event' ) ) {
+            return;
+        }
+        $event_key = 'setup_started';
+        if ( $telemetry_client->has_sent_event( $event_key ) ) {
+            return;
+        }
+        $telemetry_client->track_lifecycle_event(
+            'activation/setup_started',
+            array(
+                'site_url'  => get_site_url(),
+                'unique_id' => $telemetry_client->get_unique_id(),
+                'timestamp'  => current_time( 'mysql' ),
+            )
+        );
+        $telemetry_client->mark_event_sent( $event_key );
+    }
+
+    /**
+     * Track a setup wizard step completion, for funnel drop-off visibility.
+     *
+     * Not deduped — fires every time a step is completed, including repeat
+     * visits to the same step, since repetition is itself a friction signal.
+     *
+     * @param int    $step_index Zero-based step index.
+     * @param string $step_id    Step identifier (e.g. 'merchant', 'configure').
+     *
+     * @return void
+     */
+    public function track_setup_step_completed( $step_index, $step_id ) {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'getDispatcher' ) ) {
+            return;
+        }
+
+        $telemetry_client->getDispatcher()->dispatch_minimal(
+            'activation/setup_step_completed',
+            array(
+                'site_url'    => esc_url_raw( get_site_url() ),
+                'unique_id'   => sanitize_text_field( $telemetry_client->get_unique_id() ),
+                'step_index'  => (int) $step_index,
+                'step_id'     => sanitize_text_field( $step_id ),
+                'timestamp'   => current_time( 'mysql' ),
+                // Non-empty on purpose — see maybe_track_feed_created(): dispatch_minimal()
+                // omits __identify entirely otherwise, which PostHogDriver::send() then
+                // serializes as an empty JSON array for $set, which PostHog's /batch/
+                // endpoint rejects with a 400.
+                '__identify'  => array(
+                    'profileId' => sanitize_text_field( $telemetry_client->get_unique_id() ),
+                ),
+            )
+        );
     }
 
     /**
@@ -223,6 +321,15 @@ class Rex_Product_Feed_Linno_Telemetry {
                 'unique_id'   => sanitize_text_field( $telemetry_client->get_unique_id() ),
                 'merchant'    => (string) get_post_meta( $feed_id, '_rex_feed_merchant', true ),
                 'feed_format' => (string) get_post_meta( $feed_id, '_rex_feed_feed_format', true ),
+                // Non-empty on purpose: PostHogDriver::send() serializes an empty
+                // __identify as $set=[] (a JSON array), which PostHog's /batch/
+                // endpoint rejects outright with a 400 ("missing event name attribute" —
+                // a misleading message; the real problem is $set must be an object).
+                // Reusing unique_id here keeps this non-PII while giving $set a
+                // non-empty shape, which PHP serializes as a JSON object.
+                '__identify'  => array(
+                    'profileId' => sanitize_text_field( $telemetry_client->get_unique_id() ),
+                ),
             )
         );
     }
@@ -232,6 +339,18 @@ class Rex_Product_Feed_Linno_Telemetry {
      *
      * The SDK's aha/kui trigger with no threshold fires on every hook call.
      * We guard with has_sent_event/mark_event_sent for cross-request dedup.
+     *
+     * Dispatches directly via the event dispatcher instead of track_kui()/track()
+     * (the queue-based path), for two reasons:
+     * 1. The queue table is only created once consent is given (finalize_optin_setup),
+     *    so relying on it adds an avoidable dependency for an event that already
+     *    requires consent to send at all.
+     * 2. track()/track_kui() return void, so the caller can't tell whether the event
+     *    was actually delivered or silently dropped for lack of consent. Calling the
+     *    dispatcher directly gives a real success/failure result, so mark_event_sent()
+     *    only runs on confirmed delivery — otherwise a not-yet-consented site would
+     *    get permanently marked as "sent" for an event that was never actually sent,
+     *    and it would never fire again even after the user opts in.
      *
      * @param int $post_id Feed post ID.
      *
@@ -246,9 +365,19 @@ class Rex_Product_Feed_Linno_Telemetry {
         if ( $telemetry_client->has_sent_event( $event_key ) ) {
             return;
         }
+
+        if ( 'yes' !== $telemetry_client->get_optin_state() ) {
+            return;
+        }
+
         $properties = $this->build_aha_payload( (int) $post_id );
-        $telemetry_client->track_kui( 'first_feed_generated', $properties );
-        $telemetry_client->mark_event_sent( $event_key );
+        $properties['indicator'] = 'first_feed_generated';
+
+        $result = $telemetry_client->getDispatcher()->dispatch( 'activation/aha_reached', $properties );
+
+        if ( $result ) {
+            $telemetry_client->mark_event_sent( $event_key );
+        }
     }
 
     /**
@@ -395,6 +524,153 @@ class Rex_Product_Feed_Linno_Telemetry {
         );
 
         delete_option( '_wpfm_feed_telemetry_buffer' );
+    }
+
+    /**
+     * Track a feed generation failure, for real technical failure-rate visibility.
+     *
+     * Not deduped — one event per occurrence, since failure frequency is itself
+     * the signal. Dispatched directly (not via track()'s queue path) since this
+     * is a time-sensitive technical signal — track() only queues a row for a
+     * separate SDK-owned daily cron, up to ~24h delay, which defeats the point
+     * of near-real-time failure visibility. Consent checked manually since
+     * dispatch() bypasses track()'s internal isOptInEnabled() gate.
+     *
+     * @param int   $feed_id    Feed post ID.
+     * @param array $error_data The exact array just written to _rex_feed_last_error
+     *                          (type, message, file, line, batch, timestamp).
+     *
+     * @return void
+     */
+    public function track_generation_failed( $feed_id, $error_data ) {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'getDispatcher' ) ) {
+            return;
+        }
+        if ( 'yes' !== $telemetry_client->get_optin_state() ) {
+            return;
+        }
+
+        $telemetry_client->getDispatcher()->dispatch(
+            'diagnostics/feed_generation_failed',
+            array(
+                'feed_id'       => (int) $feed_id,
+                'error_type'    => (string) ( $error_data['type'] ?? '' ),
+                'error_message' => mb_substr( (string) ( $error_data['message'] ?? '' ), 0, 300 ),
+                'merchant'      => (string) get_post_meta( $feed_id, '_rex_feed_merchant', true ),
+            )
+        );
+    }
+
+    /**
+     * Track feed validation usage and, additionally, validation failures.
+     *
+     * Fires from both the scheduled and manual validation code paths via the
+     * same rex_product_feed_validation_completed action. Not deduped.
+     *
+     * @param int    $feed_id  Feed post ID.
+     * @param string $merchant Merchant slug.
+     * @param array  $summary  Validation summary (total_errors, total_warnings, total_info, ...).
+     *
+     * @return void
+     */
+    public function track_validation_completed( $feed_id, $merchant, $summary ) {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'track' ) ) {
+            return;
+        }
+        if ( 'yes' !== $telemetry_client->get_optin_state() ) {
+            return;
+        }
+
+        $properties = array(
+            'feed_id'        => (int) $feed_id,
+            'merchant'       => (string) $merchant,
+            'total_errors'   => (int) ( $summary['total_errors'] ?? 0 ),
+            'total_warnings' => (int) ( $summary['total_warnings'] ?? 0 ),
+            'total_info'     => (int) ( $summary['total_info'] ?? 0 ),
+        );
+
+        $telemetry_client->track( 'diagnostics/feed_validation_run', $properties );
+
+        if ( $properties['total_errors'] > 0 ) {
+            $telemetry_client->track( 'diagnostics/feed_validation_failed', $properties );
+        }
+    }
+
+    /**
+     * Track Google Merchant Center connection, once per site.
+     *
+     * Dispatched directly (not via track()'s queue path), mirroring maybe_track_aha() —
+     * gives a real success/failure result so mark_event_sent() only runs on
+     * confirmed delivery, avoiding the same "marked sent but never actually sent"
+     * bug that track_kui()'s void return previously caused for aha_reached.
+     *
+     * @return void
+     */
+    public function track_gmc_connected() {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'has_sent_event' ) ) {
+            return;
+        }
+        $event_key = 'google_merchant_center_connected';
+        if ( $telemetry_client->has_sent_event( $event_key ) ) {
+            return;
+        }
+        if ( 'yes' !== $telemetry_client->get_optin_state() ) {
+            return;
+        }
+
+        $result = $telemetry_client->getDispatcher()->dispatch( 'growth/google_merchant_center_connected', array() );
+
+        if ( $result ) {
+            $telemetry_client->mark_event_sent( $event_key );
+        }
+    }
+
+    /**
+     * Track an upgrade-to-pro prompt impression. Not deduped.
+     *
+     * Dispatched directly (not via track()'s queue path) — a conversion-funnel
+     * signal loses value sitting in the SDK's daily queue-flush cron for up to
+     * ~24h. Consent checked manually since dispatch() bypasses track()'s
+     * internal isOptInEnabled() gate.
+     *
+     * @param string $location Slug identifying which prompt (e.g. 'features_section').
+     *
+     * @return void
+     */
+    public function track_upgrade_prompt_shown( $location ) {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'getDispatcher' ) ) {
+            return;
+        }
+        if ( 'yes' !== $telemetry_client->get_optin_state() ) {
+            return;
+        }
+
+        $telemetry_client->getDispatcher()->dispatch( 'growth/upgrade_prompt_shown', array( 'location' => sanitize_text_field( $location ) ) );
+    }
+
+    /**
+     * Track an upgrade-to-pro prompt click. Not deduped.
+     *
+     * Dispatched directly, same rationale as track_upgrade_prompt_shown().
+     *
+     * @param string $location Slug identifying which prompt (e.g. 'features_section').
+     *
+     * @return void
+     */
+    public function track_upgrade_prompt_clicked( $location ) {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'getDispatcher' ) ) {
+            return;
+        }
+        if ( 'yes' !== $telemetry_client->get_optin_state() ) {
+            return;
+        }
+
+        $telemetry_client->getDispatcher()->dispatch( 'growth/upgrade_prompt_clicked', array( 'location' => sanitize_text_field( $location ) ) );
     }
 
     /**

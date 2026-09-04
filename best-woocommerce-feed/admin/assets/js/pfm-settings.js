@@ -38,7 +38,8 @@
     'notifications-logging': [
       '.enable-log',
       '[data-label*="usage tracking"]',
-      '.feed-error-email-settings'
+      '.feed-error-email-settings',
+      '.already-reviewed'
     ],
     'data-privacy': [
       '.remove-plugin-data'

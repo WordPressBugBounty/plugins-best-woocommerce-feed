@@ -24,6 +24,8 @@ $features = apply_filters( 'rex_feed_pro_features_overview', $features );
 
 $active_plugins = get_option( 'active_plugins' );
 if ( is_array( $active_plugins ) && !in_array( 'best-woocommerce-feed-pro/rex-product-feed-pro.php', $active_plugins ) ) {
+	do_action( 'rex_product_feed_upgrade_prompt_shown', 'features_section' );
+
 	echo '<div id="' . esc_attr( $this->prefix ) . 'features_text">';
 	echo '<h2>' . esc_html__( 'Why Upgrade To The Premium Version?', 'rex-product-feed' ) . '</h2>';
 	echo '<ul class="parent">';
@@ -37,9 +39,22 @@ if ( is_array( $active_plugins ) && !in_array( 'best-woocommerce-feed-pro/rex-pr
 	echo '</ul>';
 
 	echo '<div class="features-btn-area">';
-	echo '<a class="btn" target="_blank" href="' . esc_url( 'https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=go_pro_button&utm_medium=plugin&utm_campaign=pfm_pro&utm_id=pfm_pro' ) . '">' . esc_html__( 'Upgrade to Pro', 'rex-product-feed' ) . '</a>';
+	echo '<a class="btn" target="_blank" data-wpfm-telemetry-location="features_section" href="' . esc_url( 'https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=go_pro_button&utm_medium=plugin&utm_campaign=pfm_pro&utm_id=pfm_pro' ) . '">' . esc_html__( 'Upgrade to Pro', 'rex-product-feed' ) . '</a>';
 	echo '</div>';
 	echo '</div>';
+	?>
+	<script>
+	( function ( $ ) {
+		$( document ).off( 'click.wpfmUpgradeTrack' ).on( 'click.wpfmUpgradeTrack', '[data-wpfm-telemetry-location]', function () {
+			$.post( ajaxurl, {
+				action: 'pfm_track_upgrade_click',
+				security: '<?php echo esc_js( wp_create_nonce( 'rex-product-feed' ) ); ?>',
+				location: $( this ).data( 'wpfm-telemetry-location' )
+			} );
+		} );
+	} )( jQuery );
+	</script>
+	<?php
 }
 else {
 	do_action( 'rex_feed_pro_features_overview' );

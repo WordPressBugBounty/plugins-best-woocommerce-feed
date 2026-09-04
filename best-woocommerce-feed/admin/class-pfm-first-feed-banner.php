@@ -112,15 +112,17 @@ class PFM_First_Feed_Banner {
                 esc_url($create_feed_url)
             );
         } else if ($published_feeds > 0 && !defined('REX_PRODUCT_FEED_PRO_VERSION')) {
+            do_action( 'rex_product_feed_upgrade_prompt_shown', 'first_feed_banner' );
             $message = sprintf(
                 wp_kses(
-                    __('You\'ve published your first feed! <a href="%s" target="_blank" rel="noopener">Upgrade to Pro</a> for unlimited feeds, advanced filters, and premium support!', 'rex-product-feed'),
+                    __('You\'ve published your first feed! <a href="%s" target="_blank" rel="noopener" data-wpfm-telemetry-location="first_feed_banner">Upgrade to Pro</a> for unlimited feeds, advanced filters, and premium support!', 'rex-product-feed'),
                     array(
                         'a' => array(
                             'href' => array(),
                             'target' => array(),
                             'rel' => array(),
-                            'class' => array()
+                            'class' => array(),
+                            'data-wpfm-telemetry-location' => array()
                         )
                     )
                 ),
@@ -146,6 +148,14 @@ class PFM_First_Feed_Banner {
         </div>
         <script>
         jQuery(document).ready(function($) {
+            $(document).off('click.wpfmUpgradeTrack').on('click.wpfmUpgradeTrack', '[data-wpfm-telemetry-location]', function() {
+                $.post(ajaxurl, {
+                    action: 'pfm_track_upgrade_click',
+                    security: '<?php echo esc_js( wp_create_nonce( 'rex-product-feed' ) ); ?>',
+                    location: $(this).data('wpfm-telemetry-location')
+                });
+            });
+
             $(document).on('click', '#<?php echo esc_attr($this->banner_id); ?> .pfm-feed-encourage-banner__close', function() {
                 pfm_dismiss_feed_banner();
             });

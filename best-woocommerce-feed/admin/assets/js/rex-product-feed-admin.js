@@ -807,6 +807,7 @@
 
     $(document).on("change", "#wpfm_enable_log", wpfm_enable_log);
     $(document).on("change", "#wpfm_allow_tracking", wpfm_allow_tracking);
+    $(document).on("change", "#pfm_already_reviewed", pfm_mark_already_reviewed);
 
     $(document).on("change", "#rex-product-allow-private", allow_private);
 
@@ -2699,6 +2700,28 @@
         }
         wpAjaxHelperRequest("wpfm-remove-plugin-data", payload)
             .success(function (response) {
+                console.log("Saved");
+            })
+            .error(function (response) {
+                console.log("Uh, oh!");
+            });
+    }
+
+    /**
+     * Self-report "I've already reviewed PFM" — one-way, only checking has
+     * an effect. Locks the checkbox once saved so it can't be un-toggled
+     * client-side (the server-side status it sets is permanent).
+     * @param event
+     */
+    function pfm_mark_already_reviewed(event) {
+        event.preventDefault();
+        if (!$(this).is(":checked")) {
+            return;
+        }
+        var $el = $(this);
+        wpAjaxHelperRequest("pfm-review-already-reviewed", { checked: "yes" })
+            .success(function (response) {
+                $el.prop("disabled", true);
                 console.log("Saved");
             })
             .error(function (response) {

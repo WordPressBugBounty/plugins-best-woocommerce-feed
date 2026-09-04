@@ -218,21 +218,6 @@ class Rex_Product_Feed_Google_local_products_inventory extends Rex_Product_Feed_
         if( ( $this->rex_feed_skip_product && empty( array_keys($attributes, '') ) ) || !$this->rex_feed_skip_product ) {
             $item = GoogleShopping::createItem();
 
-            // Handle item_group_id for variations and grouped products
-            // Add to attributes array instead of calling method directly to maintain consistent field order
-            if ($product_type === 'variation') {
-                $parent_id = $product->get_parent_id();
-                if ($parent_id) {
-                    $attributes['item_group_id'] = $parent_id;
-                }
-            } elseif ($product->is_type('grouped')) {
-                // For grouped products, get all the grouped product IDs
-                $grouped_products = $product->get_children();
-                if (!empty($grouped_products)) {
-                    $attributes['item_group_id'] = $product->get_id();
-                }
-            }
-
             foreach ($attributes as $key => $value) {
                 if ( $this->rex_feed_skip_row && $this->feed_format === 'xml' ) {
                     if ( $value != '' ) {

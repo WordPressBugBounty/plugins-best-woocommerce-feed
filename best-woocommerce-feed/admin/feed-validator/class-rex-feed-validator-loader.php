@@ -243,6 +243,8 @@ class Rex_Feed_Validator_Loader {
         $results_handler = new Rex_Feed_Validation_Results( $feed_id );
         $results_handler->save_results( $all_errors, $summary );
 
+        $merchant = get_post_meta( $feed_id, '_rex_feed_merchant', true ) ?: get_post_meta( $feed_id, 'rex_feed_merchant', true );
+        do_action( 'rex_product_feed_validation_completed', $feed_id, $merchant, $summary );
 
         return $all_errors;
     }
@@ -349,6 +351,8 @@ class Rex_Feed_Validator_Loader {
         // Save results
         $results_handler = new Rex_Feed_Validation_Results( $feed_id );
         $results_handler->save_results( $all_errors, $summary );
+
+        do_action( 'rex_product_feed_validation_completed', $feed_id, $merchant, $summary );
 
         wp_send_json_success( array(
             'message'       => __( 'Validation complete.', 'rex-product-feed' ),

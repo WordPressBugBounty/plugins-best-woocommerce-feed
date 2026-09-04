@@ -195,6 +195,10 @@ class Rex_Product_Feed_Ajax {
                         ->with_callback( array( 'Rex_Product_Feed_Ajax', 'remove_plugin_data' ) )
                         ->with_validation( $validations );
 
+        wp_ajax_helper()->handle( 'pfm-review-already-reviewed' )
+                        ->with_callback( array( 'Rex_Product_Feed_Ajax', 'pfm_review_already_reviewed' ) )
+                        ->with_validation( $validations );
+
         wp_ajax_helper()->handle( 'rex-feed-handle-custom-filters-content' )
                         ->with_callback( array( 'Rex_Product_Feed_Ajax', 'rex_feed_get_custom_filters_content' ) )
                         ->with_validation( $validations );
@@ -2099,6 +2103,23 @@ class Rex_Product_Feed_Ajax {
     public static function remove_plugin_data( $payload ) {
         if ( isset( $payload[ 'wpfm_remove_plugin_data' ] ) ) {
             update_option( 'wpfm_remove_plugin_data', $payload[ 'wpfm_remove_plugin_data' ] );
+            wp_send_json_success();
+        }
+        wp_send_json_error();
+    }
+
+    /**
+     * Self-report "I've already reviewed PFM" — permanently stops all future
+     * milestone review requests (PFM_Review_Request), same as clicking
+     * "Leave a Review" on the card. One-way: only 'yes' has any effect.
+     *
+     * @param array $payload Payload.
+     *
+     * @return void
+     */
+    public static function pfm_review_already_reviewed( $payload ) {
+        if ( isset( $payload[ 'checked' ] ) && 'yes' === $payload[ 'checked' ] && class_exists( 'PFM_Review_Request' ) ) {
+            update_option( PFM_Review_Request::OPTION_STATUS, 'completed' );
             wp_send_json_success();
         }
         wp_send_json_error();

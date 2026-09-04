@@ -29,6 +29,7 @@ return array(
     'LukeSnowden\\GoogleShoppingFeed\\Node' => $baseDir . '/includes/library/GoogleShoppingFeed/Node.php',
     'PFM_Feed_Nudge' => $baseDir . '/admin/class-pfm-feed-nudge.php',
     'PFM_First_Feed_Banner' => $baseDir . '/admin/class-pfm-first-feed-banner.php',
+    'PFM_Review_Request' => $baseDir . '/admin/class-pfm-review-request.php',
     'PhilipNewcomer\\WP_Ajax_Helper\\Frontend' => $vendorDir . '/philipnewcomer/wp-ajax-helper/src/components/Frontend.php',
     'PhilipNewcomer\\WP_Ajax_Helper\\Handler' => $vendorDir . '/philipnewcomer/wp-ajax-helper/src/components/Handler.php',
     'PhilipNewcomer\\WP_Ajax_Helper\\Responder' => $vendorDir . '/philipnewcomer/wp-ajax-helper/src/components/Responder.php',

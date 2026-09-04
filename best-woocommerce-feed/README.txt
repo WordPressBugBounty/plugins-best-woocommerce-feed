@@ -5,7 +5,7 @@ Tags: woocommerce product feed, google shopping feed, google merchant center, fa
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 7.11.0
+Stable tag: 7.11.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -421,6 +421,9 @@ You can use the WordPress support forum, product documentation, video tutorials,
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.11.1 (2026-09-04) =
+* Fix: Remove redundant item_group_id attribute from Google Local Products Inventory feed
 
 = 7.11.0 (2026-09-01) =
 * New: Add intelligent suggested matches for required and custom feed attributes

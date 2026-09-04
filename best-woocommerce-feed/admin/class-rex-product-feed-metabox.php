@@ -33,9 +33,8 @@ class Rex_Product_Metabox
 	    add_action( 'add_meta_boxes', array( $this, 'rex_feed_feed_file_section' ) );
         add_action( 'add_meta_boxes', array( $this, 'rex_feed_validation_section' ) );
 
-        if ( $post_type === 'product-feed' ) {
-            $this->rex_feed_trigger_based_review_helper();
-        }
+        // Legacy inline review-request notice — retired in favor of PFM_Review_Request's
+        // bottom-right milestone-based card (admin/class-pfm-review-request.php).
 
         add_action( 'add_meta_boxes', array($this, 'rex_feed_upgrade_notice_section'));
         add_action( 'admin_notices', array( $this, 'rex_feed_feed_filter_settings_warning_popup' ) );

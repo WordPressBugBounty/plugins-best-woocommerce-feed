@@ -685,6 +685,25 @@ if ( $is_premium_activated ) {
                             </div>
                         </div>
 
+                        <div class="single-merchant already-reviewed" data-label="<?php echo esc_attr__( 'Already reviewed', 'rex-product-feed' ); ?>">
+                            <div>
+                                <span class="title"><?php echo esc_html__( "I've already reviewed RexFeed", 'rex-product-feed' ); ?></span>
+                                <p><?php echo esc_html__( "We won't ask you to review RexFeed again.", 'rex-product-feed' ); ?></p>
+                            </div>
+                            <div class="switch">
+                                <?php
+                                $pfm_already_reviewed = 'completed' === get_option( PFM_Review_Request::OPTION_STATUS ) ? 'yes' : 'no';
+                                $checked              = 'yes' === $pfm_already_reviewed ? 'checked' : '';
+                                $disabled             = 'yes' === $pfm_already_reviewed ? 'disabled' : '';
+                                ?>
+                                <div class="wpfm-switcher">
+                                    <input class="switch-input" type="checkbox"
+                                           id="pfm_already_reviewed" <?php echo esc_attr( $checked ); ?> <?php echo esc_attr( $disabled ); ?>>
+                                    <label class="lever" for="pfm_already_reviewed"></label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="single-merchant" data-label="<?php echo esc_attr__( 'Allow usage tracking', 'rex-product-feed' ); ?>">
                             <div>
                                 <span class="title"><?php echo esc_html__( 'Allow anonymous usage tracking', 'rex-product-feed' ); ?></span>

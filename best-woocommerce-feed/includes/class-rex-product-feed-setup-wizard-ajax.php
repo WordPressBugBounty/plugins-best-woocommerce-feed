@@ -19,6 +19,8 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         add_action('wp_ajax_pfm_track_setup_start', array($this, 'track_setup_start'));
         add_action('wp_ajax_pfm_track_setup_completed', array($this, 'track_setup_completed'));
         add_action('wp_ajax_pfm_track_first_strike', array($this, 'track_first_strike'));
+        add_action('wp_ajax_pfm_track_setup_step', array($this, 'track_setup_step'));
+        add_action('wp_ajax_pfm_track_upgrade_click', array($this, 'track_upgrade_click'));
         add_action('wp_ajax_pfm_get_all_merchants', array($this, 'get_all_merchants'));
         add_action('wp_ajax_pfm_get_template_mappings', array($this, 'get_template_mappings'));
         add_action('wp_ajax_pfm_create_feed', array($this, 'create_feed'));
@@ -125,6 +127,55 @@ add_action('wp_ajax_pfm_dashboard_banner_track',          array($this, 'dashboar
         }
 
         wp_send_json_success( array( 'message' => 'First strike tracked' ), 200 );
+    }
+
+    /**
+     * Track a setup wizard step completion, for funnel drop-off telemetry.
+     *
+     * @since 7.11.1
+     */
+    public function track_setup_step() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized user' ), 403 );
+            return;
+        }
+
+        $nonce = isset($_POST['security']) ? sanitize_text_field($_POST['security']) : '';
+        if ( !wp_verify_nonce( $nonce, 'rex-product-feed' ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid nonce' ), 400 );
+            return;
+        }
+
+        $step_index = isset( $_POST['step_index'] ) ? absint( $_POST['step_index'] ) : 0;
+        $step_id    = isset( $_POST['step_id'] ) ? sanitize_text_field( $_POST['step_id'] ) : '';
+
+        do_action( 'rex_product_feed_setup_step_completed', $step_index, $step_id );
+
+        wp_send_json_success( array( 'message' => 'Setup step tracked' ), 200 );
+    }
+
+    /**
+     * Track an upgrade-to-pro prompt click, for conversion funnel telemetry.
+     *
+     * @since 7.11.1
+     */
+    public function track_upgrade_click() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized user' ), 403 );
+            return;
+        }
+
+        $nonce = isset($_POST['security']) ? sanitize_text_field($_POST['security']) : '';
+        if ( !wp_verify_nonce( $nonce, 'rex-product-feed' ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid nonce' ), 400 );
+            return;
+        }
+
+        $location = isset( $_POST['location'] ) ? sanitize_text_field( $_POST['location'] ) : '';
+
+        do_action( 'rex_product_feed_upgrade_prompt_clicked', $location );
+
+        wp_send_json_success( array( 'message' => 'Upgrade click tracked' ), 200 );
     }
 
     /**

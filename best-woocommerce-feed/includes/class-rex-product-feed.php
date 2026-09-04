@@ -227,8 +227,9 @@ class Rex_Product_Feed {
         // remove bulk edit and quick edit for our feed cpt.
         $this->loader->add_filter( 'bulk_actions-edit-product-feed', $feed_actions, 'remove_bulk_edit' );
         $this->loader->add_filter( 'post_row_actions', $feed_actions, 'remove_quick_edit' );
-        // Trigger review request on new feed publish.
-        $this->loader->add_action( 'publish_product-feed', $feed_actions, 'show_review_request_markups', 99999 );
+        // Legacy generic review request notice — retired in favor of PFM_Review_Request's
+        // milestone-based triggers (admin/class-pfm-review-request.php). Left unhooked
+        // rather than deleted: rex_feed_review_request is still read once for migration.
         $this->loader->add_action( 'draft_product-feed', $feed_actions, 'save_draft_feed_meta', 99999, 2 );
         $this->loader->add_action( 'after_delete_post', $feed_actions, 'delete_feed_files' );
         $this->loader->add_action( 'before_delete_post', $feed_actions, 'handle_feed_delete' );

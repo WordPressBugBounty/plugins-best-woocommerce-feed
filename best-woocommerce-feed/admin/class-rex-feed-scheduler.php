@@ -410,11 +410,13 @@ class Rex_Feed_Scheduler {
                     );
                 }
 
-                update_post_meta( $feed_id, '_rex_feed_last_error', array(
+                $error_data = array(
                     'type'      => 'watchdog_timeout',
                     'message'   => $error_msg,
                     'timestamp' => time(),
-                ) );
+                );
+                update_post_meta( $feed_id, '_rex_feed_last_error', $error_data );
+                do_action( 'rex_product_feed_generation_failed', $feed_id, $error_data );
 
                 Rex_Feed_Product_Count_Guard::fail_run( $feed_id, 'watchdog_timeout', $error_msg );
 
@@ -488,14 +490,16 @@ class Rex_Feed_Scheduler {
                     delete_post_meta( $feed_id, '_rex_feed_last_active_time' );
                     delete_post_meta( $feed_id, '_rex_feed_product_count_run' );
 
-                    update_post_meta( $feed_id, '_rex_feed_last_error', array(
+                    $error_data = array(
                         'type'      => 'fatal_error',
                         'message'   => $error['message'],
                         'file'      => $error['file'],
                         'line'      => $error['line'],
                         'batch'     => $current_batch,
                         'timestamp' => time(),
-                    ) );
+                    );
+                    update_post_meta( $feed_id, '_rex_feed_last_error', $error_data );
+                    do_action( 'rex_product_feed_generation_failed', $feed_id, $error_data );
 
                     if ( function_exists( 'as_unschedule_all_actions' ) ) {
                         as_unschedule_all_actions( '', array(), "wpfm-feed-{$feed_id}" );
@@ -543,14 +547,16 @@ class Rex_Feed_Scheduler {
                 delete_post_meta( $feed_id, '_rex_feed_last_active_time' );
                 delete_post_meta( $feed_id, '_rex_feed_product_count_run' );
 
-                update_post_meta( $feed_id, '_rex_feed_last_error', array(
+                $error_data = array(
                     'type'      => 'exception',
                     'message'   => $e->getMessage(),
                     'file'      => $e->getFile(),
                     'line'      => $e->getLine(),
                     'batch'     => $current_batch,
                     'timestamp' => time(),
-                ) );
+                );
+                update_post_meta( $feed_id, '_rex_feed_last_error', $error_data );
+                do_action( 'rex_product_feed_generation_failed', $feed_id, $error_data );
 
                 if ( function_exists( 'as_unschedule_all_actions' ) ) {
                     as_unschedule_all_actions( '', array(), "wpfm-feed-{$feed_id}" );

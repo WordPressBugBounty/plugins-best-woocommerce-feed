@@ -191,6 +191,7 @@ class Rex_Feed_Google_Shopping_Api {
 				}
 			}
 			update_option( 'rex_google_access_token', wp_json_encode( $access_token ) );
+			do_action( 'rex_product_feed_google_merchant_connected' );
 		}
 	}
 
