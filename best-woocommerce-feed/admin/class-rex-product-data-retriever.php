@@ -203,8 +203,9 @@ class Rex_Product_Data_Retriever {
         $this->feed               = $feed;
         $this->product            = $product;
         $this->product_meta_keys  = $product_meta_keys;
-        $this->analytics_switcher = $feed->analytics ?? false;
+        // UTM parameters are only present when the merchant has enabled campaign tracking.
         $this->analytics_params   = $feed->analytics_params ?? [];
+        $this->analytics_switcher = ! empty( $this->analytics_params );
         $this->feed_config        = $feed->feed_config ?? [];
         $this->feed_rules         = $feed->feed_rules ?? [];
         $this->feed_rules_option  = $feed->feed_rules_option ?? false;
@@ -3466,6 +3467,8 @@ class Rex_Product_Data_Retriever {
 	 */
 	protected function maybe_processing_needed( $value, $rule ) {
 		if ( !is_array( $value ) ) {
+			$value = $this->maybe_normalize_google_feed_attribute( $value, $rule );
+
 			// maybe escape.
 			$escape = !empty( $rule[ 'escape' ] ) ? $rule[ 'escape' ] : '';
 
@@ -3486,6 +3489,164 @@ class Rex_Product_Data_Retriever {
 
 		}
 		return $value;
+	}
+
+	/**
+	 * Normalize Google-mandated fixed-value attributes to required English values.
+	 *
+	 * Google Merchant Center strictly requires specific attributes to always be in standardized
+	 * English/numeric format regardless of store or feed language.
+	 *
+	 * @param mixed $value Attribute value.
+	 * @param array $rule Attribute rule.
+	 * @return mixed Normalized value.
+	 * @since 7.4.35
+	 */
+	protected function maybe_normalize_google_feed_attribute( $value, $rule ) {
+		$merchant = isset( $this->feed->merchant ) ? $this->feed->merchant : '';
+		$is_google = function_exists( 'wpfm_is_google_feed_merchant' )
+			? wpfm_is_google_feed_merchant( $merchant )
+			: ( 'google' === $merchant || ( is_string( $merchant ) && strpos( $merchant, 'google' ) === 0 ) );
+
+		if ( ! $is_google || ! is_string( $value ) ) {
+			return $value;
+		}
+
+		$attr_key = isset( $rule['attr'] ) ? $rule['attr'] : '';
+		$meta_key = isset( $rule['meta_key'] ) ? $rule['meta_key'] : '';
+
+		// 1. Availability normalization
+		if ( 'availability' === $attr_key || 'availability' === $meta_key ) {
+			$clean = $this->sanitize_feed_attribute_string( $value );
+			$valid_availabilities = array( 'in_stock', 'out_of_stock', 'preorder', 'backorder' );
+			if ( in_array( $clean, $valid_availabilities, true ) ) {
+				return $clean;
+			}
+
+			// Map known multilingual/localized equivalents (German, French, Spanish, Italian, Dutch, etc.)
+			$in_stock_variants = array( 'auf lager', 'in stock', 'instock', 'en stock', 'en existencia', 'disponibile', 'op voorraad', '1' );
+			$out_of_stock_variants = array( 'nicht vorrätig', 'out of stock', 'outofstock', 'hors stock', 'agotado', 'non disponibile', 'niet op voorraad', '0' );
+			$backorder_variants = array( 'rückstand', 'on_backorder', 'on backorder', 'en commande', 'pendiente', 'in arrivo' );
+			$preorder_variants = array( 'vorbestellung', 'pre order', 'pre-order', 'précommande', 'preorden', 'preordine' );
+
+			if ( in_array( $clean, $in_stock_variants, true ) ) {
+				return 'in_stock';
+			} elseif ( in_array( $clean, $out_of_stock_variants, true ) ) {
+				return 'out_of_stock';
+			} elseif ( in_array( $clean, $backorder_variants, true ) ) {
+				return 'backorder';
+			} elseif ( in_array( $clean, $preorder_variants, true ) ) {
+				return 'preorder';
+			}
+
+			if ( $this->product ) {
+				if ( $this->product->is_on_backorder() ) {
+					return 'backorder';
+				}
+				return $this->product->is_in_stock() ? 'in_stock' : 'out_of_stock';
+			}
+
+			return 'out_of_stock';
+		}
+
+		// 2. Condition normalization
+		if ( 'condition' === $attr_key || 'condition' === $meta_key ) {
+			$clean = $this->sanitize_feed_attribute_string( $value );
+			$valid_conditions = array( 'new', 'refurbished', 'used' );
+			if ( in_array( $clean, $valid_conditions, true ) ) {
+				return $clean;
+			}
+
+			// Map known multilingual equivalents
+			$new_variants = array( 'neu', 'nouveau', 'nuevo', 'nuovo', 'nieuw' );
+			$refurbished_variants = array( 'generalüberholt', 'reconditionné', 'reacondicionado', 'ricondizionato', 'gereviseerd' );
+			$used_variants = array( 'gebraucht', 'd\'occasion', 'occasion', 'usado', 'usato', 'gebruikt' );
+
+			if ( in_array( $clean, $new_variants, true ) ) {
+				return 'new';
+			} elseif ( in_array( $clean, $refurbished_variants, true ) ) {
+				return 'refurbished';
+			} elseif ( in_array( $clean, $used_variants, true ) ) {
+				return 'used';
+			}
+
+			return 'new';
+		}
+
+		// 3. Identifier exists normalization
+		if ( 'identifier_exists' === $attr_key || 'identifier_exists' === $meta_key ) {
+			$clean = $this->sanitize_feed_attribute_string( $value );
+			$valid_identifiers = array( 'yes', 'no', 'true', 'false' );
+			if ( in_array( $clean, $valid_identifiers, true ) ) {
+				return $clean;
+			}
+
+			$yes_variants = array( 'ja', 'oui', 'si', 'sí', '1' );
+			$no_variants  = array( 'nein', 'non', '0' );
+
+			if ( in_array( $clean, $yes_variants, true ) ) {
+				return 'yes';
+			} elseif ( in_array( $clean, $no_variants, true ) ) {
+				return 'no';
+			}
+
+			return 'no';
+		}
+
+		// 4. Price attributes: Strip any spurious HTML tags (<p>, </p>, etc.)
+		$price_attrs = array(
+			'price',
+			'sale_price',
+			'current_price',
+			'regular_price',
+			'price_with_tax',
+			'current_price_with_tax',
+			'sale_price_with_tax',
+			'price_excl_tax',
+			'current_price_excl_tax',
+			'sale_price_excl_tax',
+			'price_db',
+		);
+		if ( in_array( $attr_key, $price_attrs, true ) || in_array( $meta_key, $price_attrs, true ) ) {
+			return trim( strip_tags( $value ) );
+		}
+
+		// 5. Image links: Strip tags and unescape URL entities
+		$is_image_attr = 'image_link' === $attr_key
+			|| 'image_link' === $meta_key
+			|| ( is_string( $attr_key ) && strpos( $attr_key, 'additional_image_link' ) === 0 )
+			|| ( is_string( $meta_key ) && strpos( $meta_key, 'additional_image_link' ) === 0 )
+			|| 'featured_image' === $meta_key
+			|| 'main_image' === $meta_key
+			|| $this->is_image_attr( $meta_key );
+
+		if ( $is_image_attr ) {
+			$clean = trim( strip_tags( $value ) );
+			return str_replace( array( '%3cp%3e', '%3c/p%3e', '%3CP%3E', '%3C/P%3E' ), '', $clean );
+		}
+
+		// 6. Availability date: Strip tags
+		if ( 'availability_date' === $attr_key || 'availability_date' === $meta_key ) {
+			return trim( strip_tags( $value ) );
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Sanitize and normalize a feed attribute string for robust comparison.
+	 *
+	 * Strips tags, decodes HTML entities, standardizes typographic/curly quotes, and applies multibyte lowercase.
+	 *
+	 * @param string $value Raw string value.
+	 * @return string Sanitized lowercase string.
+	 * @since 7.4.35
+	 */
+	protected function sanitize_feed_attribute_string( $value ) {
+		$clean = strip_tags( (string) $value );
+		$clean = html_entity_decode( $clean, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		$clean = str_replace( array( '’', '‘', '`', '´', '′' ), "'", $clean );
+		return function_exists( 'mb_strtolower' ) ? trim( mb_strtolower( $clean, 'UTF-8' ) ) : trim( strtolower( $clean ) );
 	}
 
     /**

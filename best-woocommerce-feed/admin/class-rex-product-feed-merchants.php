@@ -1127,6 +1127,23 @@ class Rex_Feed_Merchants {
 	}
 
 	/**
+	 * Retrieves the display name for a specific merchant slug.
+	 *
+	 * @param string $merchant Merchant slug.
+	 * @return string Display name.
+	 * @since 7.11.1
+	 */
+	public static function get_merchant_name( $merchant ) {
+		$merchants = self::get_merchants();
+		foreach ( array( 'popular', 'pro_merchants', 'free_merchants' ) as $group ) {
+			if ( isset( $merchants[ $group ][ $merchant ]['name'] ) ) {
+				return $merchants[ $group ][ $merchant ]['name'];
+			}
+		}
+		return ucfirst( str_replace( array( '-', '_' ), ' ', (string) $merchant ) );
+	}
+
+	/**
 	 * Retrieves Supported Feed Formats
 	 * for a Specific Merchant
 	 *
@@ -1147,6 +1164,47 @@ class Rex_Feed_Merchants {
 			return $merchants[ 'free_merchants' ][ $merchant ][ 'formats' ];
 		}
 		return array( 'xml', 'csv', 'text', 'tsv' );
+	}
+
+	/**
+	 * Per-merchant attribution-capability flag, for Analytics' Feed/Channel
+	 * Performance section. Sourced from `PFM MARKETPLACES - Listers.csv`:
+	 * distinguishes platforms that redirect to the merchant's own checkout
+	 * (attribution feasible) from portal-checkout platforms (uncertain) and
+	 * non-shopping entries (not_applicable, excluded from Analytics entirely).
+	 *
+	 * `Drinks&Co` is listed in the CSV as `uncertain` but has no corresponding
+	 * registered merchant slug in this file, so it is omitted here.
+	 *
+	 * @param string $merchant Merchant slug (as used in {@see get_merchants()}).
+	 * @return string One of 'supported', 'uncertain', 'not_applicable'.
+	 * @since 7.5.0
+	 */
+	public static function get_attribution_capability( $merchant ) {
+		$not_applicable = array(
+			'google_review',      // Google Product Review Feeds — not a shopping marketplace.
+			'google_css_center',  // Google CSS Center — not a marketplace.
+		);
+
+		$uncertain = array(
+			'skroutz',
+			'spartoo',
+			'spartooFr',
+			'vivino',
+			'check24',
+			'restposten',
+			'bikeexchange',
+		);
+
+		if ( in_array( $merchant, $not_applicable, true ) ) {
+			return 'not_applicable';
+		}
+
+		if ( in_array( $merchant, $uncertain, true ) ) {
+			return 'uncertain';
+		}
+
+		return apply_filters( 'wpfm_merchant_attribution_capability', 'supported', $merchant );
 	}
 
 	/**

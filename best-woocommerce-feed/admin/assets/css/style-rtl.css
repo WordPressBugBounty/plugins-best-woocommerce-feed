@@ -4478,6 +4478,7 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
 #rex_feed_google_merchant .postbox-header,
 #rex_feed_progress_bar .postbox-header,
 #rex_feed_conf .postbox-header,
+#rex_feed_validation_link .postbox-header,
 #rex_feed_config_heading .postbox-header,
 #rex_feed_head_btn .postbox-header,
 #rex_feed_products_div .postbox-header,
@@ -4487,7 +4488,6 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
 
 #rex_feed_conf {
   border: 0;
-  margin-bottom: 70px;
   background-color: #F6F8FA;
   box-shadow: 0px 1px 2px rgba(19, 44, 88, 0.1);
   border-radius: 10px;
@@ -4552,6 +4552,40 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
   box-shadow: 0px 1px 1px rgba(19, 44, 88, 0.12);
 }
 
+#rex_feed_validation_link {
+  border: 0;
+  margin: 0 0 10px;
+  background: transparent;
+  box-shadow: none;
+}
+
+#rex_feed_validation_link .inside {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0;
+  padding: 10px 0;
+}
+
+#rex_feed_validation_link .rex-feed-validation-link-button {
+  width: 185px;
+  height: 43px;
+  box-sizing: border-box;
+  border: 1px solid #216df0;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #333333;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+}
+
+#rex_feed_validation_link .rex-feed-validation-link-button:focus-visible {
+  outline: 2px solid #216df0;
+  outline-offset: 2px;
+}
+
 /*----04.Feed Configuration table style --------*/
 #rex_feed_config_heading {
   display: none;
@@ -4602,14 +4636,6 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
   padding-right: 25px;
 }
 
-#rex_feed_config_heading #config-table thead tr th .table-action {
-  display: flex;
-  gap: 10px;
-  position: absolute;
-  top: -47px;
-  left: 90px;
-  color: #ff7d04;
-}
 
 #rex_feed_config_heading #config-table thead tr th:last-child {
   padding-left: 25px;
@@ -5438,15 +5464,6 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
     max-width: 1638px;
   }
 
-  #rex_feed_config_heading #config-table thead tr th .table-action {
-    left: 160px;
-  }
-}
-
-@media (max-width: 1920px) {
-  #rex_feed_config_heading #config-table thead tr th .table-action {
-    left: 120px;
-  }
 }
 
 @media (min-width: 1960px) {
@@ -5456,12 +5473,6 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
 
   #rex_feed_config_heading #config-table thead tr th:last-child {
     padding-left: 25px;
-  }
-}
-
-@media (max-width: 1680px) {
-  #rex_feed_config_heading #config-table thead tr th .table-action {
-    left: 90px;
   }
 }
 
@@ -5613,10 +5624,6 @@ body.post-type-product-feed.shepherd-active .shepherd-has-title .shepherd-conten
   #rex_feed_config_heading #config-table tbody tr td select.attr-dropdown.disable-custom-id-dropdown {
     padding: 8px 10px;
     max-width: 100px;
-  }
-
-  #rex_feed_config_heading #config-table thead tr th .table-action {
-    left: 60px;
   }
 
   #rex_feed_config_heading #config-table tbody tr td:nth-child(5) .rex-product-picker-count {

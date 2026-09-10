@@ -242,7 +242,7 @@ class Rex_Product_Feed_Admin {
                     } else {
                         $current_screen = '';
                     }
-                } elseif ( 'product-feed_page_wpfm_dashboard' === $current_screen->base ) {
+                } elseif ( 'product-feed_page_wpfm-settings' === $current_screen->base ) {
                     $current_screen = $current_screen->base;
                 }
             } else {
@@ -496,11 +496,15 @@ class Rex_Product_Feed_Admin {
             __( 'Settings', 'rex-product-feed' ),
             __( 'Settings', 'rex-product-feed' ),
             'manage_woocommerce',
-            'wpfm_dashboard',
+            'wpfm-settings',
             function() {
                 require_once plugin_dir_path( __FILE__ ) . '/partials/on_boarding.php';
             }
         );
+
+        // Analytics submenu: registered here (not via its own admin_menu hook) so
+        // it lands in the submenu array directly after Settings, in call order.
+        ( new \RexTheme\Analytics\AnalyticsPage() )->register_page();
         $is_premium                                = apply_filters( 'wpfm_is_premium_activate', false );
         add_submenu_page( 'edit.php?post_type=product-feed', __( 'Support', 'rex-product-feed' ), '<span id="rex-feed-support-submenu">' . __( 'Support', 'rex-product-feed' ) . '</span>', 'manage_woocommerce', esc_url( 'https://wordpress.org/support/plugin/best-woocommerce-feed/#new-topic-0' ) );
         add_submenu_page( 'edit.php?post_type=product-feed', __( 'Documentation', 'rex-product-feed' ), '<span id="rex-feed-documentation-submenu">' . __( 'Documentation', 'rex-product-feed' ) . '</span>', 'manage_woocommerce', esc_url( 'https://rextheme.com/docs-category/product-feed-manager/' ) );

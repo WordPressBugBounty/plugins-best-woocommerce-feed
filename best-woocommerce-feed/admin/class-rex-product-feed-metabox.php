@@ -103,6 +103,23 @@ class Rex_Product_Metabox
             'normal',
             'core'
         );
+
+        $feed_id        = get_the_ID();
+        $merchant       = get_post_meta( $feed_id, '_rex_feed_merchant', true ) ?: get_post_meta( $feed_id, 'rex_feed_merchant', true );
+        $last_validated = get_post_meta( $feed_id, '_rex_feed_last_validated', true );
+        $has_validator  = class_exists( 'Rex_Feed_Validator_Factory' ) && Rex_Feed_Validator_Factory::is_supported( $merchant );
+
+        if ( $last_validated && $has_validator ) {
+            add_meta_box(
+                $this->prefix . 'validation_link',
+                __( 'Feed Validation', 'rex-product-feed' ),
+                array( $this, 'rex_feed_generate_validation_link' ),
+                'product-feed',
+                'normal',
+                'core'
+            );
+        }
+
         add_meta_box(
             $this->prefix . 'config_heading',
             'Configure Feed Attributes and their values',
@@ -159,6 +176,25 @@ class Rex_Product_Metabox
     public function rex_feed_generate_config_table()
     {
         require_once plugin_dir_path( __FILE__ ) . 'partials/rex-feed-config-table.php';
+    }
+
+
+    /**
+     * Generates the link to the completed feed validation summary.
+     *
+     * @since 7.4.58
+     */
+    public function rex_feed_generate_validation_link()
+    {
+        ?>
+        <button
+            type="button"
+            class="rex-feed-validation-link-button"
+            aria-controls="rex_feed_validation"
+        >
+            <?php esc_html_e( 'Check Feed Validation', 'rex-product-feed' ); ?>
+        </button>
+        <?php
     }
 
 

@@ -130,6 +130,10 @@ class Rex_Product_Feed_Data_Handle {
         }
         if( isset( $data[ 'rex_feed_feed_rules_button' ] ) ) {
             update_post_meta( $feed_id, '_rex_feed_feed_rules_button', $data[ 'rex_feed_feed_rules_button' ] );
+
+            if ( 'removed' === $data[ 'rex_feed_feed_rules_button' ] ) {
+                update_post_meta( $feed_id, '_rex_feed_feed_config_rules', array() );
+            }
         }
         if( isset( $data[ 'rex_feed_custom_filter_option_btn' ] ) ) {
             update_post_meta( $feed_id, '_rex_feed_custom_filter_option', $data[ 'rex_feed_custom_filter_option_btn' ] );
@@ -145,7 +149,25 @@ class Rex_Product_Feed_Data_Handle {
             reset( $data[ 'fr' ] );
             $key = key( $data[ 'fr' ] );
             unset( $data[ 'fr' ][ $key ] );
-            update_post_meta( $feed_id, '_rex_feed_feed_config_rules', array_values( $data[ 'fr' ] ) );
+
+            $feed_rules = array_filter( $data['fr'], function( $rule ) {
+                if ( ! is_array( $rule ) ) {
+                    return false;
+                }
+
+                $rule_if = ! empty( $rule['rules_if'] ) ? $rule['rules_if'] : ( $rule['cust_rules_if'] ?? '' );
+
+                return '' !== $rule_if
+                    && ! empty( $rule['rules_condition'] )
+                    && ! empty( $rule['rules_then'] );
+            } );
+
+            update_post_meta( $feed_id, '_rex_feed_feed_config_rules', array_values( $feed_rules ) );
+
+            if ( empty( $feed_rules ) ) {
+                update_post_meta( $feed_id, '_rex_feed_feed_rules_button', 'removed' );
+            }
+
             do_action( 'rex_product_feed_advanced_feature_used', $feed_id, [
                 'feature' => 'Feed rules',
             ] );

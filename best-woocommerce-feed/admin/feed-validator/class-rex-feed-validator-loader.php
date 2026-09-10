@@ -47,6 +47,34 @@ class Rex_Feed_Validator_Loader {
     protected $validation_enabled = true;
 
     /**
+     * In-memory buffered health states during feed generation.
+     *
+     * @var array
+     */
+    protected static $buffered_health = array();
+
+    /**
+     * In-memory buffered validation errors during feed generation.
+     *
+     * @var array
+     */
+    protected static $buffered_errors = array();
+
+    /**
+     * Counter of products processed since last flush per feed.
+     *
+     * @var array
+     */
+    protected static $unflushed_counts = array();
+
+    /**
+     * Flag indicating whether shutdown flush hook is registered.
+     *
+     * @var bool
+     */
+    protected static $shutdown_registered = false;
+
+    /**
      * Main instance.
      *
      * @since 7.4.58
@@ -86,6 +114,9 @@ class Rex_Feed_Validator_Loader {
         // Load results handler
         require_once $validator_path . 'class-rex-feed-validation-results.php';
 
+        // Load validation Quick Fix matcher.
+        require_once $validator_path . 'class-rex-feed-quick-fix.php';
+
         // Load factory
         require_once $validator_path . 'class-rex-feed-validator-factory.php';
 
@@ -101,6 +132,8 @@ class Rex_Feed_Validator_Loader {
         // Load OpenAI validator
         require_once $validator_path . 'class-rex-feed-validator-openai.php';
 
+        // Load generic fallback validator
+        require_once $validator_path . 'class-rex-feed-validator-generic.php';
         // Load ChatGPT Ads validator
         require_once $validator_path . 'class-rex-feed-validator-chatgpt-ads.php';
     }
@@ -116,8 +149,15 @@ class Rex_Feed_Validator_Loader {
         // AJAX handlers
         add_action( 'wp_ajax_rex_feed_validate_feed', array( $this, 'ajax_validate_feed' ) );
         add_action( 'wp_ajax_rex_feed_get_validation_results', array( $this, 'ajax_get_validation_results' ) );
+        add_action( 'wp_ajax_rex_feed_get_validation_issue_products', array( $this, 'ajax_get_validation_issue_products' ) );
         add_action( 'wp_ajax_rex_feed_clear_validation_results', array( $this, 'ajax_clear_validation_results' ) );
         add_action( 'wp_ajax_rex_feed_export_validation_results', array( $this, 'ajax_export_validation_results' ) );
+        add_action( 'wp_ajax_rex_feed_save_validation_settings', array( $this, 'ajax_save_validation_settings' ) );
+        add_action( 'wp_ajax_rex_feed_get_quick_fix', array( $this, 'ajax_get_quick_fix' ) );
+        add_action( 'wp_ajax_rex_feed_delete_validation_fix_rule', array( $this, 'ajax_delete_validation_fix_rule' ) );
+        add_action( 'wp_ajax_rex_feed_apply_validation_fix_rule', array( $this, 'ajax_apply_validation_fix_rule' ) );
+        add_action( 'wp_ajax_rex_feed_apply_validation_mapping_fix', array( $this, 'ajax_apply_validation_mapping_fix' ) );
+        add_action( 'wp_ajax_rex_feed_revert_validation_mapping_fix', array( $this, 'ajax_revert_validation_mapping_fix' ) );
 
         // Integration with feed generation
         add_action( 'rex_feed_after_product_processed', array( $this, 'validate_product_during_generation' ), 10, 4 );
@@ -143,16 +183,19 @@ class Rex_Feed_Validator_Loader {
      * @return void
      */
     public function auto_validate_on_schedule( $feed_id ) {
-        if ( ! $feed_id ) {
+        if ( ! $feed_id || $this->is_feed_validation_disabled( $feed_id ) ) {
             return;
         }
 
-        // Check if this is a Google feed (only Google validation supported currently)
         $merchant = get_post_meta( $feed_id, '_rex_feed_merchant', true );
         if ( empty( $merchant ) ) {
             $merchant = get_post_meta( $feed_id, 'rex_feed_merchant', true );
         }
 
+        if ( empty( $merchant ) ) {
+            return;
+        }
+      
         // Only auto-validate for supported merchants
         $supported_merchants = array( 'google', 'google_shopping', 'google_local', 'google_local_inventory', 'facebook', 'facebook_marketplace', 'instagram', 'instagram_shopping', 'openai', 'openai_commerce', 'chatgpt_ads' );
         $merchant_normalized = strtolower( str_replace( ' ', '_', $merchant ) );
@@ -170,6 +213,82 @@ class Rex_Feed_Validator_Loader {
     }
 
     /**
+     * Merge validation summary counts without losing issues omitted from storage.
+     *
+     * @since 7.4.58
+     * @access protected
+     * @param  array $summary    Accumulated summary.
+     * @param  array $additional Summary for the current product.
+     * @return array
+     */
+    protected function merge_validation_summaries( $summary, $additional ) {
+        foreach ( array( 'total_errors', 'total_warnings', 'total_info' ) as $count_key ) {
+            $summary[ $count_key ] = absint( $summary[ $count_key ] ?? 0 ) + absint( $additional[ $count_key ] ?? 0 );
+        }
+
+        foreach ( array( 'by_attribute', 'by_rule' ) as $group_key ) {
+            if ( ! isset( $summary[ $group_key ] ) || ! is_array( $summary[ $group_key ] ) ) {
+                $summary[ $group_key ] = array();
+            }
+
+            foreach ( (array) ( $additional[ $group_key ] ?? array() ) as $key => $count ) {
+                $summary[ $group_key ][ $key ] = absint( $summary[ $group_key ][ $key ] ?? 0 ) + absint( $count );
+            }
+        }
+
+        return $summary;
+    }
+
+    /**
+     * Finalize and calculate health score for the validation summary.
+     *
+     * Applies error penalty:
+     * Error Penalty (%) = (Number of Unique Products with >= 1 Error / Total Number of Products) * 100
+     * Final Feed Health = MAX(0, Current Feed Health - Error Penalty)
+     *
+     * @since 7.4.58
+     * @access protected
+     * @param  array     $summary              Validation summary.
+     * @param  int|float $total_product_health Sum of all product health scores.
+     * @param  int       $total_products       Total products analyzed.
+     * @param  int       $stored_issue_count   Number of issue rows retained for display.
+     * @param  array|int $error_product_ids    Unique error product IDs or count.
+     * @return array
+     */
+    protected function finalize_validation_summary( $summary, $total_product_health, $total_products, $stored_issue_count, $error_product_ids = array() ) {
+        $total_products = absint( $total_products );
+        $total_issues   = absint( $summary['total_errors'] ?? 0 )
+            + absint( $summary['total_warnings'] ?? 0 )
+            + absint( $summary['total_info'] ?? 0 );
+
+        $summary['total_products'] = $total_products;
+        $summary['total_issues']   = $total_issues;
+
+        if ( $total_products > 0 ) {
+            $current_health = (float) $total_product_health / $total_products;
+
+            if ( is_array( $error_product_ids ) ) {
+                $unique_error_count = count( array_unique( array_filter( array_map( 'absint', $error_product_ids ) ) ) );
+            } elseif ( is_numeric( $error_product_ids ) ) {
+                $unique_error_count = absint( $error_product_ids );
+            } else {
+                $unique_error_count = 0;
+            }
+
+            $error_penalty = ( $unique_error_count / $total_products ) * 100;
+            $final_health  = max( 0, $current_health - $error_penalty );
+
+            $summary['health_score']     = max( 0, min( 100, (int) round( $final_health ) ) );
+            $summary['raw_health_score'] = $current_health;
+            $summary['error_penalty']    = $error_penalty;
+        } else {
+            $summary['health_score'] = 100;
+        }
+
+        return $summary;
+    }
+
+    /**
      * Run validation for a feed.
      *
      * @since 7.4.58
@@ -178,6 +297,10 @@ class Rex_Feed_Validator_Loader {
      * @return array|false Validation results or false on failure.
      */
     public function run_validation( $feed_id ) {
+        if ( $this->is_feed_validation_disabled( $feed_id ) ) {
+            return false;
+        }
+
         $validator = Rex_Feed_Validator_Factory::create_from_feed( $feed_id );
         
         if ( ! $validator ) {
@@ -193,7 +316,22 @@ class Rex_Feed_Validator_Loader {
 
         // Validate each product
         $all_errors = array();
-        $max_errors_to_keep = 500; // Limit memory usage
+        $summary = $validator->get_validation_summary( array() );
+        $total_product_health = 0;
+        $processed_count = 0;
+        $error_product_ids = array();
+
+        // Validate mapping-level configuration and anomalies
+        $mapping_errors = $validator->validate_mapping();
+        if ( ! empty( $mapping_errors ) ) {
+            foreach ( $mapping_errors as $mapping_error ) {
+                $all_errors[] = $mapping_error;
+            }
+            $summary = $this->merge_validation_summaries(
+                $summary,
+                $validator->get_validation_summary( $mapping_errors )
+            );
+        }
 
         foreach ( $products_data as $product_data ) {
             $errors = $validator->validate_product(
@@ -201,6 +339,18 @@ class Rex_Feed_Validator_Loader {
                 $product_data['attributes'],
                 $product_data['title']
             );
+
+            $summary = $this->merge_validation_summaries(
+                $summary,
+                $validator->get_validation_summary( $errors )
+            );
+            $total_product_health += Rex_Feed_Validation_Results::calculate_product_health( $errors );
+            $processed_count++;
+            $error_product_ids = array_merge(
+                $error_product_ids,
+                Rex_Feed_Validation_Results::extract_error_product_ids( $errors )
+            );
+
             // Use direct push instead of array_merge to avoid allocating a
             // new array on every iteration.
             if ( is_array( $errors ) && !empty( $errors ) ) {
@@ -210,38 +360,20 @@ class Rex_Feed_Validator_Loader {
             }
             unset( $errors );
 
-            // Prevent memory exhaustion by truncating errors during processing
-            if ( count( $all_errors ) > $max_errors_to_keep ) {
-                // Prioritize errors over warnings
-                $error_items = array_filter( $all_errors, function( $item ) {
-                    return ( $item['severity'] ?? '' ) === 'error';
-                } );
-                $warning_items = array_filter( $all_errors, function( $item ) {
-                    return ( $item['severity'] ?? '' ) === 'warning';
-                } );
-                $info_items = array_filter( $all_errors, function( $item ) {
-                    return ( $item['severity'] ?? '' ) === 'info';
-                } );
-
-                // Keep errors first, then warnings, then info
-                $all_errors = array_merge(
-                    array_slice( array_values( $error_items ),   0, (int) ( $max_errors_to_keep * 0.6 ) ),
-                    array_slice( array_values( $warning_items ), 0, (int) ( $max_errors_to_keep * 0.3 ) ),
-                    array_slice( array_values( $info_items ),    0, (int) ( $max_errors_to_keep * 0.1 ) )
-                );
-
-                // Free memory
-                unset( $error_items, $warning_items, $info_items );
-            }
         }
         unset( $products_data );
 
-        // Get summary
-        $summary = $validator->get_validation_summary( $all_errors );
+        $summary = $this->finalize_validation_summary(
+            $summary,
+            $total_product_health,
+            $processed_count,
+            count( $all_errors ),
+            $error_product_ids
+        );
 
         // Save results
         $results_handler = new Rex_Feed_Validation_Results( $feed_id );
-        $results_handler->save_results( $all_errors, $summary );
+        $results_handler->save_results( $all_errors, $summary, $error_product_ids );
 
         $merchant = get_post_meta( $feed_id, '_rex_feed_merchant', true ) ?: get_post_meta( $feed_id, 'rex_feed_merchant', true );
         do_action( 'rex_product_feed_validation_completed', $feed_id, $merchant, $summary );
@@ -269,6 +401,10 @@ class Rex_Feed_Validator_Loader {
 
         if ( ! $feed_id ) {
             wp_send_json_error( array( 'message' => __( 'Invalid feed ID.', 'rex-product-feed' ) ) );
+        }
+
+        if ( $this->is_feed_validation_disabled( $feed_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Feed validation is disabled.', 'rex-product-feed' ) ) );
         }
 
         // Get merchant info
@@ -307,7 +443,21 @@ class Rex_Feed_Validator_Loader {
         // Run validation
         $all_errors = array();
         $processed_count = 0;
-        $max_errors_to_keep = 500; // Limit memory usage by keeping only top errors
+        $summary = $validator->get_validation_summary( array() );
+        $total_product_health = 0;
+        $error_product_ids = array();
+
+        // Validate mapping-level configuration and anomalies
+        $mapping_errors = $validator->validate_mapping();
+        if ( ! empty( $mapping_errors ) ) {
+            foreach ( $mapping_errors as $mapping_error ) {
+                $all_errors[] = $mapping_error;
+            }
+            $summary = $this->merge_validation_summaries(
+                $summary,
+                $validator->get_validation_summary( $mapping_errors )
+            );
+        }
 
         foreach ( $products_data as $product_data ) {
             $errors = $validator->validate_product(
@@ -315,49 +465,43 @@ class Rex_Feed_Validator_Loader {
                 $product_data['attributes'],
                 $product_data['title'] // Pass display title (includes variation info)
             );
-            $all_errors = array_merge( $all_errors, $errors );
-            $processed_count++;
-            
-            // Prevent memory exhaustion by truncating errors during processing
-            if ( count( $all_errors ) > $max_errors_to_keep ) {
-                // Prioritize errors over warnings
-                $error_items = array_filter( $all_errors, function( $item ) {
-                    return ( $item['severity'] ?? '' ) === 'error';
-                } );
-                $warning_items = array_filter( $all_errors, function( $item ) {
-                    return ( $item['severity'] ?? '' ) === 'warning';
-                } );
-                $info_items = array_filter( $all_errors, function( $item ) {
-                    return ( $item['severity'] ?? '' ) === 'info';
-                } );
-                
-                // Keep errors first, then warnings, then info
-                $all_errors = array_merge(
-                    array_slice( $error_items, 0, (int) ( $max_errors_to_keep * 0.6 ) ),
-                    array_slice( $warning_items, 0, (int) ( $max_errors_to_keep * 0.3 ) ),
-                    array_slice( $info_items, 0, (int) ( $max_errors_to_keep * 0.1 ) )
-                );
-                
-                // Free memory
-                unset( $error_items, $warning_items, $info_items );
+
+            $summary = $this->merge_validation_summaries(
+                $summary,
+                $validator->get_validation_summary( $errors )
+            );
+            $total_product_health += Rex_Feed_Validation_Results::calculate_product_health( $errors );
+            $error_product_ids = array_merge(
+                $error_product_ids,
+                Rex_Feed_Validation_Results::extract_error_product_ids( $errors )
+            );
+            foreach ( (array) $errors as $error ) {
+                $all_errors[] = $error;
             }
+            $processed_count++;
         }
 
 
-        // Get summary
-        $summary = $validator->get_validation_summary( $all_errors );
+        $summary = $this->finalize_validation_summary(
+            $summary,
+            $total_product_health,
+            $processed_count,
+            count( $all_errors ),
+            $error_product_ids
+        );
         
         
         // Save results
         $results_handler = new Rex_Feed_Validation_Results( $feed_id );
-        $results_handler->save_results( $all_errors, $summary );
+        $results_handler->save_results( $all_errors, $summary, $error_product_ids );
+        $saved_summary = $results_handler->get_summary();
 
         do_action( 'rex_product_feed_validation_completed', $feed_id, $merchant, $summary );
 
         wp_send_json_success( array(
             'message'       => __( 'Validation complete.', 'rex-product-feed' ),
-            'summary'       => $summary,
-            'total_errors'  => count( $all_errors ),
+            'summary'       => $saved_summary,
+            'total_errors'  => $saved_summary['total_errors'] ?? count( $all_errors ),
         ) );
     }
 
@@ -413,6 +557,37 @@ class Rex_Feed_Validator_Loader {
             'rule_summary'           => $results_handler->get_rule_summary(),
             'top_products'           => $results_handler->get_top_problematic_products(),
         ) );
+    }
+
+    /**
+     * AJAX handler to get affected products for a specific validation issue.
+     *
+     * @since 7.4.58
+     * @access public
+     * @return void
+     */
+    public function ajax_get_validation_issue_products() {
+        check_ajax_referer( 'rex-wpfm-ajax', 'security' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'rex-product-feed' ) ) );
+        }
+
+        $feed_id   = isset( $_POST['feed_id'] ) ? absint( $_POST['feed_id'] ) : 0;
+        $attribute = isset( $_POST['attribute'] ) ? sanitize_text_field( wp_unslash( $_POST['attribute'] ) ) : '';
+        $rule      = isset( $_POST['rule'] ) ? sanitize_text_field( wp_unslash( $_POST['rule'] ) ) : '';
+        $severity  = isset( $_POST['severity'] ) ? sanitize_text_field( wp_unslash( $_POST['severity'] ) ) : '';
+        $page      = isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1;
+        $per_page  = isset( $_POST['per_page'] ) ? absint( $_POST['per_page'] ) : 10;
+
+        if ( ! $feed_id ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid feed ID.', 'rex-product-feed' ) ) );
+        }
+
+        $results_handler = new Rex_Feed_Validation_Results( $feed_id );
+        $data = $results_handler->get_issue_products( $attribute, $rule, $severity, $page, $per_page );
+
+        wp_send_json_success( $data );
     }
 
     /**
@@ -496,7 +671,7 @@ class Rex_Feed_Validator_Loader {
      * @return void
      */
     public function validate_product_during_generation( $product_id, $product_data, $merchant, $feed_id ) {
-        if ( ! $this->validation_enabled ) {
+        if ( ! $this->validation_enabled || $this->is_feed_validation_disabled( $feed_id ) ) {
             return;
         }
 
@@ -528,22 +703,86 @@ class Rex_Feed_Validator_Loader {
         // Validate product
         $errors = $validator->validate_product( $product_id, $product_data );
 
-        // Store errors in transient for batch processing
-        $transient_key = 'rex_feed_validation_' . $feed_id;
-        $stored_errors = get_transient( $transient_key );
+        $health_transient_key = 'rex_feed_validation_health_' . $feed_id;
+        $transient_key        = 'rex_feed_validation_' . $feed_id;
 
-        if ( ! is_array( $stored_errors ) ) {
-            $stored_errors = array();
+        // Initialize in-memory buffers on first call for this feed
+        if ( ! isset( self::$buffered_health[ $feed_id ] ) ) {
+            $health_state = get_transient( $health_transient_key );
+            self::$buffered_health[ $feed_id ] = is_array( $health_state ) ? $health_state : array(
+                'summary'              => $validator->get_validation_summary( array() ),
+                'total_product_health' => 0,
+                'total_products'       => 0,
+                'error_product_ids'    => array(),
+            );
         }
 
-        $stored_errors = array_merge( $stored_errors, $errors );
-
-        // Limit stored errors to prevent memory issues
-        if ( count( $stored_errors ) > Rex_Feed_Validation_Results::MAX_STORED_ERRORS ) {
-            $stored_errors = array_slice( $stored_errors, 0, Rex_Feed_Validation_Results::MAX_STORED_ERRORS );
+        if ( ! isset( self::$buffered_errors[ $feed_id ] ) ) {
+            $stored_errors = get_transient( $transient_key );
+            self::$buffered_errors[ $feed_id ] = is_array( $stored_errors ) ? $stored_errors : array();
         }
 
-        set_transient( $transient_key, $stored_errors, HOUR_IN_SECONDS );
+        if ( ! self::$shutdown_registered ) {
+            register_shutdown_function( array( __CLASS__, 'flush_buffered_validation_data' ) );
+            self::$shutdown_registered = true;
+        }
+
+        self::$buffered_health[ $feed_id ]['summary'] = $this->merge_validation_summaries(
+            (array) ( self::$buffered_health[ $feed_id ]['summary'] ?? array() ),
+            $validator->get_validation_summary( $errors )
+        );
+        self::$buffered_health[ $feed_id ]['total_product_health'] = absint( self::$buffered_health[ $feed_id ]['total_product_health'] ?? 0 )
+            + Rex_Feed_Validation_Results::calculate_product_health( $errors );
+        self::$buffered_health[ $feed_id ]['total_products'] = absint( self::$buffered_health[ $feed_id ]['total_products'] ?? 0 ) + 1;
+        self::$buffered_health[ $feed_id ]['error_product_ids'] = array_merge(
+            (array) ( self::$buffered_health[ $feed_id ]['error_product_ids'] ?? array() ),
+            Rex_Feed_Validation_Results::extract_error_product_ids( $errors )
+        );
+
+        foreach ( (array) $errors as $error ) {
+            self::$buffered_errors[ $feed_id ][] = $error;
+        }
+
+        self::$unflushed_counts[ $feed_id ] = ( self::$unflushed_counts[ $feed_id ] ?? 0 ) + 1;
+
+        // Periodic flush every 100 products to prevent memory spikes while eliminating 99% of transient I/O
+        if ( self::$unflushed_counts[ $feed_id ] >= 100 ) {
+            self::flush_feed_validation( $feed_id );
+        }
+    }
+
+    /**
+     * Flush buffered validation data for a feed to transients.
+     *
+     * @since 7.5.0
+     * @param int $feed_id Feed ID.
+     * @return void
+     */
+    public static function flush_feed_validation( $feed_id ) {
+        $health_transient_key = 'rex_feed_validation_health_' . $feed_id;
+        $transient_key        = 'rex_feed_validation_' . $feed_id;
+
+        if ( isset( self::$buffered_health[ $feed_id ] ) ) {
+            set_transient( $health_transient_key, self::$buffered_health[ $feed_id ], HOUR_IN_SECONDS );
+        }
+
+        if ( isset( self::$buffered_errors[ $feed_id ] ) ) {
+            set_transient( $transient_key, self::$buffered_errors[ $feed_id ], HOUR_IN_SECONDS );
+        }
+
+        self::$unflushed_counts[ $feed_id ] = 0;
+    }
+
+    /**
+     * Flush all buffered validation data across feeds on shutdown.
+     *
+     * @since 7.5.0
+     * @return void
+     */
+    public static function flush_buffered_validation_data() {
+        foreach ( array_keys( self::$buffered_health ) as $feed_id ) {
+            self::flush_feed_validation( $feed_id );
+        }
     }
 
     /**
@@ -556,8 +795,25 @@ class Rex_Feed_Validator_Loader {
      * @return void
      */
     public function finalize_validation( $feed_id, $feed_stats = array() ) {
-        $transient_key = 'rex_feed_validation_' . $feed_id;
-        $errors        = get_transient( $transient_key );
+        $transient_key        = 'rex_feed_validation_' . $feed_id;
+        $health_transient_key = 'rex_feed_validation_health_' . $feed_id;
+
+        if ( $this->is_feed_validation_disabled( $feed_id ) ) {
+            delete_transient( $transient_key );
+            delete_transient( $health_transient_key );
+            unset( self::$buffered_errors[ $feed_id ], self::$buffered_health[ $feed_id ], self::$unflushed_counts[ $feed_id ] );
+            return;
+        }
+
+        $errors = isset( self::$buffered_errors[ $feed_id ] )
+            ? self::$buffered_errors[ $feed_id ]
+            : get_transient( $transient_key );
+
+        $health_state = isset( self::$buffered_health[ $feed_id ] )
+            ? self::$buffered_health[ $feed_id ]
+            : get_transient( $health_transient_key );
+
+        unset( self::$buffered_errors[ $feed_id ], self::$buffered_health[ $feed_id ], self::$unflushed_counts[ $feed_id ] );
 
         if ( ! is_array( $errors ) ) {
             return;
@@ -580,12 +836,49 @@ class Rex_Feed_Validator_Loader {
             );
         }
 
+        // Validate mapping-level configuration and anomalies
+        $mapping_errors = $validator ? $validator->validate_mapping() : array();
+        if ( ! empty( $mapping_errors ) ) {
+            foreach ( $mapping_errors as $mapping_error ) {
+                $errors[] = $mapping_error;
+            }
+            if ( $validator ) {
+                $summary = $this->merge_validation_summaries(
+                    $summary,
+                    $validator->get_validation_summary( $mapping_errors )
+                );
+            }
+        }
+
+        if ( is_array( $health_state ) && ! empty( $health_state['total_products'] ) ) {
+            $summary = $this->finalize_validation_summary(
+                (array) ( $health_state['summary'] ?? $summary ),
+                absint( $health_state['total_product_health'] ?? 0 ),
+                absint( $health_state['total_products'] ),
+                count( $errors ),
+                (array) ( $health_state['error_product_ids'] ?? array() )
+            );
+        } else {
+            $results_handler = new Rex_Feed_Validation_Results( $feed_id );
+            $total_products  = $results_handler->get_total_products_validated();
+            $summary['total_products'] = $total_products;
+            $summary['health_score']   = Rex_Feed_Validation_Results::calculate_feed_health(
+                $errors,
+                $total_products,
+                $results_handler->get_error_product_ids()
+            );
+        }
+
         // Save results
         $results_handler = new Rex_Feed_Validation_Results( $feed_id );
-        $results_handler->save_results( $errors, $summary );
+        $error_product_ids = is_array( $health_state )
+            ? (array) ( $health_state['error_product_ids'] ?? array() )
+            : Rex_Feed_Validation_Results::extract_error_product_ids( $errors );
+        $results_handler->save_results( $errors, $summary, $error_product_ids );
 
         // Clean up transient
         delete_transient( $transient_key );
+        delete_transient( $health_transient_key );
     }
 
     /**
@@ -644,14 +937,12 @@ class Rex_Feed_Validator_Loader {
             foreach ( $parsed_products as $product_id => $attributes ) {
                 // The feed file already contains the product title — use it
                 // directly instead of calling wc_get_product() for every item.
-                // Loading a WC product object per item fills the WP object
-                // cache and is the second-largest contributor to OOM on update.
                 $product_title = ! empty( $attributes['title'] )
                     ? $attributes['title']
-                    : sprintf( 'Product #%d', $product_id );
+                    : ( is_numeric( $product_id ) ? sprintf( 'Product #%d', $product_id ) : ( ! empty( $attributes['id'] ) ? sprintf( 'Product (%s)', $attributes['id'] ) : 'Product' ) );
 
                 $products_data[] = array(
-                    'product_id' => $product_id,
+                    'product_id' => is_numeric( $product_id ) ? intval( $product_id ) : 0,
                     'title'      => $product_title,
                     'attributes' => $attributes,
                 );
@@ -669,9 +960,6 @@ class Rex_Feed_Validator_Loader {
         if ( empty( $product_ids ) || ! is_array( $product_ids ) ) {
             return $products_data;
         }
-
-        // Limit for performance
-        $product_ids = array_slice( $product_ids, 0, 500 );
 
         foreach ( $product_ids as $product_id ) {
             $product = wc_get_product( $product_id );
@@ -1072,7 +1360,6 @@ class Rex_Feed_Validator_Loader {
      */
     protected function parse_xml_feed_for_data( $feed_file ) {
         $products_data    = array();
-        $max_products     = Rex_Feed_Validation_Results::MAX_STORED_ERRORS;
         // Known product-level element names across all supported feed formats.
         $product_elements = array( 'item', 'entry', 'product', 'offer' );
 
@@ -1151,17 +1438,13 @@ class Rex_Feed_Validator_Loader {
             if ( $node !== false ) {
                 $ns = $node->getNamespaces( true );
                 $id = $this->extract_id_from_xml_product( $node, $ns );
-                if ( $id ) {
-                    $attributes                     = $this->extract_attributes_from_xml_product( $node, $ns );
-                    $products_data[ intval( $id ) ] = $attributes;
-                }
+                $attributes = $this->extract_attributes_from_xml_product( $node, $ns );
+                $key = $id ? intval( $id ) : 'item_' . count( $products_data );
+                $products_data[ $key ] = $attributes;
             }
 
             unset( $node, $outer_xml, $ns );
 
-            if ( count( $products_data ) >= $max_products ) {
-                break;
-            }
         }
 
         $reader->close();
@@ -1496,28 +1779,20 @@ class Rex_Feed_Validator_Loader {
             return $products_data;
         }
 
-        // Read data rows (cap at MAX_STORED_ERRORS products to prevent memory exhaustion)
+        // Read every data row. Pagination is applied to validation results later.
         while ( ( $row = fgetcsv( $handle, 0, $delimiter ) ) !== false ) {
-            if ( count( $products_data ) >= Rex_Feed_Validation_Results::MAX_STORED_ERRORS ) {
-                break;
-            }
-            if ( ! isset( $row[ $id_column_index ] ) ) {
-                continue;
-            }
-
-            $id_value = $row[ $id_column_index ];
+            $id_value = ( $id_column_index !== -1 && isset( $row[ $id_column_index ] ) ) ? $row[ $id_column_index ] : '';
             $id = $this->sanitize_product_id( $id_value );
 
-            if ( $id ) {
-                $attributes = array();
-                foreach ( $row as $index => $value ) {
-                    if ( isset( $column_mapping[ $index ] ) ) {
-                        // Trim whitespace from values
-                        $attributes[ $column_mapping[ $index ] ] = trim( $value );
-                    }
+            $attributes = array();
+            foreach ( $row as $index => $value ) {
+                if ( isset( $column_mapping[ $index ] ) ) {
+                    // Trim whitespace from values
+                    $attributes[ $column_mapping[ $index ] ] = trim( $value );
                 }
-                $products_data[ intval( $id ) ] = $attributes;
             }
+            $key = $id ? intval( $id ) : 'item_' . count( $products_data );
+            $products_data[ $key ] = $attributes;
         }
 
         fclose( $handle );
@@ -1558,13 +1833,366 @@ class Rex_Feed_Validator_Loader {
     }
 
     /**
+     * Check the persistent validation state for one feed.
+     *
+     * @since 7.4.58
+     * @param  int $feed_id Feed ID.
+     * @return bool
+     */
+    protected function is_feed_validation_disabled( $feed_id ) {
+        $results_handler = new Rex_Feed_Validation_Results( $feed_id );
+        return $results_handler->is_validation_disabled();
+    }
+
+    /**
+     * Save validation menu settings for one feed.
+     *
+     * @since 7.4.58
+     * @return void
+     */
+    public function ajax_save_validation_settings() {
+        check_ajax_referer( 'rex-wpfm-ajax', 'security' );
+
+        $feed_id = isset( $_POST['feed_id'] ) ? absint( $_POST['feed_id'] ) : 0;
+
+        if ( ! $feed_id || 'product-feed' !== get_post_type( $feed_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid feed ID.', 'rex-product-feed' ) ) );
+        }
+
+        if ( ! current_user_can( 'edit_post', $feed_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'rex-product-feed' ) ) );
+        }
+
+        $validation_disabled = isset( $_POST['validation_disabled'] ) && 'yes' === sanitize_text_field( wp_unslash( $_POST['validation_disabled'] ) );
+        $exclude_errors      = isset( $_POST['exclude_error_products'] ) && 'yes' === sanitize_text_field( wp_unslash( $_POST['exclude_error_products'] ) );
+
+        update_post_meta(
+            $feed_id,
+            Rex_Feed_Validation_Results::META_KEY_VALIDATION_DISABLED,
+            $validation_disabled ? 'yes' : 'no'
+        );
+        update_post_meta(
+            $feed_id,
+            Rex_Feed_Validation_Results::META_KEY_EXCLUDE_ERRORS,
+            $exclude_errors ? 'yes' : 'no'
+        );
+
+        wp_send_json_success( array(
+            'validation_disabled'  => $validation_disabled,
+            'exclude_error_products' => $exclude_errors,
+        ) );
+    }
+
+    /**
+     * Find and stage next Quick Fix rule for one exact validation issue.
+     *
+     * @since 7.4.58
+     * @return void
+     */
+    public function ajax_get_quick_fix() {
+        check_ajax_referer( 'rex-wpfm-ajax', 'security' );
+
+        $feed_id = isset( $_POST['feed_id'] ) ? absint( $_POST['feed_id'] ) : 0;
+
+        if ( ! $feed_id || 'product-feed' !== get_post_type( $feed_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid feed ID.', 'rex-product-feed' ) ) );
+        }
+
+        if ( ! current_user_can( 'edit_post', $feed_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'rex-product-feed' ) ) );
+        }
+
+        $feed_status = get_post_meta( $feed_id, '_rex_feed_status', true );
+
+        if ( in_array( $feed_status, array( 'processing', 'In queue' ), true ) ) {
+            wp_send_json_error( array( 'message' => __( 'Wait for the current feed generation to finish.', 'rex-product-feed' ) ) );
+        }
+
+        $attribute = isset( $_POST['attribute'] ) ? sanitize_text_field( wp_unslash( $_POST['attribute'] ) ) : '';
+        $rule      = isset( $_POST['rule'] ) ? sanitize_key( wp_unslash( $_POST['rule'] ) ) : '';
+        $severity  = isset( $_POST['severity'] ) ? sanitize_key( wp_unslash( $_POST['severity'] ) ) : '';
+
+        if ( '' === $attribute || '' === $rule || ! in_array( $severity, array( 'error', 'warning', 'info' ), true ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid validation issue.', 'rex-product-feed' ) ) );
+        }
+
+        $quick_fix = new Rex_Feed_Quick_Fix();
+        $result    = $quick_fix->suggest_and_save( $feed_id, $attribute, $rule, $severity );
+
+        if ( is_wp_error( $result ) ) {
+            wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+        }
+
+        wp_send_json_success( $result );
+    }
+
+    /**
+     * Delete one staged validation Feed Rule.
+     *
+     * @since 7.4.58
+     * @return void
+     */
+    public function ajax_delete_validation_fix_rule() {
+        check_ajax_referer( 'rex-wpfm-ajax', 'security' );
+
+        $feed_id = isset( $_POST['feed_id'] ) ? absint( $_POST['feed_id'] ) : 0;
+
+        if ( ! $feed_id || 'product-feed' !== get_post_type( $feed_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid feed ID.', 'rex-product-feed' ) ) );
+        }
+
+        if ( ! current_user_can( 'edit_post', $feed_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'rex-product-feed' ) ) );
+        }
+
+        $feed_status = get_post_meta( $feed_id, '_rex_feed_status', true );
+
+        if ( in_array( $feed_status, array( 'processing', 'In queue' ), true ) ) {
+            wp_send_json_error( array( 'message' => __( 'Wait for the current feed generation to finish.', 'rex-product-feed' ) ) );
+        }
+
+        $attribute = isset( $_POST['attribute'] ) ? sanitize_text_field( wp_unslash( $_POST['attribute'] ) ) : '';
+
+        if ( '' === $attribute ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid validation attribute.', 'rex-product-feed' ) ) );
+        }
+
+        $quick_fix = new Rex_Feed_Quick_Fix();
+        $target    = $quick_fix->resolve_rule_target( $feed_id, $attribute );
+
+        if ( ! Rex_Feed_Quick_Fix::delete_feed_rule( $feed_id, $target['value'] ) ) {
+            wp_send_json_error( array( 'message' => __( 'Feed Rule was not found.', 'rex-product-feed' ) ) );
+        }
+
+        wp_send_json_success( array(
+            'message' => __( 'Feed Rule deleted.', 'rex-product-feed' ),
+        ) );
+    }
+
+    /**
+     * Add or update one Feed Rule from a grouped validation issue.
+     *
+     * One validation fix rule is stored per affected attribute. Existing
+     * rules for other attributes remain unchanged.
+     *
+     * @since 7.4.58
+     * @return void
+     */
+    public function ajax_apply_validation_fix_rule() {
+        check_ajax_referer( 'rex-wpfm-ajax', 'security' );
+
+        $feed_id = isset( $_POST['feed_id'] ) ? absint( $_POST['feed_id'] ) : 0;
+
+        if ( ! $feed_id || 'product-feed' !== get_post_type( $feed_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid feed ID.', 'rex-product-feed' ) ) );
+        }
+
+        if ( ! current_user_can( 'edit_post', $feed_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'rex-product-feed' ) ) );
+        }
+
+        $feed_status = get_post_meta( $feed_id, '_rex_feed_status', true );
+
+        if ( in_array( $feed_status, array( 'processing', 'In queue' ), true ) ) {
+            wp_send_json_error( array( 'message' => __( 'Wait for the current feed generation to finish.', 'rex-product-feed' ) ) );
+        }
+
+        $attribute    = isset( $_POST['attribute'] ) ? sanitize_text_field( wp_unslash( $_POST['attribute'] ) ) : '';
+        $condition    = isset( $_POST['condition'] ) ? sanitize_key( wp_unslash( $_POST['condition'] ) ) : '';
+        $find         = isset( $_POST['find'] ) ? sanitize_text_field( wp_unslash( $_POST['find'] ) ) : '';
+        $replace      = isset( $_POST['replace'] ) ? sanitize_text_field( wp_unslash( $_POST['replace'] ) ) : '';
+        $static_value = isset( $_POST['static_value'] ) ? sanitize_text_field( wp_unslash( $_POST['static_value'] ) ) : '';
+        $is_static    = isset( $_POST['is_static'] ) && 'yes' === sanitize_text_field( wp_unslash( $_POST['is_static'] ) );
+
+        $allowed_conditions = array(
+            'find_and_replace',
+            'contain',
+            'dn_contain',
+            'equal_to',
+            'nequal_to',
+            'greater_than',
+            'greater_than_equal',
+            'less_than',
+            'less_than_equal',
+            'any',
+        );
+
+        if ( '' === $attribute || ! in_array( $condition, $allowed_conditions, true ) ) {
+            wp_send_json_error( array( 'message' => __( 'Select a valid condition.', 'rex-product-feed' ) ) );
+        }
+
+        if ( ( $is_static && '' === $static_value ) || ( ! $is_static && '' === $replace ) ) {
+            wp_send_json_error( array( 'message' => __( 'Select or enter a replacement value.', 'rex-product-feed' ) ) );
+        }
+
+        $validation_results = get_post_meta( $feed_id, Rex_Feed_Validation_Results::META_KEY_RESULTS, true );
+        $has_attribute_issue = false;
+
+        foreach ( (array) $validation_results as $validation_issue ) {
+            $issue_attribute = isset( $validation_issue['attribute'] )
+                ? sanitize_text_field( $validation_issue['attribute'] )
+                : '';
+
+            if ( $attribute === $issue_attribute ) {
+                $has_attribute_issue = true;
+                break;
+            }
+        }
+
+        if ( ! $has_attribute_issue ) {
+            wp_send_json_error( array( 'message' => __( 'This validation issue is no longer available.', 'rex-product-feed' ) ) );
+        }
+
+        $quick_fix = new Rex_Feed_Quick_Fix();
+        $target    = $quick_fix->resolve_rule_target( $feed_id, $attribute );
+
+        if ( ! $target['supported'] ) {
+            wp_send_json_error( array( 'message' => __( 'This output attribute has no mapped source that Feed Rules can target.', 'rex-product-feed' ) ) );
+        }
+
+        $new_rule  = array(
+            'rules_if'             => $target['value'],
+            'rules_condition'      => $condition,
+            'rules_find'           => $find,
+            'rules_then'           => $target['value'],
+            'rules_static_replace' => $is_static ? $static_value : '',
+            'rules_replace'        => $is_static ? '' : $replace,
+            'quick_fix'            => true,
+            'source'               => 'validation_quick_fix',
+        );
+
+        if ( $is_static ) {
+            $new_rule['rules_static'] = 'on';
+        }
+
+        if ( Rex_Feed_Quick_Fix::rule_exists( $feed_id, $new_rule ) ) {
+            wp_send_json_error( array(
+                'code'    => 'rule_already_exists',
+                'message' => __( 'This rule has already been added. Please configure a different rule.', 'rex-product-feed' ),
+            ) );
+        }
+
+        Rex_Feed_Quick_Fix::upsert_feed_rule( $feed_id, $new_rule );
+
+        wp_send_json_success( array(
+            'message'   => __( 'Rule added. Add more rules or click Fix Feed.', 'rex-product-feed' ),
+            'attribute' => $attribute,
+        ) );
+    }
+
+    /**
+     * AJAX handler to update main feed attribute mapping from validation quick fix.
+     *
+     * @since 7.4.58
+     * @return void
+     */
+    public function ajax_apply_validation_mapping_fix() {
+        check_ajax_referer( 'rex-wpfm-ajax', 'security' );
+
+        $feed_id = isset( $_POST['feed_id'] ) ? absint( $_POST['feed_id'] ) : 0;
+
+        if ( ! $feed_id || 'product-feed' !== get_post_type( $feed_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid feed ID.', 'rex-product-feed' ) ) );
+        }
+
+        if ( ! current_user_can( 'edit_post', $feed_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'rex-product-feed' ) ) );
+        }
+
+        $feed_status = get_post_meta( $feed_id, '_rex_feed_status', true );
+        if ( in_array( $feed_status, array( 'processing', 'In queue' ), true ) ) {
+            wp_send_json_error( array( 'message' => __( 'Wait for the current feed generation to finish.', 'rex-product-feed' ) ) );
+        }
+
+        $attribute    = isset( $_POST['attribute'] ) ? sanitize_text_field( wp_unslash( $_POST['attribute'] ) ) : '';
+        $replace      = isset( $_POST['replace'] ) ? sanitize_text_field( wp_unslash( $_POST['replace'] ) ) : '';
+        $static_value = isset( $_POST['static_value'] ) ? sanitize_text_field( wp_unslash( $_POST['static_value'] ) ) : '';
+        $is_static    = isset( $_POST['is_static'] ) && 'yes' === sanitize_text_field( wp_unslash( $_POST['is_static'] ) );
+
+        if ( '' === $attribute ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid attribute parameter.', 'rex-product-feed' ) ) );
+        }
+
+        if ( ( $is_static && '' === $static_value ) || ( ! $is_static && '' === $replace ) ) {
+            wp_send_json_error( array( 'message' => __( 'Select or enter a replacement value.', 'rex-product-feed' ) ) );
+        }
+
+        $type  = $is_static ? 'static' : 'meta';
+        $value = $is_static ? $static_value : $replace;
+
+        $updated = Rex_Feed_Quick_Fix::update_feed_mapping( $feed_id, $attribute, $type, $value );
+
+        if ( ! $updated ) {
+            wp_send_json_error( array( 'message' => __( 'Could not find matching attribute in feed configuration.', 'rex-product-feed' ) ) );
+        }
+
+        wp_send_json_success( array(
+            'message'        => __( 'Feed mapping updated. Click Fix Feed to regenerate.', 'rex-product-feed' ),
+            'attribute'      => $attribute,
+            'type'           => $type,
+            'value'          => $value,
+            'original_type'  => is_array( $updated ) ? ( $updated['original_type'] ?? 'meta' ) : 'meta',
+            'original_value' => is_array( $updated ) ? ( $updated['original_value'] ?? '' ) : '',
+        ) );
+    }
+
+    /**
+     * Revert one applied validation feed mapping fix.
+     *
+     * @since 7.4.60
+     * @return void
+     */
+    public function ajax_revert_validation_mapping_fix() {
+        check_ajax_referer( 'rex-wpfm-ajax', 'security' );
+
+        $feed_id = isset( $_POST['feed_id'] ) ? absint( $_POST['feed_id'] ) : 0;
+
+        if ( ! $feed_id || 'product-feed' !== get_post_type( $feed_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid feed ID.', 'rex-product-feed' ) ) );
+        }
+
+        if ( ! current_user_can( 'edit_post', $feed_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'rex-product-feed' ) ) );
+        }
+
+        $feed_status = get_post_meta( $feed_id, '_rex_feed_status', true );
+        if ( in_array( $feed_status, array( 'processing', 'In queue' ), true ) ) {
+            wp_send_json_error( array( 'message' => __( 'Wait for the current feed generation to finish.', 'rex-product-feed' ) ) );
+        }
+
+        $attribute      = isset( $_POST['attribute'] ) ? sanitize_text_field( wp_unslash( $_POST['attribute'] ) ) : '';
+        $original_type  = isset( $_POST['original_type'] ) ? sanitize_text_field( wp_unslash( $_POST['original_type'] ) ) : 'meta';
+        $original_value = isset( $_POST['original_value'] ) ? sanitize_text_field( wp_unslash( $_POST['original_value'] ) ) : '';
+
+        if ( '' === $attribute ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid attribute parameter.', 'rex-product-feed' ) ) );
+        }
+
+        $type  = 'static' === $original_type ? 'static' : 'meta';
+        $value = $original_value;
+
+        $updated = Rex_Feed_Quick_Fix::update_feed_mapping( $feed_id, $attribute, $type, $value );
+
+        if ( ! $updated ) {
+            wp_send_json_error( array( 'message' => __( 'Could not find matching attribute in feed configuration.', 'rex-product-feed' ) ) );
+        }
+
+        wp_send_json_success( array(
+            'message'   => __( 'Mapping change unstaged.', 'rex-product-feed' ),
+            'attribute' => $attribute,
+            'type'      => $type,
+            'value'     => $value,
+        ) );
+    }
+
+    /**
      * Auto-clear validation results and auto-run validation after feed update.
      *
      * @since 7.4.59
      * @param int $feed_id The feed ID.
      */
     public function auto_clear_and_run_validation_on_feed_update( $feed_id ) {
-        if ( ! $feed_id ) {
+        if ( ! $feed_id || $this->is_feed_validation_disabled( $feed_id ) ) {
             return;
         }
         // Clear old validation results so the template renders a clean slate

@@ -175,9 +175,10 @@
             rexfeed_set_init_form_data();
         } else if ( 'add' === rex_wpfm_ajax.current_screen) {
             rex_feed_load_config_table(event);
+            rex_feed_show_analytics_params(event);
             rex_feed_load_custom_filter(event);
             rexfeed_set_init_form_data();
-        } else if ( 'product-feed_page_wpfm_dashboard' === rex_wpfm_ajax.current_screen ) {
+        } else if ( 'product-feed_page_wpfm-settings' === rex_wpfm_ajax.current_screen ) {
             rex_feed_settings_tab(event);
             rex_feed_process_rollback_button();
         }
@@ -622,7 +623,9 @@
         $("#rex_feed_product_filters").addClass("show-filters");
     });
 
-    $(document).on("click", "#rex_feed_filter_modal_close_btn", rex_close_filter_drawer );
+    $(document).on("click", "#rex_feed_filter_modal_close_btn", rexfeed_handle_filters_drawer_close );
+
+    $(document).on("click", "#rex_feed_filter_save_btn", rexfeed_save_filters_data );
 
     $(document).on("click", "#rex_feed_settings_modal_close_btn", rex_close_settings_drawer );
 
@@ -677,6 +680,43 @@
      * Event listener for Analytics Parameter options functionality.
      */
     $(document).on("change", "#rex_feed_analytics_params_options", rex_feed_show_analytics_params);
+
+    /**
+     * Event listener for footer UTM notice toggle synchronization.
+     */
+    $(document).on("change", "#rex-feed-footer-utm-toggle", function () {
+        var checked = $(this).prop("checked");
+        var $drawerToggle = $("#rex_feed_analytics_params_options");
+        if ($drawerToggle.length && $drawerToggle.prop("checked") !== checked) {
+            $drawerToggle.prop("checked", checked).trigger("change");
+        }
+    });
+
+    /**
+     * Auto-populate default UTM source and campaign when merchant is selected on a new feed.
+     */
+    $(document).on("change", "#rex_feed_merchant", function () {
+        var merchant = $(this).val();
+        if (merchant && merchant !== "-1") {
+            var $sourceInput = $("#rex_feed_analytics_params_utm_source");
+            var $campaignInput = $("#rex_feed_analytics_params_utm_campaign");
+            var prevSource = "";
+            if ($sourceInput.length) {
+                prevSource = $sourceInput.val().trim();
+                if (!prevSource || prevSource === "feed") {
+                    $sourceInput.val(merchant);
+                }
+                $sourceInput.attr("placeholder", merchant);
+            }
+            if ($campaignInput.length) {
+                var currentCampaign = $campaignInput.val().trim();
+                if (!currentCampaign || currentCampaign === "auto-draft" || currentCampaign === "feed" || (prevSource && currentCampaign === prevSource)) {
+                    $campaignInput.val(merchant);
+                }
+                $campaignInput.attr("placeholder", merchant);
+            }
+        }
+    });
 
     /**
      * Event listener for Attribute type change functionality.
@@ -972,6 +1012,11 @@
             $(".rex_feed_analytics_params").show();
         } else {
             $(".rex_feed_analytics_params").hide();
+        }
+
+        var $footerToggle = $("#rex-feed-footer-utm-toggle");
+        if ($footerToggle.length && $footerToggle.prop("checked") !== checked) {
+            $footerToggle.prop("checked", checked);
         }
     }
 
@@ -1473,6 +1518,17 @@
             });
     }
 
+    // Validation Fix modal uses same generation pipeline as publish button.
+    $(document).on("rex-feed-regenerate-after-validation-fix", function () {
+        var generateButton = $("#rex-bottom-publish-btn");
+
+        if (!generateButton.length) {
+            generateButton = $("#publish");
+        }
+
+        get_product_number(generateButton);
+    });
+
     /**
      * Display the product-limit message as a standard WordPress admin notice.
      *
@@ -1793,7 +1849,7 @@
         } catch (error) {
             // Show the notice immediately when validation storage is unavailable.
         }
-        var hasActiveValidator = $(".rex-feed-validate-btn:not(:disabled)").length > 0;
+        var hasActiveValidator = $(".rex-feed-validation-wrapper:not([data-validation-disabled='1'])").length > 0;
 
         // Supported validators perform one additional reload after their
         // automatic validation. Keep the notice pending until that reload
@@ -2486,7 +2542,7 @@
     
             $(this).addClass("active");
             $("#" + tab_id).addClass("active");
-        } else if (url.includes("page=wpfm_dashboard&tab=merchants")) {
+        } else if (url.includes("page=wpfm-settings&tab=merchants")) {
             $("ul.rex-settings__tabs li[data-tab=tab4]").removeClass("active");
             $(".rex-settings__tab-contents #tab4").removeClass("active");
     

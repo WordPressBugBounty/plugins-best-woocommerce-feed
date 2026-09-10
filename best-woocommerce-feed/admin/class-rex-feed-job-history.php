@@ -126,7 +126,7 @@ class Rex_Feed_Job_History {
         echo '</tbody></table>';
 
         if ( $pages > 1 ) {
-            $settings_url = admin_url( 'edit.php?post_type=product-feed&page=wpfm_dashboard' );
+            $settings_url = admin_url( 'edit.php?post_type=product-feed&page=wpfm-settings' );
             echo '<div class="wpfm-job-history-pagination">';
             if ( $page > 1 ) {
                 $prev_url = add_query_arg( 'wpfm_job_page', $page - 1, $settings_url );

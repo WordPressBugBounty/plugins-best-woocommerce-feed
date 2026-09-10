@@ -774,7 +774,10 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
                         <?php
                         $saved_value = get_post_meta($post_id, '_rex_feed_analytics_params_options', true);
                         $saved_value = $saved_value ?: get_post_meta($post_id, 'rex_feed_analytics_params_options', true);
-                        $saved_value = $saved_value ?: 'no';
+                        $is_new_feed = empty( $post_id ) || 'auto-draft' === get_post_status( $post_id ) || ( isset( $GLOBALS['pagenow'] ) && 'post-new.php' === $GLOBALS['pagenow'] );
+                        if ( '' === $saved_value || false === $saved_value || null === $saved_value ) {
+                            $saved_value = $is_new_feed ? 'yes' : 'no';
+                        }
                         $checked = 'yes' === $saved_value ? ' checked' : '';
                         ?>
                         <input class="switch-input" type="checkbox" name="<?php echo esc_attr( $this->prefix ) . 'analytics_params_options'?>" value="yes" id="<?php echo esc_attr( $this->prefix ) . 'analytics_params_options'?>" <?php echo esc_attr( $checked )?>>
@@ -787,17 +790,37 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 
 		</div>
 
-		<div class="<?php echo esc_attr( $this->prefix ) . 'analytics_params';?>" style="display: none">
+		<div class="<?php echo esc_attr( $this->prefix ) . 'analytics_params';?>" style="<?php echo 'yes' === $saved_value ? '' : 'display: none'; ?>">
 			<label for="<?php echo esc_attr( $this->prefix ) . 'analytics_params';?>"><?php esc_html_e('UTM Parameters', 'rex-product-feed')?></label>
 			<ul id="<?php echo esc_html( $this->prefix ) . 'analytics_params';?>">
 				<?php
 				$analytics_params = get_post_meta( $post_id, '_rex_feed_analytics_params', true );
 				$analytics_params = $analytics_params ?: get_post_meta( $post_id, 'rex_feed_analytics_params', true );
-				$utm_source       = $analytics_params[ 'utm_source' ] ?? '';
-				$utm_medium       = $analytics_params[ 'utm_medium' ] ?? '';
-				$utm_campaign     = $analytics_params[ 'utm_campaign' ] ?? '';
-				$utm_term         = $analytics_params[ 'utm_term' ] ?? '';
-				$utm_content      = $analytics_params[ 'utm_content' ] ?? '';
+				$analytics_params = is_array( $analytics_params ) ? $analytics_params : array();
+
+				$merchant         = get_post_meta( $post_id, '_rex_feed_merchant', true ) ?: get_post_meta( $post_id, 'rex_feed_merchant', true );
+				$default_source   = ( ! empty( $merchant ) && '-1' !== $merchant ) ? $merchant : 'feed';
+				$default_campaign = $default_source;
+				$default_term     = $post_id ? 'pfm-feed-' . $post_id : 'pfm-feed';
+
+				$utm_source   = $analytics_params[ 'utm_source' ] ?? '';
+				$utm_medium   = $analytics_params[ 'utm_medium' ] ?? '';
+				$utm_campaign = $analytics_params[ 'utm_campaign' ] ?? '';
+				$utm_term     = $analytics_params[ 'utm_term' ] ?? '';
+				$utm_content  = $analytics_params[ 'utm_content' ] ?? '';
+
+				if ( '' === $utm_source ) {
+					$utm_source = $default_source;
+				}
+				if ( '' === $utm_medium ) {
+					$utm_medium = 'feed';
+				}
+				if ( '' === $utm_campaign || 'auto-draft' === $utm_campaign ) {
+					$utm_campaign = $utm_source;
+				}
+				if ( '' === $utm_term ) {
+					$utm_term = $default_term;
+				}
 
 				echo '<li>';
 				?>
@@ -809,7 +832,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 				</label>
 
 				<?php
-				echo '<input type="text" name="' . esc_html( $this->prefix ) . 'analytics_params[utm_source]' . '" value="' .esc_attr($utm_source). '" id="'. esc_attr( $this->prefix ) . 'analytics_params_utm_source' .'">';
+				echo '<input type="text" name="' . esc_html( $this->prefix ) . 'analytics_params[utm_source]' . '" value="' .esc_attr($utm_source). '" placeholder="' . esc_attr($default_source) . '" id="'. esc_attr( $this->prefix ) . 'analytics_params_utm_source' .'">';
 				echo '</li>';
 
 				echo '<li>';
@@ -822,7 +845,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 				</label>
 
 				<?php
-				echo '<input type="text" name="' . esc_html( $this->prefix ) . 'analytics_params[utm_medium]' . '" value="' .esc_attr($utm_medium). '" id="'. esc_attr( $this->prefix ) . 'analytics_params_utm_medium' .'">';
+				echo '<input type="text" name="' . esc_html( $this->prefix ) . 'analytics_params[utm_medium]' . '" value="' .esc_attr($utm_medium). '" placeholder="feed" id="'. esc_attr( $this->prefix ) . 'analytics_params_utm_medium' .'">';
 				echo '</li>';
 
 				echo '<li>';
@@ -835,7 +858,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 				</label>
 
 				<?php
-				echo '<input type="text" name="' . esc_html( $this->prefix ) . 'analytics_params[utm_campaign]' . '" value="' .esc_attr($utm_campaign). '" id="'. esc_attr( $this->prefix ) . 'analytics_params_utm_campaign' .'">';
+				echo '<input type="text" name="' . esc_html( $this->prefix ) . 'analytics_params[utm_campaign]' . '" value="' .esc_attr($utm_campaign). '" placeholder="' . esc_attr($default_campaign) . '" id="'. esc_attr( $this->prefix ) . 'analytics_params_utm_campaign' .'">';
 				echo '</li>';
 
 
@@ -849,7 +872,7 @@ $post_id = isset($_GET['pr_post']) ? absint($_GET['pr_post']) : get_the_ID();
 				</label>
 
 				<?php
-				echo '<input type="text" name="' . esc_html( $this->prefix ) . 'analytics_params[utm_term]' . '" value="' .esc_attr($utm_term). '" id="'. esc_attr( $this->prefix ) . 'analytics_params_utm_term' .'">';
+				echo '<input type="text" name="' . esc_html( $this->prefix ) . 'analytics_params[utm_term]' . '" value="' .esc_attr($utm_term). '" placeholder="' . esc_attr($default_term) . '" id="'. esc_attr( $this->prefix ) . 'analytics_params_utm_term' .'">';
 				echo '</li>';
 
 				echo '<li>';

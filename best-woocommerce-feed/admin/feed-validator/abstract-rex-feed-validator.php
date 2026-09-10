@@ -160,6 +160,9 @@ abstract class Rex_Feed_Abstract_Validator {
         if ( $this->feed_id > 0 ) {
             $this->feed_config = get_post_meta( $this->feed_id, '_rex_feed_feed_config', true );
             if ( ! is_array( $this->feed_config ) ) {
+                $this->feed_config = get_post_meta( $this->feed_id, 'rex_feed_feed_config', true );
+            }
+            if ( ! is_array( $this->feed_config ) ) {
                 $this->feed_config = array();
             }
         }
@@ -167,7 +170,7 @@ abstract class Rex_Feed_Abstract_Validator {
 
     /**
      * Validate mapping-level configuration.
-     * Checks if required attributes are mapped correctly.
+     * Checks if required attributes are mapped correctly and detects wrongly assigned values.
      *
      * @since 7.4.58
      * @return array Array of mapping-level validation errors.
@@ -182,21 +185,312 @@ abstract class Rex_Feed_Abstract_Validator {
         foreach ( $this->required_attributes as $attr => $config ) {
             if ( ! isset( $mapped_attributes[ $attr ] ) || empty( $mapped_attributes[ $attr ] ) ) {
                 $mapping_errors[] = array(
-                    'attribute'    => $attr,
-                    'rule'         => 'required_attribute_missing',
-                    'severity'     => $config['severity'] ?? self::SEVERITY_ERROR,
-                    'message'      => sprintf(
+                    'product_id'    => 0,
+                    'product_title' => __( 'Feed Configuration', 'rex-product-feed' ),
+                    'attribute'     => $attr,
+                    'rule'          => 'required_attribute_missing',
+                    'severity'      => $config['severity'] ?? self::SEVERITY_ERROR,
+                    'message'       => sprintf(
                         /* translators: %s: attribute name */
                         __( 'Required attribute "%s" is not mapped in feed configuration.', 'rex-product-feed' ),
                         $attr
                     ),
-                    'raw_value'    => null,
-                    'expected'     => $config['description'] ?? '',
+                    'raw_value'     => null,
+                    'expected'      => $config['description'] ?? '',
                 );
             }
         }
 
+        // Check mapping anomalies (wrongly assigned values)
+        $anomaly_errors = $this->validate_mapping_anomalies();
+        if ( ! empty( $anomaly_errors ) ) {
+            $mapping_errors = array_merge( $mapping_errors, $anomaly_errors );
+        }
+
         return $mapping_errors;
+    }
+
+    /**
+     * Validate whether mapped attributes are mapped with proper assigned values.
+     * Detects anomalies such as "Product Description" mapped to "Price".
+     *
+     * @since 7.4.58
+     * @return array Array of anomaly validation errors.
+     */
+    public function validate_mapping_anomalies() {
+        $errors = array();
+
+        if ( empty( $this->feed_config ) || ! is_array( $this->feed_config ) ) {
+            return $errors;
+        }
+
+        $merchant_attributes = $this->get_merchant_attribute_labels();
+        $product_attributes  = $this->get_product_attribute_labels();
+
+        foreach ( $this->feed_config as $config ) {
+            if ( ! is_array( $config ) ) {
+                continue;
+            }
+
+            // Skip custom attributes (cust_attr)
+            if ( isset( $config['cust_attr'] ) || empty( $config['attr'] ) ) {
+                continue;
+            }
+
+            // Only validate Attribute type (meta)
+            $type = isset( $config['type'] ) ? (string) $config['type'] : '';
+            if ( 'meta' !== $type ) {
+                continue;
+            }
+
+            $source_attr = (string) ( $config['attr'] ?? '' );
+            $meta_key    = (string) ( $config['meta_key'] ?? '' );
+
+            if ( '' === $source_attr || '' === $meta_key ) {
+                continue;
+            }
+
+            $source_label   = $merchant_attributes[ $source_attr ] ?? $this->format_attribute_label( $source_attr );
+            $assigned_label = $product_attributes[ $meta_key ] ?? $this->format_attribute_label( $meta_key );
+
+            if ( $this->is_mapping_anomaly( $source_attr, $source_label, $meta_key, $assigned_label ) ) {
+                $errors[] = array(
+                    'product_id'    => 0,
+                    'product_title' => __( 'Feed Configuration', 'rex-product-feed' ),
+                    'attribute'     => $source_attr,
+                    'rule'          => 'wrongly_assigned_value',
+                    'severity'      => self::SEVERITY_ERROR,
+                    'message'       => sprintf(
+                        /* translators: 1: source attribute label, 2: assigned value label */
+                        __( 'Attribute "%1$s" is mapped to "%2$s", which is a wrongly assigned value.', 'rex-product-feed' ),
+                        $this->clean_attribute_label( $source_label ),
+                        $this->clean_attribute_label( $assigned_label )
+                    ),
+                    'raw_value'     => $meta_key,
+                    'expected'      => $source_label,
+                );
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Check if a feed attribute mapping is an anomaly / wrongly assigned value.
+     *
+     * @since 7.4.58
+     * @param  string $source_attr    Merchant attribute key.
+     * @param  string $source_label   Merchant attribute label.
+     * @param  string $meta_key       Assigned product attribute key.
+     * @param  string $assigned_label Assigned product attribute label.
+     * @return bool True if mapping is an anomaly.
+     */
+    protected function is_mapping_anomaly( $source_attr, $source_label, $meta_key, $assigned_label ) {
+        $source_cluster   = $this->get_synonym_cluster( $source_attr . ' ' . $source_label );
+        $assigned_cluster = $this->get_synonym_cluster( $meta_key . ' ' . $assigned_label );
+
+        // If both attributes belong to recognized semantic clusters
+        if ( '' !== $source_cluster && '' !== $assigned_cluster ) {
+            // Identifier fields (MPN, GTIN, ID, SKU) can legitimately be cross-mapped in WooCommerce
+            $id_clusters = array( 'id', 'mpn', 'gtin' );
+            if ( in_array( $source_cluster, $id_clusters, true ) && in_array( $assigned_cluster, $id_clusters, true ) ) {
+                return false;
+            }
+
+            // If they belong to different, conflicting clusters, it's an anomaly!
+            return $source_cluster !== $assigned_cluster;
+        }
+
+        return false;
+    }
+
+    /**
+     * Return shared ecommerce synonym cluster for an attribute.
+     *
+     * @since 7.4.58
+     * @param  string $value Attribute key and/or label.
+     * @return string Cluster name or empty string.
+     */
+    protected function get_synonym_cluster( $value ) {
+        $normalized = $this->normalize_attribute_value( $value );
+
+        $clusters = array(
+            'id'          => array( 'id', 'product id', 'item id', 'sku', 'parent id', 'variation id' ),
+            'title'       => array( 'title', 'product title', 'item title', 'post title', 'name', 'product name' ),
+            'brand'       => array( 'brand', 'manufacturer', 'make', 'vendor', 'producer', 'oem', 'designer' ),
+            'gtin'        => array( 'gtin', 'upc', 'ean', 'barcode', 'jan', 'isbn', 'itf' ),
+            'mpn'         => array( 'mpn', 'sku', 'model number', 'part number', 'manufacturer part number' ),
+            'weight'      => array( 'weight', 'shipping weight' ),
+            'length'      => array( 'length', 'shipping length' ),
+            'width'       => array( 'width', 'shipping width' ),
+            'height'      => array( 'height', 'shipping height' ),
+            'color'       => array( 'color', 'colour', 'shade' ),
+            'size'        => array( 'size', 'dimensions', 'apparel size' ),
+            'gender'      => array( 'gender', 'sex', 'target gender' ),
+            'age_group'   => array( 'age group', 'age range', 'target age' ),
+            'material'    => array( 'material', 'fabric', 'composition' ),
+            'pattern'     => array( 'pattern', 'graphic', 'print' ),
+            'image'       => array( 'image', 'image link', 'featured image', 'main image', 'thumbnail image', 'additional image', 'picture' ),
+            'price'       => array( 'price', 'regular price', 'current price', 'sale price', 'discount price', 'offer price', 'special price', 'unit price', 'cost' ),
+            'category'    => array( 'product type', 'category', 'categories', 'product cats', 'google product category', 'product category' ),
+            'stock'       => array( 'availability', 'stock status', 'in stock', 'quantity', 'inventory', 'stock quantity', 'backorders' ),
+            'description' => array( 'description', 'short description', 'product description', 'body', 'details', 'excerpt', 'summary', 'brief', 'content' ),
+            'url'         => array( 'link', 'product url', 'permalink', 'url', 'mobile link' ),
+            'condition'   => array( 'condition', 'state' ),
+            'rating'      => array( 'rating', 'average rating', 'total rating', 'reviews', 'review count' ),
+            'tax'         => array( 'tax', 'tax class', 'tax rate' ),
+            'shipping'    => array( 'shipping', 'shipping cost', 'shipping class', 'shipping service' ),
+            'tag'         => array( 'tag', 'tags', 'product tag', 'product tags' ),
+            'author'      => array( 'author', 'author name', 'creator', 'artist' ),
+            'date'        => array( 'date', 'date created', 'date modified', 'published' ),
+        );
+
+        foreach ( $clusters as $cluster => $terms ) {
+            foreach ( $terms as $term ) {
+                if ( preg_match( '/(?:^|\s)' . preg_quote( $term, '/' ) . '(?:\s|$)/', $normalized ) ) {
+                    return $cluster;
+                }
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Normalize attribute value for comparison.
+     *
+     * @since 7.4.58
+     * @param  string $value Value to normalize.
+     * @return string
+     */
+    protected function normalize_attribute_value( $value ) {
+        $value = strtolower( html_entity_decode( wp_strip_all_tags( (string) $value ), ENT_QUOTES, 'UTF-8' ) );
+        $value = preg_replace( '/\[[^\]]*\]|\([^\)]*\)/', ' ', $value );
+        $value = preg_replace( '/^(g:|bwf_attr_pa_|custom_attributes__wpfm_product_|custom_attributes__|custom_attributes_|pa_|woo_product_|woo_|_alg_|_mantella_)/', '', $value );
+        $value = preg_replace( '/[^a-z0-9]+/', ' ', $value );
+        $noise = array( 'product', 'item', 'woocommerce', 'woo', 'wpfm', 'default', 'field', 'from', 'db', 'without', 'underscore' );
+        $words = array_filter( preg_split( '/\s+/', trim( $value ) ) );
+        $words = array_values( array_diff( $words, $noise ) );
+
+        return implode( ' ', $words );
+    }
+
+    /**
+     * Get merchant template instance.
+     *
+     * @since 7.4.58
+     * @return Rex_Feed_Abstract_Template|null
+     */
+    public function get_merchant_template() {
+        $merchant = $this->merchant;
+        if ( empty( $merchant ) && $this->feed_id > 0 ) {
+            $merchant = get_post_meta( $this->feed_id, '_rex_feed_merchant', true );
+            if ( empty( $merchant ) ) {
+                $merchant = get_post_meta( $this->feed_id, 'rex_feed_merchant', true );
+            }
+        }
+
+        if ( empty( $merchant ) ) {
+            return null;
+        }
+
+        if ( ! class_exists( 'Rex_Feed_Template_Factory' ) ) {
+            $factory_file = dirname( __DIR__ ) . '/class-rex-feed-template-factory.php';
+            if ( file_exists( $factory_file ) ) {
+                require_once $factory_file;
+            }
+        }
+
+        if ( class_exists( 'Rex_Feed_Template_Factory' ) ) {
+            try {
+                return Rex_Feed_Template_Factory::build( $merchant, false );
+            } catch ( Exception $e ) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get flattened list of merchant attribute labels.
+     *
+     * @since 7.4.58
+     * @return array Key => Label map.
+     */
+    protected function get_merchant_attribute_labels() {
+        $template = $this->get_merchant_template();
+        $labels   = array();
+
+        if ( $template && isset( $template->attributes ) && is_array( $template->attributes ) ) {
+            foreach ( $template->attributes as $group => $attrs ) {
+                if ( is_array( $attrs ) ) {
+                    foreach ( $attrs as $key => $label ) {
+                        if ( is_scalar( $label ) ) {
+                            $labels[ (string) $key ] = (string) $label;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $labels;
+    }
+
+    /**
+     * Get flattened list of product attribute labels.
+     *
+     * @since 7.4.58
+     * @return array Key => Label map.
+     */
+    protected function get_product_attribute_labels() {
+        if ( ! class_exists( 'Rex_Feed_Attributes' ) ) {
+            $attr_file = dirname( __DIR__ ) . '/class-rex-feed-attributes.php';
+            if ( file_exists( $attr_file ) ) {
+                require_once $attr_file;
+            }
+        }
+
+        $labels = array();
+
+        if ( class_exists( 'Rex_Feed_Attributes' ) ) {
+            $groups = Rex_Feed_Attributes::get_attributes();
+            foreach ( (array) $groups as $group => $attrs ) {
+                if ( is_array( $attrs ) ) {
+                    foreach ( $attrs as $key => $label ) {
+                        if ( is_scalar( $label ) ) {
+                            $labels[ (string) $key ] = wp_strip_all_tags( (string) $label );
+                        }
+                    }
+                }
+            }
+        }
+
+        return $labels;
+    }
+
+    /**
+     * Clean brackets and tags from attribute labels for messages.
+     *
+     * @since 7.4.58
+     * @param  string $label Attribute label.
+     * @return string
+     */
+    protected function clean_attribute_label( $label ) {
+        $cleaned = preg_replace( '/\[[^\]]*\]|\([^\)]*\)/', '', (string) $label );
+        return trim( $cleaned ) ?: $label;
+    }
+
+    /**
+     * Format attribute key into human-readable label.
+     *
+     * @since 7.4.58
+     * @param  string $attribute Attribute key.
+     * @return string
+     */
+    protected function format_attribute_label( $attribute ) {
+        $attribute = preg_replace( '/^g:/i', '', (string) $attribute );
+        return ucwords( str_replace( array( '_', '-' ), ' ', $attribute ) );
     }
 
     /**

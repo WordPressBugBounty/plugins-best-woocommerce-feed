@@ -39,6 +39,7 @@ class Rex_Product_Feed_Linno_Telemetry {
         add_action( 'rex_product_feed_feed_published', array( $this, 'maybe_track_aha' ) );
         add_action( 'rex_product_feed_feed_published', array( $this, 'accumulate_feed_publish' ), 10, 2 );
         add_action( 'rex_product_feed_feed_published', array( $this, 'maybe_track_feed_created' ), 10, 2 );
+        add_action( 'rex_product_feed_feed_published', array( $this, 'maybe_track_manual_activation' ), 10, 2 );
         add_action( 'rex_product_feed_consent_updated', array( $this, 'handle_consent_updated' ) );
         add_action( 'rex_product_feed_setup_started', array( $this, 'track_setup_started' ) );
         add_action( 'rex_product_feed_setup_step_completed', array( $this, 'track_setup_step_completed' ), 10, 2 );
@@ -332,6 +333,81 @@ class Rex_Product_Feed_Linno_Telemetry {
                 ),
             )
         );
+    }
+
+    /**
+     * Track Level 2 Activation: first manual feed successfully generated with >0 products.
+     *
+     * Dispatched via dispatch_minimal (same no-consent path as activation/plugin_activated
+     * and onboarding_completed) to prevent severe opt-in cohort bias in PostHog 7-day
+     * activation funnels. No PII included.
+     *
+     * @param int    $feed_id Feed post ID.
+     * @param string $source  'manual', 'wizard', or 'automatic'.
+     *
+     * @return void
+     */
+    public function maybe_track_manual_activation( $feed_id, $source = '' ) {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'getDispatcher' ) || ! method_exists( $telemetry_client, 'has_sent_event' ) ) {
+            return;
+        }
+
+        $event_key = 'first_manual_feed_activated';
+        if ( $telemetry_client->has_sent_event( $event_key ) ) {
+            return;
+        }
+
+        // Manual creation only — excludes wizard-created feeds ('wizard' source) and
+        // scheduled/regeneration completions ('automatic' source).
+        if ( 'manual' !== $source ) {
+            return;
+        }
+
+        // Belt-and-suspenders: excludes wizard feeds or demo feeds inserted on wizard skip.
+        if ( get_post_meta( $feed_id, 'pfm_feed_created_by', true ) ) {
+            return;
+        }
+
+        // Level 2 activation requirement: feed must contain at least 1 product.
+        $raw_totals = get_post_meta( $feed_id, '_rex_feed_total_products_for_all_feed', true )
+            ?: get_post_meta( $feed_id, '_rex_feed_total_products', true )
+            ?: get_post_meta( $feed_id, 'rex_feed_total_products', true );
+
+        $product_count = 0;
+        if ( is_array( $raw_totals ) ) {
+            $product_count = isset( $raw_totals['total'] ) ? (int) $raw_totals['total'] : (int) count( $raw_totals );
+        } elseif ( is_numeric( $raw_totals ) ) {
+            $product_count = (int) $raw_totals;
+        }
+
+        if ( $product_count <= 0 ) {
+            return;
+        }
+
+        $installed_time     = (int) get_option( 'rex_wpfm_installed_time', 0 );
+        $days_since_install = $installed_time > 0 ? (int) floor( ( time() - $installed_time ) / DAY_IN_SECONDS ) : 0;
+
+        $result = $telemetry_client->getDispatcher()->dispatch_minimal(
+            'activation/first_feed_completed',
+            array(
+                'site_url'           => esc_url_raw( get_site_url() ),
+                'unique_id'          => sanitize_text_field( $telemetry_client->get_unique_id() ),
+                'merchant'           => (string) get_post_meta( $feed_id, '_rex_feed_merchant', true ),
+                'feed_format'        => (string) get_post_meta( $feed_id, '_rex_feed_feed_format', true ),
+                'product_count'      => (int) $product_count,
+                'days_since_install' => $days_since_install,
+                'timestamp'          => current_time( 'mysql' ),
+                // Non-empty __identify to prevent PostHog 400 array serialization.
+                '__identify'         => array(
+                    'profileId' => sanitize_text_field( $telemetry_client->get_unique_id() ),
+                ),
+            )
+        );
+
+        if ( $result ) {
+            $telemetry_client->mark_event_sent( $event_key );
+        }
     }
 
     /**

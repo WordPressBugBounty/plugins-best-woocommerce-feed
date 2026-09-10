@@ -32,6 +32,10 @@ class Rex_Product_Feed_Controller {
         delete_post_meta( $feed_id, 'rex_feed_status' );
         update_post_meta( $feed_id, '_rex_feed_status', $status );
 
+        if ( 'error' === $status ) {
+            do_action( 'wpfm_feed_errored', $feed_id );
+        }
+
         if ( 'completed' === $status && in_array( $prev_status, array( 'processing', 'In queue' ), true ) && 'publish' === get_post_status( $feed_id ) && $is_last_batch ) {
             do_action( 'rex_product_feed_feed_published', $feed_id, 'automatic' );
         }

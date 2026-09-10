@@ -195,6 +195,23 @@ if ( ! function_exists( 'wpfm_is_wpml_active' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpfm_is_feed_editor_v2_enabled' ) ) {
+	/**
+	 * @desc Single source of truth for whether the new (React) feed editor UI
+	 *       is enabled. Off by default — the legacy metabox editor remains the
+	 *       experience for all existing installs until explicitly opted in.
+	 *       Checked by both the new bundle's enqueue gate and the legacy
+	 *       metabox suppression gate; keep both consumers pointed at this one
+	 *       function rather than re-reading the option directly.
+	 *
+	 * @return bool
+	 * @since 7.5.0
+	 */
+	function wpfm_is_feed_editor_v2_enabled() {
+		return (bool) apply_filters( 'wpfm_feed_editor_v2_enabled', 'yes' === get_option( 'rex_wpfm_feed_editor_v2', 'no' ) );
+	}
+}
+
 if ( ! function_exists( 'wpfm_is_polylang_active' ) ) {
 	/**
 	 * @desc check if Polylang is active.
@@ -1103,5 +1120,41 @@ if( !function_exists('convert_old_to_new_structure')) {
         }
 
         return $new_structure;
+    }
+}
+
+if ( ! function_exists( 'wpfm_is_google_feed_merchant' ) ) {
+    /**
+     * Check if a given merchant is a Google feed merchant template.
+     *
+     * @param string $merchant Merchant identifier.
+     * @return bool True if Google merchant template, false otherwise.
+     * @since 7.4.35
+     */
+    function wpfm_is_google_feed_merchant( $merchant ) {
+        if ( empty( $merchant ) || ! is_string( $merchant ) ) {
+            return false;
+        }
+
+        $google_merchants = array(
+            'google',
+            'google_local_products',
+            'google_local_products_inventory',
+            'google_custom_search_ads',
+            'google_Ad',
+            'google_merchant_promotion',
+            'google_dsa',
+            'google_shopping_actions',
+            'google_review',
+            'google_manufacturer_center',
+            'google_css_center',
+            'google_hotel_ads',
+            'google_express',
+            'google_local_inventory_ads',
+            'drm',
+            'youtube_shopping',
+        );
+
+        return in_array( $merchant, $google_merchants, true ) || strpos( $merchant, 'google' ) === 0;
     }
 }

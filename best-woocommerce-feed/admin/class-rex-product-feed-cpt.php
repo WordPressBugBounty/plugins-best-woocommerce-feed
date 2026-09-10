@@ -267,6 +267,29 @@ class Rex_Product_CPT {
 				if ( 'no' !== $schedule ) {
 					echo '<div><strong>' . esc_html__( 'Next Schedule: ', 'rex-product-feed' ) . '</strong><span style="text-decoration: dotted underline;" title="' . esc_attr( $next_update ) . '">' . esc_html( $next_update ) . '</span></div>';
 				}
+
+				// Analytics UTM-tagging status (task 4.4) — the "Update"
+				// button in the update_feed column already provides the
+				// manual "regenerate now" action this indicator points at.
+				$tagging_last_applied = get_post_meta( $post_id, '_wpfm_analytics_tagging_last_applied', true );
+				if ( $tagging_last_applied ) {
+					$tagged_formatted = gmdate( $format, strtotime( $tagging_last_applied . ' UTC' ) );
+					echo '<div><strong>' . esc_html__( 'Tracking: ', 'rex-product-feed' ) . '</strong>' . sprintf(
+						/* translators: %s: formatted date/time. */
+						esc_html__( 'active since %s', 'rex-product-feed' ),
+						esc_html( $tagged_formatted )
+					) . '</div>';
+				} else {
+					echo '<div><strong>' . esc_html__( 'Tracking: ', 'rex-product-feed' ) . '</strong>' . esc_html__( 'not yet regenerated with tracking', 'rex-product-feed' );
+					if ( 'no' !== $schedule && '' !== $next_update ) {
+						echo ' — ' . sprintf(
+							/* translators: %s: formatted date/time of the next scheduled run. */
+							esc_html__( 'next scheduled run: %s', 'rex-product-feed' ),
+							esc_html( $next_update )
+						);
+					}
+					echo '</div>';
+				}
 				break;
 		}
 	}

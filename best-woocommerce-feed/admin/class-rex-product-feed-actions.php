@@ -423,7 +423,7 @@ class Rex_Product_Feed_Actions {
 					</p>
 					<ol style="margin-left: 20px; font-size: 13px;">
 						<li>
-                            <a href="<?php echo esc_url( admin_url( 'admin.php?page=wpfm_dashboard' ) ); ?>" target="_blank">
+                            <a href="<?php echo esc_url( admin_url( 'admin.php?page=wpfm-settings' ) ); ?>" target="_blank">
                                 <?php esc_html_e( 'Clear Batch', 'rex-product-feed' ); ?>
                             </a>
                             <?php esc_html_e( 'and Regenerate.', 'rex-product-feed' ); ?>
@@ -619,7 +619,7 @@ class Rex_Product_Feed_Actions {
 	 */
 	public function plugin_action_links( $links ) {
 		$is_premium     = apply_filters( 'wpfm_is_premium_activate', false );
-		$dashboard_link = sprintf( '<a href="%1$s">%2$s</a>', admin_url( 'admin.php?page=wpfm_dashboard' ), __( 'Dashboard', 'rex-product-feed' ) );
+		$dashboard_link = sprintf( '<a href="%1$s">%2$s</a>', admin_url( 'admin.php?page=wpfm-settings' ), __( 'Dashboard', 'rex-product-feed' ) );
 		array_unshift( $links, $dashboard_link );
 		if ( !$is_premium ) {
 			$links[ 'wpfm_go_pro' ] = sprintf( '<a href="%1$s" target="_blank" class="wpfm-plugins-gopro" style="color: #2BBBAC; font-weight: bold; ">%2$s</a>', 'https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=go_pro_button&utm_medium=plugin&utm_campaign=pfm_pro&utm_id=pfm_pro', __( 'Go Pro', 'rex-product-feed' ) );
@@ -1663,7 +1663,74 @@ class Rex_Product_Feed_Actions {
                 return $value;
             }
 
-            $meta_key = isset($rule['meta_key']) ? $rule['meta_key'] : '';
+            $merchant = isset( $instance->feed->merchant ) ? $instance->feed->merchant : '';
+            $is_google_merchant = function_exists( 'wpfm_is_google_feed_merchant' )
+                ? wpfm_is_google_feed_merchant( $merchant )
+                : ( 'google' === $merchant || ( is_string( $merchant ) && strpos( $merchant, 'google' ) === 0 ) );
+
+            $attr_key = isset( $rule['attr'] ) ? $rule['attr'] : '';
+            $meta_key = isset( $rule['meta_key'] ) ? $rule['meta_key'] : '';
+
+            // Google Merchant Center strictly mandates English fixed values and numbers.
+            // Bypass TranslatePress completely for these attributes on Google feed templates.
+            if ( $is_google_merchant ) {
+                $google_mandated_attrs = array(
+                    'availability',
+                    'availability_backorder',
+                    'availability_underscore',
+                    'availability_zero_three',
+                    'availability_zero_one',
+                    'availability_backorder_instock',
+                    'condition',
+                    'identifier_exists',
+                    'price',
+                    'sale_price',
+                    'current_price',
+                    'regular_price',
+                    'price_with_tax',
+                    'current_price_with_tax',
+                    'sale_price_with_tax',
+                    'price_excl_tax',
+                    'current_price_excl_tax',
+                    'sale_price_excl_tax',
+                    'price_db',
+                    'availability_date',
+                    'sale_price_effective_date',
+                    'expiration_date',
+                    'shipping',
+                    'shipping_country',
+                    'shipping_region',
+                    'shipping_service',
+                    'shipping_price',
+                    'shipping_weight',
+                    'shipping_length',
+                    'shipping_width',
+                    'shipping_height',
+                    'shipping_label',
+                    'image_link',
+                    'additional_image_link',
+                    'lifestyle_image_link',
+                    'id',
+                    'item_group_id',
+                    'mpn',
+                    'gtin',
+                    'gender',
+                    'age_group',
+                    'size_type',
+                    'size_system',
+                    'adult',
+                    'is_bundle',
+                    'multipack',
+                );
+
+                if (
+                    in_array( $attr_key, $google_mandated_attrs, true )
+                    || in_array( $meta_key, $google_mandated_attrs, true )
+                    || strpos( $attr_key, 'additional_image_link' ) === 0
+                ) {
+                    return $value;
+                }
+            }
 
             $trp_default_lang = function_exists('rexfeed_get_trp_default_language') ? rexfeed_get_trp_default_language() : '';
             $language = isset($instance->feed->translatepress_language) ? $instance->feed->translatepress_language : $trp_default_lang;
@@ -1736,9 +1803,8 @@ class Rex_Product_Feed_Actions {
                 $processed_value = apply_filters('the_title', $value);
                 $value = trp_translate($processed_value, $language, false);
             } else {
-                // For other content, apply appropriate filters
-                $processed_value = apply_filters('the_content', $value);
-                $value = trp_translate($processed_value, $language, false);
+                // For other text content, translate directly without 'the_content' to prevent wrapping in <p> tags
+                $value = trp_translate($value, $language, false);
             }
 
 			if(isset($rule['attr']) && 'image_link' === $rule['attr']){

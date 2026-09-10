@@ -1,11 +1,11 @@
-= RexFeed - Product Feed Manager for WooCommerce – Google Shopping, Facebook, Amazon, ChatGPT & 200+ Channel Feeds =
+= RexFeed – Product Feed Manager for WooCommerce – Sell on 200+ Shopping Channels =
 Contributors: rextheme, coderexltd, coderexco
 Donate link: https://rextheme.com/best-WooCommerce-product-feed/
-Tags: woocommerce product feed, google shopping feed, google merchant center, facebook catalog, google merchant api
+Tags: woocommerce product feed, google shopping feed, google merchant center, facebook catalog
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 7.11.1
+Stable tag: 7.12.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -421,6 +421,11 @@ You can use the WordPress support forum, product documentation, video tutorials,
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.12.0 (2026-09-10) =
+* New: Introduce Analytics dashboard
+* New: Redesign Feed Validation UI with batch feed run controls and error-based product filtering
+* Fix: Prevent TranslatePress translation on Google-mandated fixed-value attributes in multilingual feeds
 
 = 7.11.1 (2026-09-04) =
 * Fix: Remove redundant item_group_id attribute from Google Local Products Inventory feed

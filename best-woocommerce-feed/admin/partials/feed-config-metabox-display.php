@@ -30,10 +30,6 @@ $wpfm_hide_char = get_option( 'rex_feed_hide_character_limit_field', 'on' );
         <th class="" id="rex_feed_sanitization_head" title="<?php esc_html_e('Output Filter', 'rex-product-feed') ?>"><?php esc_html_e('Output Filter', 'rex-product-feed') ?></th>
         <th class="" id="rex_feed_output_limit_head" title="<?php esc_html_e('char Limit', 'rex-product-feed') ?>"><?php esc_html_e('char Limit', 'rex-product-feed') ?></th>
         <th class="" id="rex_feed_output_action_head" style="width:12%">
-            <div class="table-action">
-                <?php echo esc_html__('Click Here To Edit Attributes', 'rex-product-feed') ?>  
-                <?php include WPFM_PLUGIN_ASSETS_FOLDER_PATH . 'icon/icon-svg/click-here.php';?>
-            </div>
             <?php echo esc_html__('Action', 'rex-product-feed') ?>
         </th>
     </tr>

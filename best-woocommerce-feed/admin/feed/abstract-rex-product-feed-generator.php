@@ -794,6 +794,46 @@ abstract class Rex_Product_Feed_Abstract_Generator
                 'operator' => 'IN',
             );
         }
+
+        $validation_disabled = 'yes' === get_post_meta( $this->id, '_rex_feed_validation_disabled', true );
+        $exclude_errors      = get_post_meta( $this->id, '_rex_feed_exclude_error_products', true );
+
+        if ( ! $validation_disabled && 'yes' === $exclude_errors ) {
+            $error_product_ids = get_post_meta( $this->id, '_rex_feed_validation_error_product_ids', true );
+
+            // Backfill feeds validated before the complete error-product index existed.
+            if ( ! is_array( $error_product_ids ) ) {
+                $validation_results = get_post_meta( $this->id, '_rex_feed_validation_results', true );
+                $error_product_ids  = array();
+
+                foreach ( (array) $validation_results as $validation_issue ) {
+                    if ( 'error' !== ( $validation_issue['severity'] ?? '' ) ) {
+                        continue;
+                    }
+
+                    $error_product_id = absint( $validation_issue['product_id'] ?? 0 );
+                    if ( $error_product_id ) {
+                        $error_product_ids[] = $error_product_id;
+                    }
+                }
+            }
+
+            $error_product_ids = array_values( array_unique( array_filter( array_map( 'absint', (array) $error_product_ids ) ) ) );
+
+            if ( ! empty( $error_product_ids ) && ! empty( $this->products_args['post__in'] ) ) {
+                $included_product_ids = array_values( array_diff( $this->products_args['post__in'], $error_product_ids ) );
+                $this->products_args['post__in'] = ! empty( $included_product_ids ) ? $included_product_ids : array( 0 );
+            }
+
+            $this->products_args['post__not_in'] = array_values(
+                array_unique(
+                    array_merge(
+                        (array) ( $this->products_args['post__not_in'] ?? array() ),
+                        $error_product_ids
+                    )
+                )
+            );
+        }
     }
 
     /**
@@ -826,14 +866,32 @@ abstract class Rex_Product_Feed_Abstract_Generator
         }
 
         $this->product_scope = $feed_rules[ 'rex_feed_products' ];
-        if ( !empty( $feed_rules[ 'rex_feed_analytics_params_options' ] ) ) {
-            $this->analytics = 'yes' === $feed_rules[ 'rex_feed_analytics_params_options' ] || 'on' === $feed_rules[ 'rex_feed_analytics_params_options' ];
-            if ( $this->analytics ) {
-                $this->analytics_params = $feed_rules[ 'rex_feed_analytics_params' ] ?? [];
-                if ( $this->batch === 1 ) {
-                    update_post_meta( $this->id, '_rex_feed_analytics_params_options', $feed_rules[ 'rex_feed_analytics_params_options' ] );
-                    update_post_meta( $this->id, '_rex_feed_analytics_params', $this->analytics_params );
-                }
+
+        // Only apply UTM parameters when the merchant has enabled campaign tracking.
+        if ( $this->batch === 1 ) {
+            if ( isset( $feed_rules[ 'rex_feed_analytics_params_options' ] ) ) {
+                update_post_meta( $this->id, '_rex_feed_analytics_params_options', $feed_rules[ 'rex_feed_analytics_params_options' ] );
+            }
+            if ( !empty( $feed_rules[ 'rex_feed_analytics_params' ] ) ) {
+                update_post_meta( $this->id, '_rex_feed_analytics_params', $feed_rules[ 'rex_feed_analytics_params' ] );
+            }
+
+            $analytics_enabled = isset( $feed_rules[ 'rex_feed_analytics_params_options' ] )
+                ? $feed_rules[ 'rex_feed_analytics_params_options' ]
+                : ( get_post_meta( $this->id, '_rex_feed_analytics_params_options', true ) ?: get_post_meta( $this->id, 'rex_feed_analytics_params_options', true ) );
+
+            if ( 'yes' === $analytics_enabled ) {
+                $this->analytics_params = \RexTheme\Analytics\Attribution\AttributionResolver::fill_defaults( (int) $this->id, (string) $this->merchant );
+            } else {
+                $this->analytics_params = [];
+            }
+        }
+        else {
+            $analytics_enabled = get_post_meta( $this->id, '_rex_feed_analytics_params_options', true ) ?: get_post_meta( $this->id, 'rex_feed_analytics_params_options', true );
+            if ( 'yes' === $analytics_enabled ) {
+                $this->analytics_params = get_post_meta( $this->id, '_rex_feed_analytics_params', true ) ?: [];
+            } else {
+                $this->analytics_params = [];
             }
         }
 
@@ -913,8 +971,24 @@ abstract class Rex_Product_Feed_Abstract_Generator
             $key = key( $this->feed_rules );
             unset( $this->feed_rules[ $key ] );
 
-            if( 1 == $this->batch && !empty( $this->feed_rules ) ) {
+            $this->feed_rules = array_values( array_filter( $this->feed_rules, function( $rule ) {
+                if ( ! is_array( $rule ) ) {
+                    return false;
+                }
+
+                $rule_if = ! empty( $rule['rules_if'] ) ? $rule['rules_if'] : ( $rule['cust_rules_if'] ?? '' );
+
+                return '' !== $rule_if
+                    && ! empty( $rule['rules_condition'] )
+                    && ! empty( $rule['rules_then'] );
+            } ) );
+
+            if( 1 == $this->batch ) {
                 update_post_meta( $this->id, '_rex_feed_feed_config_rules', array_values( $this->feed_rules ) );
+
+                if ( empty( $this->feed_rules ) ) {
+                    update_post_meta( $this->id, '_rex_feed_feed_rules_button', 'removed' );
+                }
             }
         }
     }
@@ -1252,6 +1326,35 @@ abstract class Rex_Product_Feed_Abstract_Generator
      * @param $product_meta_keys
      * @return array
      */
+    /**
+     * Additively write `_wpfm_product_in_feed` post meta on every product included in this feed.
+     * Called once when the final batch completes.
+     */
+    protected function write_product_in_feed_meta(): void
+    {
+        $product_ids = get_post_meta( $this->id, '_rex_feed_product_ids', true );
+        if ( ! is_array( $product_ids ) || empty( $product_ids ) ) {
+            return;
+        }
+
+        $feed_id = $this->id;
+
+        foreach ( $product_ids as $product_id ) {
+            $product_id = (int) $product_id;
+            if ( $product_id <= 0 ) {
+                continue;
+            }
+
+            $existing = get_post_meta( $product_id, '_wpfm_product_in_feed', true );
+            $existing = is_array( $existing ) ? $existing : array();
+
+            if ( ! in_array( $feed_id, $existing, true ) ) {
+                $existing[] = $feed_id;
+                update_post_meta( $product_id, '_wpfm_product_in_feed', $existing );
+            }
+        }
+    }
+
     protected function get_product_data( WC_Product $product, $product_meta_keys )
     {
         $retriever_class = 'Rex_Product_Data_Retriever';
@@ -1370,6 +1473,10 @@ abstract class Rex_Product_Feed_Abstract_Generator
 
             // Trigger validation after feed completion
             do_action( 'rex_feed_after_feed_updated', $this->id );
+
+            // Write product-in-feed meta and fire completion action.
+            $this->write_product_in_feed_meta();
+            do_action( 'wpfm_feed_completed', $this->id );
         }
 
         update_post_meta( $this->id, '_rex_feed_feed_format', $this->feed_format );

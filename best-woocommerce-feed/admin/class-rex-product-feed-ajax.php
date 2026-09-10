@@ -422,6 +422,7 @@ class Rex_Product_Feed_Ajax {
         ];
 
         self::apply_product_scope_to_count_query( $query_args, $feed_config, $feed_id, $product_scope );
+        self::apply_validation_error_exclusions( $query_args, $feed_id );
         self::switch_to_feed_language( $feed_config, $feed_id );
 
         $where_filter = null;
@@ -457,6 +458,49 @@ class Rex_Product_Feed_Ajax {
         remove_filter( 'posts_distinct', $distinct_filter );
 
         return (int) $query->found_posts;
+    }
+
+    /**
+     * Match feed generation's validation-error exclusions in product counts.
+     *
+     * @param array      $query_args Query arguments passed by reference.
+     * @param int|string $feed_id Feed ID.
+     *
+     * @return void
+     */
+    private static function apply_validation_error_exclusions( &$query_args, $feed_id ) {
+        if ( ! $feed_id || 'yes' === get_post_meta( $feed_id, '_rex_feed_validation_disabled', true ) ) {
+            return;
+        }
+
+        $exclude_errors = get_post_meta( $feed_id, '_rex_feed_exclude_error_products', true );
+        if ( 'yes' !== $exclude_errors ) {
+            return;
+        }
+
+        $error_product_ids = get_post_meta( $feed_id, '_rex_feed_validation_error_product_ids', true );
+        if ( ! is_array( $error_product_ids ) ) {
+            $error_product_ids = [];
+            foreach ( (array) get_post_meta( $feed_id, '_rex_feed_validation_results', true ) as $validation_issue ) {
+                if ( 'error' === ( $validation_issue['severity'] ?? '' ) ) {
+                    $error_product_ids[] = absint( $validation_issue['product_id'] ?? 0 );
+                }
+            }
+        }
+
+        $error_product_ids = array_values( array_unique( array_filter( array_map( 'absint', $error_product_ids ) ) ) );
+        if ( empty( $error_product_ids ) ) {
+            return;
+        }
+
+        if ( ! empty( $query_args['post__in'] ) ) {
+            $included_product_ids = array_values( array_diff( $query_args['post__in'], $error_product_ids ) );
+            $query_args['post__in'] = ! empty( $included_product_ids ) ? $included_product_ids : [ 0 ];
+        }
+
+        $query_args['post__not_in'] = array_values(
+            array_unique( array_merge( (array) ( $query_args['post__not_in'] ?? array() ), $error_product_ids ) )
+        );
     }
 
     /**
@@ -2120,6 +2164,14 @@ class Rex_Product_Feed_Ajax {
     public static function pfm_review_already_reviewed( $payload ) {
         if ( isset( $payload[ 'checked' ] ) && 'yes' === $payload[ 'checked' ] && class_exists( 'PFM_Review_Request' ) ) {
             update_option( PFM_Review_Request::OPTION_STATUS, 'completed' );
+            PFM_Review_Request::record_event(
+                'growth/review_action_taken',
+                array(
+                    'trigger'       => 'settings',
+                    'action'        => 'already_reviewed',
+                    'dismiss_count' => (int) get_option( 'pfm_review_dismiss_count', 0 ),
+                )
+            );
             wp_send_json_success();
         }
         wp_send_json_error();

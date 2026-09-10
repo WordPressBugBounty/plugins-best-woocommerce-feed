@@ -278,7 +278,7 @@ class PFM_Review_Request {
         }
 
         $this->mark_fired( $trigger_key );
-        $this->record_event( 'growth/review_request_fired', $trigger_key );
+        self::record_event( 'growth/review_request_fired', array( 'trigger' => $trigger_key ) );
 
         if ( 'completed' === get_option( $this->status_option ) ) {
             return;
@@ -597,7 +597,6 @@ class PFM_Review_Request {
             if ( empty( $pending['shown_at'] ) ) {
                 $pending['shown_at'] = time();
                 update_option( $pending_option, $pending, false );
-                $this->record_event( 'growth/review_request_shown', $trigger_key );
             }
         }
 
@@ -759,12 +758,27 @@ class PFM_Review_Request {
 
         if ( 'cta' === $type ) {
             update_option( $this->status_option, 'completed' );
-            $this->record_event( 'growth/review_request_outcome', $trigger_key, array( 'outcome' => 'clicked' ) );
+            self::record_event(
+                'growth/review_action_taken',
+                array(
+                    'trigger'       => $trigger_key,
+                    'action'        => 'clicked_review',
+                    'dismiss_count' => (int) get_option( $this->dismiss_count_option, 0 ),
+                )
+            );
             delete_option( $pending_option );
         } elseif ( 'dismiss' === $type ) {
-            update_option( $this->dismiss_count_option, (int) get_option( $this->dismiss_count_option, 0 ) + 1 );
+            $dismiss_count = (int) get_option( $this->dismiss_count_option, 0 ) + 1;
+            update_option( $this->dismiss_count_option, $dismiss_count );
             update_option( $this->last_dismissed_option, time() );
-            $this->record_event( 'growth/review_request_outcome', $trigger_key, array( 'outcome' => 'dismissed' ) );
+            self::record_event(
+                'growth/review_action_taken',
+                array(
+                    'trigger'       => $trigger_key,
+                    'action'        => 'dismissed',
+                    'dismiss_count' => $dismiss_count,
+                )
+            );
             delete_option( $pending_option );
         }
 
@@ -793,29 +807,30 @@ class PFM_Review_Request {
 
     /**
      * Record a review-request event via the existing consent-gated telemetry
-     * client, mirroring the pattern in Rex_Product_Feed_Linno_Telemetry.
+     * client using direct dispatch, mirroring the pattern in Rex_Product_Feed_Linno_Telemetry.
      * Never blocks or errors the feature itself if telemetry is unavailable.
      *
-     * @param string $event       Fully-qualified event name (e.g. 'growth/review_request_fired').
-     * @param string $trigger_key Which trigger this event is about.
-     * @param array  $extra       Additional event properties.
+     * @param string $event      Fully-qualified event name (e.g. 'growth/review_action_taken').
+     * @param array  $properties Event properties.
      * @return void
      */
-    private function record_event( $event, $trigger_key, $extra = array() ) {
+    public static function record_event( $event, $properties = array() ) {
         global $telemetry_client;
-        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'track' ) ) {
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'getDispatcher' ) ) {
             return;
         }
 
-        $telemetry_client->track(
-            $event,
-            array_merge(
-                array(
-                    'site_url' => get_site_url(),
-                    'trigger'  => $trigger_key,
-                ),
-                $extra
-            )
+        if ( 'yes' !== $telemetry_client->get_optin_state() ) {
+            return;
+        }
+
+        $payload = array_merge(
+            array(
+                'site_url' => esc_url_raw( get_site_url() ),
+            ),
+            $properties
         );
+
+        $telemetry_client->getDispatcher()->dispatch( $event, $payload );
     }
 }

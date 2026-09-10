@@ -95,7 +95,7 @@ class PFM_Feed_Nudge {
 			'product-feed_page_wpfm-license',
 			'product-feed_page_category_mapping',
 			'product-feed_page_merchant_settings',
-			'product-feed_page_wpfm_dashboard',
+			'product-feed_page_wpfm-settings',
 		);
 		return in_array( $screen->id, $pfm_pages, true );
 	}

@@ -222,7 +222,8 @@ class Rex_Product_Telemetry {
             'post-new.php?post_type=product-feed' => 'New Feed',
             'edit.php?post_type=product-feed&page=category_mapping' => 'Category mapping',
             'edit.php?post_type=product-feed&page=merchant_settings' => 'Merchant settings',
-            'edit.php?post_type=product-feed&page=wpfm_dashboard' => 'Dashboard',
+            'edit.php?post_type=product-feed&page=wpfm-settings' => 'Settings',
+            'edit.php?post_type=product-feed&page=wpfm-analytics' => 'Analytics',
             'edit.php?post_type=product-feed&page=wpfm-license' => 'License',
             'edit.php?post_type=product-feed&page=wpfm-setup-wizard' => 'Setup wizard',
         );

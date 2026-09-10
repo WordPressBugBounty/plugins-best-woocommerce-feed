@@ -1250,7 +1250,7 @@ if ( $is_premium_activated ) {
 				<!-- /pfm-log-viewer -->
 
 				<!-- Preserve legacy hidden form for backward compatibility with existing JS -->
-				<form id="wpfm-error-log-form" style="display:none;" action="<?php echo esc_url( admin_url( 'admin.php?page=wpfm_dashboard' ) ); ?>" method="post">
+				<form id="wpfm-error-log-form" style="display:none;" action="<?php echo esc_url( admin_url( 'admin.php?page=wpfm-settings' ) ); ?>" method="post">
 					<select id="wpfm-error-log" name="wpfm-error-log">
 						<option value=""><?php echo esc_html__( 'Please Select', 'rex-product-feed' ); ?></option>
 						<?php foreach ( $wpfm_logs as $key => $value ) : ?>
@@ -1259,7 +1259,6 @@ if ( $is_premium_activated ) {
 					</select>
 				</form>
 				<div id="log-viewer" style="display:none;"><pre id="wpfm-log-content"></pre></div>
-
 			</div>
             <?php if ( !$is_premium_activated ) : ?>
                 <div id="tab5" class="tab-content">

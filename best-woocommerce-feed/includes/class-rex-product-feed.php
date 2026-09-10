@@ -12,6 +12,10 @@
  * @subpackage Rex_Product_Feed/includes
  */
 
+use RexTheme\Analytics\ApiController as AnalyticsApiController;
+use RexTheme\FeedEditor\AjaxController as FeedEditorAjaxController;
+use RexTheme\FeedEditor\ApiController as FeedEditorApiController;
+use RexTheme\FeedEditor\FeedEditorPage;
 use RexTheme\RexProductFeedManager\Tracking\Tracker;
 
 /**
@@ -206,6 +210,23 @@ class Rex_Product_Feed {
         // );
 		 // Date format: YYYY-MM-DD HH:MM:SS
 
+
+        // Analytics REST API. The Analytics admin page itself is registered
+        // directly from Rex_Product_Feed_Admin::load_admin_pages() (call-order
+        // placement after Settings), not via a separate admin_menu hook here.
+        $analytics_api_controller = new AnalyticsApiController();
+        $analytics_api_controller->init();
+
+        // New (React) feed-editor standalone page and REST API — both fully
+        // inert unless wpfm_is_feed_editor_v2_enabled() is on.
+        $feed_editor_page = new FeedEditorPage();
+        $feed_editor_page->init();
+
+        $feed_editor_api = new FeedEditorApiController();
+        $feed_editor_api->init();
+
+        $feed_editor_ajax = new FeedEditorAjaxController();
+        $feed_editor_ajax->init();
 
 	    $this->loader->add_action( 'admin_init', $plugin_admin, 'register_setup_wizard_page' );
 	    $this->loader->add_action( 'admin_init', $plugin_admin, 'admin_redirects' );

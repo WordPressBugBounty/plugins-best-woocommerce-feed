@@ -66,6 +66,30 @@ include_once plugin_dir_path( __FILE__ ) . 'rex-product-feed-google-missing-attr
 
     </div>
 
+    <?php
+    $current_feed_id    = isset( $get[ 'get' ][ 'post' ] ) ? absint( $get[ 'get' ][ 'post' ] ) : get_the_ID();
+    $is_new_feed        = empty( $current_feed_id ) || 'auto-draft' === get_post_status( $current_feed_id ) || ( isset( $GLOBALS['pagenow'] ) && 'post-new.php' === $GLOBALS['pagenow'] );
+    $saved_value        = get_post_meta( $current_feed_id, '_rex_feed_analytics_params_options', true );
+    $saved_value        = $saved_value ?: get_post_meta( $current_feed_id, 'rex_feed_analytics_params_options', true );
+    $should_show_notice = $is_new_feed || 'yes' !== $saved_value;
+
+    if ( $should_show_notice ) :
+        if ( $is_new_feed ) {
+            $utm_notice_msg = __( 'UTM is enabled by default for analytics', 'rex-product-feed' );
+            $utm_checked    = 'checked="checked"';
+        } else {
+            $utm_notice_msg = __( 'Enable UTM tracking for analytics', 'rex-product-feed' );
+            $utm_checked    = '';
+        }
+    ?>
+    <div class="rex-feed-utm-mapping-notice">
+        <span class="rex-feed-utm-notice-badge"><?php echo esc_html( $utm_notice_msg ); ?></span>
+        <div class="wpfm-switcher">
+            <input class="switch-input" type="checkbox" id="rex-feed-footer-utm-toggle" <?php echo esc_attr( $utm_checked ); ?>>
+            <label class="lever" for="rex-feed-footer-utm-toggle"></label>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <div class="rex-feed-publish-btn">
         <span class="spinner"></span>

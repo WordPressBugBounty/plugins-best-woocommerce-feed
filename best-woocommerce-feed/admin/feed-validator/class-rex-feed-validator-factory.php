@@ -96,21 +96,38 @@ class Rex_Feed_Validator_Factory {
      * @param  int    $feed_id  The feed ID (optional).
      * @return Rex_Feed_Abstract_Validator|null The validator instance or null if not supported.
      */
-    public static function create( $merchant, $feed_id = 0 ) {
+    public static function create( $merchant, $feed_id = 0, $allow_generic = false ) {
         $merchant = self::normalize_merchant_name( $merchant );
 
-        if ( ! self::is_supported( $merchant ) ) {
+        if ( empty( $merchant ) ) {
             return null;
         }
 
-        $class_name = self::$validator_map[ $merchant ];
+        if ( isset( self::$validator_map[ $merchant ] ) ) {
+            $class_name = self::$validator_map[ $merchant ];
 
-        if ( ! class_exists( $class_name ) ) {
-            self::load_validator_class( $merchant );
+            if ( ! class_exists( $class_name ) ) {
+                self::load_validator_class( $merchant );
+            }
+
+            if ( class_exists( $class_name ) ) {
+                return new $class_name( $feed_id );
+            }
         }
 
-        if ( class_exists( $class_name ) ) {
-            return new $class_name( $feed_id );
+        // Generic fallback validator only if explicitly allowed or opted in via filter
+        $allow_generic = apply_filters( 'rex_feed_validator_allow_generic', $allow_generic, $merchant, $feed_id );
+        if ( $allow_generic ) {
+            if ( ! class_exists( 'Rex_Feed_Validator_Generic' ) ) {
+                $generic_file = plugin_dir_path( __FILE__ ) . 'class-rex-feed-validator-generic.php';
+                if ( file_exists( $generic_file ) ) {
+                    require_once $generic_file;
+                }
+            }
+
+            if ( class_exists( 'Rex_Feed_Validator_Generic' ) ) {
+                return new Rex_Feed_Validator_Generic( $feed_id, $merchant );
+            }
         }
 
         return null;
@@ -126,7 +143,7 @@ class Rex_Feed_Validator_Factory {
      */
     public static function is_supported( $merchant ) {
         $merchant = self::normalize_merchant_name( $merchant );
-        return in_array( $merchant, self::$supported_merchants, true );
+        return in_array( $merchant, self::get_supported_merchants(), true );
     }
 
     /**
@@ -137,7 +154,7 @@ class Rex_Feed_Validator_Factory {
      * @return array
      */
     public static function get_supported_merchants() {
-        return self::$supported_merchants;
+        return apply_filters( 'rex_feed_validator_supported_merchants', self::$supported_merchants );
     }
 
     /**
