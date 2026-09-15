@@ -39,7 +39,6 @@ class Rex_Product_Feed_Linno_Telemetry {
         add_action( 'rex_product_feed_feed_published', array( $this, 'maybe_track_aha' ) );
         add_action( 'rex_product_feed_feed_published', array( $this, 'accumulate_feed_publish' ), 10, 2 );
         add_action( 'rex_product_feed_feed_published', array( $this, 'maybe_track_feed_created' ), 10, 2 );
-        add_action( 'rex_product_feed_feed_published', array( $this, 'maybe_track_manual_activation' ), 10, 2 );
         add_action( 'rex_product_feed_consent_updated', array( $this, 'handle_consent_updated' ) );
         add_action( 'rex_product_feed_setup_started', array( $this, 'track_setup_started' ) );
         add_action( 'rex_product_feed_setup_step_completed', array( $this, 'track_setup_step_completed' ), 10, 2 );
@@ -48,10 +47,12 @@ class Rex_Product_Feed_Linno_Telemetry {
         $this->maybe_migrate_flush_cron_to_weekly();
 
         add_action( 'rex_product_feed_generation_failed', array( $this, 'track_generation_failed' ), 10, 2 );
-        add_action( 'rex_product_feed_validation_completed', array( $this, 'track_validation_completed' ), 10, 3 );
+        add_action( 'rex_product_feed_validation_completed', array( $this, 'track_validation_completed' ), 10, 4 );
         add_action( 'rex_product_feed_google_merchant_connected', array( $this, 'track_gmc_connected' ) );
         add_action( 'rex_product_feed_upgrade_prompt_shown', array( $this, 'track_upgrade_prompt_shown' ) );
         add_action( 'rex_product_feed_upgrade_prompt_clicked', array( $this, 'track_upgrade_prompt_clicked' ) );
+        add_action( 'rex_product_feed_analytics_page_viewed', array( $this, 'track_analytics_page_viewed' ) );
+        add_action( 'rex_product_feed_product_count_requested', array( $this, 'maybe_track_first_feed_completed' ), 10, 2 );
 
         add_filter( 'product-feed-manager_telemetry_deactivation_reasons', array( $this, 'override_deactivation_reasons' ) );
         add_filter( 'product-feed-manager_deactivation_payload', array( $this, 'enrich_deactivation_payload' ), 10, 3 );
@@ -133,18 +134,21 @@ class Rex_Product_Feed_Linno_Telemetry {
         }
 
         if ( ! $this->is_setup_wizard_create_request() ) {
+            $merchant = $this->get_feed_merchant( $post->ID );
+            $this->get_feed_format( $post->ID, $merchant );
+
             do_action( 'rex_product_feed_feed_published', $post->ID, 'manual' );
         }
     }
 
     /**
-     * Determine whether the current request is setup-wizard feed creation.
+     * Determine whether the current request is an excluded non-manual feed creation.
      *
-     * Covers both the wizard's own "create feed" step (pfm_create_feed) and the
-     * demo feed inserted by dismiss_wizard() when the user skips without creating
-     * one (pfm_wizard_dismiss) — that handler only ever inserts the demo feed post,
-     * so excluding its action name here is safe and doesn't hide any genuine
-     * manual publish.
+     * Covers:
+     * - The wizard's own "create feed" step (pfm_create_feed)
+     * - The demo feed inserted by dismiss_wizard() (pfm_wizard_dismiss)
+     * - Feed configuration imports (rex_feed_import_configurations) which insert
+     *   posts before importing feed meta and are not manual creations.
      *
      * @return bool
      */
@@ -155,7 +159,111 @@ class Rex_Product_Feed_Linno_Telemetry {
 
         $action = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '';
 
-        return in_array( $action, array( 'pfm_create_feed', 'pfm_wizard_dismiss' ), true );
+        return in_array( $action, array( 'pfm_create_feed', 'pfm_wizard_dismiss', 'rex_feed_import_configurations' ), true );
+    }
+
+    /**
+     * Retrieve merchant slug for a feed post.
+     *
+     * Checks post meta (_rex_feed_merchant, then rex_feed_merchant),
+     * falling back to $_POST / $_REQUEST during manual creation/publish.
+     * Persists discovered value to post meta if not yet stored.
+     *
+     * @param int $feed_id Feed post ID.
+     *
+     * @return string Sanitized merchant slug, or empty string if not found or invalid.
+     */
+    private function get_feed_merchant( $feed_id ) {
+        $merchant = (string) ( get_post_meta( $feed_id, '_rex_feed_merchant', true ) ?: get_post_meta( $feed_id, 'rex_feed_merchant', true ) );
+
+        if ( '' === $merchant || '-1' === $merchant ) {
+            $candidate = '';
+            if ( isset( $_POST['rex_feed_merchant'] ) ) {
+                $candidate = $_POST['rex_feed_merchant'];
+            } elseif ( isset( $_POST['_rex_feed_merchant'] ) ) {
+                $candidate = $_POST['_rex_feed_merchant'];
+            } elseif ( isset( $_REQUEST['rex_feed_merchant'] ) ) {
+                $candidate = $_REQUEST['rex_feed_merchant'];
+            } elseif ( ! empty( $_POST['feed_config'] ) && is_string( $_POST['feed_config'] ) ) {
+                $parsed = array();
+                wp_parse_str( $_POST['feed_config'], $parsed );
+                if ( ! empty( $parsed['rex_feed_merchant'] ) ) {
+                    $candidate = $parsed['rex_feed_merchant'];
+                }
+            }
+
+            if ( is_string( $candidate ) ) {
+                $candidate = sanitize_text_field( wp_unslash( $candidate ) );
+                if ( '' !== $candidate && '-1' !== $candidate ) {
+                    $merchant = $candidate;
+                    update_post_meta( $feed_id, '_rex_feed_merchant', $merchant );
+                } else {
+                    $merchant = '';
+                }
+            } else {
+                $merchant = '';
+            }
+        }
+
+        return $merchant;
+    }
+
+    /**
+     * Retrieve feed format for a feed post.
+     *
+     * Checks post meta (_rex_feed_feed_format, then rex_feed_feed_format),
+     * falling back to $_POST / $_REQUEST during manual creation/publish,
+     * or defaulting based on merchant.
+     * Persists discovered value to post meta if not yet stored.
+     *
+     * @param int    $feed_id  Feed post ID.
+     * @param string $merchant Optional merchant slug.
+     *
+     * @return string Sanitized feed format (e.g. 'xml', 'csv') or empty string.
+     */
+    private function get_feed_format( $feed_id, $merchant = '' ) {
+        $format = (string) ( get_post_meta( $feed_id, '_rex_feed_feed_format', true ) ?: get_post_meta( $feed_id, 'rex_feed_feed_format', true ) );
+
+        if ( '' === $format ) {
+            $candidate = '';
+            if ( isset( $_POST['rex_feed_feed_format'] ) ) {
+                $candidate = $_POST['rex_feed_feed_format'];
+            } elseif ( isset( $_POST['_rex_feed_feed_format'] ) ) {
+                $candidate = $_POST['_rex_feed_feed_format'];
+            } elseif ( isset( $_REQUEST['rex_feed_feed_format'] ) ) {
+                $candidate = $_REQUEST['rex_feed_feed_format'];
+            } elseif ( ! empty( $_POST['feed_config'] ) && is_string( $_POST['feed_config'] ) ) {
+                $parsed = array();
+                wp_parse_str( $_POST['feed_config'], $parsed );
+                if ( ! empty( $parsed['rex_feed_feed_format'] ) ) {
+                    $candidate = $parsed['rex_feed_feed_format'];
+                }
+            }
+
+            if ( is_string( $candidate ) && '' !== trim( $candidate ) ) {
+                $format = sanitize_text_field( wp_unslash( $candidate ) );
+            } else {
+                if ( '' === $merchant ) {
+                    $merchant = (string) ( get_post_meta( $feed_id, '_rex_feed_merchant', true ) ?: get_post_meta( $feed_id, 'rex_feed_merchant', true ) );
+                }
+                if ( '' !== $merchant && '-1' !== $merchant ) {
+                    if ( in_array( $merchant, array( 'ebay_seller', 'ebay_seller_tickets' ), true ) ) {
+                        $format = 'csv';
+                    } elseif ( class_exists( 'Rex_Feed_Merchants' ) ) {
+                        $allowed = Rex_Feed_Merchants::get_feed_formats( $merchant );
+                        $format  = ! empty( $allowed[0] ) ? $allowed[0] : 'xml';
+                    } else {
+                        $format = 'xml';
+                    }
+                }
+            }
+
+            if ( '' !== $format ) {
+                update_post_meta( $feed_id, '_rex_feed_feed_format', $format );
+            }
+        }
+
+        return $format;
     }
 
     /**
@@ -238,6 +346,100 @@ class Rex_Product_Feed_Linno_Telemetry {
     }
 
     /**
+     * Track Level 2 Activation: first manual feed completed (activation/first_feed_completed).
+     *
+     * Dispatched on Publish button click before batch processing to measure human
+     * setup/configuration duration directly in the UI, without waiting on server batch loops.
+     * Deduped once per install via 'first_manual_feed_activated'.
+     *
+     * @param array      $payload Raw AJAX payload from frontend.
+     * @param int|string $feed_id Feed ID.
+     *
+     * @return void
+     */
+    public function maybe_track_first_feed_completed( $payload = array(), $feed_id = '' ) {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'getDispatcher' ) || ! method_exists( $telemetry_client, 'has_sent_event' ) ) {
+            return;
+        }
+
+        $event_key = 'first_manual_feed_activated';
+        if ( $telemetry_client->has_sent_event( $event_key ) ) {
+            return;
+        }
+
+        $btn_id = ! empty( $payload['button_id'] ) ? $payload['button_id'] : '';
+        if ( 'rex-bottom-preview-btn' === $btn_id || empty( $payload['active_duration_seconds'] ) ) {
+            return;
+        }
+
+        $feed_config = array();
+        if ( ! empty( $payload['feed_config'] ) && is_string( $payload['feed_config'] ) ) {
+            wp_parse_str( $payload['feed_config'], $feed_config );
+        }
+
+        $merchant = ! empty( $feed_config['rex_feed_merchant'] )
+            ? sanitize_key( $feed_config['rex_feed_merchant'] )
+            : ( ! empty( $payload['merchant'] ) ? sanitize_key( $payload['merchant'] ) : ( get_post_meta( $feed_id, '_rex_feed_merchant', true ) ?: get_post_meta( $feed_id, 'rex_feed_merchant', true ) ) );
+
+        $feed_format = ! empty( $feed_config['rex_feed_feed_format'] )
+            ? sanitize_key( $feed_config['rex_feed_feed_format'] )
+            : ( ! empty( $payload['feed_format'] ) ? sanitize_key( $payload['feed_format'] ) : ( get_post_meta( $feed_id, '_rex_feed_feed_format', true ) ?: get_post_meta( $feed_id, 'rex_feed_feed_format', true ) ) );
+
+        $has_filters = ! empty( $payload['has_filters'] )
+            || ! empty( $feed_config['rex_feed_custom_filter_option_btn'] )
+            || ! empty( $feed_config['rex_feed_cats'] )
+            || ! empty( $feed_config['rex_feed_tags'] )
+            || ! empty( $feed_config['ff'] );
+
+        $has_category_mapping = ! empty( $payload['has_category_mapping'] )
+            || ! empty( $feed_config['rex_feed_cat_map'] )
+            || ! empty( $feed_config['rex_feed_category_mapping'] );
+
+        $installed_time     = (int) get_option( 'rex_wpfm_installed_time', 0 );
+        $days_since_install = $installed_time > 0 ? (int) floor( ( time() - $installed_time ) / DAY_IN_SECONDS ) : 0;
+
+        $active_duration = absint( $payload['active_duration_seconds'] );
+        $total_duration  = isset( $payload['total_duration_seconds'] ) ? absint( $payload['total_duration_seconds'] ) : 0;
+        $was_abandoned   = ! empty( $payload['was_tab_abandoned'] );
+
+        $result = $telemetry_client->getDispatcher()->dispatch_minimal(
+            'activation/first_feed_completed',
+            array(
+                'site_url'                => esc_url_raw( get_site_url() ),
+                'unique_id'               => sanitize_text_field( $telemetry_client->get_unique_id() ),
+                'merchant'                => $merchant ?: '',
+                'feed_format'             => $feed_format ?: '',
+                'active_duration_seconds' => $active_duration,
+                'total_duration_seconds'  => $total_duration,
+                'was_tab_abandoned'       => $was_abandoned,
+                'has_filters'             => $has_filters,
+                'has_category_mapping'    => $has_category_mapping,
+                'days_since_install'      => $days_since_install,
+                'timestamp'               => current_time( 'mysql' ),
+                '__identify'              => array(
+                    'profileId' => sanitize_text_field( $telemetry_client->get_unique_id() ),
+                ),
+            )
+        );
+
+        if ( $result ) {
+            $telemetry_client->mark_event_sent( $event_key );
+        }
+    }
+
+    /**
+     * Backward-compatible alias for track_first_feed_completed.
+     *
+     * @param array $data Telemetry payload.
+     *
+     * @return void
+     */
+    public function track_first_feed_completed( $data = array() ) {
+        $this->maybe_track_first_feed_completed( $data );
+    }
+
+    /**
      * Track onboarding completion without consent — no PII, just site_url + unique_id.
      *
      * Fires on rex_product_feed_setup_completed regardless of consent state,
@@ -304,6 +506,19 @@ class Rex_Product_Feed_Linno_Telemetry {
             return;
         }
 
+        // Prevent firing multiple times for the same feed.
+        if ( get_post_meta( $feed_id, '_wpfm_feed_created_tracked', true ) ) {
+            return;
+        }
+
+        $merchant    = $this->get_feed_merchant( $feed_id );
+        $feed_format = $this->get_feed_format( $feed_id, $merchant );
+
+        // Do not track feed_created event if merchant is missing or invalid.
+        if ( '' === $merchant || '-1' === $merchant ) {
+            return;
+        }
+
         $cutoff = strtotime( self::FEED_CREATED_RELEASE_CUTOFF );
 
         $installed_time = (int) get_option( 'rex_wpfm_installed_time', 0 );
@@ -315,13 +530,13 @@ class Rex_Product_Feed_Linno_Telemetry {
             return;
         }
 
-        $telemetry_client->getDispatcher()->dispatch_minimal(
+        $result = $telemetry_client->getDispatcher()->dispatch_minimal(
             'activation/feed_created',
             array(
                 'site_url'    => esc_url_raw( get_site_url() ),
                 'unique_id'   => sanitize_text_field( $telemetry_client->get_unique_id() ),
-                'merchant'    => (string) get_post_meta( $feed_id, '_rex_feed_merchant', true ),
-                'feed_format' => (string) get_post_meta( $feed_id, '_rex_feed_feed_format', true ),
+                'merchant'    => $merchant,
+                'feed_format' => $feed_format,
                 // Non-empty on purpose: PostHogDriver::send() serializes an empty
                 // __identify as $set=[] (a JSON array), which PostHog's /batch/
                 // endpoint rejects outright with a 400 ("missing event name attribute" —
@@ -333,6 +548,10 @@ class Rex_Product_Feed_Linno_Telemetry {
                 ),
             )
         );
+
+        if ( $result ) {
+            update_post_meta( $feed_id, '_wpfm_feed_created_tracked', 'yes' );
+        }
     }
 
     /**
@@ -388,13 +607,16 @@ class Rex_Product_Feed_Linno_Telemetry {
         $installed_time     = (int) get_option( 'rex_wpfm_installed_time', 0 );
         $days_since_install = $installed_time > 0 ? (int) floor( ( time() - $installed_time ) / DAY_IN_SECONDS ) : 0;
 
+        $merchant    = $this->get_feed_merchant( $feed_id );
+        $feed_format = $this->get_feed_format( $feed_id, $merchant );
+
         $result = $telemetry_client->getDispatcher()->dispatch_minimal(
             'activation/first_feed_completed',
             array(
                 'site_url'           => esc_url_raw( get_site_url() ),
                 'unique_id'          => sanitize_text_field( $telemetry_client->get_unique_id() ),
-                'merchant'           => (string) get_post_meta( $feed_id, '_rex_feed_merchant', true ),
-                'feed_format'        => (string) get_post_meta( $feed_id, '_rex_feed_feed_format', true ),
+                'merchant'           => $merchant,
+                'feed_format'        => $feed_format,
                 'product_count'      => (int) $product_count,
                 'days_since_install' => $days_since_install,
                 'timestamp'          => current_time( 'mysql' ),
@@ -465,7 +687,7 @@ class Rex_Product_Feed_Linno_Telemetry {
      */
     public function build_aha_payload( int $post_id ): array {
         return array(
-            'marketplace'   => (string) get_post_meta( $post_id, '_rex_feed_merchant', true ),
+            'marketplace'   => $this->get_feed_merchant( $post_id ),
             'product_count' => (int) get_post_meta( $post_id, '_rex_feed_products', true ),
         );
     }
@@ -481,9 +703,16 @@ class Rex_Product_Feed_Linno_Telemetry {
     public function accumulate_feed_publish( $feed_id, $source = '' ) {
         $buffer = get_option( '_wpfm_feed_telemetry_buffer', array() );
 
+        $merchant = $this->get_feed_merchant( $feed_id );
+        $format   = $this->get_feed_format( $feed_id, $merchant );
+
         $buffer['feed_count']  = ( $buffer['feed_count']  ?? 0 ) + 1;
-        $buffer['merchants']   = array_unique( array_merge( $buffer['merchants'] ?? array(), array( (string) get_post_meta( $feed_id, '_rex_feed_merchant', true ) ) ) );
-        $buffer['formats']     = array_unique( array_merge( $buffer['formats']   ?? array(), array( (string) get_post_meta( $feed_id, '_rex_feed_feed_format', true ) ) ) );
+        if ( '' !== $merchant ) {
+            $buffer['merchants']   = array_unique( array_merge( $buffer['merchants'] ?? array(), array( $merchant ) ) );
+        }
+        if ( '' !== $format ) {
+            $buffer['formats']     = array_unique( array_merge( $buffer['formats']   ?? array(), array( $format ) ) );
+        }
 
         $interval = (string) get_post_meta( $feed_id, '_rex_feed_schedule', true );
         if ( $interval && 'no' !== $interval ) {
@@ -575,10 +804,20 @@ class Rex_Product_Feed_Linno_Telemetry {
         $intervals = $buffer['intervals'] ?? array();
         arsort( $intervals );
 
+        $analytics_views = (int) get_option( '_wpfm_telemetry_analytics_views_week', 0 );
+
+        // Temporary: store-wide published product count, added 2026-09-15 to inform
+        // the free-tier product limit decision (200 -> 500). Consent-gated (rides this
+        // already-consented event), one property, no new event/dispatch path. Remove
+        // this key (and this comment) after ~2026-10-13 once enough data is collected —
+        // see docs/TELEMETRY_EVENTS.md for the removal plan.
+        $published_product_count = wp_count_posts( 'product' )->publish ?? 0;
+
         $telemetry_client->track(
             'retention/feature_used',
             array(
                 'feature'               => 'feed_generation',
+                'product_count'         => (int) $published_product_count,
                 'feed_count'            => $buffer['feed_count']             ?? 0,
                 'manual_count'          => $buffer['manual_count']           ?? 0,
                 'scheduled_count'       => $buffer['scheduled_count']        ?? 0,
@@ -586,6 +825,7 @@ class Rex_Product_Feed_Linno_Telemetry {
                 'category_mapping'      => $buffer['category_mapping'] ?? 'no',
                 'feed_filter_rules'     => $buffer['feed_filter_rules'] ?? 'no',
                 'utm_tracking'          => $buffer['utm_tracking']     ?? 'no',
+                'analytics_views'       => $analytics_views,
                 'multi_currency'        => $buffer['multi_currency']   ?? 'no',
                 'variation_filters'     => $buffer['variation_filters']?? 'no',
                 'is_pro'                => $buffer['is_pro']           ?? 'no',
@@ -600,6 +840,7 @@ class Rex_Product_Feed_Linno_Telemetry {
         );
 
         delete_option( '_wpfm_feed_telemetry_buffer' );
+        delete_option( '_wpfm_telemetry_analytics_views_week' );
     }
 
     /**
@@ -633,24 +874,36 @@ class Rex_Product_Feed_Linno_Telemetry {
                 'feed_id'       => (int) $feed_id,
                 'error_type'    => (string) ( $error_data['type'] ?? '' ),
                 'error_message' => mb_substr( (string) ( $error_data['message'] ?? '' ), 0, 300 ),
-                'merchant'      => (string) get_post_meta( $feed_id, '_rex_feed_merchant', true ),
+                'merchant'      => $this->get_feed_merchant( $feed_id ),
             )
         );
     }
 
     /**
-     * Track feed validation usage and, additionally, validation failures.
+     * Track feed validation usage from manual admin interactions.
      *
-     * Fires from both the scheduled and manual validation code paths via the
-     * same rex_product_feed_validation_completed action. Not deduped.
+     * Fires from the rex_product_feed_validation_completed action. Only tracks
+     * manual validations triggered by an admin user via AJAX ('manual' source),
+     * completely ignoring background cron validation runs ('cron' source) to
+     * avoid event floods across thousands of scheduled sites.
+     *
+     * Emits a single diagnostics/feed_validation_run event with summary counts
+     * and a boolean 'has_errors' flag, eliminating the duplicate
+     * diagnostics/feed_validation_failed event.
      *
      * @param int    $feed_id  Feed post ID.
      * @param string $merchant Merchant slug.
      * @param array  $summary  Validation summary (total_errors, total_warnings, total_info, ...).
+     * @param string $source   Trigger source ('manual' or 'cron'). Defaults to 'manual'.
      *
      * @return void
      */
-    public function track_validation_completed( $feed_id, $merchant, $summary ) {
+    public function track_validation_completed( $feed_id, $merchant, $summary, $source = 'manual' ) {
+        // Only track manual validations from admin UI; drop background cron runs.
+        if ( 'manual' !== $source ) {
+            return;
+        }
+
         global $telemetry_client;
         if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'track' ) ) {
             return;
@@ -659,19 +912,18 @@ class Rex_Product_Feed_Linno_Telemetry {
             return;
         }
 
+        $total_errors = (int) ( $summary['total_errors'] ?? 0 );
+
         $properties = array(
             'feed_id'        => (int) $feed_id,
             'merchant'       => (string) $merchant,
-            'total_errors'   => (int) ( $summary['total_errors'] ?? 0 ),
+            'total_errors'   => $total_errors,
             'total_warnings' => (int) ( $summary['total_warnings'] ?? 0 ),
             'total_info'     => (int) ( $summary['total_info'] ?? 0 ),
+            'has_errors'     => $total_errors > 0,
         );
 
         $telemetry_client->track( 'diagnostics/feed_validation_run', $properties );
-
-        if ( $properties['total_errors'] > 0 ) {
-            $telemetry_client->track( 'diagnostics/feed_validation_failed', $properties );
-        }
     }
 
     /**
@@ -747,6 +999,38 @@ class Rex_Product_Feed_Linno_Telemetry {
         }
 
         $telemetry_client->getDispatcher()->dispatch( 'growth/upgrade_prompt_clicked', array( 'location' => sanitize_text_field( $location ) ) );
+    }
+
+    /**
+     * Track Analytics page impression.
+     *
+     * Increments weekly view counter (for retention/feature_used rollup) and
+     * dispatches a daily-throttled growth/analytics_page_viewed event (maximum
+     * once per site per 24 hours) to prevent ingestion floods while measuring
+     * active daily adoption of the analytics feature.
+     *
+     * @return void
+     */
+    public function track_analytics_page_viewed() {
+        $views = (int) get_option( '_wpfm_telemetry_analytics_views_week', 0 );
+        update_option( '_wpfm_telemetry_analytics_views_week', $views + 1, false );
+
+        // Throttle direct event dispatch to at most once per 24 hours per site.
+        $transient_key = 'wpfm_telemetry_analytics_view_throttled';
+        if ( get_transient( $transient_key ) ) {
+            return;
+        }
+        set_transient( $transient_key, 1, DAY_IN_SECONDS );
+
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'getDispatcher' ) ) {
+            return;
+        }
+        if ( 'yes' !== $telemetry_client->get_optin_state() ) {
+            return;
+        }
+
+        $telemetry_client->getDispatcher()->dispatch( 'growth/analytics_page_viewed', array() );
     }
 
     /**

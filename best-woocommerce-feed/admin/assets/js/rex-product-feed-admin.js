@@ -88,6 +88,29 @@
     let config_btn = rex_wpfm_admin_translate_strings.google_cat_map_btn;
     let optimize_pr_title_btn = rex_wpfm_admin_translate_strings.optimize_pr_title_btn;
 
+    // Feed publish intent telemetry timing
+    let pfmFeedCreateStartTime = Date.now();
+    let pfmFeedActiveTimeMs = 0;
+    let pfmFeedLastVisibleStart = Date.now();
+    let pfmFeedLastActivity = Date.now();
+    let pfmFeedHasTrackedPublish = false;
+
+    if (typeof document !== "undefined" && typeof document.addEventListener === "function") {
+        document.addEventListener("visibilitychange", function () {
+            if (document.hidden) {
+                pfmFeedActiveTimeMs += Date.now() - pfmFeedLastVisibleStart;
+            } else {
+                pfmFeedLastVisibleStart = Date.now();
+            }
+        });
+
+        ["mousemove", "keydown", "click", "scroll"].forEach(function (evt) {
+            window.addEventListener(evt, function () {
+                pfmFeedLastActivity = Date.now();
+            }, { passive: true });
+        });
+    }
+
     function rex_feed_lock_page_scroll() {
         if ( rex_feed_scroll_state ) {
             return;
@@ -1451,6 +1474,23 @@
             return;
         }
 
+        let activeSec = 0;
+        let totalSec = 0;
+        let isAbandoned = 0;
+
+        if (!is_preview && !pfmFeedHasTrackedPublish) {
+            pfmFeedHasTrackedPublish = true;
+            try {
+                let now = Date.now();
+                totalSec = Math.max(1, Math.round((now - pfmFeedCreateStartTime) / 1000));
+                let currentVisible = (typeof document !== "undefined" && document.hidden) ? 0 : (now - pfmFeedLastVisibleStart);
+                activeSec = Math.max(1, Math.round((pfmFeedActiveTimeMs + currentVisible) / 1000));
+                isAbandoned = (now - pfmFeedLastActivity) > (5 * 60 * 1000) ? 1 : 0;
+            } catch (e) {
+                // Silently ignore
+            }
+        }
+
         if ($(".wpfm-field-mappings").find("tbody tr:first").css("display") == "none") {
             $(".wpfm-field-mappings").find("tbody tr:first").remove();
         }
@@ -1467,6 +1507,12 @@
             button_id: submit_button,
             feed_title: feed_title,
         };
+
+        if (activeSec > 0) {
+            $payload.active_duration_seconds = activeSec;
+            $payload.total_duration_seconds = totalSec;
+            $payload.was_tab_abandoned = isAbandoned;
+        }
 
         wpAjaxHelperRequest( 'rexfeed-get-total-products', $payload )
             .done( function ( response ) {

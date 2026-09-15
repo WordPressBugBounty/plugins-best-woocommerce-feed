@@ -298,6 +298,8 @@ class Rex_Product_Feed_Ajax {
         }
 
         $btn_id         = !empty( $payload[ 'button_id' ] ) ? $payload[ 'button_id' ] : '';
+        do_action( 'rex_product_feed_product_count_requested', $payload, $feed_id );
+
         $is_premium     = apply_filters( 'wpfm_is_premium', false );
         $eligible_total = self::get_feed_product_count( $payload, $feed_id );
 

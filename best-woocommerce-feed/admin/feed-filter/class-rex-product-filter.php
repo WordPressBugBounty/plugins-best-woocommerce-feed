@@ -401,7 +401,7 @@ class Rex_Product_Filter {
 
                     $then      = sanitize_key( $filter['then'] );
                     $condition = sanitize_key( $filter['condition'] );
-                    $value     = htmlspecialchars($filter['value']);
+                    $value     = is_string( $filter['value'] ) ? trim( $filter['value'] ) : $filter['value'];
 
                     // Handle date/time conversions
                     if (self::is_unix_date($if)) {
@@ -795,7 +795,7 @@ class Rex_Product_Filter {
     private static function post_contain( $column, $value, $operator ) {
         global $wpdb;
         $op = 'exc' === $operator ? 'NOT LIKE' : 'LIKE';
-        return "{$wpdb->posts}.{$column} {$op} '%{$wpdb->esc_like( $value )}%'";
+        return $wpdb->prepare( "{$wpdb->posts}.{$column} {$op} %s", '%' . $wpdb->esc_like( $value ) . '%' );
     }
 
     /**
@@ -811,7 +811,7 @@ class Rex_Product_Filter {
     private static function post_dn_contain( $column, $value, $operator ) {
         global $wpdb;
         $op = 'exc' === $operator ? 'LIKE' : 'NOT LIKE';
-        return "{$wpdb->posts}.{$column} {$op} '%{$wpdb->esc_like( $value )}%'";
+        return $wpdb->prepare( "{$wpdb->posts}.{$column} {$op} %s", '%' . $wpdb->esc_like( $value ) . '%' );
     }
 
     /**
@@ -827,8 +827,10 @@ class Rex_Product_Filter {
     private static function post_equal_to( $column, $value, $operator ) {
         global $wpdb;
         $op = 'exc' === $operator ? '<>' : '=';
-        $value = is_numeric( $value ) ? $wpdb->esc_like( $value ) : "'{$wpdb->esc_like( $value )}'";
-        return "{$wpdb->posts}.{$column} {$op} {$value}";
+        if ( 'ID' === $column && is_numeric( $value ) ) {
+            return $wpdb->prepare( "{$wpdb->posts}.{$column} {$op} %d", $value );
+        }
+        return $wpdb->prepare( "{$wpdb->posts}.{$column} {$op} %s", $value );
     }
 
     /**
@@ -844,8 +846,10 @@ class Rex_Product_Filter {
     private static function post_nequal_to( $column, $value, $operator ) {
         global $wpdb;
         $op = 'exc' === $operator ? '=' : '<>';
-        $value = is_numeric( $value ) ? $wpdb->esc_like( $value ) : "'{$wpdb->esc_like( $value )}'";
-        return "{$wpdb->posts}.{$column} {$op} {$value}";
+        if ( 'ID' === $column && is_numeric( $value ) ) {
+            return $wpdb->prepare( "{$wpdb->posts}.{$column} {$op} %d", $value );
+        }
+        return $wpdb->prepare( "{$wpdb->posts}.{$column} {$op} %s", $value );
     }
 
     /**
@@ -860,9 +864,12 @@ class Rex_Product_Filter {
      */
     private static function post_greater_than( $column, $value, $operator ) {
         global $wpdb;
-        $op = 'exc' === $operator ? '<' : '>';
-        $value = is_numeric( $value ) ? $wpdb->esc_like( $value ) : "'{$wpdb->esc_like( $value )}'";
-        return "{$wpdb->posts}.{$column} {$op} {$value}";
+        $op = 'exc' === $operator ? '<=' : '>';
+        if ( is_numeric( $value ) ) {
+            $placeholder = ( strpos( (string) $value, '.' ) !== false ) ? '%f' : '%d';
+            return $wpdb->prepare( "{$wpdb->posts}.{$column} {$op} {$placeholder}", $value );
+        }
+        return $wpdb->prepare( "{$wpdb->posts}.{$column} {$op} %s", $value );
     }
 
     /**
@@ -877,9 +884,12 @@ class Rex_Product_Filter {
      */
     private static function post_greater_than_equal( $column, $value, $operator ) {
         global $wpdb;
-        $op = 'exc' === $operator ? '<=' : '>=';
-        $value = is_numeric( $value ) ? $wpdb->esc_like( $value ) : "'{$wpdb->esc_like( $value )}'";
-        return "{$wpdb->posts}.{$column} {$op} {$value}";
+        $op = 'exc' === $operator ? '<' : '>=';
+        if ( is_numeric( $value ) ) {
+            $placeholder = ( strpos( (string) $value, '.' ) !== false ) ? '%f' : '%d';
+            return $wpdb->prepare( "{$wpdb->posts}.{$column} {$op} {$placeholder}", $value );
+        }
+        return $wpdb->prepare( "{$wpdb->posts}.{$column} {$op} %s", $value );
     }
 
     /**
@@ -894,9 +904,12 @@ class Rex_Product_Filter {
      */
     private static function post_less_than( $column, $value, $operator ) {
         global $wpdb;
-        $op = 'exc' === $operator ? '>' : '<';
-        $value = is_numeric( $value ) ? $wpdb->esc_like( $value ) : "'{$wpdb->esc_like( $value )}'";
-        return "{$wpdb->posts}.{$column} {$op} {$value}";
+        $op = 'exc' === $operator ? '>=' : '<';
+        if ( is_numeric( $value ) ) {
+            $placeholder = ( strpos( (string) $value, '.' ) !== false ) ? '%f' : '%d';
+            return $wpdb->prepare( "{$wpdb->posts}.{$column} {$op} {$placeholder}", $value );
+        }
+        return $wpdb->prepare( "{$wpdb->posts}.{$column} {$op} %s", $value );
     }
 
     /**
@@ -911,9 +924,12 @@ class Rex_Product_Filter {
      */
     private static function post_less_than_equal( $column, $value, $operator ) {
         global $wpdb;
-        $op = 'exc' === $operator ? '<=' : '>=';
-        $value = is_numeric( $value ) ? $wpdb->esc_like( $value ) : "'{$wpdb->esc_like( $value )}'";
-        return "{$wpdb->posts}.{$column} {$op} {$value}";
+        $op = 'exc' === $operator ? '>' : '<=';
+        if ( is_numeric( $value ) ) {
+            $placeholder = ( strpos( (string) $value, '.' ) !== false ) ? '%f' : '%d';
+            return $wpdb->prepare( "{$wpdb->posts}.{$column} {$op} {$placeholder}", $value );
+        }
+        return $wpdb->prepare( "{$wpdb->posts}.{$column} {$op} %s", $value );
     }
 
     /**
@@ -933,54 +949,72 @@ class Rex_Product_Filter {
             $value = self::process_tax_class_value($value);
 
             $is_empty_or_standard = (is_null($value) || $value === '' || $value === 'standard');
+            $meta_table = 'RexMeta' . self::$meta_table_count;
 
             if ($is_empty_or_standard) {
                 if ('exc' === $operator) {
-                    $condition = "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' AND RexMeta" . self::$meta_table_count . ".meta_value IS NOT NULL AND RexMeta" . self::$meta_table_count . ".meta_value != '' AND RexMeta" . self::$meta_table_count . ".meta_value != 'standard')";
-
-                    return $condition;
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value IS NOT NULL AND {$meta_table}.meta_value != '' AND {$meta_table}.meta_value != 'standard')",
+                        $column
+                    );
                 } else {
-                    $condition = "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' AND (RexMeta" . self::$meta_table_count . ".meta_value IS NULL OR RexMeta" . self::$meta_table_count . ".meta_value = '' OR RexMeta" . self::$meta_table_count . ".meta_value = 'standard'))";
-                    return $condition;
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND ({$meta_table}.meta_value IS NULL OR {$meta_table}.meta_value = '' OR {$meta_table}.meta_value = 'standard'))",
+                        $column
+                    );
                 }
             } else {
                 if ('exc' === $operator) {
-                    $condition = "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' AND (RexMeta" . self::$meta_table_count . ".meta_value IS NULL OR RexMeta" . self::$meta_table_count . ".meta_value = '' OR RexMeta" . self::$meta_table_count . ".meta_value = 'standard' OR RexMeta" . self::$meta_table_count . ".meta_value != '{$value}'))";
-                    return $condition;
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND ({$meta_table}.meta_value IS NULL OR {$meta_table}.meta_value = '' OR {$meta_table}.meta_value = 'standard' OR {$meta_table}.meta_value != %s))",
+                        $column,
+                        $value
+                    );
                 } else {
-                    $condition = "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' AND RexMeta" . self::$meta_table_count . ".meta_value = '{$value}')";
-                    return $condition;
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value = %s)",
+                        $column,
+                        $value
+                    );
                 }
             }
         }
 
         if ( self::is_backorders_column( $column ) ) {
             $value = self::process_backorders_value( $value );
+            $meta_table = 'RexMeta' . self::$meta_table_count;
+
             // Include products with no backorders explicitly set
             if ( $value === 'no' ) {
                 if ( 'exc' === $operator ) {
                     // Exclude products where backorders are not allowed
-                    return "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                     AND RexMeta" . self::$meta_table_count . ".meta_value != 'no')";
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value != 'no')",
+                        $column
+                    );
                 } else {
                     // Include products where backorders are not allowed (explicit 'no' or missing)
-                    return "(
-                (RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                 AND RexMeta" . self::$meta_table_count . ".meta_value = 'no')
-                OR RexMeta" . self::$meta_table_count . ".meta_key IS NULL
-            )";
+                    return $wpdb->prepare(
+                        "(({$meta_table}.meta_key = %s AND {$meta_table}.meta_value = 'no') OR {$meta_table}.meta_key IS NULL)",
+                        $column
+                    );
                 }
             } else {
                 if ( 'exc' === $operator ) {
-                    return "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                     AND RexMeta" . self::$meta_table_count . ".meta_value != '{$value}')";
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value != %s)",
+                        $column,
+                        $value
+                    );
                 } else {
-                    return "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                     AND RexMeta" . self::$meta_table_count . ".meta_value = '{$value}')";
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value = %s)",
+                        $column,
+                        $value
+                    );
                 }
             }
         }
-
 
         if(self::is_tax_status_column($column)){
             $value = self::process_tax_status_value($value);
@@ -1005,12 +1039,16 @@ class Rex_Product_Filter {
             global $wpdb;
             $id_list = implode( ',', $product_ids );
             $op = ( 'exc' === $operator ) ? 'NOT IN' : 'IN';
-            $condition = "{$wpdb->posts}.ID {$op} ({$id_list})";
-            return $condition;
+            return "{$wpdb->posts}.ID {$op} ({$id_list})";
         }
 
         $op = 'exc' === $operator ? 'NOT LIKE' : 'LIKE';
-        return '(RexMeta' . self::$meta_table_count . ".meta_key = '{$column}' AND RexMeta". self::$meta_table_count .".meta_value {$op} '%{$wpdb->esc_like( $value )}%')";
+        $meta_table = 'RexMeta' . self::$meta_table_count;
+        return $wpdb->prepare(
+            "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value {$op} %s)",
+            $column,
+            '%' . $wpdb->esc_like( $value ) . '%'
+        );
     }
 
     /**
@@ -1033,28 +1071,36 @@ class Rex_Product_Filter {
 
         if ( self::is_backorders_column( $column ) ) {
             $value = self::process_backorders_value( $value );
+            $meta_table = 'RexMeta' . self::$meta_table_count;
 
             // Include products with no backorders explicitly set
             if ( $value === 'no' ) {
                 if ( 'inc' === $operator ) {
                     // Exclude products where backorders are not allowed
-                    return "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                     AND RexMeta" . self::$meta_table_count . ".meta_value != 'no')";
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value != 'no')",
+                        $column
+                    );
                 } else {
                     // Include products where backorders are not allowed (explicit 'no' or missing)
-                    return "(
-                (RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                 AND RexMeta" . self::$meta_table_count . ".meta_value = 'no')
-                OR RexMeta" . self::$meta_table_count . ".meta_key IS NULL
-            )";
+                    return $wpdb->prepare(
+                        "(({$meta_table}.meta_key = %s AND {$meta_table}.meta_value = 'no') OR {$meta_table}.meta_key IS NULL)",
+                        $column
+                    );
                 }
             } else {
                 if ( 'inc' === $operator ) {
-                    return "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                     AND RexMeta" . self::$meta_table_count . ".meta_value != '{$value}')";
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value != %s)",
+                        $column,
+                        $value
+                    );
                 } else {
-                    return "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                     AND RexMeta" . self::$meta_table_count . ".meta_value = '{$value}')";
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value = %s)",
+                        $column,
+                        $value
+                    );
                 }
             }
         }
@@ -1083,12 +1129,16 @@ class Rex_Product_Filter {
             $id_list = implode( ',', $product_ids );
             $op = ( 'exc' === $operator ) ? 'IN' : 'NOT IN';
 
-            $condition = "{$wpdb->posts}.ID {$op} ({$id_list})";
-            return $condition;
+            return "{$wpdb->posts}.ID {$op} ({$id_list})";
         }
 
         $op = 'exc' === $operator ? 'LIKE' : 'NOT LIKE';
-        return '(RexMeta' . self::$meta_table_count . ".meta_key = '{$column}' AND RexMeta". self::$meta_table_count .".meta_value {$op} '%{$wpdb->esc_like( $value )}%')";
+        $meta_table = 'RexMeta' . self::$meta_table_count;
+        return $wpdb->prepare(
+            "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value {$op} %s)",
+            $column,
+            '%' . $wpdb->esc_like( $value ) . '%'
+        );
     }
 
     /**
@@ -1112,28 +1162,36 @@ class Rex_Product_Filter {
 
         if ( self::is_backorders_column( $column ) ) {
             $value = self::process_backorders_value( $value );
+            $meta_table = 'RexMeta' . self::$meta_table_count;
 
             // Include products with no backorders explicitly set
             if ( $value === 'no' ) {
                 if ( 'exc' === $operator ) {
                     // Exclude products where backorders are not allowed
-                    return "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                     AND RexMeta" . self::$meta_table_count . ".meta_value != 'no')";
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value != 'no')",
+                        $column
+                    );
                 } else {
                     // Include products where backorders are not allowed (explicit 'no' or missing)
-                    return "(
-                (RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                 AND RexMeta" . self::$meta_table_count . ".meta_value = 'no')
-                OR RexMeta" . self::$meta_table_count . ".meta_key IS NULL
-            )";
+                    return $wpdb->prepare(
+                        "(({$meta_table}.meta_key = %s AND {$meta_table}.meta_value = 'no') OR {$meta_table}.meta_key IS NULL)",
+                        $column
+                    );
                 }
             } else {
                 if ( 'exc' === $operator ) {
-                    return "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                     AND RexMeta" . self::$meta_table_count . ".meta_value != '{$value}')";
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value != %s)",
+                        $column,
+                        $value
+                    );
                 } else {
-                    return "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                     AND RexMeta" . self::$meta_table_count . ".meta_value = '{$value}')";
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value = %s)",
+                        $column,
+                        $value
+                    );
                 }
             }
         }
@@ -1162,13 +1220,22 @@ class Rex_Product_Filter {
             $id_list = implode( ',', $product_ids );
             $op = ( 'exc' === $operator ) ? 'NOT IN' : 'IN';
 
-            $condition = "{$wpdb->posts}.ID {$op} ({$id_list})";
-            return $condition;
+            return "{$wpdb->posts}.ID {$op} ({$id_list})";
         }
 
-        $value = is_numeric( $value ) ? $wpdb->esc_like( $value ) : "'{$wpdb->esc_like( $value )}'";
-        return '<>' === $op ? "(RexMeta". self::$meta_table_count .".meta_value IS NULL OR RexMeta". self::$meta_table_count .".meta_value {$op} {$value})"
-            : '(RexMeta' . self::$meta_table_count . ".meta_key = '{$column}' AND RexMeta". self::$meta_table_count .".meta_value {$op} {$value})";
+        $meta_table = 'RexMeta' . self::$meta_table_count;
+        if ( '<>' === $op ) {
+            return $wpdb->prepare(
+                "({$meta_table}.meta_value IS NULL OR {$meta_table}.meta_value <> %s)",
+                $value
+            );
+        } else {
+            return $wpdb->prepare(
+                "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value = %s)",
+                $column,
+                $value
+            );
+        }
     }
 
     /**
@@ -1192,32 +1259,39 @@ class Rex_Product_Filter {
 
         if ( self::is_backorders_column( $column ) ) {
             $value = self::process_backorders_value( $value );
+            $meta_table = 'RexMeta' . self::$meta_table_count;
 
             // Include products with no backorders explicitly set
             if ( $value === 'no' ) {
                 if ( 'inc' === $operator ) {
                     // Exclude products where backorders are not allowed
-                    return "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                     AND RexMeta" . self::$meta_table_count . ".meta_value != 'no')";
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value != 'no')",
+                        $column
+                    );
                 } else {
                     // Include products where backorders are not allowed (explicit 'no' or missing)
-                    return "(
-                (RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                 AND RexMeta" . self::$meta_table_count . ".meta_value = 'no')
-                OR RexMeta" . self::$meta_table_count . ".meta_key IS NULL
-            )";
+                    return $wpdb->prepare(
+                        "(({$meta_table}.meta_key = %s AND {$meta_table}.meta_value = 'no') OR {$meta_table}.meta_key IS NULL)",
+                        $column
+                    );
                 }
             } else {
                 if ( 'inc' === $operator ) {
-                    return "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                     AND RexMeta" . self::$meta_table_count . ".meta_value != '{$value}')";
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value != %s)",
+                        $column,
+                        $value
+                    );
                 } else {
-                    return "(RexMeta" . self::$meta_table_count . ".meta_key = '{$column}' 
-                     AND RexMeta" . self::$meta_table_count . ".meta_value = '{$value}')";
+                    return $wpdb->prepare(
+                        "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value = %s)",
+                        $column,
+                        $value
+                    );
                 }
             }
         }
-
 
         if(self::is_tax_status_column($column)){
             $value = self::process_tax_status_value($value);
@@ -1243,14 +1317,22 @@ class Rex_Product_Filter {
             $id_list = implode( ',', $product_ids );
             $op = ( 'exc' === $operator ) ? 'IN' : 'NOT IN';
 
-            $condition = "{$wpdb->posts}.ID {$op} ({$id_list})";
-
-            return $condition;
+            return "{$wpdb->posts}.ID {$op} ({$id_list})";
         }
 
-        $value = is_numeric( $value ) ? $wpdb->esc_like( $value ) : "'{$wpdb->esc_like( $value )}'";
-	    return '<>' === $op ? "(RexMeta". self::$meta_table_count .".meta_value IS NULL OR RexMeta". self::$meta_table_count .".meta_value {$op} {$value})"
-		    : '(RexMeta' . self::$meta_table_count . ".meta_key = '{$column}' AND RexMeta". self::$meta_table_count .".meta_value {$op} {$value})";
+        $meta_table = 'RexMeta' . self::$meta_table_count;
+        if ( '<>' === $op ) {
+            return $wpdb->prepare(
+                "({$meta_table}.meta_value IS NULL OR {$meta_table}.meta_value <> %s)",
+                $value
+            );
+        } else {
+            return $wpdb->prepare(
+                "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value = %s)",
+                $column,
+                $value
+            );
+        }
     }
 
     /**
@@ -1266,12 +1348,21 @@ class Rex_Product_Filter {
     private static function postmeta_greater_than( $column, $value, $operator ) {
         global $wpdb;
         $op = 'exc' === $operator ? '<=' : '>';
-        $value = is_numeric( $value ) ? $wpdb->esc_like( $value ) : "'{$wpdb->esc_like( $value )}'";
+        $meta_table = 'RexMeta' . self::$meta_table_count;
+        $placeholder = is_numeric( $value ) ? ( strpos( (string) $value, '.' ) !== false ? '%f' : '%d' ) : '%s';
         
         if ( 'exc' === $operator ) {
-            return "(RexMeta". self::$meta_table_count .".meta_key = '{$column}' AND (RexMeta". self::$meta_table_count .".meta_value IS NULL OR RexMeta". self::$meta_table_count .".meta_value {$op} {$value}))";
+            return $wpdb->prepare(
+                "({$meta_table}.meta_key = %s AND ({$meta_table}.meta_value IS NULL OR {$meta_table}.meta_value {$op} {$placeholder}))",
+                $column,
+                $value
+            );
         } else {
-            return "(RexMeta". self::$meta_table_count .".meta_key = '{$column}' AND RexMeta". self::$meta_table_count .".meta_value {$op} {$value})";
+            return $wpdb->prepare(
+                "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value {$op} {$placeholder})",
+                $column,
+                $value
+            );
         }
     }
 
@@ -1288,12 +1379,21 @@ class Rex_Product_Filter {
     private static function postmeta_greater_than_equal( $column, $value, $operator ) {
         global $wpdb;
         $op = 'exc' === $operator ? '<' : '>=';
-        $value = is_numeric( $value ) ? $wpdb->esc_like( $value ) : "'{$wpdb->esc_like( $value )}'";
+        $meta_table = 'RexMeta' . self::$meta_table_count;
+        $placeholder = is_numeric( $value ) ? ( strpos( (string) $value, '.' ) !== false ? '%f' : '%d' ) : '%s';
         
         if ( 'exc' === $operator ) {
-            return "(RexMeta". self::$meta_table_count .".meta_key = '{$column}' AND (RexMeta". self::$meta_table_count .".meta_value IS NULL OR RexMeta". self::$meta_table_count .".meta_value {$op} {$value}))";
+            return $wpdb->prepare(
+                "({$meta_table}.meta_key = %s AND ({$meta_table}.meta_value IS NULL OR {$meta_table}.meta_value {$op} {$placeholder}))",
+                $column,
+                $value
+            );
         } else {
-            return "(RexMeta". self::$meta_table_count .".meta_key = '{$column}' AND RexMeta". self::$meta_table_count .".meta_value {$op} {$value})";
+            return $wpdb->prepare(
+                "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value {$op} {$placeholder})",
+                $column,
+                $value
+            );
         }
     }
 
@@ -1310,12 +1410,21 @@ class Rex_Product_Filter {
     private static function postmeta_less_than( $column, $value, $operator ) {
         global $wpdb;
         $op = 'exc' === $operator ? '>=' : '<';
-        $value = is_numeric( $value ) ? $wpdb->esc_like( $value ) : "'{$wpdb->esc_like( $value )}'";
+        $meta_table = 'RexMeta' . self::$meta_table_count;
+        $placeholder = is_numeric( $value ) ? ( strpos( (string) $value, '.' ) !== false ? '%f' : '%d' ) : '%s';
         
         if ( 'exc' === $operator ) {
-            return "(RexMeta". self::$meta_table_count .".meta_key = '{$column}' AND (RexMeta". self::$meta_table_count .".meta_value IS NULL OR RexMeta". self::$meta_table_count .".meta_value {$op} {$value}))";
+            return $wpdb->prepare(
+                "({$meta_table}.meta_key = %s AND ({$meta_table}.meta_value IS NULL OR {$meta_table}.meta_value {$op} {$placeholder}))",
+                $column,
+                $value
+            );
         } else {
-            return "(RexMeta". self::$meta_table_count .".meta_key = '{$column}' AND RexMeta". self::$meta_table_count .".meta_value {$op} {$value})";
+            return $wpdb->prepare(
+                "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value {$op} {$placeholder})",
+                $column,
+                $value
+            );
         }
     }
 
@@ -1332,12 +1441,21 @@ class Rex_Product_Filter {
     private static function postmeta_less_than_equal( $column, $value, $operator ) {
         global $wpdb;
         $op = 'exc' === $operator ? '>' : '<=';
-        $value = is_numeric( $value ) ? $wpdb->esc_like( $value ) : "'{$wpdb->esc_like( $value )}'";
+        $meta_table = 'RexMeta' . self::$meta_table_count;
+        $placeholder = is_numeric( $value ) ? ( strpos( (string) $value, '.' ) !== false ? '%f' : '%d' ) : '%s';
         
         if ( 'exc' === $operator ) {
-            return "(RexMeta". self::$meta_table_count .".meta_key = '{$column}' AND (RexMeta". self::$meta_table_count .".meta_value IS NULL OR RexMeta". self::$meta_table_count .".meta_value {$op} {$value}))";
+            return $wpdb->prepare(
+                "({$meta_table}.meta_key = %s AND ({$meta_table}.meta_value IS NULL OR {$meta_table}.meta_value {$op} {$placeholder}))",
+                $column,
+                $value
+            );
         } else {
-            return "(RexMeta". self::$meta_table_count .".meta_key = '{$column}' AND RexMeta". self::$meta_table_count .".meta_value {$op} {$value})";
+            return $wpdb->prepare(
+                "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value {$op} {$placeholder})",
+                $column,
+                $value
+            );
         }
     }
 
@@ -1362,15 +1480,27 @@ class Rex_Product_Filter {
             $ids = self::get_term_product_ids( $value );
 
             if ( is_array( $ids ) ) {
-                $ids = array_map( 'intval', $ids );
+                $ids = array_filter( array_map( 'absint', $ids ) );
                 $value = implode( ',', $ids );
             } elseif ( is_string( $ids ) ) {
-                $ids_array = array_map( 'intval', array_filter( array_map( 'trim', explode( ',', $ids ) ) ) );
+                $ids_array = array_filter( array_map( 'absint', array_map( 'trim', explode( ',', $ids ) ) ) );
                 $value = implode( ',', $ids_array );
             } else {
                 $value = '';
             }
-            $table_column = "$wpdb->posts.ID";
+            $table_column = "{$wpdb->posts}.ID";
+        } else {
+            if ( is_array( $value ) ) {
+                $ids = array_filter( array_map( 'absint', $value ) );
+                $value = implode( ',', $ids );
+            } elseif ( is_string( $value ) ) {
+                $ids = array_filter( array_map( 'absint', array_map( 'trim', explode( ',', $value ) ) ) );
+                $value = implode( ',', $ids );
+            } elseif ( is_numeric( $value ) && absint( $value ) > 0 ) {
+                $value = (string) absint( $value );
+            } else {
+                $value = '';
+            }
         }
 
         if ( empty( $value ) ) {
@@ -1400,16 +1530,28 @@ class Rex_Product_Filter {
             $op = 'NOT IN';
             $ids = self::get_term_product_ids( $value );
             if ( is_array( $ids ) ) {
-                $ids = array_map( 'intval', $ids );
+                $ids = array_filter( array_map( 'absint', $ids ) );
                 $value = implode( ',', $ids );
             } elseif ( is_string( $ids ) ) {
-                $ids_array = array_map( 'intval', array_filter( array_map( 'trim', explode( ',', $ids ) ) ) );
+                $ids_array = array_filter( array_map( 'absint', array_map( 'trim', explode( ',', $ids ) ) ) );
                 $value = implode( ',', $ids_array );
             } else {
                 $value = '';
             }
 
-            $table_column = "$wpdb->posts.ID";
+            $table_column = "{$wpdb->posts}.ID";
+        } else {
+            if ( is_array( $value ) ) {
+                $ids = array_filter( array_map( 'absint', $value ) );
+                $value = implode( ',', $ids );
+            } elseif ( is_string( $value ) ) {
+                $ids = array_filter( array_map( 'absint', array_map( 'trim', explode( ',', $value ) ) ) );
+                $value = implode( ',', $ids );
+            } elseif ( is_numeric( $value ) && absint( $value ) > 0 ) {
+                $value = (string) absint( $value );
+            } else {
+                $value = '';
+            }
         }
 
         if ( empty( $value ) ) {
@@ -1437,10 +1579,31 @@ class Rex_Product_Filter {
         $op = 'IN';
         if( 'exc' === $operator ) {
             $op = 'NOT IN';
-            $value = self::get_term_product_ids( $value ) ; // Comma separated
-            $table_column = "$wpdb->posts.ID";
+            $ids = self::get_term_product_ids( $value ); // Comma separated
+            if ( is_array( $ids ) ) {
+                $ids = array_filter( array_map( 'absint', $ids ) );
+                $value = implode( ',', $ids );
+            } elseif ( is_string( $ids ) ) {
+                $ids_array = array_filter( array_map( 'absint', array_map( 'trim', explode( ',', $ids ) ) ) );
+                $value = implode( ',', $ids_array );
+            } else {
+                $value = '';
+            }
+            $table_column = "{$wpdb->posts}.ID";
+        } else {
+            if ( is_array( $value ) ) {
+                $ids = array_filter( array_map( 'absint', $value ) );
+                $value = implode( ',', $ids );
+            } elseif ( is_string( $value ) ) {
+                $ids = array_filter( array_map( 'absint', array_map( 'trim', explode( ',', $value ) ) ) );
+                $value = implode( ',', $ids );
+            } elseif ( is_numeric( $value ) && absint( $value ) > 0 ) {
+                $value = (string) absint( $value );
+            } else {
+                $value = '';
+            }
         }
-        return $value ? "({$table_column} {$op} ({$value}))" : '';
+        return $value ? "({$table_column} {$op} ({$value}))" : '(1=0)';
     }
 
     /**
@@ -1451,6 +1614,10 @@ class Rex_Product_Filter {
      * @since 7.4.48
      */
     private static function process_tax_class_value($value) {
+        if ( ! is_string( $value ) && ! is_numeric( $value ) ) {
+            return '';
+        }
+
         $standard_tax_classes = [
             'standard' => '',
             '' => '',
@@ -1458,7 +1625,7 @@ class Rex_Product_Filter {
             'zero-rate' => 'zero-rate'
         ];
 
-        $normalized_value = strtolower(trim($value));
+        $normalized_value = strtolower(trim((string)$value));
         foreach ($standard_tax_classes as $key => $class_value) {
             if ($normalized_value === $key) {
                 return $class_value;
@@ -1480,7 +1647,7 @@ class Rex_Product_Filter {
             }
         }
 
-        return $value;
+        return sanitize_title( (string) $value );
     }
 
     /**
@@ -1867,10 +2034,31 @@ class Rex_Product_Filter {
         $op = 'IN';
         if( 'inc' === $operator ) {
             $op = 'NOT IN';
-            $value = self::get_term_product_ids( $value ); // Comma separated
-            $table_column = "$wpdb->posts.ID";
+            $ids = self::get_term_product_ids( $value ); // Comma separated
+            if ( is_array( $ids ) ) {
+                $ids = array_filter( array_map( 'absint', $ids ) );
+                $value = implode( ',', $ids );
+            } elseif ( is_string( $ids ) ) {
+                $ids_array = array_filter( array_map( 'absint', array_map( 'trim', explode( ',', $ids ) ) ) );
+                $value = implode( ',', $ids_array );
+            } else {
+                $value = '';
+            }
+            $table_column = "{$wpdb->posts}.ID";
+        } else {
+            if ( is_array( $value ) ) {
+                $ids = array_filter( array_map( 'absint', $value ) );
+                $value = implode( ',', $ids );
+            } elseif ( is_string( $value ) ) {
+                $ids = array_filter( array_map( 'absint', array_map( 'trim', explode( ',', $value ) ) ) );
+                $value = implode( ',', $ids );
+            } elseif ( is_numeric( $value ) && absint( $value ) > 0 ) {
+                $value = (string) absint( $value );
+            } else {
+                $value = '';
+            }
         }
-        return $value ? "({$table_column} {$op} ({$value}))" : '';
+        return $value ? "({$table_column} {$op} ({$value}))" : '(1=0)';
     }
 
     /**
@@ -1917,14 +2105,19 @@ class Rex_Product_Filter {
      * @since 7.4.45
      */
     private static function postmeta_is_empty($column, $value, $operator = 'inc') {
-
+        global $wpdb;
         $meta_table = 'RexMeta' . self::$meta_table_count;
-        $condition = "(($meta_table.meta_key = '{$column}' AND ($meta_table.meta_value IS NULL OR $meta_table.meta_value = '')))";
         if ('exc' === $operator) {
-            $condition = "(($meta_table.meta_key = '{$column}' AND ($meta_table.meta_value IS NOT NULL AND $meta_table.meta_value != '')))";
+            return $wpdb->prepare(
+                "(({$meta_table}.meta_key = %s AND ({$meta_table}.meta_value IS NOT NULL AND {$meta_table}.meta_value != '')))",
+                $column
+            );
+        } else {
+            return $wpdb->prepare(
+                "(({$meta_table}.meta_key = %s AND ({$meta_table}.meta_value IS NULL OR {$meta_table}.meta_value = '')))",
+                $column
+            );
         }
-
-        return $condition;
     }
 
     /**
@@ -1937,12 +2130,19 @@ class Rex_Product_Filter {
      * @since 7.4.45
      */
     private static function postmeta_is_not_empty($column, $value, $operator = 'inc') {
+        global $wpdb;
         $meta_table = 'RexMeta' . self::$meta_table_count;
-        $condition = "($meta_table.meta_key = '{$column}' AND $meta_table.meta_value IS NOT NULL AND $meta_table.meta_value != '')";
         if ('exc' === $operator) {
-            $condition = "($meta_table.meta_key = '{$column}' AND $meta_table.meta_value IS NULL OR $meta_table.meta_value = '')";
+            return $wpdb->prepare(
+                "({$meta_table}.meta_key = %s AND ({$meta_table}.meta_value IS NULL OR {$meta_table}.meta_value = ''))",
+                $column
+            );
+        } else {
+            return $wpdb->prepare(
+                "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value IS NOT NULL AND {$meta_table}.meta_value != '')",
+                $column
+            );
         }
-        return $condition;
     }
 
     /**
@@ -1956,24 +2156,36 @@ class Rex_Product_Filter {
      */
     private static function postterm_is_empty($column, $value, $operator = 'inc') {
         global $wpdb;
-        if('term_taxonomy_id' === $column && !self::$is_shipping_cost_filter){
-            if('inc' === $operator){
-                return "{$wpdb->posts}.ID NOT IN ({$value})";
-            } else {
-                return "{$wpdb->posts}.ID IN ({$value})";
+        if('term_taxonomy_id' === $column){
+            if ( self::$is_shipping_cost_filter ) {
+                $value = self::get_term_product_ids( $value );
             }
-        }
+            $ids = [];
+            if ( is_string( $value ) ) {
+                $ids = array_filter( array_map( 'absint', array_map( 'trim', explode( ',', $value ) ) ) );
+            } elseif ( is_array( $value ) ) {
+                $ids = array_filter( array_map( 'absint', $value ) );
+            } elseif ( is_numeric( $value ) && absint( $value ) > 0 ) {
+                $ids = [ absint( $value ) ];
+            }
 
-        if('term_taxonomy_id' === $column && self::$is_shipping_cost_filter){
-            $value = self::get_term_product_ids( $value );
-            return "{$wpdb->posts}.ID IN ({$value})";
+            if ( empty( $ids ) ) {
+                return ( 'inc' === $operator ) ? '(1=1)' : '(1=0)';
+            }
+
+            $id_list = implode( ',', $ids );
+            if('inc' === $operator){
+                return "{$wpdb->posts}.ID NOT IN ({$id_list})";
+            } else {
+                return "{$wpdb->posts}.ID IN ({$id_list})";
+            }
         }
 
         $term_table = 'RexTerm' . self::$term_table_count;
         if ('exc' === $operator) {
-            return "$term_table.$column IS NOT NULL";
+            return "$term_table.{$column} IS NOT NULL";
         } else {
-            return "$term_table.$column IS NULL";
+            return "$term_table.{$column} IS NULL";
         }
     }
 
@@ -1988,30 +2200,36 @@ class Rex_Product_Filter {
      */
     private static function postterm_is_not_empty($column, $value, $operator = 'inc') {
         global $wpdb;
-        if('term_taxonomy_id' === $column && !self::$is_shipping_cost_filter){
+        if('term_taxonomy_id' === $column){
+            if ( self::$is_shipping_cost_filter ) {
+                $value = self::get_term_product_ids( $value );
+            }
+            $ids = [];
+            if ( is_string( $value ) ) {
+                $ids = array_filter( array_map( 'absint', array_map( 'trim', explode( ',', $value ) ) ) );
+            } elseif ( is_array( $value ) ) {
+                $ids = array_filter( array_map( 'absint', $value ) );
+            } elseif ( is_numeric( $value ) && absint( $value ) > 0 ) {
+                $ids = [ absint( $value ) ];
+            }
+
+            if ( empty( $ids ) ) {
+                return ( 'inc' === $operator ) ? '(1=0)' : '(1=1)';
+            }
+
+            $id_list = implode( ',', $ids );
             if('inc' === $operator){
-                return "{$wpdb->posts}.ID IN ({$value})";
+                return "{$wpdb->posts}.ID IN ({$id_list})";
             } else {
-                return "{$wpdb->posts}.ID NOT IN ({$value})";
+                return "{$wpdb->posts}.ID NOT IN ({$id_list})";
             }
         }
-
-        if('term_taxonomy_id' === $column && self::$is_shipping_cost_filter){
-            if('inc' === $operator){
-                $value = self::get_term_product_ids( $value );
-                return "{$wpdb->posts}.ID IN ({$value})";
-            } else {
-                $value = self::get_term_product_ids( $value );
-                return "{$wpdb->posts}.ID NOT IN ({$value})";
-            }
-        }
-
 
         $term_table = 'RexTerm' . self::$term_table_count;
         if ('exc' === $operator) {
-            return "$term_table.$column IS NULL";
+            return "$term_table.{$column} IS NULL";
         } else {
-            return "$term_table.$column IS NOT NULL";
+            return "$term_table.{$column} IS NOT NULL";
         }
     }
 
@@ -2041,6 +2259,8 @@ class Rex_Product_Filter {
             $taxonomy_id_array = [ absint( $taxonomy_ids ) ];
         }
 
+        $taxonomy_id_array = array_filter( $taxonomy_id_array );
+
         if ( empty( $taxonomy_id_array ) ) {
             return '';
         }
@@ -2055,7 +2275,12 @@ class Rex_Product_Filter {
         );
         $product_ids = $wpdb->get_col( $query );
 
-        return ! empty( $product_ids ) ? implode( ', ', $product_ids ) : '';
+        if ( ! empty( $product_ids ) ) {
+            $product_ids = array_filter( array_map( 'absint', $product_ids ) );
+            return ! empty( $product_ids ) ? implode( ', ', $product_ids ) : '';
+        }
+
+        return '';
     }
 
 
@@ -2222,13 +2447,17 @@ class Rex_Product_Filter {
      */
     private static function process_backorders_value($value)
     {
-        $normalized = strtolower(trim($value));
+        if ( ! is_string( $value ) && ! is_numeric( $value ) ) {
+            return 'no';
+        }
+
+        $normalized = strtolower(trim((string)$value));
 
         if (in_array($normalized, ['no', 'notify', 'yes'], true)) {
             return $normalized;
         }
 
-        if ($normalized === 'do not allow' || $normalized === 'not allow' || $normalized === 'don\'t allow') {
+        if ($normalized === 'do not allow' || $normalized === 'not allow' || $normalized === "don't allow" || $normalized === "don\'t allow") {
             return 'no';
         }
         if ($normalized === 'allow, but notify customer' || $normalized === 'allow but notify customer' || $normalized === 'notify') {
@@ -2238,7 +2467,7 @@ class Rex_Product_Filter {
             return 'yes';
         }
 
-        return $value;
+        return 'no';
     }
 
     /**
@@ -2264,8 +2493,11 @@ class Rex_Product_Filter {
      * @since 7.4.48
      */
     private static function process_tax_status_value( $value ) {
+        if ( ! is_string( $value ) && ! is_numeric( $value ) ) {
+            return 'taxable';
+        }
 
-        $normalized = strtolower( trim( preg_replace( '/\s+/', ' ', $value ) ) );
+        $normalized = strtolower( trim( preg_replace( '/\s+/', ' ', (string) $value ) ) );
         $patterns = [
             'taxable'  => '/^(taxable|taxable product|tax|taxable goods)$/i',
             'shipping' => '/^(shipping|shipping only|ship only|shipping charges)$/i',
@@ -2282,7 +2514,7 @@ class Rex_Product_Filter {
             return $normalized;
         }
 
-        return $normalized;
+        return 'taxable';
     }
 
     /**

@@ -376,7 +376,7 @@ class Rex_Feed_Validator_Loader {
         $results_handler->save_results( $all_errors, $summary, $error_product_ids );
 
         $merchant = get_post_meta( $feed_id, '_rex_feed_merchant', true ) ?: get_post_meta( $feed_id, 'rex_feed_merchant', true );
-        do_action( 'rex_product_feed_validation_completed', $feed_id, $merchant, $summary );
+        do_action( 'rex_product_feed_validation_completed', $feed_id, $merchant, $summary, 'cron' );
 
         return $all_errors;
     }
@@ -496,7 +496,7 @@ class Rex_Feed_Validator_Loader {
         $results_handler->save_results( $all_errors, $summary, $error_product_ids );
         $saved_summary = $results_handler->get_summary();
 
-        do_action( 'rex_product_feed_validation_completed', $feed_id, $merchant, $summary );
+        do_action( 'rex_product_feed_validation_completed', $feed_id, $merchant, $summary, 'manual' );
 
         wp_send_json_success( array(
             'message'       => __( 'Validation complete.', 'rex-product-feed' ),

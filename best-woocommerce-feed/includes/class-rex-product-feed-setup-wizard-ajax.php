@@ -489,6 +489,11 @@ add_action('wp_ajax_pfm_dashboard_banner_track',          array($this, 'dashboar
      * @since 7.4.14
      */
     public function generate_feed() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized user' ), 403 );
+            return;
+        }
+
         $nonce = isset($_POST['security']) ? sanitize_text_field($_POST['security']) : '';
         if ( ! wp_verify_nonce( $nonce, 'rex-product-feed' ) ) {
             wp_send_json_error( array( 'message' => 'Invalid nonce' ), 400 );

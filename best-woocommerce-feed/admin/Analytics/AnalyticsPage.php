@@ -79,6 +79,15 @@ class AnalyticsPage {
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'rex-product-feed' ) );
 		}
 
+		/**
+		 * Fires when an authorized user visits the Analytics admin page.
+		 *
+		 * Used for low-frequency adoption tracking and weekly rollup metrics.
+		 *
+		 * @since 7.12.0
+		 */
+		do_action( 'rex_product_feed_analytics_page_viewed' );
+
 		echo '<div id="wpfm-analytics-root"></div>';
 	}
 }

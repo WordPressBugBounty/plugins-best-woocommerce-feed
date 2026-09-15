@@ -1081,6 +1081,7 @@ abstract class Rex_Product_Feed_Abstract_Generator
         // Attribute Configs section STARTS.
         $config_keys = [
             'rex_feed_merchant',
+            'rex_feed_feed_format',
             'rex_feed_separator',
             'rex_feed_google_destination',
             'rex_feed_google_target_country',

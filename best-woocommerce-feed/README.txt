@@ -1,11 +1,11 @@
-= RexFeed – Product Feed Manager for WooCommerce – Sell on 200+ Shopping Channels =
+= Product Feed Manager for WooCommerce - RexFeed – Sell on 200+ Shopping Channels =
 Contributors: rextheme, coderexltd, coderexco
 Donate link: https://rextheme.com/best-WooCommerce-product-feed/
-Tags: woocommerce product feed, google shopping feed, google merchant center, facebook catalog
+Tags: google shopping, facebook catalog, google merchant center, woocommerce, product feed
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 7.12.0
+Stable tag: 7.12.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,7 +13,7 @@ Generate WooCommerce product feeds for 200+ marketplaces. Sell on Google Shoppin
 
 == Description ==
 
-RexFeed - Product Feed Manager for WooCommerce generates and automatically updates product feeds for Google Shopping, Facebook, Instagram, Amazon, eBay, TikTok, ChatGPT (OpenAI Commerce), and 200+ other channels. 2026 Google Merchant Center compliant. Rated 4.8/5 by 10,000+ stores.
+Product Feed Manager for WooCommerce - RexFeed – Sell on 200+ Shopping Channels generates and automatically updates product feeds for Google Shopping, Facebook, Instagram, Amazon, eBay, TikTok, ChatGPT (OpenAI Commerce), and 200+ other channels. 2026 Google Merchant Center compliant. Rated 4.8/5 by 10,000+ stores.
 
 
 [youtube https://youtu.be/shv3-tMqWWU?utm_source=repo&utm_medium=pfm_repo&utm_campaign=pfm-intro]
@@ -421,6 +421,9 @@ You can use the WordPress support forum, product documentation, video tutorials,
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.12.1 (2026-09-15) =
+* Fix: Security hardening for custom filter queries and setup wizard feed generation
 
 = 7.12.0 (2026-09-10) =
 * New: Introduce Analytics dashboard
