@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit731543957fc71d8a251c7eb7a3a22534
+class ComposerStaticInit91555ad83e3408c9220dfffb8a2b9d71
 {
     public static $files = array (
         'aed659f3655c497c30e044c41fa917c6' => __DIR__ . '/..' . '/linno/telemetry/src/helpers.php',
@@ -1236,6 +1236,7 @@ class ComposerStaticInit731543957fc71d8a251c7eb7a3a22534
         'Rex_Feed_Template_Zalando_stock_update' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-zalando-stock-update.php',
         'Rex_Feed_Template_Zap_co_il' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-zap-co-il.php',
         'Rex_Feed_Template_Zbozi' => __DIR__ . '/../..' . '/admin/feed-templates/class-rex-feed-template-zbozi.php',
+        'Rex_Feed_Validation_Promo_Banner' => __DIR__ . '/../..' . '/admin/class-rex-feed-validation-promo-banner.php',
         'Rex_Feed_Validation_Results' => __DIR__ . '/../..' . '/admin/feed-validator/class-rex-feed-validation-results.php',
         'Rex_Feed_Validator_Chatgpt_Ads' => __DIR__ . '/../..' . '/admin/feed-validator/class-rex-feed-validator-chatgpt-ads.php',
         'Rex_Feed_Validator_Facebook' => __DIR__ . '/../..' . '/admin/feed-validator/class-rex-feed-validator-facebook.php',
@@ -1331,9 +1332,9 @@ class ComposerStaticInit731543957fc71d8a251c7eb7a3a22534
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit731543957fc71d8a251c7eb7a3a22534::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit731543957fc71d8a251c7eb7a3a22534::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit731543957fc71d8a251c7eb7a3a22534::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit91555ad83e3408c9220dfffb8a2b9d71::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit91555ad83e3408c9220dfffb8a2b9d71::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit91555ad83e3408c9220dfffb8a2b9d71::$classMap;
 
         }, null, ClassLoader::class);
     }

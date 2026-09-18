@@ -1187,6 +1187,7 @@ return array(
     'Rex_Feed_Template_Zalando_stock_update' => $baseDir . '/admin/feed-templates/class-rex-feed-template-zalando-stock-update.php',
     'Rex_Feed_Template_Zap_co_il' => $baseDir . '/admin/feed-templates/class-rex-feed-template-zap-co-il.php',
     'Rex_Feed_Template_Zbozi' => $baseDir . '/admin/feed-templates/class-rex-feed-template-zbozi.php',
+    'Rex_Feed_Validation_Promo_Banner' => $baseDir . '/admin/class-rex-feed-validation-promo-banner.php',
     'Rex_Feed_Validation_Results' => $baseDir . '/admin/feed-validator/class-rex-feed-validation-results.php',
     'Rex_Feed_Validator_Chatgpt_Ads' => $baseDir . '/admin/feed-validator/class-rex-feed-validator-chatgpt-ads.php',
     'Rex_Feed_Validator_Facebook' => $baseDir . '/admin/feed-validator/class-rex-feed-validator-facebook.php',

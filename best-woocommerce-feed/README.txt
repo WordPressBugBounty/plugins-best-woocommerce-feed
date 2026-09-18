@@ -5,7 +5,7 @@ Tags: google shopping, facebook catalog, google merchant center, woocommerce, pr
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 7.12.1
+Stable tag: 7.12.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,7 +25,7 @@ Product Feed Manager for WooCommerce - RexFeed – Sell on 200+ Shopping Channel
 
 WooCommerce Product feeds can become difficult to manage when marketplaces require different attributes, categories, and file formats.
 
-RexFeed Product Feed Manager gives you the tools to:
+Product Feed Manager For WooCommerce - RexFeed gives you the tools to:
 
 * Create feeds using preconfigured templates for 200+ channels.
 * Map WooCommerce attributes to each marketplace’s requirements.
@@ -79,7 +79,7 @@ Each merchant template includes the feed structure and relevant attributes requi
 
 Create a Google Shopping feed from WooCommerce in minutes. 
 
-Product Feed Manager generates the exact attributes Google Merchant Center requires - ID, title, description, GTIN, MPN, brand, price, availability, and product categories mapped to Google's own taxonomy - and keeps them updated automatically. 
+Product Feed Manager for WooCommerce - RexFeed generates the exact attributes Google Merchant Center requires - ID, title, description, GTIN, MPN, brand, price, availability, and product categories mapped to Google's own taxonomy - and keeps them updated automatically. 
 
 Authorize your Merchant Center account via the Content API and sync without manual uploads.
 
@@ -87,7 +87,7 @@ Authorize your Merchant Center account via the Content API and sync without manu
 
 Create an accurate Google Shopping feed directly from your WooCommerce product data.
 
-Product Feed Manager (RexFeed) helps you configure important Google Merchant Center attributes, including:
+Product Feed Manager for WooCommerce - RexFeed helps you configure important Google Merchant Center attributes, including:
 
 * Product title and description
 * Product URL and image URL
@@ -104,7 +104,7 @@ Product Feed Manager (RexFeed) helps you configure important Google Merchant Cen
 
 Use category mapping to connect your WooCommerce categories with Google Product Categories without changing the category structure of your store.
 
-You can also connect Product Feed Manager with Google Merchant Center and automatically send updated product information using the supported Google integration.
+You can also connect RexFeed Product Feed Manager with Google Merchant Center and automatically send updated product information using the supported Google integration.
 
 [youtube https://youtu.be/Xg-zBdYfIZM?utm_source=repo&utm_medium=repo&utm_campaign=repo_googlevdo&utm_id=repo_googlevdo]
 
@@ -137,7 +137,7 @@ List your WooCommerce products on TikTok Shop and TikTok catalog ads with a read
 
 == ChatGPT Organic Shopping & ChatGPT Ads Product Feed (OpenAI Commerce) ==
 
-Get your WooCommerce products recommended inside ChatGPT organic shopping and sponsored ads. Product Feed Manager (RexFeed) includes an OpenAI Commerce feed template - in JSONL, XML, CSV, or TSV - with all required attributes pre-mapped, plus a built-in Feed Validator that catches spec issues before you submit to OpenAI. 
+Get your WooCommerce products recommended inside ChatGPT organic shopping and sponsored ads. Product Feed Manager for WooCommerce - RexFeed includes an OpenAI Commerce feed template - in JSONL, XML, CSV, or TSV - with all required attributes pre-mapped, plus a built-in Feed Validator that catches spec issues before you submit to OpenAI. 
 
 AI assistants are becoming a real product discovery channel; PFM makes your catalog visible there in a few clicks.
 
@@ -247,7 +247,7 @@ Custom batch settings give you additional control over how feeds are generated o
 
 == Integrations and Compatibility == 
 
-RexFeed - Product Feed Manager works with popular WooCommerce and WordPress tools, including:
+Product Feed Manager for WooCommerce - RexFeed works with popular WooCommerce and WordPress tools, including:
 
 * WooCommerce Brands
 * Perfect Brands for WooCommerce
@@ -274,7 +274,7 @@ RexFeed - Product Feed Manager works with popular WooCommerce and WordPress tool
 
 Start with the free version to create and manage product feeds using the core merchant templates and feed-management features.
 
-Upgrade to Product Feed Manager Pro for:
+Upgrade to RexFeed - Product Feed Manager Pro for:
 
 * Feeds containing unlimited products
 * Advanced feed rules
@@ -291,7 +291,7 @@ Upgrade to Product Feed Manager Pro for:
 
 
 == Driving Traffic Is Step 1. Converting It Is Step 2. ==
-Product Feed Manager gets your products in front of buyers across 200+ marketplaces. But more traffic doesn’t automatically mean more profit — your checkout experience is what turns clicks into revenue. Complete your WooCommerce profit stack:
+Product Feed Manager for WooCommerce - RexFeed gets your products in front of buyers across 200+ marketplaces. But more traffic doesn’t automatically mean more profit — your checkout experience is what turns clicks into revenue. Complete your WooCommerce profit stack:
 
 * WPFunnels — Replace the default WooCommerce checkout with custom pages, order bumps, and one-click upsells. Make every visitor from Google Shopping worth more. [Learn more](https://getwpfunnels.com/?utm_source=product_feed_manager_repo&utm_medium=plugin&utm_campaign=profit_stack)
 * Cart Lift — Recover abandoned carts automatically with email and SMS. [Learn more](https://rextheme.com/cart-lift/?utm_source=product_feed_manager_repo&utm_medium=plugin&utm_campaign=profit_stack)
@@ -299,7 +299,7 @@ Product Feed Manager gets your products in front of buyers across 200+ marketpla
 
 == Start Creating Better WooCommerce Product Feeds ==
 
-Install Product Feed Manager and create your first marketplace-ready product feed directly from WordPress.
+Install Product Feed Manager for WooCommerce - RexFeed and create your first marketplace-ready product feed directly from WordPress.
 
 [Download the free plugin](https://downloads.wordpress.org/plugin/best-woocommerce-feed.7.8.1.zip) · [Live Demo](https://try.rextheme.com/pfm/) · [Upgrade to Pro](https://rextheme.com/https://rextheme.com/best-woocommerce-product-feed/?utm_source=pfm-repo&utm_medium=cta&utm_campaign=pfm-repo-to-pricing)
 
@@ -353,19 +353,19 @@ Yes. Select the Google Shopping template, map your WooCommerce product informati
 
 = Can I create a ChatGPT Shopping and ads feed from WooCommerce? =
 
-Yes. Product Feed Manager includes an OpenAI Commerce feed template with all required attributes pre-mapped, plus a built-in Feed Validator that checks your feed against OpenAI's specification before you submit it.
+Yes. Product Feed Manager for WooCommerce - RexFeed includes an OpenAI Commerce feed template with all required attributes pre-mapped, plus a built-in Feed Validator that checks your feed against OpenAI's specification before you submit it.
 
-= Is Product Feed Manager compliant with Google's 2026 product ID requirements? =
+= Is RexFeed Product Feed Manager compliant with Google's 2026 product ID requirements? =
 
-Yes. Google's March 2026 update requires multi-channel retailers to use correctly split product identifiers; Product Feed Manager generates compliant id, GTIN, MPN, and brand attributes, and its templates are maintained against Google's current product data specification.
+Yes. Google's March 2026 update requires multi-channel retailers to use correctly split product identifiers; Product Feed Manager for WooCommerce - RexFeed generates compliant id, GTIN, MPN, and brand attributes, and its templates are maintained against Google's current product data specification.
 
 = Can I create Facebook and Instagram product feeds? =
 
-Yes. Product Feed Manager includes a template for creating product feeds compatible with Facebook Catalog and Instagram Shopping.
+Yes. RexFeed - Product Feed Manager includes a template for creating product feeds compatible with Facebook Catalog and Instagram Shopping.
 
 = Why does Google Merchant Center keep rejecting my feed, and how does this plugin fix it? =
 
-Most rejections come from missing identifiers, wrong category mapping, or malformed attributes. Product Feed Manager maps your categories to Google's own taxonomy, fills required attributes from your product data, and validates the feed before you submit it.
+Most rejections come from missing identifiers, wrong category mapping, or malformed attributes. Product Feed Manager for WooCommerce - RexFeed maps your categories to Google's own taxonomy, fills required attributes from your product data, and validates the feed before you submit it.
 
 = Does the plugin meet Google's product image requirements? =
 
@@ -393,7 +393,7 @@ No, there is no limit. Product Feed Manager Pro lets you create unlimited feeds 
 
 = Does it support multilingual and multicurrency stores? =
 
-Product Feed Manager is compatible with several multilingual and multicurrency solutions, including WPML, Polylang, TranslatePress, Aelia and other supported plugins.
+Product Feed Manager for WooCommerce - RexFeed is compatible with several multilingual and multicurrency solutions, including WPML, Polylang, TranslatePress, Aelia and other supported plugins.
 
 = Where can I get help? =
 
@@ -421,6 +421,9 @@ You can use the WordPress support forum, product documentation, video tutorials,
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.12.2 (2026-09-19) =
+* New: Add tutorial video for Feed Validator
 
 = 7.12.1 (2026-09-15) =
 * Fix: Security hardening for custom filter queries and setup wizard feed generation
