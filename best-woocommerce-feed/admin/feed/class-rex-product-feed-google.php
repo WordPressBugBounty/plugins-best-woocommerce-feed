@@ -1141,7 +1141,15 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 	 */
 	public function sync_products(): array
 	{
-		$log            = wc_get_logger();
+		$log = wc_get_logger();
+
+		if ( empty( $this->google_api_target_country ) ) {
+			$this->google_api_target_country = get_post_meta( $this->id, '_rex_feed_google_target_country', true ) ?: 'US';
+		}
+		if ( empty( $this->google_api_target_language ) ) {
+			$this->google_api_target_language = get_post_meta( $this->id, '_rex_feed_google_target_language', true ) ?: 'en';
+		}
+
 		$data_source_id = get_post_meta( $this->id, '_rex_feed_google_data_source_id', true );
 		$data_feed_id   = get_post_meta( $this->id, '_rex_feed_google_data_feed_id', true ) ?: get_post_meta( $this->id, 'rex_feed_google_data_feed_id', true );
 

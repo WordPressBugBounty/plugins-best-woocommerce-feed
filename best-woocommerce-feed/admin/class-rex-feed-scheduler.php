@@ -18,6 +18,13 @@
 class Rex_Feed_Scheduler {
 
     /**
+     * Cached result of the Action Scheduler table-existence check, scoped to the current request.
+     *
+     * @var bool|null
+     */
+    private static $action_scheduler_tables_exist = null;
+
+    /**
      * Constructor - attach hooks to detect pro plugin activation/installation
      * and ensure custom scheduler is registered when pro becomes active.
      * @since 7.4.55
@@ -77,6 +84,36 @@ class Rex_Feed_Scheduler {
     }
 
     /**
+     * Confirm the Action Scheduler actions table exists before any code queries or writes to it.
+     * Result is cached for the lifetime of the request since it can't change mid-request.
+     *
+     * @return bool
+     */
+    private static function action_scheduler_tables_exist() {
+        if ( null !== self::$action_scheduler_tables_exist ) {
+            return self::$action_scheduler_tables_exist;
+        }
+
+        global $wpdb;
+
+        $table = $wpdb->prefix . 'actionscheduler_actions';
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is a constant derived from $wpdb->prefix.
+        $found = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+
+        self::$action_scheduler_tables_exist = ( $found === $table );
+
+        if ( ! self::$action_scheduler_tables_exist && is_wpfm_logging_enabled() ) {
+            $log = wc_get_logger();
+            $log->warning(
+                'Action Scheduler table "' . $table . '" is missing. Skipping scheduler registration for this request.',
+                array( 'source' => 'WPFM_SCHEDULER_MISSING_AS_TABLE' )
+            );
+        }
+
+        return self::$action_scheduler_tables_exist;
+    }
+
+    /**
      * Register the custom recurring Action Scheduler job only when the pro plugin is active
      * and the job is not already scheduled. This avoids relying solely on free plugin activation.
      *
@@ -85,6 +122,10 @@ class Rex_Feed_Scheduler {
      */
     public function maybe_register_custom_scheduler() {
         if ( ! function_exists( 'as_has_scheduled_action' ) || ! function_exists( 'as_schedule_recurring_action' ) ) {
+            return;
+        }
+
+        if ( ! self::action_scheduler_tables_exist() ) {
             return;
         }
 
@@ -123,6 +164,10 @@ class Rex_Feed_Scheduler {
      */
     public function maybe_register_watchdog_scheduler() {
         if ( ! function_exists( 'as_has_scheduled_action' ) || ! function_exists( 'as_schedule_recurring_action' ) ) {
+            return;
+        }
+
+        if ( ! self::action_scheduler_tables_exist() ) {
             return;
         }
 
