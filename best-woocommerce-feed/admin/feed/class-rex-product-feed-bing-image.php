@@ -133,8 +133,12 @@ class Rex_Product_Feed_Bing_image extends Rex_Product_Feed_Abstract_Generator
 				if ( $variations ) {
 					foreach ( $variations as $variation ) {
 						if ( $this->variations ) {
+							$variation_product = wc_get_product( $variation );
+							if ( ! $variation_product || ! $this->is_variation_eligible( $variation_product ) ) {
+								continue;
+							}
+
 							$variation_products[] = $variation;
-							$variation_product    = wc_get_product( $variation );
 							$atts[]               = $this->get_product_data( $variation_product, $product_meta_keys );
 						}
 					}

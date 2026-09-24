@@ -4277,41 +4277,18 @@ function addCustomFilterOuterHiddenSelectInputField(row, newRowId, value) {
      * @param e
      */
     function rex_close_filter_drawer(e) {
-        e.preventDefault();
-        const custom_filter = $("#rex-feed-config-filter");
-        const filter_visibility =
-            typeof custom_filter.get(0) !== "undefined"
-                ? window.getComputedStyle(custom_filter.get(0)).display
-                : "none";
-    
-        let valid = true;
-        $("section#rex_filter_changes_save_warning_popup").hide();
-    
-        if (filter_visibility !== "none") {
-            $(custom_filter)
-                .children()
-                .find("select.select2-hidden-accessible:visible")
-                .each(function (_index, value) {
-                    let selected_val = $(value).find("option:selected").val();
-                    if (!selected_val) {
-                        valid = false;
-                        return false; // break
-                    }
-                });
+        if (e && typeof e.preventDefault === "function") {
+            e.preventDefault();
         }
-    
-        if (!valid) {
-            alert(
-                "Please set the required field(s) in the `Custom Filter` section. Remove the `Custom Filter` section if you don't want to use it."
-            );
-        } else {
-            $(custom_filter)
+        const custom_filter = $("#rex-feed-config-filter");
+        $("section#rex_filter_changes_save_warning_popup").hide();
+
+        $(custom_filter)
             .find("select.select2-hidden-accessible:hidden")
             .prop("disabled", true);
-            $(".post-type-product-feed #wpcontent #body-overlay").remove();
-            $("#rex_feed_product_filters").removeClass("show-filters");
-            rex_feed_restore_page_scroll();
-        }
+        $(".post-type-product-feed #wpcontent #body-overlay").remove();
+        $("#rex_feed_product_filters").removeClass("show-filters");
+        rex_feed_restore_page_scroll();
     }
     
 
@@ -4470,11 +4447,15 @@ function addCustomFilterOuterHiddenSelectInputField(row, newRowId, value) {
     }
 
     function rexfeed_save_filters_data (e) {
+        if (e && typeof e.preventDefault === "function") {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         const $payload = {
             feed_data: $( 'form' ).serialize(),
             feed_id: $( '#post_ID' ).val(),
         };
-        const $loader = $( 'a#rex_save_filters' ).children( 'i' );
+        const $loader = $( '#rex_save_filters, #rex_feed_filter_save_btn' ).find( 'i' );
 
         $loader.show();
 
@@ -4487,10 +4468,15 @@ function addCustomFilterOuterHiddenSelectInputField(row, newRowId, value) {
                 }
             } )
             .fail( function () {
+                $loader.hide();
             } );
     }
 
     function rexfeed_save_settings_data(e) {
+        if (e && typeof e.preventDefault === "function") {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         const $payload = {
             feed_data: $( 'form' ).serialize(),
             feed_id: $( '#post_ID' ).val(),
@@ -4507,7 +4493,9 @@ function addCustomFilterOuterHiddenSelectInputField(row, newRowId, value) {
                     rexfeed_set_init_form_data();
                 }
             } )
-            .fail( function () {} );
+            .fail( function () {
+                $loader.hide();
+            } );
     }
 
     async function rexfeed_is_filter_changed() {

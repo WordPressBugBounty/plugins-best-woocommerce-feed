@@ -298,7 +298,7 @@ class Rex_Product_Feed_Ebay_seller extends Rex_Product_Feed_Abstract_Generator {
                     foreach ($variations as $variation) {
                         if($this->variations) {
                             $variation_product = wc_get_product( $variation );
-                            if ( ! $this->is_variation_feedable( $variation_product ) ) {
+                            if ( ! $this->is_variation_eligible( $variation_product ) ) {
                                 continue;
                             }
 

@@ -308,7 +308,7 @@ class Rex_Product_Feed_Reddit_ads extends Rex_Product_Feed_Abstract_Generator {
 					if ( $variations ) {
 						foreach ( $variations as $variation_id ) {
 							$variation_product = wc_get_product( $variation_id );
-							if ( $variation_product && $this->is_variation_feedable( $variation_product ) && $this->is_out_of_stock( $variation_product ) ) {
+							if ( $variation_product && $this->is_variation_eligible( $variation_product ) ) {
 								$variation_products[] = $variation_id;
 								$this->add_to_feed( $variation_product, $product_meta_keys, 'variation' );
 							}

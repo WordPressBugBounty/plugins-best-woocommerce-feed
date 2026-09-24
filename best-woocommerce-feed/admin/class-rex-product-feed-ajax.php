@@ -640,7 +640,7 @@ class Rex_Product_Feed_Ajax {
         }
 
         if ( !empty( $custom_filter_args[ 'meta_keys' ] ) ) {
-            $meta_joins = (int) ( preg_match_all( '/RexMeta/i', $where ) / 2 );
+            $meta_joins = count( $custom_filter_args[ 'meta_keys' ] );
             for ( $index = 1; $index <= $meta_joins; $index++ ) {
                 $meta_key = $custom_filter_args[ 'meta_keys' ][ $index - 1 ] ?? '';
                 $join    .= " LEFT JOIN {$wpdb->postmeta} AS RexMeta{$index}";

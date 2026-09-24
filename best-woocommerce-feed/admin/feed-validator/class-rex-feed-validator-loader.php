@@ -498,10 +498,16 @@ class Rex_Feed_Validator_Loader {
 
         do_action( 'rex_product_feed_validation_completed', $feed_id, $merchant, $summary, 'manual' );
 
+        ob_start();
+        $GLOBALS['post'] = get_post( $feed_id );
+        include plugin_dir_path( dirname( __FILE__ ) ) . 'partials/rex-feed-validation-results.php';
+        $html = ob_get_clean();
+
         wp_send_json_success( array(
             'message'       => __( 'Validation complete.', 'rex-product-feed' ),
             'summary'       => $saved_summary,
             'total_errors'  => $saved_summary['total_errors'] ?? count( $all_errors ),
+            'html'          => $html,
         ) );
     }
 
@@ -613,7 +619,15 @@ class Rex_Feed_Validator_Loader {
         $results_handler = new Rex_Feed_Validation_Results( $feed_id );
         $results_handler->clear_results();
 
-        wp_send_json_success( array( 'message' => __( 'Validation results cleared.', 'rex-product-feed' ) ) );
+        ob_start();
+        $GLOBALS['post'] = get_post( $feed_id );
+        include plugin_dir_path( dirname( __FILE__ ) ) . 'partials/rex-feed-validation-results.php';
+        $html = ob_get_clean();
+
+        wp_send_json_success( array(
+            'message' => __( 'Validation results cleared.', 'rex-product-feed' ),
+            'html'    => $html,
+        ) );
     }
 
     /**

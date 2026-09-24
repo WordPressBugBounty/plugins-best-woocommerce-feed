@@ -155,6 +155,8 @@ class Rex_Product_Filter {
                 'availability'          => 'Availability',
                 'quantity'              => 'Quantity',
                 'price'                 => 'Regular Price',
+                'regular_price'         => 'Regular Price',
+                'current_price'         => 'Price',
                 'sale_price'            => 'Sale price',
                 'weight'                => 'Weight',
                 'width'                 => 'Width',
@@ -393,7 +395,7 @@ class Rex_Product_Filter {
                     continue;
                 }
 
-                if (!empty($filter['if']) && !empty($filter['then']) && !empty($filter['condition']) && isset($filter['value'])) {
+                if (!empty($filter['if']) && !empty($filter['then']) && !empty($filter['condition']) && (isset($filter['value']) || in_array($filter['condition'], ['is_empty', 'is_not_empty'], true))) {
                     $if        = self::get_column_name($filter['if']);
                     if ( empty( $if ) ) {
                         continue;
@@ -401,7 +403,7 @@ class Rex_Product_Filter {
 
                     $then      = sanitize_key( $filter['then'] );
                     $condition = sanitize_key( $filter['condition'] );
-                    $value     = is_string( $filter['value'] ) ? trim( $filter['value'] ) : $filter['value'];
+                    $value     = isset($filter['value']) && is_string($filter['value']) ? trim($filter['value']) : ($filter['value'] ?? '');
 
                     // Handle date/time conversions
                     if (self::is_unix_date($if)) {
@@ -551,6 +553,8 @@ class Rex_Product_Filter {
             'sku',
             'quantity',
             'price',
+            'regular_price',
+            'current_price',
             'sale_price',
             'weight',
             'width',
@@ -640,7 +644,10 @@ class Rex_Product_Filter {
             case 'quantity':
                 return '_stock';
             case 'price':
+            case 'regular_price':
                 return '_regular_price';
+            case 'current_price':
+                return '_price';
             case 'sale_price':
                 return '_sale_price';
             case 'weight':
@@ -2108,15 +2115,9 @@ class Rex_Product_Filter {
         global $wpdb;
         $meta_table = 'RexMeta' . self::$meta_table_count;
         if ('exc' === $operator) {
-            return $wpdb->prepare(
-                "(({$meta_table}.meta_key = %s AND ({$meta_table}.meta_value IS NOT NULL AND {$meta_table}.meta_value != '')))",
-                $column
-            );
+            return "({$meta_table}.meta_value IS NOT NULL AND {$meta_table}.meta_value != '')";
         } else {
-            return $wpdb->prepare(
-                "(({$meta_table}.meta_key = %s AND ({$meta_table}.meta_value IS NULL OR {$meta_table}.meta_value = '')))",
-                $column
-            );
+            return "({$meta_table}.meta_value IS NULL OR {$meta_table}.meta_value = '')";
         }
     }
 
@@ -2133,15 +2134,9 @@ class Rex_Product_Filter {
         global $wpdb;
         $meta_table = 'RexMeta' . self::$meta_table_count;
         if ('exc' === $operator) {
-            return $wpdb->prepare(
-                "({$meta_table}.meta_key = %s AND ({$meta_table}.meta_value IS NULL OR {$meta_table}.meta_value = ''))",
-                $column
-            );
+            return "({$meta_table}.meta_value IS NULL OR {$meta_table}.meta_value = '')";
         } else {
-            return $wpdb->prepare(
-                "({$meta_table}.meta_key = %s AND {$meta_table}.meta_value IS NOT NULL AND {$meta_table}.meta_value != '')",
-                $column
-            );
+            return "({$meta_table}.meta_value IS NOT NULL AND {$meta_table}.meta_value != '')";
         }
     }
 

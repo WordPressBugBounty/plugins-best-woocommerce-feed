@@ -2082,6 +2082,30 @@
         },
 
         /**
+         * Replace validation UI with fresh HTML from server without full reload.
+         * @since 7.4.58
+         * @param {string} html Rendered validation wrapper HTML.
+         */
+        replaceUI: function(html) {
+            var $newWrapper = $(html);
+            this.wrapper.replaceWith($newWrapper);
+            this.wrapper = $newWrapper;
+            this.validationDisabled = this.wrapper.attr('data-validation-disabled') === '1';
+            this.currentPage = 1;
+            this.perPage = parseInt($('#rex-validation-per-page').val(), 10) || 5;
+            this.filters = {
+                severity: $('#rex-validation-severity-filter').val() || 'error',
+                attribute: '',
+                search: ''
+            };
+            this.fullAttributeSummary = [];
+            this.quickFixRules = {};
+            this.updateFixFeedButtonState();
+            this.toggleFixIssuesColumn(this.filters.severity);
+            this.loadInitialResults();
+        },
+
+        /**
          * Load initial results if available.
          * @since 7.4.58
          */
@@ -2121,14 +2145,11 @@
 
                     if (response.success) {
                         self.showNotice('success', response.data.message);
-                        // Always reload: the PHP template only renders the results
-                        // table, summary cards, etc. when results exist.  If we
-                        // cleared results before validation ran (which we do on
-                        // every update), those DOM elements won't be on the page
-                        // yet, so calling loadResults() would silently fail.  A
-                        // full reload lets PHP re-render the complete UI with the
-                        // fresh data.
-                        location.reload();
+                        if (response.data && response.data.html) {
+                            self.replaceUI(response.data.html);
+                        } else {
+                            location.reload();
+                        }
                     } else {
                         self.showNotice('error', response.data.message || self.getTranslation('validation_failed'));
                     }
@@ -2418,7 +2439,11 @@
                 success: function(response) {
                     if (response.success) {
                         self.showNotice('success', response.data.message);
-                        location.reload();
+                        if (response.data && response.data.html) {
+                            self.replaceUI(response.data.html);
+                        } else {
+                            location.reload();
+                        }
                     } else {
                         self.showNotice('error', response.data.message || self.getTranslation('failed_to_clear'));
                     }
