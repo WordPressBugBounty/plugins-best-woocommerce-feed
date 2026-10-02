@@ -500,6 +500,22 @@ class Rex_Feed_Scheduler {
             $per_batch     = !empty( $data[ 'per_batch' ] ) ? $data[ 'per_batch' ] : '';
             $offset        = !empty( $data[ 'offset' ] ) ? $data[ 'offset' ] : '';
 
+            // Batches must write in order: batch N waits until batch N-1 has finished.
+            if ( (int) $current_batch > 1 && (int) get_post_meta( $feed_id, '_rex_feed_current_batch', true ) < (int) $current_batch - 1 ) {
+                $started_at = (int) ( get_post_meta( $feed_id, '_rex_feed_last_active_time', true ) ?: get_post_meta( $feed_id, '_generation_start_time', true ) );
+                $timeout    = (int) apply_filters( 'wpfm_feed_generation_timeout', 1800, $feed_id );
+
+                // Run cancelled, failed or timed out: nothing to wait for, drop this batch.
+                if ( ! $started_at || ( time() - $started_at ) >= $timeout ) {
+                    return;
+                }
+
+                if ( function_exists( 'as_schedule_single_action' ) ) {
+                    as_schedule_single_action( time() + 10, 'rex_feed_regenerate_feed_batch', [ $data ], 'wpfm-feed-' . $feed_id );
+                }
+                return;
+            }
+
             $scheduled_actions = as_get_scheduled_actions( [
                 'hook' => 'rex_feed_regenerate_feed_batch',
                 'group' => "wpfm-feed-{$feed_id}",
@@ -778,6 +794,50 @@ class Rex_Feed_Scheduler {
     }
 
     /**
+     * Try to take the short-lived lock that guards starting a generation run for a feed.
+     *
+     * Uses add_option(), which is atomic (unique option_name). A lock older than
+     * 60 seconds is treated as abandoned (e.g. PHP died before release) and taken over.
+     *
+     * @param int $feed_id Feed ID.
+     * @return bool True if this request now holds the lock.
+     * @since 7.12.5
+     */
+    public static function acquire_feed_start_lock( $feed_id ) {
+        global $wpdb;
+
+        $option = 'wpfm_feed_start_lock_' . absint( $feed_id );
+
+        if ( add_option( $option, time(), '', false ) ) {
+            return true;
+        }
+
+        // Read straight from the DB so a stale object cache cannot hide a newer lock.
+        $seen = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $option ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+        if ( null === $seen || (int) $seen >= time() - 60 ) {
+            return false;
+        }
+
+        // Delete only if the lock is still the same stale value, so a lock a newer worker just took is never removed.
+        $deleted = $wpdb->delete( $wpdb->options, [ 'option_name' => $option, 'option_value' => $seen ] ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+        wp_cache_delete( $option, 'options' );
+        wp_cache_delete( 'notoptions', 'options' );
+
+        return $deleted && add_option( $option, time(), '', false );
+    }
+
+    /**
+     * Release the feed start lock.
+     *
+     * @param int $feed_id Feed ID.
+     * @return void
+     * @since 7.12.5
+     */
+    public static function release_feed_start_lock( $feed_id ) {
+        delete_option( 'wpfm_feed_start_lock_' . absint( $feed_id ) );
+    }
+
+    /**
      * Configure feed merchant in single batch wise
      * and schedule as a single process
      *
@@ -847,51 +907,66 @@ class Rex_Feed_Scheduler {
                 continue;
             }
 
-            $generation_started_at = time();
-            update_post_meta( $feed_id, '_generation_start_time', $generation_started_at );
-            update_post_meta( $feed_id, '_rex_feed_last_active_time', $generation_started_at );
-            update_post_meta( $feed_id, '_rex_feed_total_batches', $total_batches );
-            update_post_meta( $feed_id, '_rex_feed_current_batch', 0 );
-            Rex_Feed_Product_Count_Guard::begin_run( $feed_id, $update_single ? 'manual' : 'automatic', $generation_started_at );
-
-            // Clean up any stale scheduled actions for this feed before scheduling batches
-            if ( function_exists( 'as_unschedule_all_actions' ) ) {
-                as_unschedule_all_actions( 'rex_feed_regenerate_feed_batch', [], "wpfm-feed-{$feed_id}" );
+            // Atomic start: only one worker may check-and-queue a run for this feed at a time.
+            if ( ! self::acquire_feed_start_lock( $feed_id ) ) {
+                continue;
             }
 
-            $offset                     = 0;
-            $has_pending_or_new_batches = false;
-            $all_batches_ok             = true;
-
-            for ( $current_batch = 1; $current_batch <= $total_batches; $current_batch++ ) {
-                $data = [
-                    [
-                        'feed_id'       => $feed_id,
-                        'current_batch' => $current_batch,
-                        'total_batches' => $total_batches,
-                        'per_batch'     => $per_batch,
-                        'offset'        => $offset,
-                    ],
-                ];
-
-                $scheduled = function_exists( 'as_schedule_single_action' ) && as_schedule_single_action( time(), 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
-                if ( 1 === $current_batch && ! is_wp_error( $scheduled ) && $scheduled ) {
-                    Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'In queue', false );
+            try {
+                // Re-check under the lock; another worker may have started this feed meanwhile.
+                if ( $this->is_feed_actively_processing( $feed_id ) ) {
+                    continue;
                 }
-                if ( ! is_wp_error( $scheduled ) && $scheduled ) {
-                    $has_pending_or_new_batches = true;
-                } else {
-                    $all_batches_ok = false;
+
+                $generation_started_at = time();
+                update_post_meta( $feed_id, '_generation_start_time', $generation_started_at );
+                update_post_meta( $feed_id, '_rex_feed_last_active_time', $generation_started_at );
+                update_post_meta( $feed_id, '_rex_feed_total_batches', $total_batches );
+                update_post_meta( $feed_id, '_rex_feed_current_batch', 0 );
+                Rex_Feed_Product_Count_Guard::begin_run( $feed_id, $update_single ? 'manual' : 'automatic', $generation_started_at );
+
+                // Clean up any stale scheduled actions for this feed before scheduling batches
+                if ( function_exists( 'as_unschedule_all_actions' ) ) {
+                    as_unschedule_all_actions( 'rex_feed_regenerate_feed_batch', [], "wpfm-feed-{$feed_id}" );
                 }
-                $offset += $per_batch;
+
+                $offset                     = 0;
+                $has_pending_or_new_batches = false;
+                $all_batches_ok             = true;
+
+                for ( $current_batch = 1; $current_batch <= $total_batches; $current_batch++ ) {
+                    $data = [
+                        [
+                            'feed_id'       => $feed_id,
+                            'current_batch' => $current_batch,
+                            'total_batches' => $total_batches,
+                            'per_batch'     => $per_batch,
+                            'offset'        => $offset,
+                        ],
+                    ];
+
+                    $scheduled = function_exists( 'as_schedule_single_action' ) && as_schedule_single_action( time(), 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
+                    if ( 1 === $current_batch && ! is_wp_error( $scheduled ) && $scheduled ) {
+                        Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'In queue', false );
+                    }
+                    if ( ! is_wp_error( $scheduled ) && $scheduled ) {
+                        $has_pending_or_new_batches = true;
+                    } else {
+                        $all_batches_ok = false;
+                    }
+                    $offset += $per_batch;
+                }
+
+                if ( $is_triggered_by_product_change && $has_pending_or_new_batches && $all_batches_ok ) {
+                    // Mark the change as processed for this feed only.
+                    // Only advance when every batch is confirmed scheduled/pending so
+                    // a partial scheduling failure does not suppress an automatic retry.
+                    // This keeps one feed's scheduled run from suppressing other due feeds.
+                    update_post_meta( $feed_id, '_rex_feed_last_product_change_processed', $last_product_change );
+                }
             }
-
-            if ( $is_triggered_by_product_change && $has_pending_or_new_batches && $all_batches_ok ) {
-                // Mark the change as processed for this feed only.
-                // Only advance when every batch is confirmed scheduled/pending so
-                // a partial scheduling failure does not suppress an automatic retry.
-                // This keeps one feed's scheduled run from suppressing other due feeds.
-                update_post_meta( $feed_id, '_rex_feed_last_product_change_processed', $last_product_change );
+            finally {
+                self::release_feed_start_lock( $feed_id );
             }
         }
     }

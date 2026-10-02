@@ -90,7 +90,10 @@ class Node
             return;
         }
 
-        if ($this->cdata && ! preg_match("#^<!\[CDATA#i", $this->value)) {
+        if ( is_string( $this->value ) && 0 === strpos( $this->value, 'CDATA' ) && ! preg_match( '#^CDATA\[#', $this->value ) ) {
+            // "CDATA" prefix is the marker added by the "CDATA without space" output filter.
+            $this->value = '<![CDATA[' . substr( $this->value, 5 ) . ']]>';
+        } elseif ($this->cdata && ! preg_match("#^<!\[CDATA#i", $this->value)) {
             $this->value = "<![CDATA[ {$this->value} ]]>";
         }
         $parent->addChild($this->name, htmlspecialchars($this->value ?? ''), $this->_namespace);

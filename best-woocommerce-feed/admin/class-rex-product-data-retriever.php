@@ -3153,8 +3153,15 @@ class Rex_Product_Data_Retriever {
 			case 'remove_special character':
 				return sanitize_text_field( (string) $val );
 			case 'cdata':
+				if ( $this->is_non_markup_feed_format() ) {
+					return $val;
+				}
 				return $val && '' !== $val ? "<![CDATA[ {$val} ]]>" : $val;
 			case 'cdata_without_space':
+				if ( $this->is_non_markup_feed_format() ) {
+					return $val;
+				}
+				// "CDATA" prefix is a marker; XML Node classes strip it and emit a real CDATA section.
 				return $val ? "CDATA$val" : $val;
 			case 'remove_underscore':
 				return str_replace( '_', '', $val );
@@ -3219,6 +3226,15 @@ class Rex_Product_Data_Retriever {
 			default:
 				return $val;
 		}
+	}
+
+	/**
+	 * Check whether the feed format has no XML-style markup (CDATA is meaningless there).
+	 *
+	 * @return bool
+	 */
+	protected function is_non_markup_feed_format() {
+		return in_array( $this->feed_format, array( 'csv', 'tsv', 'text', 'json' ), true );
 	}
 
 	/**

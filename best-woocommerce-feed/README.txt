@@ -5,7 +5,7 @@ Tags: google shopping, facebook catalog, google merchant center, woocommerce, pr
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 7.12.4
+Stable tag: 7.12.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -421,6 +421,11 @@ You can use the WordPress support forum, product documentation, video tutorials,
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.12.5 (2026-10-02) =
+* Fix: Recover from stuck temporary feed files and prevent concurrent feed generation runs
+* Fix: Properly fail background feed generation when feed file cannot be written
+* Fix: Prevent CDATA without space filter from leaking literal CDATA markers into feeds
 
 = 7.12.4 (2026-09-24) =
 * Fix: Resolve custom filter issues for empty and not empty conditions and add regular price and current price filter options

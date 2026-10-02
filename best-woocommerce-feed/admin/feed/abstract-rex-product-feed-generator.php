@@ -1506,6 +1506,11 @@ abstract class Rex_Product_Feed_Abstract_Generator
 
             $this->feed = wpfm_replace_special_char( $this->feed );
 
+            // Start every run from a fresh temp file so a stale, corrupt or unwritable leftover cannot block it.
+            if ( 1 === (int) $this->batch && ! $this->reset_feed_file( $file ) ) {
+                return 'false';
+            }
+
             if ( file_exists( $file ) ) {
                 if ( $this->batch === 1 ) {
                     $feed = new DOMDocument;
@@ -1515,23 +1520,31 @@ abstract class Rex_Product_Feed_Abstract_Generator
                     if ( $this->tbatch > 1 ) {
                         $this->footer_replace();
                     }
-                    file_put_contents( $file, $this->feed, LOCK_EX );
+                    $written = file_put_contents( $file, $this->feed, LOCK_EX );
                 }
                 else {
-                    $feed = $this->get_items();
-                    file_put_contents( $file, $feed, FILE_APPEND | LOCK_EX );
+                    $feed    = $this->get_items();
+                    $written = file_put_contents( $file, $feed, FILE_APPEND | LOCK_EX );
                 }
             }
             else {
                 if ( (int) $this->tbatch > 1 ) {
                     $this->footer_replace();
                 }
-                file_put_contents( $file, $this->feed, FILE_APPEND | LOCK_EX );
+                $written = file_put_contents( $file, $this->feed, FILE_APPEND | LOCK_EX );
+            }
+
+            if ( false === $written ) {
+                return $this->fail_file_write( 'Could not write feed batch to temp file', $file );
             }
 
             if ( $this->batch === $this->tbatch && file_exists( $file ) && function_exists( 'rename' ) ) {
                 if ( function_exists( 'rex_feed_is_valid_xml' ) && rex_feed_is_valid_xml( $file, $this->id, $this->merchant ) ) {
-                    rename( $file, trailingslashit( $path ) . "{$feed_file_name}.{$format}" );
+                    $live_file = trailingslashit( $path ) . "{$feed_file_name}.{$format}";
+                    if ( ! rename( $file, $live_file ) ) {
+                        update_post_meta( $this->id, '_rex_feed_temp_xml_file', "{$baseurl}/rex-feed/temp-{$feed_file_name}.{$format}" );
+                        return $this->fail_file_write( 'Could not move validated temp file into place', $file, $live_file );
+                    }
                     delete_post_meta( $this->id, '_rex_feed_temp_xml_file' );
                     delete_post_meta( $this->id, 'rex_feed_temp_xml_file' );
                     update_post_meta( $this->id, $feed_file_meta_key,  "{$baseurl}/rex-feed/{$feed_file_name}.{$format}" );
@@ -1594,6 +1607,10 @@ abstract class Rex_Product_Feed_Abstract_Generator
 
             $file = trailingslashit( $path ) . "{$feed_file_name}.tsv";
 
+            if ( 1 === (int) $this->batch && ! $this->reset_feed_file( $file ) ) {
+                return 'false';
+            }
+
             if ( file_exists( $file ) ) {
                 if ( 1 === (int)$this->batch ) {
                     file_put_contents( $file, $this->feed, LOCK_EX );
@@ -1639,6 +1656,10 @@ abstract class Rex_Product_Feed_Abstract_Generator
                     $this->delete_prev_feed_file( "{$feed_file_name}.{$format}", $prev_feed_name, $path );
                 }
                 update_post_meta( $this->id, $feed_file_meta_key, $baseurl . "/rex-feed/{$feed_file_name}.json" );
+            }
+
+            if ( 1 === (int) $this->batch && ! $this->reset_feed_file( $file ) ) {
+                return 'false';
             }
 
             if ( file_exists( $file ) ) {
@@ -1712,6 +1733,94 @@ abstract class Rex_Product_Feed_Abstract_Generator
                 return file_put_contents( $file, $this->feed, LOCK_EX ) ? 'true' : 'false';
             }
         }
+    }
+
+    /**
+     * Remove an existing feed file so the next write recreates it.
+     *
+     * Deleting needs permission on the directory only, so this recovers from a
+     * file left behind by another user (e.g. root) that PHP cannot write to.
+     *
+     * @param string $file Absolute file path.
+     * @return bool True if the file is gone (or never existed), false if it could not be removed.
+     */
+    private function reset_feed_file( $file ) {
+        if ( ! file_exists( $file ) ) {
+            return true;
+        }
+
+        wp_delete_file( $file );
+        clearstatcache( true, $file );
+
+        if ( file_exists( $file ) ) {
+            $this->fail_file_write( 'Could not remove existing feed file', $file );
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Report a feed file write failure.
+     *
+     * Logs the details. In background (Action Scheduler) runs it also throws, so the
+     * scheduler marks the run failed, restores the last valid feed and sends the error
+     * email. Synchronous AJAX runs keep the 'false' return value they already expect.
+     *
+     * @param string $message Error summary.
+     * @param string $file    File that could not be written or removed.
+     * @param string $target  Optional destination path (for rename failures).
+     * @return string Always 'false' when not throwing.
+     * @throws RuntimeException When running in the background (bypass) mode.
+     */
+    private function fail_file_write( $message, $file, $target = '' ) {
+        $this->log_file_error( $message, $file, $target );
+
+        if ( $this->bypass ) {
+            throw new RuntimeException( sprintf( '%s: %s%s', $message, $file, $target ? " -> {$target}" : '' ) );
+        }
+        return 'false';
+    }
+
+    /**
+     * Log a feed file write problem with the path and owner details.
+     *
+     * @param string $message Error summary.
+     * @param string $file    File that could not be written or removed.
+     * @param string $target  Optional destination path (for rename failures).
+     * @return void
+     */
+    private function log_file_error( $message, $file, $target = '' ) {
+        if ( ! $this->is_logging_enabled ) {
+            return;
+        }
+
+        $owner = 'unknown';
+        if ( file_exists( $file ) ) {
+            $owner_id = fileowner( $file );
+            $owner    = (string) $owner_id;
+            if ( false !== $owner_id && function_exists( 'posix_getpwuid' ) ) {
+                $info = posix_getpwuid( $owner_id );
+                $owner = ! empty( $info['name'] ) ? $info['name'] : $owner;
+            }
+        }
+
+        $php_user = function_exists( 'posix_geteuid' ) && function_exists( 'posix_getpwuid' ) ? posix_getpwuid( posix_geteuid() ) : array();
+        $php_user = ! empty( $php_user['name'] ) ? $php_user['name'] : 'unknown';
+
+        $log = wc_get_logger();
+        $log->error(
+            sprintf(
+                '%s for feed %d (batch %s): %s%s [file owner: %s, PHP user: %s]',
+                $message,
+                $this->id,
+                $this->batch,
+                $file,
+                $target ? " -> {$target}" : '',
+                $owner,
+                $php_user
+            ),
+            array( 'source' => 'WPFM' )
+        );
     }
 
     /**

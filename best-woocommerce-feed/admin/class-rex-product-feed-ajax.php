@@ -3158,35 +3158,48 @@ class Rex_Product_Feed_Ajax {
             $total_batches = !empty( $products_info[ 'total_batch' ] ) ? (int) $products_info[ 'total_batch' ] : 1;
         }
 
-        update_post_meta( $feed_id, '_rex_feed_total_batches', $total_batches );
-        update_post_meta( $feed_id, '_rex_feed_current_batch', $start_batch - 1 );
-        $generation_started_at = time();
-        update_post_meta( $feed_id, '_generation_start_time', $generation_started_at );
-        update_post_meta( $feed_id, '_rex_feed_last_active_time', $generation_started_at );
-        Rex_Feed_Product_Count_Guard::begin_run( $feed_id, 'manual', $generation_started_at );
-
-        if ( function_exists( 'as_unschedule_all_actions' ) ) {
-            as_unschedule_all_actions( 'rex_feed_regenerate_feed_batch', [], "wpfm-feed-{$feed_id}" );
+        // Another worker is queueing this feed right now; let it finish instead of double-queueing.
+        if ( !Rex_Feed_Scheduler::acquire_feed_start_lock( $feed_id ) ) {
+            return [
+                'dispatched'    => true,
+                'total_batches' => $total_batches,
+            ];
         }
 
-        $offset = ( $start_batch - 1 ) * $per_batch;
-        for ( $current_batch = $start_batch; $current_batch <= $total_batches; $current_batch++ ) {
-            $data = [
-                [
-                    'feed_id'       => $feed_id,
-                    'current_batch' => $current_batch,
-                    'total_batches' => $total_batches,
-                    'per_batch'     => $per_batch,
-                    'offset'        => $offset,
-                ],
-            ];
+        try {
+            update_post_meta( $feed_id, '_rex_feed_total_batches', $total_batches );
+            update_post_meta( $feed_id, '_rex_feed_current_batch', $start_batch - 1 );
+            $generation_started_at = time();
+            update_post_meta( $feed_id, '_generation_start_time', $generation_started_at );
+            update_post_meta( $feed_id, '_rex_feed_last_active_time', $generation_started_at );
+            Rex_Feed_Product_Count_Guard::begin_run( $feed_id, 'manual', $generation_started_at );
 
-            $scheduled = as_schedule_single_action( time(), 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
-            if ( $start_batch === $current_batch && !is_wp_error( $scheduled ) && $scheduled ) {
-                Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'In queue', false );
+            if ( function_exists( 'as_unschedule_all_actions' ) ) {
+                as_unschedule_all_actions( 'rex_feed_regenerate_feed_batch', [], "wpfm-feed-{$feed_id}" );
             }
 
-            $offset += $per_batch;
+            $offset = ( $start_batch - 1 ) * $per_batch;
+            for ( $current_batch = $start_batch; $current_batch <= $total_batches; $current_batch++ ) {
+                $data = [
+                    [
+                        'feed_id'       => $feed_id,
+                        'current_batch' => $current_batch,
+                        'total_batches' => $total_batches,
+                        'per_batch'     => $per_batch,
+                        'offset'        => $offset,
+                    ],
+                ];
+
+                $scheduled = as_schedule_single_action( time(), 'rex_feed_regenerate_feed_batch', $data, 'wpfm-feed-' . $feed_id );
+                if ( $start_batch === $current_batch && !is_wp_error( $scheduled ) && $scheduled ) {
+                    Rex_Product_Feed_Controller::update_feed_status( $feed_id, 'In queue', false );
+                }
+
+                $offset += $per_batch;
+            }
+        }
+        finally {
+            Rex_Feed_Scheduler::release_feed_start_lock( $feed_id );
         }
 
         // Trigger AS async queue runner directly with current user session cookies.
