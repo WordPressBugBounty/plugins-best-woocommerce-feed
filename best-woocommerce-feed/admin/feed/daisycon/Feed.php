@@ -6,6 +6,11 @@ use SimpleXMLElement;
 use RexTheme\DaisyConShoppingFeed\Item;
 use Gregwar\Cache\Cache;
 
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Serialize mapped products with escaped repeated image URLs.
+ */
 class Feed
 {
 
@@ -181,11 +186,10 @@ class Feed
         return false;
     }
 
-    /**
-     * Adds items to feed
-     */
-    private function addItemsToFeed()
-    {
+	/**
+	 * Add items with escaped repeated image URL values.
+	 */
+	private function addItemsToFeed(): void {
 
         foreach ($this->items as $item) {
             /** @var SimpleXMLElement $feedItemNode */
@@ -193,7 +197,12 @@ class Feed
             foreach ($item->nodes() as $itemNode) {
                 if (is_array($itemNode)) {
                     foreach ($itemNode as $node) {
-                        $feedItemNode->addChild($node->get('name'), $node->get('value'), $node->get('_namespace'));
+						$node_value = $node->get( 'value' );
+						if ( is_scalar( $node_value ) ) {
+							$node_value = htmlspecialchars( (string) $node_value );
+						}
+						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- Existing builder variable.
+						$feedItemNode->addChild( $node->get( 'name' ), $node_value, $node->get( '_namespace' ) );
                     }
                 } else {
                     $itemNode->attachNodeTo($feedItemNode);

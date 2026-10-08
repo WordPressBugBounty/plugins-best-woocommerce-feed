@@ -219,8 +219,8 @@ class Rex_Product_Feed_Yandex extends Rex_Product_Feed_Abstract_Generator {
                         continue;
                     }
                 }
-                if ( $this->rex_feed_skip_row && $this->feed_format === 'xml' ) {
-                    if ( $value != '' ) {
+                if ( $this->rex_feed_skip_row && ( 'xml' === $this->feed_format || 'yml' === $this->feed_format ) ) {
+                    if ( ! empty( $value ) ) {
                         $item->$key($value); // invoke $key as method of $item object.
                     }
                 }

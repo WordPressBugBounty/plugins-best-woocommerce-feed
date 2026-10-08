@@ -86,7 +86,12 @@ class Node
         if( 'sale_price' === $this->name && !$this->value ) {
             return;
         }
-        if( is_array( $this->value ) ) {
+        if ( is_array( $this->value ) ) {
+            foreach ( $this->value as $val ) {
+                if ( is_scalar( $val ) && '' !== $val ) {
+                    $parent->addChild( $this->name, htmlspecialchars( (string) $val ), $this->_namespace );
+                }
+            }
             return;
         }
 

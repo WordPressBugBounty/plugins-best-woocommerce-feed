@@ -446,7 +446,7 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 					}
 				} else {
 					if ($this->rex_feed_skip_row && $this->feed_format === 'xml') {
-						if ($value != '') {
+						if (!empty($value)) {
 							$item->$key($value); // invoke $key as method of $item object.
 						}
 					} else {

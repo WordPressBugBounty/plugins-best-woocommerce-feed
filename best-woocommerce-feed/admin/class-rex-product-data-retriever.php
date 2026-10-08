@@ -10,6 +10,8 @@
 use Wdr\App\Controllers\ManageDiscount;
 use Wdr\App\Models\DBTable;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Class for retrieving product data based on user selected feed configuration.
  *
@@ -238,11 +240,10 @@ class Rex_Product_Data_Retriever {
 	}
 
 	/**
-	 * Retrieve and setup all data for every feed rules.
+	 * Set mapped values after adapting raw images to the destination builder.
 	 *
 	 * @return void
 	 * @throws Exception Exception.
-	 * @since 1.0.0
 	 */
 	public function set_all_value() {
 		$this->data = array();
@@ -250,6 +251,7 @@ class Rex_Product_Data_Retriever {
 		if( !empty( $this->feed_config ) ) {
             foreach ( $this->feed_config as $rule ) {
                 $value = $this->set_val( $rule );
+				$value = $this->normalize_raw_image_mapping( $value, $rule );
                 $value = $this->maybe_processing_needed( $value, $rule );
 
                 if ( array_key_exists( 'attr', $rule ) ) {
@@ -277,6 +279,98 @@ class Rex_Product_Data_Retriever {
                 }
             }
         }
+	}
+
+	/**
+	 * Prevent raw image arrays from reaching flat tabular merchant formats or non-array XML builders.
+	 *
+	 * Native image lists remain arrays for XML feed formats when the builder supports repeated child nodes.
+	 * For flat formats (CSV, TXT) and non-array XML builders, images are joined into a comma-separated string.
+	 *
+	 * @param mixed               $value Retrieved attribute value.
+	 * @param array<string,mixed> $rule  Mapping configuration.
+	 * @return mixed Adapted image value, or the unchanged unrelated attribute.
+	 */
+	protected function normalize_raw_image_mapping( $value, array $rule ) {
+		if ( ! isset( $rule['type'], $rule['meta_key'] )
+			|| 'meta' !== $rule['type'] || 'all_image_array' !== $rule['meta_key']
+			|| ! is_array( $value ) ) {
+			return $value;
+		}
+
+		$images = array();
+		foreach ( $value as $image ) {
+			if ( ! is_string( $image ) || '' === trim( $image ) ) {
+				continue;
+			}
+
+			$image = wp_unslash( trim( $image ) );
+
+			// Support protocol-relative URLs (//cdn.example.com/pic.jpg).
+			if ( 0 === strpos( $image, '//' ) ) {
+				$image = set_url_scheme( $image, 'https' );
+			}
+
+			$scheme = strtolower( (string) wp_parse_url( $image, PHP_URL_SCHEME ) );
+			if ( ! in_array( $scheme, array( 'http', 'https' ), true ) ) {
+				continue;
+			}
+
+			$image = esc_url_raw( $image, array( 'http', 'https' ) );
+			if ( '' === $image ) {
+				continue;
+			}
+
+			$images[] = $image;
+		}
+
+		$attribute = $rule['attr'] ?? $rule['cust_attr'] ?? '';
+		if ( ! is_string( $attribute ) || '' === $attribute ) {
+			return $value;
+		}
+
+		if ( 'image_link' === strtolower( $attribute ) ) {
+			return $images[0] ?? '';
+		}
+
+		$is_xml_format = in_array( $this->feed_format, array( 'xml', 'yml' ), true );
+		if ( ! $is_xml_format ) {
+			return implode( ',', $images );
+		}
+
+		$array_capable_builders = array(
+			'rex_product_feed_google',
+			'rex_product_feed_google_local_products_inventory',
+			'rex_product_feed_daisycon',
+			'rex_product_feed_other',
+			'rex_product_feed_yandex',
+			'rex_product_feed_lesitedumif',
+			'rex_product_feed_bing_image',
+			'rex_product_feed_shopee',
+			'rex_product_feed_zalando',
+			'rex_product_feed_zalando_stock_update',
+			'rex_product_feed_reddit_ads',
+			'rex_product_feed_idealo',
+			'rex_product_feed_ebay_seller',
+		);
+
+		/**
+		 * Filter the list of feed generator classes that support array node values.
+		 *
+		 * @since 7.4.x
+		 *
+		 * @param string[] $array_capable_builders List of lowercase generator class names.
+		 */
+		$array_capable_builders = apply_filters( 'wpfm_array_capable_feed_builders', $array_capable_builders );
+		$feed_class             = is_object( $this->feed ) ? strtolower( get_class( $this->feed ) ) : '';
+		$is_capable             = in_array( $feed_class, $array_capable_builders, true )
+			|| ( is_object( $this->feed ) && $this->feed instanceof Rex_Product_Feed_Google );
+
+		if ( $is_capable ) {
+			return $images;
+		}
+
+		return implode( ',', $images );
 	}
 
 
@@ -3508,6 +3602,32 @@ class Rex_Product_Data_Retriever {
 	}
 
 	/**
+	 * Check whether the availability value is intentionally non-standard and must not be normalized.
+	 *
+	 * True when the assigned value is a numeric/underscore-free availability option, or when an
+	 * active Feed Rule targets the availability attribute (the rule result is the user's choice).
+	 *
+	 * @param string $meta_key Assigned value key.
+	 * @return bool
+	 */
+	protected function is_custom_availability_value( $meta_key ) {
+		$custom_assigned_values = array( 'availability_underscore', 'availability_zero_three', 'availability_zero_one' );
+		if ( in_array( $meta_key, $custom_assigned_values, true ) ) {
+			return true;
+		}
+
+		if ( $this->feed_rules_option && is_array( $this->feed_rules ) ) {
+			foreach ( $this->feed_rules as $feed_rule ) {
+				if ( isset( $feed_rule['rules_then'] ) && 'availability' === $feed_rule['rules_then'] ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Normalize Google-mandated fixed-value attributes to required English values.
 	 *
 	 * Google Merchant Center strictly requires specific attributes to always be in standardized
@@ -3533,6 +3653,11 @@ class Rex_Product_Data_Retriever {
 
 		// 1. Availability normalization
 		if ( 'availability' === $attr_key || 'availability' === $meta_key ) {
+			// The user explicitly chose a numeric/underscore-free format, or a Feed Rule rewrote the value.
+			if ( $this->is_custom_availability_value( $meta_key ) ) {
+				return $value;
+			}
+
 			$clean = $this->sanitize_feed_attribute_string( $value );
 			$valid_availabilities = array( 'in_stock', 'out_of_stock', 'preorder', 'backorder' );
 			if ( in_array( $clean, $valid_availabilities, true ) ) {

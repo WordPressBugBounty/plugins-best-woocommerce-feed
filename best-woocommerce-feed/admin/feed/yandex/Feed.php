@@ -334,12 +334,14 @@ class Feed
                     $params[$paramNum]['unit'] = $nodeValue;
                 }
                 else {
-                    if(is_array($nodeValue)) {
-                        foreach ($nodeValue as $val) {
-                            $feedItemNode->addChild($nodeName, $val);
+                    if ( is_array( $nodeValue ) ) {
+                        foreach ( $nodeValue as $val ) {
+                            if ( is_scalar( $val ) && '' !== $val ) {
+                                $feedItemNode->addChild( $nodeName, htmlspecialchars( (string) $val ) );
+                            }
                         }
-                    }else {
-                        $itemNode->attachNodeTo($feedItemNode);
+                    } else {
+                        $itemNode->attachNodeTo( $feedItemNode );
                     }
                 }
             }

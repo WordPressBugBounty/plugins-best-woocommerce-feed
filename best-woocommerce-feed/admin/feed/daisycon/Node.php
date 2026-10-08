@@ -83,6 +83,15 @@ class Node
      */
     public function attachNodeTo(\SimpleXMLElement $parent)
     {
+        if ( is_array( $this->value ) ) {
+            foreach ( $this->value as $val ) {
+                if ( is_scalar( $val ) && '' !== $val ) {
+                    $parent->addChild( str_replace( ' ', '_', $this->name ), htmlspecialchars( (string) $val ), $this->_namespace );
+                }
+            }
+            return;
+        }
+
         if ( preg_match("/CDATA/", $this->value)) {
             $this->value = str_replace("CDATA","",$this->value);
             $this->value = str_replace("%20","",$this->value);

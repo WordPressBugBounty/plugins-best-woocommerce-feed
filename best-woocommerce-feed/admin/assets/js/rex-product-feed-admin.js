@@ -7,6 +7,7 @@
     let productLimitStatusTimer = null;
     let productLimitStatusPollCount = 0;
     let rex_feed_scroll_state = null;
+    let is_feed_submitting = false;
     const PRODUCT_LIMIT_NOTICE_TTL = 24 * 60 * 60 * 1000;
     const PRODUCT_LIMIT_NOTICE_STATUS_INTERVAL = 3000;
     const PRODUCT_LIMIT_NOTICE_MAX_STATUS_POLLS = 100;
@@ -1427,22 +1428,14 @@
      * @param event
      */
     function rex_feed_is_google_attribute_missing(event) {
-        let is_trusted_event;
-        let is_attr_missing;
-
-        try {
-            is_trusted_event = event.originalEvent.isTrusted;
-        } catch (e) {
-            is_trusted_event = false;
-            is_attr_missing = true;
+        if (is_feed_submitting) {
+            return;
         }
 
-        if (is_trusted_event) {
-            event.preventDefault();
-            is_attr_missing = rex_feed_render_missing_attr_popup();
-            if ("rex-bottom-preview-btn" === $(this).attr("id")) {
-                $("#rex_google_missing_attr_okay_btn").addClass("bottom-preview-btn");
-            }
+        event.preventDefault();
+        let is_attr_missing = rex_feed_render_missing_attr_popup();
+        if ("rex-bottom-preview-btn" === $(this).attr("id")) {
+            $("#rex_google_missing_attr_okay_btn").addClass("bottom-preview-btn");
         }
 
         if (!is_attr_missing) {
@@ -1502,7 +1495,7 @@
         }
 
         let $payload = {
-            feed_id: rex_wpfm_ajax.feed_id,
+            feed_id: $("#post_ID").val() || rex_wpfm_ajax.feed_id,
             feed_config: $("form").serialize(),
             button_id: submit_button,
             feed_title: feed_title,
@@ -1994,16 +1987,15 @@
                     }
                     rex_feed_feed_progressBar(progressWidth);
                     $("#wpfm-feed-clock").stopwatch().stopwatch("stop");
-                    $("#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn").removeClass("disabled");
-                    $(document).off("click", "#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn", get_product_number);
-                    
+
                     // Set flag to auto-trigger validation after page reload
                     store_product_limit_notice(true);
+                    var feedId = $("#post_ID").val() || rex_wpfm_ajax.feed_id;
                     if (typeof(sessionStorage) !== "undefined") {
-                        sessionStorage.setItem('rex_feed_just_generated_' + $("#post_ID").val(), 'true');
+                        sessionStorage.setItem('rex_feed_just_generated_' + feedId, 'true');
                     }
-                    
-                    $("#publish").trigger("click");
+
+                    rex_feed_submit_and_navigate(feedId);
                 } else if (response.msg == "failForInvalidEntry") {
                     clear_product_limit_notice($("#post_ID").val() || rex_wpfm_ajax.feed_id);
                     alert("Please set proper values for the mandatory field like Shipping Id, Who made, When made, Taxonomy Id.");
@@ -2035,7 +2027,7 @@
                         var nextBatch = batch + 1;
                         rex_feed_feed_progressBar(progressWidth);
                         wpAjaxHelperRequest("rexfeed-dispatch-feed-generation", {
-                            feed_id:       rex_wpfm_ajax.feed_id,
+                            feed_id:       $("#post_ID").val() || rex_wpfm_ajax.feed_id,
                             start_batch:   nextBatch,
                             total_batches: batches,
                             per_batch:     per_batch,
@@ -2043,6 +2035,7 @@
                         .done(function (dispatchResponse) {
                             if (dispatchResponse && dispatchResponse.dispatched === true) {
                                 $(window).off('beforeunload');
+                                window.onbeforeunload = null;
                                 $(".progress-msg span").html("Feed is generating in the background. You can safely close this tab &mdash; it will finish on its own.");
                                 poll_feed_generation_status(batches);
                             } else {
@@ -2075,10 +2068,11 @@
     }
 
     function rexfeed_check_pending_async_generation() {
-        if (typeof sessionStorage === "undefined" || !rex_wpfm_ajax.feed_id) {
+        var feedId = $("#post_ID").val() || rex_wpfm_ajax.feed_id;
+        if (typeof sessionStorage === "undefined" || !feedId) {
             return;
         }
-        var flagKey  = "rex_feed_pending_generation_" + rex_wpfm_ajax.feed_id;
+        var flagKey  = "rex_feed_pending_generation_" + feedId;
         var flagData = sessionStorage.getItem(flagKey);
         if (!flagData) {
             return;
@@ -2098,7 +2092,7 @@
         $("#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn").addClass("disabled");
 
         // Post meta now in DB — dispatch AS jobs
-        wpAjaxHelperRequest("rexfeed-dispatch-feed-generation", { feed_id: rex_wpfm_ajax.feed_id })
+        wpAjaxHelperRequest("rexfeed-dispatch-feed-generation", { feed_id: feedId })
             .done(function (dispatchResponse) {
                 if (dispatchResponse && dispatchResponse.dispatched === true) {
                     poll_feed_generation_status(dispatchResponse.total_batches || total);
@@ -2114,7 +2108,7 @@
     }
 
     function poll_feed_generation_status(total_batches) {
-        var feedId      = rex_wpfm_ajax.feed_id;
+        var feedId      = $("#post_ID").val() || rex_wpfm_ajax.feed_id;
         var pollPayload = { feed_id: feedId };
         var pollCount   = 0;
         var QUEUED_TIMEOUT_POLLS = 10; // 30s at 3s interval — if still queued/0 progress, release UI
@@ -2140,13 +2134,16 @@
 
                     if (res.status === "processing" || res.status === "In queue") {
                         $(window).off('beforeunload');
+                        window.onbeforeunload = null;
                         rex_feed_feed_progressBar(pct);
 
-                        // If no progress after timeout, reload — post already saved, AS will process in background
+                        // If no progress after timeout, submit post or navigate to edit screen — post already saved, AS will process in background
                         if (pollCount >= QUEUED_TIMEOUT_POLLS && current === 0) {
                             clearInterval(pollInterval);
-                            $(".progress-msg span").html("Feed is generating in the background. You can safely close this tab &mdash; it will finish on its own.");
-                            window.location.reload();
+                            $(".progress-msg span").html("Feed queued for background processing. Redirecting...");
+                            setTimeout(function () {
+                                rex_feed_submit_and_navigate(feedId);
+                            }, 1000);
                             return;
                         }
 
@@ -2158,17 +2155,14 @@
                         rex_feed_feed_progressBar(100);
                         $(".progress-msg span").html("Generating feed. Please wait....");
                         $("#wpfm-feed-clock").stopwatch().stopwatch("stop");
-                        $("#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn").removeClass("disabled");
-                        $(document).off("click", "#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn", get_product_number);
 
                         store_product_limit_notice(true);
                         if (typeof sessionStorage !== "undefined") {
                             sessionStorage.setItem("rex_feed_just_generated_" + feedId, "true");
                         }
 
-                        // Reload page to show feed URL and updated status.
-                        // Do NOT trigger #publish — that restarts the generation cycle.
-                        window.location.reload();
+                        // Submit form to save post and redirect to edit page like Ajax mode.
+                        rex_feed_submit_and_navigate(feedId);
                     }
                 })
                 .fail(function () {
@@ -2182,7 +2176,35 @@
         }, 3000);
     }
 
+    /**
+     * Submit the post form and navigate to the feed edit screen upon generation completion.
+     *
+     * @since 7.12.6
+     *
+     * @param {string|number} [feedId] Feed post ID fallback if form submission is unavailable.
+     */
+    function rex_feed_submit_and_navigate(feedId) {
+        var resolvedFeedId = feedId || $("#post_ID").val() || rex_wpfm_ajax.feed_id;
+        is_feed_submitting = true;
+        setTimeout(function () {
+            is_feed_submitting = false;
+        }, 5000);
+        $(window).off('beforeunload');
+        window.onbeforeunload = null;
+        $("#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn").removeClass("disabled");
+        $(document).off("click", "#publish, #rex-bottom-publish-btn, #rex-bottom-preview-btn", rex_feed_is_google_attribute_missing);
+
+        if ($("#publish").length) {
+            $("#publish").trigger("click");
+        } else if ($("form#post").length) {
+            $("form#post")[0].submit();
+        } else {
+            window.location.href = "post.php?post=" + resolvedFeedId + "&action=edit";
+        }
+    }
+
     function rex_feed_feed_generation_error_helper() {
+        is_feed_submitting = false;
         $("#publishing-action span.spinner").removeClass("is-active");
         $("#publish").removeClass("disabled");
         $("#wpfm-feed-clock").stopwatch().stopwatch("stop");

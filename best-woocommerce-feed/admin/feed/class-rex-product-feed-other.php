@@ -1210,7 +1210,7 @@ class Rex_Product_Feed_Other extends Rex_Product_Feed_Abstract_Generator {
                 $value = $this->get_value_for_kelkoo_group( $key, $value );
 				$key = 'xml' === $this->feed_format ? str_replace( ' ', '_', $key ) : $key;
                 if( $this->rex_feed_skip_row && 'xml' === $this->feed_format ) {
-                    if( $value != '' ) {
+                    if( ! empty( $value ) ) {
                         $item->$key( $value ); // invoke $key as method of $item object.
                     }
                 }

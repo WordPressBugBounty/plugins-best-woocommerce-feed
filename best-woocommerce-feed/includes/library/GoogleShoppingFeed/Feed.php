@@ -6,6 +6,11 @@ use SimpleXMLElement;
 use LukeSnowden\GoogleShoppingFeed\Item;
 use Gregwar\Cache\Cache;
 
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Serialize mapped products with escaped repeated image URLs.
+ */
 class Feed
 {
 
@@ -192,11 +197,10 @@ class Feed
         return false;
     }
 
-    /**
-     * Adds items to feed
-     */
-    private function addItemsToFeed()
-    {
+	/**
+	 * Add items with escaped repeated image URL values.
+	 */
+	private function addItemsToFeed(): void {
         foreach ($this->items as $item) {
             /** @var SimpleXMLElement $feedItemNode */
             $feedItemNode = $this->feed->channel->addChild('item');
@@ -230,7 +234,12 @@ class Feed
 							continue;
 						}
 
-                        $feedItemNode->addChild($node->get('name'), $node->get('value'), $node->get('_namespace'));
+						$node_value = $node->get( 'value' );
+						if ( is_scalar( $node_value ) ) {
+							$node_value = htmlspecialchars( (string) $node_value );
+						}
+						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- Existing builder variable.
+						$feedItemNode->addChild( $node->get( 'name' ), $node_value, $node->get( '_namespace' ) );
                     }
                 }
                 elseif( stristr( $itemNode->get( 'name' ), 'product_highlight_' ) ) {

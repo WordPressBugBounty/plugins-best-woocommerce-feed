@@ -6,6 +6,11 @@ use SimpleXMLElement;
 use RexTheme\RexShoppingFeed\Item;
 use Gregwar\Cache\Cache;
 
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Serialize mapped products through the shared feed builder.
+ */
 class Feed
 {
 
@@ -231,11 +236,12 @@ class Feed
         return false;
     }
 
-    /**
-     * Adds items to feed
-     */
-    private function addItemsToFeed()
-    {
+	/**
+	 * Add items while preserving flat array values as repeated XML children.
+	 *
+	 * @throws \InvalidArgumentException When a generic value contains unsupported types.
+	 */
+	private function addItemsToFeed(): void {
         foreach ($this->items as $item) {
             /** @var SimpleXMLElement $feedItemNode */
             if ($this->channelName && !empty($this->channelName)) {
@@ -249,7 +255,12 @@ class Feed
             foreach ($item->nodes() as $itemNode) {
                 if (is_array($itemNode)) {
                     foreach ($itemNode as $node) {
-                        $feedItemNode->addChild(str_replace(' ', '_', $node->get('name')), $node->get('value'), $node->get('_namespace'));
+						$node_value = $node->get( 'value' );
+						if ( is_scalar( $node_value ) ) {
+							$node_value = htmlspecialchars( (string) $node_value );
+						}
+						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- Existing builder variable.
+						$feedItemNode->addChild( str_replace( ' ', '_', $node->get( 'name' ) ), $node_value, $node->get( '_namespace' ) );
                     }
                 } elseif (str_starts_with($itemNode->get('name'), 'param_value_')) {
                     $paramIndex = str_replace('param_value_', '', $itemNode->get('name'));
@@ -278,7 +289,25 @@ class Feed
                             }
                         }
                     } else {
-                        $feedItemNode->addChild($itemNode->get('name'), htmlspecialchars($itemNode->get('value')), $itemNode->get('_namespace'));
+						$node_value = $itemNode->get( 'value' );
+						$values     = is_array( $node_value ) ? $node_value : array( $node_value );
+
+						foreach ( $values as $value ) {
+							// Missing attachments must not create empty repeated image nodes.
+							if ( is_array( $node_value ) && ( null === $value || false === $value || '' === $value ) ) {
+								continue;
+							}
+
+							if ( null !== $value && ! is_scalar( $value ) ) {
+								continue;
+							}
+
+							$feedItemNode->addChild(
+								$itemNode->get( 'name' ),
+								htmlspecialchars( (string) $value ),
+								$itemNode->get( '_namespace' )
+							);
+						}
                     }
                 }
             }
