@@ -5,7 +5,7 @@ Tags: google shopping, facebook catalog, google merchant center, woocommerce, pr
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 7.12.6
+Stable tag: 7.12.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -421,6 +421,9 @@ You can use the WordPress support forum, product documentation, video tutorials,
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.12.7 (2026-10-13) =
+* Fix: Prevent memory exhaustion on the final batch of large feeds by no longer writing unused per-product feed meta
 
 = 7.12.6 (2026-10-08) =
 * Fix: Navigate to feed edit page after scheduled actions feed generation completes instead of reloading post-new screen

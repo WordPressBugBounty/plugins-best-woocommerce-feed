@@ -1340,40 +1340,27 @@ abstract class Rex_Product_Feed_Abstract_Generator
     }
 
     /**
+     * Formerly wrote `_wpfm_product_in_feed` post meta on every product in the feed.
+     *
+     * The meta had no readers, and looping over every product in one request
+     * exhausted memory on large feeds. Kept as a no-op so subclasses that call it do not fatal.
+     *
+     * @since 7.12.0
+     * @deprecated 7.12.7 No replacement; derive product-to-feed mapping from `_rex_feed_product_ids`.
+     *
+     * @return void
+     */
+    protected function write_product_in_feed_meta(): void
+    {
+        _deprecated_function( __METHOD__, '7.12.7' );
+    }
+
+    /**
      * Get product data
      * @param WC_Product $product
      * @param $product_meta_keys
      * @return array
      */
-    /**
-     * Additively write `_wpfm_product_in_feed` post meta on every product included in this feed.
-     * Called once when the final batch completes.
-     */
-    protected function write_product_in_feed_meta(): void
-    {
-        $product_ids = get_post_meta( $this->id, '_rex_feed_product_ids', true );
-        if ( ! is_array( $product_ids ) || empty( $product_ids ) ) {
-            return;
-        }
-
-        $feed_id = $this->id;
-
-        foreach ( $product_ids as $product_id ) {
-            $product_id = (int) $product_id;
-            if ( $product_id <= 0 ) {
-                continue;
-            }
-
-            $existing = get_post_meta( $product_id, '_wpfm_product_in_feed', true );
-            $existing = is_array( $existing ) ? $existing : array();
-
-            if ( ! in_array( $feed_id, $existing, true ) ) {
-                $existing[] = $feed_id;
-                update_post_meta( $product_id, '_wpfm_product_in_feed', $existing );
-            }
-        }
-    }
-
     protected function get_product_data( WC_Product $product, $product_meta_keys )
     {
         $retriever_class = 'Rex_Product_Data_Retriever';
@@ -1493,8 +1480,13 @@ abstract class Rex_Product_Feed_Abstract_Generator
             // Trigger validation after feed completion
             do_action( 'rex_feed_after_feed_updated', $this->id );
 
-            // Write product-in-feed meta and fire completion action.
-            $this->write_product_in_feed_meta();
+            /**
+             * Fires when the final batch of a feed has been processed.
+             *
+             * @since 7.12.0
+             *
+             * @param int $feed_id Feed post ID.
+             */
             do_action( 'wpfm_feed_completed', $this->id );
         }
 
