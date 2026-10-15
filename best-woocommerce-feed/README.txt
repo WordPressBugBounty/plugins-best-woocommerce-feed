@@ -5,7 +5,7 @@ Tags: google shopping, facebook catalog, google merchant center, woocommerce, pr
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 7.12.7
+Stable tag: 7.13.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -421,6 +421,17 @@ You can use the WordPress support forum, product documentation, video tutorials,
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.13.0 (2026-10-15) =
+* New: Add WhatsApp Business Catalog merchant support with XML, CSV, and TSV feed formats
+* New: Add dedicated WhatsApp feed validator with Meta catalog guidelines and regional compliance checks
+* Enhancement: Add regional compliance attributes (origin_country, importer details, compliance category) for WhatsApp and Facebook feeds
+* Enhancement: Improve google_product_category mapping and auto-suggestion for Facebook and WhatsApp feeds
+* Enhancement: Add Halloween 2026 seasonal promotional banner
+* Fix: Resolve false id validation errors on TikTok feeds by supporting sku_id attribute
+* Fix: Correct product ID resolution in feed validator to eliminate inaccurate affected products and duplicate variation rows
+* Fix: Add multilingual translation support for feed configuration checks in feed validation results
+* Enhancement: Optimize feed validator memory usage and product loading performance
 
 = 7.12.7 (2026-10-13) =
 * Fix: Prevent memory exhaustion on the final batch of large feeds by no longer writing unused per-product feed meta

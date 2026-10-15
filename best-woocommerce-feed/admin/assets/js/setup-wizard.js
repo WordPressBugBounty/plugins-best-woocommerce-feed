@@ -14,6 +14,7 @@ jQuery(document).ready(function ($) {
     var merchantFormatMap = {
         google   : 'xml',
         facebook : 'xml',
+        whatsapp : 'xml',
         tiktok   : 'xml',
         bing     : 'xml',
         pinterest: 'xml',

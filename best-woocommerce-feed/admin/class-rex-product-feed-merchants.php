@@ -64,6 +64,12 @@ class Rex_Feed_Merchants {
 				'name'    => 'Instagram (by Facebook)',
 				'formats' => array( 'xml', 'csv', 'tsv' ),
 			),
+			'whatsapp'  => array(
+				'free'           => true,
+				'name'           => 'WhatsApp Business Catalog',
+				'formats'        => array( 'xml', 'csv', 'tsv' ),
+				'csv_separators' => array( 'comma', 'semi_colon' ),
+			),
 			'twitter' => array(
 				'free'    => true,
 				'name'    => 'X (Twitter) Shopping',

@@ -326,6 +326,36 @@ abstract class Rex_Feed_Abstract_Template {
 
 
     /**
+     * Get the default category mapping key.
+     *
+     * Selects the first category mapping that has at least one mapped category.
+     * If no category is mapped, returns an empty string.
+     *
+     * @since 7.4.65
+     *
+     * @return string Category mapping key or empty string.
+     */
+    protected function get_default_category_mapping_key(): string {
+        $category_maps = get_option( 'rex-wpfm-category-mapping' );
+
+        if ( ! is_array( $category_maps ) || empty( $category_maps ) ) {
+            return '';
+        }
+
+        foreach ( $category_maps as $key => $map ) {
+            if ( ! empty( $map['map-config'] ) && is_array( $map['map-config'] ) ) {
+                foreach ( $map['map-config'] as $config ) {
+                    if ( is_array( $config ) && ! empty( $config['map-value'] ) ) {
+                        return (string) $key;
+                    }
+                }
+            }
+        }
+
+        return '';
+    }
+
+    /**
      * Initialize Attributes
      *
      * @since    1.0.0

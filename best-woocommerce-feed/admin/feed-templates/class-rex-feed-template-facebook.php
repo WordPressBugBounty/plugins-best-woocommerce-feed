@@ -104,6 +104,13 @@ class Rex_Feed_Template_Facebook extends Rex_Feed_Abstract_Template {
 				'expiration_date' => 'Expiration Date [expiration_date]',
 			),
 
+			'Regional Compliance'         => array(
+				'origin_country'         => 'Country of Origin [origin_country]',
+				'importer_name'          => 'Importer Name [importer_name]',
+				'importer_address'       => 'Importer Address [importer_address]',
+				'wa_compliance_category' => 'WhatsApp Compliance Category [wa_compliance_category]',
+			),
+
 		);
 
         $video_attributes = array();
@@ -215,7 +222,7 @@ class Rex_Feed_Template_Facebook extends Rex_Feed_Abstract_Template {
 			array(
 				'attr'     => 'google_product_category',
 				'type'     => 'meta',
-				'meta_key' => '',
+				'meta_key' => $this->get_default_category_mapping_key(),
 				'st_value' => '',
 				'prefix'   => '',
 				'suffix'   => '',

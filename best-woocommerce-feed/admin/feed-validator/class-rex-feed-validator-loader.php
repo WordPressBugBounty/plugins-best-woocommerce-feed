@@ -197,7 +197,7 @@ class Rex_Feed_Validator_Loader {
         }
       
         // Only auto-validate for supported merchants
-        $supported_merchants = array( 'google', 'google_shopping', 'google_local', 'google_local_inventory', 'facebook', 'facebook_marketplace', 'instagram', 'instagram_shopping', 'openai', 'openai_commerce', 'chatgpt_ads' );
+        $supported_merchants = array( 'google', 'google_shopping', 'google_local', 'google_local_inventory', 'facebook', 'facebook_marketplace', 'instagram', 'instagram_shopping', 'whatsapp', 'whatsapp_business', 'openai', 'openai_commerce', 'chatgpt_ads' );
         $merchant_normalized = strtolower( str_replace( ' ', '_', $merchant ) );
         
         if ( ! in_array( $merchant_normalized, $supported_merchants, true ) ) {
@@ -948,15 +948,23 @@ class Rex_Feed_Validator_Loader {
         $parsed_products = $this->get_products_data_from_feed_file( $feed_id, $feed_format );
         
         if ( ! empty( $parsed_products ) ) {
-            foreach ( $parsed_products as $product_id => $attributes ) {
-                // The feed file already contains the product title — use it
-                // directly instead of calling wc_get_product() for every item.
-                $product_title = ! empty( $attributes['title'] )
-                    ? $attributes['title']
-                    : ( is_numeric( $product_id ) ? sprintf( 'Product #%d', $product_id ) : ( ! empty( $attributes['id'] ) ? sprintf( 'Product (%s)', $attributes['id'] ) : 'Product' ) );
+            foreach ( $parsed_products as $key => $item_data ) {
+                if ( isset( $item_data['attributes'] ) ) {
+                    $attributes = (array) $item_data['attributes'];
+                    $product_id = isset( $item_data['product_id'] ) ? intval( $item_data['product_id'] ) : ( is_numeric( $key ) ? intval( $key ) : 0 );
+                    $raw_title  = $item_data['title'] ?? ( $attributes['title'] ?? '' );
+                } else {
+                    $attributes = (array) $item_data;
+                    $product_id = is_numeric( $key ) ? intval( $key ) : 0;
+                    $raw_title  = $attributes['title'] ?? '';
+                }
+
+                $product_title = ! empty( $raw_title )
+                    ? $raw_title
+                    : ( $product_id > 0 ? sprintf( 'Product #%d', $product_id ) : ( ! empty( $attributes['id'] ) ? sprintf( 'Product (%s)', $attributes['id'] ) : 'Product' ) );
 
                 $products_data[] = array(
-                    'product_id' => is_numeric( $product_id ) ? intval( $product_id ) : 0,
+                    'product_id' => $product_id,
                     'title'      => $product_title,
                     'attributes' => $attributes,
                 );
@@ -1344,7 +1352,7 @@ class Rex_Feed_Validator_Loader {
         try {
             switch ( strtoupper( $feed_format ) ) {
                 case 'XML':
-                    $products_data = $this->parse_xml_feed_for_data( $feed_file );
+                    $products_data = $this->parse_xml_feed_for_data( $feed_file, $feed_id );
                     break;
 
                 case 'CSV':
@@ -1370,9 +1378,10 @@ class Rex_Feed_Validator_Loader {
      * @since 7.4.60
      * @access protected
      * @param  string $feed_file Path to the XML feed file.
+     * @param  int    $feed_id   Optional feed post ID.
      * @return array Array of products: array( ID => attributes_array )
      */
-    protected function parse_xml_feed_for_data( $feed_file ) {
+    protected function parse_xml_feed_for_data( $feed_file, $feed_id = 0 ) {
         $products_data    = array();
         // Known product-level element names across all supported feed formats.
         $product_elements = array( 'item', 'entry', 'product', 'offer' );
@@ -1450,11 +1459,23 @@ class Rex_Feed_Validator_Loader {
             );
 
             if ( $node !== false ) {
-                $ns = $node->getNamespaces( true );
-                $id = $this->extract_id_from_xml_product( $node, $ns );
+                $ns         = $node->getNamespaces( true );
+                $id         = $this->extract_id_from_xml_product( $node, $ns );
                 $attributes = $this->extract_attributes_from_xml_product( $node, $ns );
-                $key = $id ? intval( $id ) : 'item_' . count( $products_data );
-                $products_data[ $key ] = $attributes;
+
+                // Fallback: If not resolved from ID tags, resolve from product URL
+                if ( ! $id && ! empty( $attributes['link'] ) && function_exists( 'url_to_postid' ) ) {
+                    $post_id = url_to_postid( $attributes['link'] );
+                    if ( $post_id > 0 && function_exists( 'wc_get_product' ) && wc_get_product( $post_id ) ) {
+                        $id = $post_id;
+                    }
+                }
+
+                $products_data[] = array(
+                    'product_id' => $id ? intval( $id ) : 0,
+                    'title'      => ! empty( $attributes['title'] ) ? $attributes['title'] : '',
+                    'attributes' => $attributes,
+                );
             }
 
             unset( $node, $outer_xml, $ns );
@@ -1656,25 +1677,12 @@ class Rex_Feed_Validator_Loader {
         // Check namespaced elements first (e.g., g:id, g:sku_id)
         foreach ( $namespaces as $prefix => $ns ) {
             $children = $product->children( $ns );
-            // Try id first
-            if ( isset( $children->id ) ) {
-                $id = $this->sanitize_product_id( (string) $children->id );
-                if ( $id ) {
-                    return $id;
-                }
-            }
-            // Try sku_id (TikTok)
-            if ( isset( $children->sku_id ) ) {
-                $id = $this->sanitize_product_id( (string) $children->sku_id );
-                if ( $id ) {
-                    return $id;
-                }
-            }
-            // Try sku
-            if ( isset( $children->sku ) ) {
-                $id = $this->sanitize_product_id( (string) $children->sku );
-                if ( $id ) {
-                    return $id;
+            foreach ( array( 'id', 'sku_id', 'sku', 'product_id', 'item_id' ) as $field_tag ) {
+                if ( isset( $children->{$field_tag} ) ) {
+                    $id = $this->sanitize_product_id( (string) $children->{$field_tag} );
+                    if ( $id ) {
+                        return $id;
+                    }
                 }
             }
         }
@@ -1706,7 +1714,7 @@ class Rex_Feed_Validator_Loader {
     /**
      * Sanitize and extract numeric product ID.
      *
-     * Product IDs might be prefixed (e.g., "wc_post_123" or "variant_456").
+     * Product IDs might be prefixed (e.g., "wc_post_123" or "variant_456") or SKUs.
      *
      * @since 7.4.58
      * @access protected
@@ -1718,23 +1726,36 @@ class Rex_Feed_Validator_Loader {
             return null;
         }
 
-        // If it's purely numeric, return as-is
-        if ( is_numeric( $id_value ) ) {
-            return intval( $id_value );
+        $id_value = trim( (string) $id_value );
+        if ( '' === $id_value ) {
+            return null;
         }
 
-        // Try to extract numeric ID from prefixed formats
-        // Common patterns: "wc_post_123", "variant_123", "product_123", "123_suffix"
-        if ( preg_match( '/(\d+)/', $id_value, $matches ) ) {
-            return intval( $matches[1] );
+        // 1. If it's a SKU, check wc_get_product_id_by_sku first!
+        // SKUs can contain alphanumeric characters or digits (e.g. 'bag-41662731', 'SKU100').
+        if ( function_exists( 'wc_get_product_id_by_sku' ) ) {
+            $product_id = wc_get_product_id_by_sku( $id_value );
+            if ( $product_id ) {
+                return intval( $product_id );
+            }
         }
-        
-        // If it's a SKU (non-numeric), try to find product by SKU
-        $product_id = wc_get_product_id_by_sku( $id_value );
-        if ( $product_id ) {
-            return intval( $product_id );
+
+        // 2. If it's purely numeric, verify that it corresponds to an actual WooCommerce product
+        if ( is_numeric( $id_value ) ) {
+            $num_id = intval( $id_value );
+            if ( $num_id > 0 && function_exists( 'wc_get_product' ) && wc_get_product( $num_id ) ) {
+                return $num_id;
+            }
         }
-        
+
+        // 3. Try standard prefixed formats: "wc_post_123", "variant_123", "product_123", "item_123"
+        if ( preg_match( '/^(?:wc_post|variant|variation|product|item|post)[_-](\d+)$/i', $id_value, $matches ) ) {
+            $candidate_id = intval( $matches[1] );
+            if ( $candidate_id > 0 && function_exists( 'wc_get_product' ) && wc_get_product( $candidate_id ) ) {
+                return $candidate_id;
+            }
+        }
+
         return null;
     }
 
@@ -1745,7 +1766,7 @@ class Rex_Feed_Validator_Loader {
      * @access protected
      * @param  string $feed_file   Path to the CSV feed file.
      * @param  string $feed_format The feed format (CSV, TSV, TXT).
-     * @return array Array of products: array( ID => attributes_array )
+     * @return array Array of products: array( array( 'product_id' => int, 'title' => string, 'attributes' => array ) )
      */
     protected function parse_csv_feed_for_data( $feed_file, $feed_format ) {
         $products_data = array();
@@ -1777,7 +1798,7 @@ class Rex_Feed_Validator_Loader {
         }
 
         // Find ID column index
-        $id_column_names = array( 'id', 'product_id', 'g:id', 'item_id', 'sku' );
+        $id_column_names = array( 'id', 'product_id', 'g:id', 'item_id', 'sku', 'sku_id', 'g:sku_id' );
         $id_column_index = -1;
 
         foreach ( $id_column_names as $column_name ) {
@@ -1786,11 +1807,6 @@ class Rex_Feed_Validator_Loader {
                 $id_column_index = $index;
                 break;
             }
-        }
-
-        if ( $id_column_index === -1 ) {
-            fclose( $handle );
-            return $products_data;
         }
 
         // Read every data row. Pagination is applied to validation results later.
@@ -1805,8 +1821,20 @@ class Rex_Feed_Validator_Loader {
                     $attributes[ $column_mapping[ $index ] ] = trim( $value );
                 }
             }
-            $key = $id ? intval( $id ) : 'item_' . count( $products_data );
-            $products_data[ $key ] = $attributes;
+
+            // Fallback: If not resolved from ID column, try URL resolution
+            if ( ! $id && ! empty( $attributes['link'] ) && function_exists( 'url_to_postid' ) ) {
+                $post_id = url_to_postid( $attributes['link'] );
+                if ( $post_id > 0 && function_exists( 'wc_get_product' ) && wc_get_product( $post_id ) ) {
+                    $id = $post_id;
+                }
+            }
+
+            $products_data[] = array(
+                'product_id' => $id ? intval( $id ) : 0,
+                'title'      => ! empty( $attributes['title'] ) ? $attributes['title'] : '',
+                'attributes' => $attributes,
+            );
         }
 
         fclose( $handle );

@@ -628,11 +628,12 @@ class Rex_Feed_Validation_Results {
 
             if ( ! isset( $groups[ $group_key ] ) ) {
                 $groups[ $group_key ] = $item;
-                $groups[ $group_key ]['attribute']    = $attribute;
-                $groups[ $group_key ]['product_count'] = 0;
-                $groups[ $group_key ]['issue_count']   = 0;
-                $groups[ $group_key ]['_product_ids']  = array();
-                $groups[ $group_key ]['raw_value']     = '';
+                $groups[ $group_key ]['attribute']      = $attribute;
+                $groups[ $group_key ]['product_count']   = 0;
+                $groups[ $group_key ]['issue_count']     = 0;
+                $groups[ $group_key ]['_product_ids']    = array();
+                $groups[ $group_key ]['_zero_id_titles'] = array();
+                $groups[ $group_key ]['raw_value']       = '';
             }
 
             $product_id = absint( $item['product_id'] ?? 0 );
@@ -640,7 +641,22 @@ class Rex_Feed_Validation_Results {
             if ( $product_id ) {
                 $groups[ $group_key ]['_product_ids'][ $product_id ] = true;
             } else {
-                $groups[ $group_key ]['_is_feed_level'] = true;
+                $product_title       = trim( (string) ( $item['product_title'] ?? '' ) );
+                $is_feed_config_rule = 'required_attribute_missing' === $rule
+                    || 'wrongly_assigned_value' === $rule
+                    || 0 === strpos( $rule, 'mapping_' )
+                    || __( 'Feed Configuration', 'rex-product-feed' ) === $product_title
+                    || 'Feed Configuration' === $product_title;
+
+                if ( $is_feed_config_rule ) {
+                    $groups[ $group_key ]['_is_feed_level'] = true;
+                } else {
+                    $title_key = ! empty( $item['product_title'] )
+                        ? $item['product_title']
+                        : __( 'Product (unresolved ID)', 'rex-product-feed' );
+
+                    $groups[ $group_key ]['_zero_id_titles'][ $title_key ] = true;
+                }
             }
 
             $groups[ $group_key ]['issue_count']++;
@@ -649,12 +665,13 @@ class Rex_Feed_Validation_Results {
         $total_feed_products = $this->get_total_products_validated();
 
         foreach ( $groups as &$group ) {
+            $zero_title_count = count( $group['_zero_id_titles'] ?? array() );
             if ( ! empty( $group['_is_feed_level'] ) && empty( $group['_product_ids'] ) ) {
                 $group['product_count'] = $total_feed_products;
             } else {
-                $group['product_count'] = count( $group['_product_ids'] );
+                $group['product_count'] = count( $group['_product_ids'] ) + $zero_title_count;
             }
-            unset( $group['_product_ids'], $group['_is_feed_level'] );
+            unset( $group['_product_ids'], $group['_is_feed_level'], $group['_zero_id_titles'] );
         }
         unset( $group );
 
@@ -898,8 +915,8 @@ class Rex_Feed_Validation_Results {
         $target_rule = strtolower( trim( (string) $rule ) );
         $target_sev  = strtolower( trim( (string) $severity ) );
 
-        $products = array();
-        $seen = array();
+        $raw_items     = array();
+        $seen          = array();
         $is_feed_level = false;
 
         foreach ( $results as $item ) {
@@ -916,46 +933,92 @@ class Rex_Feed_Validation_Results {
                 if ( $product_id ) {
                     if ( ! isset( $seen[ $product_id ] ) ) {
                         $seen[ $product_id ] = true;
-                        $products[] = $this->format_issue_product( $product_id, $item['product_title'] ?? '' );
+                        $raw_items[]         = array(
+                            'id'    => $product_id,
+                            'title' => $item['product_title'] ?? '',
+                        );
                     }
                 } else {
-                    $is_feed_level = true;
-                }
-            }
-        }
+                    $item_title          = trim( (string) ( $item['product_title'] ?? '' ) );
+                    $is_feed_config_rule = 'required_attribute_missing' === $item_rule
+                        || 'wrongly_assigned_value' === $item_rule
+                        || 0 === strpos( $item_rule, 'mapping_' )
+                        || __( 'Feed Configuration', 'rex-product-feed' ) === $item_title
+                        || 'Feed Configuration' === $item_title;
 
-        // If feed level and no specific product items found, fallback to feed products
-        if ( empty( $products ) && $is_feed_level ) {
-            $feed_product_ids = get_post_meta( $this->feed_id, '_rex_feed_product_ids', true );
-            if ( is_array( $feed_product_ids ) ) {
-                foreach ( $feed_product_ids as $pid ) {
-                    $pid = absint( $pid );
-                    if ( $pid && ! isset( $seen[ $pid ] ) ) {
-                        $seen[ $pid ] = true;
-                        $products[] = $this->format_issue_product( $pid );
+                    if ( $is_feed_config_rule ) {
+                        $is_feed_level = true;
+                    } else {
+                        // Product-level issue without valid product ID
+                        $title_key = ! empty( $item['product_title'] ) ? $item['product_title'] : __( 'Product (unresolved ID)', 'rex-product-feed' );
+                        $dedup_key = 'title_' . $title_key;
+                        if ( ! isset( $seen[ $dedup_key ] ) ) {
+                            $seen[ $dedup_key ] = true;
+                            $raw_items[]        = array(
+                                'id'    => 0,
+                                'title' => $title_key,
+                            );
+                        }
                     }
                 }
             }
         }
 
-        // Max error product data shown capped at 500
-        $max_error_products = 500;
-        if ( count( $products ) > $max_error_products ) {
-            $products = array_slice( $products, 0, $max_error_products );
+        // If feed level and no specific product items found, fallback to distinct feed products
+        if ( empty( $raw_items ) && $is_feed_level ) {
+            $feed_product_ids = get_post_meta( $this->feed_id, '_rex_feed_product_ids', true );
+            if ( is_array( $feed_product_ids ) ) {
+                $seen_parent_ids = array();
+                foreach ( $feed_product_ids as $pid ) {
+                    $pid = absint( $pid );
+                    if ( ! $pid ) {
+                        continue;
+                    }
+                    $parent_id = function_exists( 'wp_get_post_parent_id' ) ? wp_get_post_parent_id( $pid ) : 0;
+                    $dedup_id  = $parent_id > 0 ? $parent_id : $pid;
+                    if ( ! isset( $seen_parent_ids[ $dedup_id ] ) ) {
+                        $seen_parent_ids[ $dedup_id ] = true;
+                        $raw_items[]                  = array(
+                            'id'    => $dedup_id,
+                            'title' => '',
+                        );
+                    }
+                }
+            }
         }
 
-        $total = count( $products );
-        $page = max( 1, absint( $page ) );
-        $per_page = max( 1, absint( $per_page ) );
+        $total       = count( $raw_items );
+        $page        = max( 1, absint( $page ) );
+        $per_page    = max( 1, absint( $per_page ) );
         $total_pages = $total > 0 ? (int) ceil( $total / $per_page ) : 1;
         if ( $page > $total_pages ) {
             $page = $total_pages;
         }
-        $offset = ( $page - 1 ) * $per_page;
-        $paged_products = array_slice( $products, $offset, $per_page );
+        $offset     = ( $page - 1 ) * $per_page;
+        $page_items = array_slice( $raw_items, $offset, $per_page );
+
+        // Format only the requested page items to keep memory and CPU usage minimal
+        $products = array();
+        foreach ( $page_items as $raw_item ) {
+            $pid = $raw_item['id'];
+            if ( $pid > 0 ) {
+                $products[] = $this->format_issue_product( $pid, $raw_item['title'] );
+            } else {
+                $title_key  = ! empty( $raw_item['title'] ) ? $raw_item['title'] : __( 'Product (unresolved ID)', 'rex-product-feed' );
+                $products[] = array(
+                    'id'         => 0,
+                    'title'      => $title_key,
+                    'full_title' => $title_key,
+                    'edit_url'   => '',
+                    'view_url'   => '',
+                    'status'     => 'publish',
+                    'is_missing' => false,
+                );
+            }
+        }
 
         return array(
-            'products'    => $paged_products,
+            'products'    => $products,
             'total'       => $total,
             'page'        => $page,
             'per_page'    => $per_page,
@@ -1020,16 +1083,16 @@ class Rex_Feed_Validation_Results {
 
             if ( ! empty( $variation_str ) ) {
                 if ( false === strpos( $base_title, $variation_str ) ) {
-                    $title = $base_title . ' - ' . $variation_str;
+                    $title = sprintf( '%s (#%d) - %s', $base_title, $product_id, $variation_str );
                 } else {
-                    $title = $base_title;
+                    $title = sprintf( '%s (#%d)', $base_title, $product_id );
                 }
             } else {
                 $wc_name = $wc_product->get_name();
                 if ( ! empty( $wc_name ) && $wc_name !== $base_title ) {
                     $title = $wc_name;
                 } else {
-                    $title = sprintf( '%s - #%d', $base_title, $product_id );
+                    $title = sprintf( '%s (#%d)', $base_title, $product_id );
                 }
             }
         } elseif ( $wc_product ) {

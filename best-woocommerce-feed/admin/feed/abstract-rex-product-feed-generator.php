@@ -1827,7 +1827,7 @@ abstract class Rex_Product_Feed_Abstract_Generator
         $feed->loadXML( $this->feed );
 
         $google_merchants = [
-            'google', 'facebook', 'tiktok', 'twitter', 'pinterest', 'ciao', 'daisycon', 'instagram', 'liveintent',
+            'google', 'facebook', 'tiktok', 'twitter', 'pinterest', 'ciao', 'daisycon', 'instagram', 'whatsapp', 'liveintent',
             'google_shopping_actions', 'google_express', 'doofinder', 'emarts', 'epoq', 'google_local_products_inventory',
             'google_merchant_promotion', 'google_manufacturer_center', 'bing_image', 'rss', 'criteo', 'adcrowd',
             'google_local_inventory_ads', 'compartner', 'bing', 'openai', 'chatgpt_ads', 'google_css_center', 'temu_seller_center',

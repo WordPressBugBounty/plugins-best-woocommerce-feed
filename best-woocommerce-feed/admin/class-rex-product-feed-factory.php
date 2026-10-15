@@ -259,6 +259,7 @@ class Rex_Product_Feed_Factory {
 			'rss',
 			'facebook',
 			'instagram',
+			'whatsapp',
 			'snapchat',
 			'twitter',
 			'bing',

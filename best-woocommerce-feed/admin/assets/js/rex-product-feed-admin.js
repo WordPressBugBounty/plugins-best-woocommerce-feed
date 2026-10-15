@@ -76,7 +76,7 @@
         ],
         price: ["price", "regular price", "current price", "price tax"],
         sale_price: ["sale price", "discount price", "offer price", "special price", "sale price tax"],
-        category: ["type", "category", "categories", "cats", "cats path", "google category", "google product category"],
+        category: ["type", "category", "categories", "cats", "cats path"],
         stock: ["availability", "stock", "stock status", "in stock", "quantity", "inventory"],
         description: ["description", "body", "details"],
         short_desc: ["short desc", "short description", "excerpt", "summary", "brief"],
@@ -3864,6 +3864,17 @@ function addCustomFilterOuterHiddenSelectInputField(row, newRowId, value) {
         });
 
         if (!sourceNames.length || !targetNames.length) {
+            return 0;
+        }
+
+        if (
+            srcKey === "google_product_category" ||
+            sourceNames.indexOf("google product category") !== -1 ||
+            sourceNames.indexOf("google category") !== -1
+        ) {
+            if (targetGroup === "Category Map") {
+                return 0.95;
+            }
             return 0;
         }
 

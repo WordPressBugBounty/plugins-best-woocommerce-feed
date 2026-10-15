@@ -203,12 +203,12 @@ class Rex_Product_Feed {
          */
         rex_feed_validator_loader();
 
-        // $special_banner = new Rex_Feed_Special_Occasion_Banner(
-        //     'halloween_deal_2025',
-		//    	'2025-10-10 00:00:00',
-		//    	'2025-11-05 23:59:59'
-        // );
-		 // Date format: YYYY-MM-DD HH:MM:SS
+        // Date format: YYYY-MM-DD HH:MM:SS (site timezone).
+        $special_banner = new Rex_Feed_Special_Occasion_Banner(
+            'halloween_deal_2026',
+            '2026-10-15 00:00:00',
+            '2026-10-26 23:59:59'
+        );
 
 
         // Analytics REST API. The Analytics admin page itself is registered
@@ -297,7 +297,7 @@ class Rex_Product_Feed {
 
 	    $this->loader->add_action( 'woocommerce_update_non_option_setting', $plugin_admin, 'delete_shipping_transient', 99 );
 
-	    // $this->loader->add_action( 'admin_init', $special_banner, 'init' );
+	    $this->loader->add_action( 'admin_init', $special_banner, 'init' );
 	    $this->loader->add_filter( 'post_updated_messages', $plugin_admin, 'post_updated_messages' );
 
 	    $this->loader->add_filter( 'rex_feed_product_price_before_formatting', $feed_actions, 'update_price_compatibility_with_wpml', 10, 4 );

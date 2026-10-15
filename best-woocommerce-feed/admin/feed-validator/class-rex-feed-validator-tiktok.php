@@ -79,9 +79,9 @@ class Rex_Feed_Validator_TikTok extends Rex_Feed_Abstract_Validator {
 	protected function init_required_attributes() {
 		$this->required_attributes = array(
 			// Basic product data - REQUIRED
-			'id'          => array(
+			'sku_id'      => array(
 				'severity'    => self::SEVERITY_ERROR,
-				'description' => __( 'Unique product identifier (max 100 characters)', 'rex-product-feed' ),
+				'description' => __( 'Unique product identifier (SKU ID, max 100 characters)', 'rex-product-feed' ),
 			),
 			'title'       => array(
 				'severity'    => self::SEVERITY_ERROR,
@@ -131,7 +131,7 @@ class Rex_Feed_Validator_TikTok extends Rex_Feed_Abstract_Validator {
 	protected function init_character_limits() {
 		$this->character_limits = array(
 			// Basic product data
-			'id'                  => array(
+			'sku_id'              => array(
 				'max'      => 100,
 				'severity' => self::SEVERITY_ERROR,
 			),
