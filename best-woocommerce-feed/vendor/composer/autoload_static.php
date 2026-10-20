@@ -997,6 +997,7 @@ class ComposerStaticInit91555ad83e3408c9220dfffb8a2b9d71
         'RexTheme\\ZapCoIl\\Feed' => __DIR__ . '/../..' . '/admin/feed/zap_co_il/Feed.php',
         'RexTheme\\ZapCoIl\\Item' => __DIR__ . '/../..' . '/admin/feed/zap_co_il/Item.php',
         'RexTheme\\ZapCoIl\\Node' => __DIR__ . '/../..' . '/admin/feed/zap_co_il/Node.php',
+        'Rex_Feed_Abilities' => __DIR__ . '/../..' . '/includes/class-rex-feed-abilities.php',
         'Rex_Feed_Abstract_Template' => __DIR__ . '/../..' . '/admin/feed-templates/abstract-rex-feed-template.php',
         'Rex_Feed_Abstract_Validator' => __DIR__ . '/../..' . '/admin/feed-validator/abstract-rex-feed-validator.php',
         'Rex_Feed_Attributes' => __DIR__ . '/../..' . '/admin/class-rex-feed-attributes.php',

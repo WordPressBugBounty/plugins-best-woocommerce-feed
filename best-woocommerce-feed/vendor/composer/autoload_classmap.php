@@ -948,6 +948,7 @@ return array(
     'RexTheme\\ZapCoIl\\Feed' => $baseDir . '/admin/feed/zap_co_il/Feed.php',
     'RexTheme\\ZapCoIl\\Item' => $baseDir . '/admin/feed/zap_co_il/Item.php',
     'RexTheme\\ZapCoIl\\Node' => $baseDir . '/admin/feed/zap_co_il/Node.php',
+    'Rex_Feed_Abilities' => $baseDir . '/includes/class-rex-feed-abilities.php',
     'Rex_Feed_Abstract_Template' => $baseDir . '/admin/feed-templates/abstract-rex-feed-template.php',
     'Rex_Feed_Abstract_Validator' => $baseDir . '/admin/feed-validator/abstract-rex-feed-validator.php',
     'Rex_Feed_Attributes' => $baseDir . '/admin/class-rex-feed-attributes.php',
