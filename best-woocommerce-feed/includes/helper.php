@@ -1158,3 +1158,58 @@ if ( ! function_exists( 'wpfm_is_google_feed_merchant' ) ) {
         return in_array( $merchant, $google_merchants, true ) || strpos( $merchant, 'google' ) === 0;
     }
 }
+
+if ( ! function_exists( 'wpfm_get_free_tier_initial_product_ids' ) ) {
+	/**
+	 * Retrieve the initial 200 product IDs from WooCommerce for the free tier limit.
+	 *
+	 * Ensures that filtering features in the free version only operate within the
+	 * first 200 products of the store, preventing catalog limit bypasses.
+	 *
+	 * @since 7.13.1
+	 *
+	 * @return int[] Array of product IDs within the free limit.
+	 */
+	function wpfm_get_free_tier_initial_product_ids(): array {
+		static $initial_ids = null;
+
+		if ( null !== $initial_ids ) {
+			return $initial_ids;
+		}
+
+		$post_status = array( 'publish' );
+		if ( 'yes' === get_option( 'wpfm_allow_private', 'no' ) ) {
+			$post_status[] = 'private';
+		}
+
+		$limit = defined( 'WPFM_FREE_MAX_PRODUCT_LIMIT' ) ? (int) WPFM_FREE_MAX_PRODUCT_LIMIT : 200;
+
+		$query = new WP_Query(
+			array(
+				'post_type'              => 'product',
+				'post_status'            => $post_status,
+				'posts_per_page'         => $limit,
+				'orderby'                => 'ID',
+				'order'                  => 'ASC',
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'cache_results'          => false,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			)
+		);
+
+		$initial_ids = ! empty( $query->posts ) ? array_map( 'absint', (array) $query->posts ) : array();
+
+		/**
+		 * Filter the initial product IDs available to the free tier.
+		 *
+		 * @since 7.13.1
+		 *
+		 * @param int[] $initial_ids Array of initial product IDs.
+		 */
+		$initial_ids = apply_filters( 'wpfm_free_tier_initial_product_ids', $initial_ids );
+
+		return $initial_ids;
+	}
+}

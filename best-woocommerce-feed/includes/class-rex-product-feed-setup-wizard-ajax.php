@@ -206,6 +206,21 @@ add_action('wp_ajax_pfm_dashboard_banner_track',          array($this, 'dashboar
         
         // Get premium status
         $is_premium = apply_filters( 'wpfm_is_premium', false );
+
+        // Process popular merchants not already in the top-5 grid.
+        if ( isset( $all_merchants_data['popular'] ) && is_array( $all_merchants_data['popular'] ) ) {
+            foreach ( $all_merchants_data['popular'] as $id => $merchant ) {
+                if ( ! in_array( $id, $popular_ids, true ) ) {
+                    $is_pro           = empty( $merchant['free'] );
+                    $merchants_list[] = array(
+                        'id'          => $id,
+                        'name'        => $merchant['name'],
+                        'isPro'       => $is_pro,
+                        'isAvailable' => $is_pro ? $is_premium : true,
+                    );
+                }
+            }
+        }
         
         // Process pro merchants
         if ( isset($all_merchants_data['pro_merchants']) && is_array($all_merchants_data['pro_merchants']) ) {

@@ -5,7 +5,7 @@ Tags: google shopping, facebook catalog, google merchant center, woocommerce, pr
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 7.14.0
+Stable tag: 7.14.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -421,6 +421,10 @@ You can use the WordPress support forum, product documentation, video tutorials,
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.14.1 (2026-10-22) =
+* Fix: Enforce 200-product limit when using category and taxonomy filters in the free version
+* Enhancement: Include OpenAI/ChatGPT and popular merchants in setup wizard search and refine completion screen UI
 
 = 7.14.0 (2026-10-20) =
 * New: Add WordPress core Abilities API support (`rexfeed/*` abilities) to let AI agents list, inspect, create, validate, and regenerate product feeds

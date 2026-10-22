@@ -672,6 +672,10 @@ class Rex_Feed_Scheduler {
         }
 
         if ( $file_count > 0 ) {
+            // Free tier: ensure total products do not exceed the maximum free limit.
+            if ( ! apply_filters( 'wpfm_is_premium', false ) && $file_count > WPFM_FREE_MAX_PRODUCT_LIMIT ) {
+                $file_count = (int) WPFM_FREE_MAX_PRODUCT_LIMIT;
+            }
             $existing['total'] = $file_count;
 
             // If subcounts only partially accumulated (cached batches skip the generator),

@@ -561,6 +561,20 @@ class Rex_Product_Feed_Ajax {
                     ],
                 ];
             }
+
+            // Free tier: restrict taxonomy filters to the store's initial 200 products.
+            if ( ! apply_filters( 'wpfm_is_premium', false ) ) {
+                $initial_product_ids = function_exists( 'wpfm_get_free_tier_initial_product_ids' )
+                    ? wpfm_get_free_tier_initial_product_ids()
+                    : [];
+
+                if ( ! empty( $query_args['post__in'] ) ) {
+                    $intersection           = array_values( array_intersect( $query_args['post__in'], $initial_product_ids ) );
+                    $query_args['post__in'] = ! empty( $intersection ) ? $intersection : [ 0 ];
+                } else {
+                    $query_args['post__in'] = ! empty( $initial_product_ids ) ? $initial_product_ids : [ 0 ];
+                }
+            }
         }
         elseif ( 'product_filter' === $product_scope ) {
             $product_ids = $feed_config[ 'rex_feed_product_filter_ids' ]

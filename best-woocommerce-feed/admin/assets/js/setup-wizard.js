@@ -12,14 +12,34 @@ jQuery(document).ready(function ($) {
 
     // Merchant → feed format map (default xml)
     var merchantFormatMap = {
-        google   : 'xml',
-        facebook : 'xml',
-        whatsapp : 'xml',
-        tiktok   : 'xml',
-        bing     : 'xml',
-        pinterest: 'xml',
-        snapchat : 'csv',
-        idealo   : 'csv',
+        google     : 'xml',
+        facebook   : 'xml',
+        whatsapp   : 'xml',
+        tiktok     : 'xml',
+        bing       : 'xml',
+        pinterest  : 'xml',
+        openai     : 'json',
+        chatgpt_ads: 'csv',
+        snapchat   : 'csv',
+        idealo     : 'csv',
+    };
+
+    // Merchant → icon file map (for setup-wizard-images folder)
+    var merchantIconMap = {
+        google          : 'google.webp',
+        facebook        : 'facebook.webp',
+        idealo          : 'Idealo.svg',
+        tiktok          : 'tiktok.webp',
+        pinterest       : 'pinterest.webp',
+        openai          : 'chatgpt.svg',
+        chatgpt_ads     : 'chatgpt.svg',
+        instagram       : 'instagram.webp',
+        whatsapp        : 'whatsapp.webp',
+        twitter         : 'x.webp',
+        snapchat        : 'snapchat.webp',
+        bing            : 'bing.webp',
+        vivino          : 'vivino.webp',
+        custom          : 'custom.webp',
     };
 
     // Top-5 popular merchants (images must exist in assetsUrl folder)
@@ -186,9 +206,10 @@ jQuery(document).ready(function ($) {
             var isSelected = m.id === selectedMerchantId;
             var isDisabled = m.isPro && !isPremiumUser;
             var $card = $('<div>', { class: 'pfm-result-card' + (isSelected ? ' selected' : '') + (isDisabled ? ' disabled' : ''), 'data-id': m.id });
+            var imgUrl = m.img || (merchantIconMap[m.id] ? assetsUrl + merchantIconMap[m.id] : '');
 
-            if (m.img) {
-                $card.append(merchantImgWithFallback(m));
+            if (imgUrl) {
+                $card.append(merchantImgWithFallback({ name: m.name, img: imgUrl }));
             } else {
                 var cc = 'monogram-color-' + getMonogramColor(m.name);
                 $card.append($('<div class="pfm-merchant-monogram ' + cc + '">').text(m.name.charAt(0).toUpperCase()));

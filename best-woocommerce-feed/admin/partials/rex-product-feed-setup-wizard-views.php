@@ -207,61 +207,6 @@
                 <!-- <button class="pfm-btn-text-link" id="pfmSkipForNowBtn"><?php esc_html_e( 'Skip for now', 'rex-product-feed' ); ?></button> -->
             </div>
 
-            <hr class="pfm-divider" />
-
-            <!-- Upsells (below fold) -->
-            <div class="pfm-upsell-section">
-                <div class="pfm-upsell-header-row">
-                    &#9660; <?php esc_html_e( 'Grow your store further', 'rex-product-feed' ); ?>
-                </div>
-                <div class="pfm-upsell-cards">
-
-                    <!-- WPFunnels -->
-                    <div class="pfm-upsell-card pfm-upsell-featured" id="pfmWpfCard">
-                        <span class="pfm-upsell-badge"><?php esc_html_e( 'HIGHLY RECOMMENDED', 'rex-product-feed' ); ?></span>
-                        <div class="pfm-upsell-card-header">
-                            <div class="pfm-upsell-icon-wrap">
-                                <img src="<?php echo esc_url( WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/wpfunnels.png' ); ?>" alt="WPFunnels" class="pfm-upsell-icon-img">
-                            </div>
-                            <div class="pfm-upsell-titles">
-                                <h3 class="pfm-upsell-name"><?php esc_html_e( 'Turn Clicks Into Profit', 'rex-product-feed' ); ?></h3>
-                                <p class="pfm-upsell-brand">WPFunnels &mdash; <?php esc_html_e( 'Funnel Builder for WooCommerce', 'rex-product-feed' ); ?></p>
-                            </div>
-                        </div>
-                        <p class="pfm-upsell-desc" id="pfmWpfDesc"></p>
-                        <div class="pfm-upsell-card-footer">
-                            <button class="pfm-btn-primary pfm-upsell-install-btn" id="pfmInstallWpfBtn">
-                                <?php esc_html_e( 'Install WPFunnels (Free)', 'rex-product-feed' ); ?> &rarr;
-                            </button>
-                            <span class="pfm-upsell-stats">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:3px;"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-                                <?php esc_html_e( 'Used by 6,000+ WooCommerce stores', 'rex-product-feed' ); ?> &bull; <?php esc_html_e( '4.9/5 rating', 'rex-product-feed' ); ?>
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Cart Lift -->
-                    <div class="pfm-upsell-card" id="pfmClCard">
-                        <div class="pfm-upsell-body-row">
-                            <div class="pfm-upsell-icon-wrap">
-                                <img src="<?php echo esc_url( WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/cart-lift.png' ); ?>" alt="Cart Lift" class="pfm-upsell-icon-img">
-                            </div>
-                            <div class="pfm-upsell-titles">
-                                <h3 class="pfm-upsell-name"><?php esc_html_e( 'Recover Lost Revenue', 'rex-product-feed' ); ?></h3>
-                                <p class="pfm-upsell-brand pfm-upsell-brand-muted">Cart Lift</p>
-                                <p class="pfm-upsell-desc"><?php esc_html_e( 'Automatically recover abandoned carts with email reminders.', 'rex-product-feed' ); ?></p>
-                            </div>
-                            <div class="pfm-upsell-cl-action">
-                                <button class="pfm-btn-outline pfm-upsell-install-btn" id="pfmInstallClBtn">
-                                    <?php esc_html_e( 'Install Cart Lift (Free)', 'rex-product-feed' ); ?> &rarr;
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
         </div>
     </section>
 

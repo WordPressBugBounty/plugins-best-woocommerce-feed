@@ -758,6 +758,20 @@ abstract class Rex_Product_Feed_Abstract_Generator
                     wp_set_object_terms( $this->id, $args[ $terms_key ], $args['products_scope'] );
                 }
             }
+
+            // Free tier: restrict taxonomy filters to the store's initial 200 products.
+            if ( ! apply_filters( 'wpfm_is_premium', false ) ) {
+                $initial_product_ids = function_exists( 'wpfm_get_free_tier_initial_product_ids' )
+                    ? wpfm_get_free_tier_initial_product_ids()
+                    : array();
+
+                if ( ! empty( $this->products_args['post__in'] ) ) {
+                    $intersection                    = array_values( array_intersect( $this->products_args['post__in'], $initial_product_ids ) );
+                    $this->products_args['post__in'] = ! empty( $intersection ) ? $intersection : array( 0 );
+                } else {
+                    $this->products_args['post__in'] = ! empty( $initial_product_ids ) ? $initial_product_ids : array( 0 );
+                }
+            }
         }
 
 
@@ -1531,6 +1545,36 @@ abstract class Rex_Product_Feed_Abstract_Generator
             }
 
             if ( $this->batch === $this->tbatch && file_exists( $file ) && function_exists( 'rename' ) ) {
+                // Free tier safety check: ensure XML item count and meta totals never exceed WPFM_FREE_MAX_PRODUCT_LIMIT.
+                if ( ! apply_filters( 'wpfm_is_premium', false ) ) {
+                    $doc = new DOMDocument();
+                    if ( @$doc->load( $file ) ) {
+                        $items = $doc->getElementsByTagName( 'item' );
+                        if ( $items->length > WPFM_FREE_MAX_PRODUCT_LIMIT ) {
+                            for ( $i = $items->length - 1; $i >= WPFM_FREE_MAX_PRODUCT_LIMIT; $i-- ) {
+                                $node = $items->item( $i );
+                                if ( $node && $node->parentNode ) {
+                                    $node->parentNode->removeChild( $node );
+                                }
+                            }
+                            $doc->save( $file );
+                        }
+                    }
+
+                    $existing_totals = get_post_meta( $this->id, '_rex_feed_total_products', true );
+                    if ( is_array( $existing_totals ) && isset( $existing_totals['total'] ) && $existing_totals['total'] > WPFM_FREE_MAX_PRODUCT_LIMIT ) {
+                        $excess = (int) $existing_totals['total'] - WPFM_FREE_MAX_PRODUCT_LIMIT;
+                        $existing_totals['total'] = WPFM_FREE_MAX_PRODUCT_LIMIT;
+                        if ( isset( $existing_totals['variable'] ) && $existing_totals['variable'] >= $excess ) {
+                            $existing_totals['variable'] -= $excess;
+                        } elseif ( isset( $existing_totals['simple'] ) && $existing_totals['simple'] >= $excess ) {
+                            $existing_totals['simple'] -= $excess;
+                        }
+                        update_post_meta( $this->id, '_rex_feed_total_products', $existing_totals );
+                        update_post_meta( $this->id, '_rex_feed_total_products_for_all_feed', WPFM_FREE_MAX_PRODUCT_LIMIT );
+                    }
+                }
+
                 if ( function_exists( 'rex_feed_is_valid_xml' ) && rex_feed_is_valid_xml( $file, $this->id, $this->merchant ) ) {
                     $live_file = trailingslashit( $path ) . "{$feed_file_name}.{$format}";
                     if ( ! rename( $file, $live_file ) ) {

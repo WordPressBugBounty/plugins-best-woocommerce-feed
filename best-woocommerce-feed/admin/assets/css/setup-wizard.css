@@ -1771,7 +1771,7 @@ select.mapping-select.type-select {
 .pfm-propagation-notice {
     display: flex; align-items: flex-start; gap: 8px;
     padding: 12px 14px;
-    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+    background: #ffffff; border: 1px solid #bfdbfe; border-radius: 8px;
     margin-bottom: 20px;
     font-size: 13px; color: #1e40af; line-height: 1.5;
 }
