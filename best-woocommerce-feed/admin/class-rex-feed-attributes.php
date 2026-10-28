@@ -420,7 +420,7 @@ class Rex_Feed_Attributes {
 			if ( is_array( $data ) && ! empty( $data ) ) {
 				foreach ( $data as $item ) {
 
-					$settings = maybe_unserialize( $item['settings'] );
+					$settings = wpfm_safe_unserialize( $item['settings'] );
 
 					if (
 						is_array( $settings ) &&
@@ -685,11 +685,11 @@ class Rex_Feed_Attributes {
 
 			if ( is_array( $data ) && !empty( $data ) ) {
 				foreach ( $data as $value ) {
-					$product_attributes = unserialize( $value->value );
+					$product_attributes = wpfm_safe_unserialize( $value->value );
 
-					if ( !empty( $product_attributes ) ) {
+					if ( is_array( $product_attributes ) && !empty( $product_attributes ) ) {
 						foreach ( $product_attributes as $inner_key => $inner_value ) {
-							if ( !empty( $inner_value[ 'name' ] ) && is_string( $inner_value[ 'name' ] ) ) {
+							if ( is_array( $inner_value ) && !empty( $inner_value[ 'name' ] ) && is_string( $inner_value[ 'name' ] ) ) {
 								$value_display = str_replace( '_', ' ', $inner_value[ 'name' ] );
 							}
 							else {

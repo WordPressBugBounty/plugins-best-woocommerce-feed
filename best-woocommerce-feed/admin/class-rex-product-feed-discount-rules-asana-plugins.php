@@ -81,7 +81,12 @@ class Rex_Feed_Discount_Rules_Asana_Plugins {
 				$key = isset( $meta[ 'meta_key' ] ) ? $meta[ 'meta_key' ] : '';
 
 				if ( isset( $meta[ 'meta_value' ] ) && !empty( $meta[ 'meta_key' ] ) ) {
-                    $val = false !== @unserialize( $meta[ 'meta_value' ] ) ? unserialize( $meta[ 'meta_value' ] ) : $meta[ 'meta_value' ]; //phpcs:ignore
+                    $val = wpfm_safe_unserialize( $meta[ 'meta_value' ] );
+
+                    // Keep the raw string for malformed payloads, as before, and never hand objects to the typed callers below.
+                    if ( false === $val || wpfm_contains_object( $val ) ) {
+                        $val = $meta[ 'meta_value' ];
+                    }
 				}
 
 				if ( '' !== $key ) {

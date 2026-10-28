@@ -50,32 +50,70 @@ class Rex_Feed_System_Status {
 		$transient_key = 'wpfm_plugin_info_' . md5( $slug );
 		$cached_info = get_transient( $transient_key );
 		if ( false !== $cached_info ) {
-			return $cached_info;
+			return is_object( $cached_info ) ? $cached_info : false;
 		}
 
-		$args     = (object) array(
-			'slug'   => $slug,
-			'fields' => array(
-				'sections'    => false,
-				'screenshots' => false,
-				'versions'    => false,
-			),
-		);
-		$request  = array(
-			'action'  => 'plugin_information',
-			'request' => serialize( $args ), //phpcs:ignore
-		);
-		$url      = 'http://api.wordpress.org/plugins/info/1.0/';
-		$response = wp_remote_post( $url, array( 'body' => $request ) );
-
-		if ( is_wp_error( $response ) ) {
+		// api.wordpress.org failed a moment ago; do not make every remaining plugin wait on it again.
+		if ( false !== get_transient( 'wpfm_plugin_api_unreachable' ) ) {
 			return false;
 		}
-		
-		$info = unserialize( $response[ 'body' ] ); //phpcs:ignore
+
+		if ( ! function_exists( 'plugins_api' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+		}
+
+		// plugins_api() talks to api.wordpress.org over HTTPS and decodes JSON, so no response body is ever unserialized here.
+		add_filter( 'http_request_args', array( __CLASS__, 'limit_plugin_info_timeout' ), 10, 2 );
+		$info = plugins_api(
+			'plugin_information',
+			array(
+				'slug'   => $slug,
+				'fields' => array(
+					'sections'    => false,
+					'screenshots' => false,
+					'versions'    => false,
+				),
+			)
+		);
+
+		remove_filter( 'http_request_args', array( __CLASS__, 'limit_plugin_info_timeout' ), 10 );
+
+		if ( is_wp_error( $info ) || ! is_object( $info ) ) {
+			// Only transport failures carry the underlying error message as data; "plugin not found" does not.
+			if ( is_wp_error( $info ) && is_string( $info->get_error_data() ) && '' !== $info->get_error_data() ) {
+				set_transient( 'wpfm_plugin_api_unreachable', 1, 5 * MINUTE_IN_SECONDS );
+			} else {
+				// Plugins that are not on wordpress.org (premium, custom) will never resolve, so remember the miss.
+				set_transient( $transient_key, 'not_found', HOUR_IN_SECONDS );
+			}
+
+			return false;
+		}
+
 		set_transient( $transient_key, $info, 12 * HOUR_IN_SECONDS );
 		
 		return $info;
+	}
+
+	/**
+	 * Cap the wordpress.org plugin lookup timeout.
+	 *
+	 * `plugins_api()` waits up to 15 seconds and then retries over plain HTTP, which can stall the
+	 * System Status page for 30 seconds per plugin on a host that cannot reach api.wordpress.org.
+	 *
+	 * @since 7.14.2
+	 *
+	 * @param array<string,mixed> $args HTTP request arguments.
+	 * @param string              $url  Request URL.
+	 *
+	 * @return array<string,mixed> HTTP request arguments.
+	 */
+	public static function limit_plugin_info_timeout( $args, $url ) {
+		if ( is_string( $url ) && false !== strpos( $url, 'api.wordpress.org/plugins/info/' ) ) {
+			$args['timeout'] = 5;
+		}
+
+		return $args;
 	}
 
 	/**
@@ -89,7 +127,7 @@ class Rex_Feed_System_Status {
 			$installed_version = WPFM_VERSION;
 			$latest_version    = self::get_plugin_info( 'best-woocommerce-feed' );
 
-			if ( version_compare( $latest_version->version, $installed_version, '>' ) ) {
+			if ( is_object( $latest_version ) && version_compare( $latest_version->version, $installed_version, '>' ) ) {
 				$message = $installed_version . " - You are not using the latest version of Product Feed Manager for WooCommerce. Update Product Feed Manager for WooCommerce plugin to its latest version: " . $latest_version->version;
 			}
 			else {

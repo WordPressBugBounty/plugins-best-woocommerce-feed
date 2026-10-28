@@ -35,6 +35,7 @@ class Rex_Product_Feed_Linno_Telemetry {
      */
     public function __construct() {
         $this->init_client();
+        add_action( 'admin_init', array( $this, 'guard_consent_request' ), 1 );
         add_action( 'transition_post_status', array( $this, 'maybe_track_manual_publish' ), 10, 3 );
         add_action( 'rex_product_feed_feed_published', array( $this, 'maybe_track_aha' ) );
         add_action( 'rex_product_feed_feed_published', array( $this, 'accumulate_feed_publish' ), 10, 2 );
@@ -264,6 +265,143 @@ class Rex_Product_Feed_Linno_Telemetry {
         }
 
         return $format;
+    }
+
+    /**
+     * Block unauthorized telemetry opt-in/opt-out requests before the SDK handles them.
+     *
+     * The bundled SDK's Consent::handle_optin_optout() runs on admin_init (which also
+     * fires for unauthenticated admin-ajax.php / admin-post.php requests) with no
+     * capability or nonce check. This guard runs first and, for unauthorized requests,
+     * unhooks that handler and strips the `plugin` query arg so it cannot act. A valid
+     * nonce authorizes the request; the real Referer header is the fallback while the SDK
+     * in composer.lock still renders its consent links without a nonce.
+     *
+     * @since 7.14.2
+     *
+     * @return void
+     */
+    public function guard_consent_request(): void {
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Nonce is verified below.
+        if ( ! isset( $_GET['plugin'], $_GET['action'] ) ) {
+            return;
+        }
+
+        if ( 'product-feed-manager' !== sanitize_key( wp_unslash( $_GET['plugin'] ) ) ) {
+            return;
+        }
+
+        $action = sanitize_key( wp_unslash( $_GET['action'] ) );
+        $nonce  = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended
+        if ( ! in_array( $action, array( 'optin', 'optout' ), true ) ) {
+            return;
+        }
+
+        $is_admin_post = isset( $GLOBALS['pagenow'] ) && 'admin-post.php' === $GLOBALS['pagenow'];
+        $can_manage    = ! wp_doing_ajax() && ! $is_admin_post && current_user_can( 'manage_options' );
+        $is_authorized = $can_manage
+            && (
+                false !== wp_verify_nonce( $nonce, 'product-feed-manager_telemetry_' . $action )
+                || $this->is_same_site_admin_referer()
+            );
+
+        if ( $is_authorized ) {
+            return;
+        }
+
+        $this->block_sdk_consent_handler();
+
+        // A real admin whose browser strips the Referer would otherwise see the consent notice
+        // reappear with no explanation.
+        if ( $can_manage ) {
+            add_action( 'admin_notices', array( $this, 'render_consent_rejected_notice' ) );
+        }
+    }
+
+    /**
+     * Check that the request was referred by a wp-admin page on this site.
+     *
+     * Reads the Referer header only. wp_get_referer() prefers the `_wp_http_referer` request
+     * argument, which anyone can put in a link, so it cannot prove where a request came from.
+     * Scheme is ignored so an http/https mismatch behind a proxy does not reject real admins.
+     *
+     * @since 7.14.2
+     *
+     * @return bool True when the Referer is a wp-admin URL on this site's host.
+     */
+    private function is_same_site_admin_referer(): bool {
+        if ( empty( $_SERVER['HTTP_REFERER'] ) ) {
+            return false;
+        }
+
+        $referer = wp_parse_url( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) );
+        $admin   = wp_parse_url( admin_url() );
+
+        if ( empty( $referer['host'] ) || empty( $admin['host'] ) ) {
+            return false;
+        }
+
+        if ( strtolower( $referer['host'] ) !== strtolower( $admin['host'] ) ) {
+            return false;
+        }
+
+        if ( ( isset( $referer['port'] ) ? $referer['port'] : null ) !== ( isset( $admin['port'] ) ? $admin['port'] : null ) ) {
+            return false;
+        }
+
+        $admin_path = trailingslashit( isset( $admin['path'] ) ? $admin['path'] : '/wp-admin/' );
+
+        return isset( $referer['path'] ) && 0 === strpos( $referer['path'], $admin_path );
+    }
+
+    /**
+     * Stop the SDK from handling the current opt-in/opt-out request.
+     *
+     * Unhooks Consent::handle_optin_optout() so it does not depend on how the SDK reads its
+     * input, and also drops the `plugin` query arg for SDK versions that hook it elsewhere.
+     *
+     * @since 7.14.2
+     *
+     * @return void
+     */
+    private function block_sdk_consent_handler(): void {
+        unset( $_GET['plugin'], $_REQUEST['plugin'] );
+
+        global $wp_filter;
+
+        if ( empty( $wp_filter['admin_init'] ) || ! $wp_filter['admin_init'] instanceof WP_Hook ) {
+            return;
+        }
+
+        foreach ( $wp_filter['admin_init']->callbacks as $priority => $callbacks ) {
+            foreach ( $callbacks as $callback ) {
+                $function = $callback['function'];
+
+                if (
+                    is_array( $function )
+                    && isset( $function[0], $function[1] )
+                    && $function[0] instanceof \LinnoSDK\Telemetry\Consent
+                    && 'handle_optin_optout' === $function[1]
+                ) {
+                    remove_action( 'admin_init', $function, $priority );
+                }
+            }
+        }
+    }
+
+    /**
+     * Tell an administrator that their telemetry choice was not saved.
+     *
+     * @since 7.14.2
+     *
+     * @return void
+     */
+    public function render_consent_rejected_notice(): void {
+        printf(
+            '<div class="notice notice-error"><p>%s</p></div>',
+            esc_html__( 'Product Feed Manager could not verify your telemetry choice, so it was not saved. Please try again from the notice on a WordPress admin page.', 'rex-product-feed' )
+        );
     }
 
     /**

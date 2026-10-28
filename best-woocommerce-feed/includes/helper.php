@@ -153,6 +153,76 @@ if ( ! function_exists( 'wpfm_purge_cached_data' ) ) {
 }
 
 
+if ( ! function_exists( 'wpfm_safe_unserialize' ) ) {
+	/**
+	 * Unserialize a value without ever instantiating a class.
+	 *
+	 * Drop-in replacement for `maybe_unserialize()` / `unserialize()` on data read from the
+	 * database, an import file or a remote response. Strings that `is_serialized()` rejects,
+	 * including the `C:` custom-serialization format, are returned untouched and never
+	 * unserialized. Objects inside serialized input become `__PHP_Incomplete_Class`, so no
+	 * `__wakeup()` / `__destruct()` of a real class can run.
+	 *
+	 * @since 7.14.2
+	 *
+	 * @param mixed $data Value to unserialize.
+	 * @return mixed Unserialized value, `false` when a serialized string is malformed, or
+	 *               `$data` itself when it is not serialized.
+	 */
+	function wpfm_safe_unserialize( $data ) {
+		if ( ! is_string( $data ) || ! is_serialized( $data ) ) {
+			return $data;
+		}
+
+		return @unserialize( trim( $data ), array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- allowed_classes is false.
+	}
+}
+
+
+if ( ! function_exists( 'wpfm_contains_object' ) ) {
+	/**
+	 * Check whether a value is, or holds at any depth, an object.
+	 *
+	 * `wpfm_safe_unserialize()` turns objects into `__PHP_Incomplete_Class`, but a nested one
+	 * still survives inside the returned array. Re-serializing it keeps the original class name,
+	 * so a later read through core's `maybe_unserialize()` would instantiate the real class.
+	 * Callers that persist unserialized data use this to reject such payloads.
+	 *
+	 * @since 7.14.2
+	 *
+	 * @param mixed $value Value to inspect.
+	 * @return bool True when `$value` is an object or an array containing one.
+	 */
+	function wpfm_contains_object( $value ): bool {
+		if ( is_object( $value ) ) {
+			return true;
+		}
+
+		if ( ! is_array( $value ) ) {
+			return false;
+		}
+
+		$stack = array( $value );
+
+		while ( $stack ) {
+			$current = array_pop( $stack );
+
+			foreach ( $current as $item ) {
+				if ( is_object( $item ) ) {
+					return true;
+				}
+
+				if ( is_array( $item ) ) {
+					$stack[] = $item;
+				}
+			}
+		}
+
+		return false;
+	}
+}
+
+
 if ( ! function_exists( 'wpfm_replace_special_char' ) ) {
 	function wpfm_replace_special_char( $feed ) {
 		if ( empty( $feed ) || ! is_string( $feed ) ) {

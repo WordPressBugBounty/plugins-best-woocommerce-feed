@@ -1616,7 +1616,9 @@ class Rex_Product_Feed_Actions {
         $query = $wpdb->prepare( $query, 'acf-field', $selector );
         $field_data = $wpdb->get_row( $query, ARRAY_A );
         if ( !empty( $field_data[ 'configs' ] ) ) {
-            $field_data[ 'configs' ] = @unserialize( $field_data[ 'configs' ] );
+            $configs = wpfm_safe_unserialize( $field_data[ 'configs' ] );
+            // A rejected payload (malformed or an object) must not reach callers that index into it.
+            $field_data[ 'configs' ] = is_array( $configs ) ? $configs : array();
         }
         return $field_data;
     }

@@ -2671,7 +2671,8 @@ class Rex_Product_Feed_Ajax {
             );
         }
 
-        $imported = 0;
+        $imported     = 0;
+        $skipped_meta = array();
 
         foreach ( $data['feeds'] as $feed ) {
             if ( ! is_array( $feed ) ) {
@@ -2702,7 +2703,7 @@ class Rex_Product_Feed_Ajax {
                 continue;
             }
 
-            self::import_feed_meta( $post_id, isset( $feed['meta'] ) ? $feed['meta'] : array() );
+            $skipped_meta = array_merge( $skipped_meta, self::import_feed_meta( $post_id, isset( $feed['meta'] ) ? $feed['meta'] : array() ) );
             self::import_feed_terms( $post_id, isset( $feed['terms'] ) ? $feed['terms'] : array() );
             self::reset_imported_feed_runtime_meta( $post_id );
 
@@ -2718,15 +2719,48 @@ class Rex_Product_Feed_Ajax {
             );
         }
 
+        $message = sprintf(
+            /* translators: %d: imported feed count. */
+            _n( '%d feed configuration imported.', '%d feed configurations imported.', $imported, 'rex-product-feed' ),
+            $imported
+        );
+
+        $skipped_notice = self::get_skipped_meta_notice( $skipped_meta );
+
         wp_send_json_success(
             array(
-                'message' => sprintf(
-                    /* translators: %d: imported feed count. */
-                    _n( '%d feed configuration imported.', '%d feed configurations imported.', $imported, 'rex-product-feed' ),
-                    $imported
-                ),
+                'message' => '' !== $skipped_notice ? $message . ' ' . $skipped_notice : $message,
                 'count'   => $imported,
             )
+        );
+    }
+
+    /**
+     * Build the admin-facing note about meta values left out of an import or export.
+     *
+     * @since 7.14.2
+     *
+     * @param string[] $meta_keys Meta keys whose values were skipped.
+     *
+     * @return string Translated sentence, or an empty string when nothing was skipped.
+     */
+    private static function get_skipped_meta_notice( array $meta_keys ): string {
+        $meta_keys = array_values( array_unique( array_map( 'sanitize_text_field', $meta_keys ) ) );
+
+        if ( empty( $meta_keys ) ) {
+            return '';
+        }
+
+        $shown = implode( ', ', array_slice( $meta_keys, 0, 10 ) );
+
+        if ( count( $meta_keys ) > 10 ) {
+            $shown .= '…';
+        }
+
+        return sprintf(
+            /* translators: %s: comma-separated meta keys. */
+            __( 'Skipped meta values that contain PHP objects: %s.', 'rex-product-feed' ),
+            $shown
         );
     }
 
@@ -2823,9 +2857,20 @@ class Rex_Product_Feed_Ajax {
             $processed_values = array();
 
             foreach ( $values as $val ) {
-                $val = maybe_unserialize( $val );
+                $val = wpfm_safe_unserialize( $val );
+
+                // Objects cannot round-trip through JSON: the safe unserialize turns them into
+                // __PHP_Incomplete_Class, which would export as junk and be rejected on import.
+                if ( wpfm_contains_object( $val ) ) {
+                    continue;
+                }
+
                 $val = self::normalize_meta_term_ids_to_slugs( $meta_key, $val );
                 $processed_values[] = $val;
+            }
+
+            if ( empty( $processed_values ) ) {
+                continue;
             }
 
             $processed_meta[ $meta_key ] = $processed_values;
@@ -3023,11 +3068,13 @@ class Rex_Product_Feed_Ajax {
      * @param int   $post_id Feed post ID.
      * @param array $meta    Meta values keyed by meta key.
      *
-     * @return void
+     * @return string[] Meta keys that had at least one value skipped because it held an object.
      */
-    private static function import_feed_meta( $post_id, $meta ) {
+    private static function import_feed_meta( $post_id, $meta ): array {
+        $skipped = array();
+
         if ( ! is_array( $meta ) ) {
-            return;
+            return $skipped;
         }
 
         foreach ( $meta as $meta_key => $meta_values ) {
@@ -3039,7 +3086,14 @@ class Rex_Product_Feed_Ajax {
 
             foreach ( $meta_values as $meta_value ) {
                 if ( is_string( $meta_value ) ) {
-                    $meta_value = maybe_unserialize( $meta_value );
+                    $meta_value = wpfm_safe_unserialize( $meta_value );
+                }
+
+                // Class instances are never valid feed meta, at any depth. A nested one would be re-serialized
+                // under its original class name by add_post_meta() and instantiated on the next read.
+                if ( wpfm_contains_object( $meta_value ) ) {
+                    $skipped[] = $meta_key;
+                    continue;
                 }
 
                 $meta_value = self::resolve_meta_term_slugs_to_ids( $meta_key, $meta_value, $post_id );
@@ -3047,6 +3101,8 @@ class Rex_Product_Feed_Ajax {
                 add_post_meta( $post_id, $meta_key, $meta_value );
             }
         }
+
+        return $skipped;
     }
 
     /**
