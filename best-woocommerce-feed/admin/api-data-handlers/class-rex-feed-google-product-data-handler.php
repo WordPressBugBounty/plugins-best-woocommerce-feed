@@ -105,9 +105,15 @@ class  Rex_Feed_Handle_Google_Product {
 	 *
 	 * @since 7.4.20
 	 */
-	public static function set_taxes( Product &$google_product, array $value ) {
+	public static function set_taxes( Product &$google_product, $value = array() ) {
+		if ( empty( $value ) || ! is_array( $value ) ) {
+			return;
+		}
 		$taxes = [];
 		foreach ( $value as $tax_data ) {
+			if ( ! is_array( $tax_data ) ) {
+				continue;
+			}
 			$tax = new ProductTax();
 			$tax->setCountry( $tax_data[ 'country' ] ?? '' );
 			$tax->setRate( $tax_data[ 'rate' ] ?? '' );
@@ -115,7 +121,9 @@ class  Rex_Feed_Handle_Google_Product {
 			$tax->setTaxShip( $tax_data[ 'taxShip' ] ?? '' );
 			$taxes[] = $tax;
 		}
-		$google_product->setTaxes( $taxes );
+		if ( ! empty( $taxes ) ) {
+			$google_product->setTaxes( $taxes );
+		}
 	}
 
 	/**
@@ -125,21 +133,43 @@ class  Rex_Feed_Handle_Google_Product {
 	 * and assigns the shipping information to the Google product.
 	 *
 	 * @param Product $google_product The Google product object to set shipping details for.
-	 * @param array $value An associative array with shipping details including 'country', 'service', and 'price'.
+	 * @param mixed   $value An associative array or array of shipping details including 'country', 'service', and 'price'.
 	 *
 	 * @return void
 	 *
 	 * @since 7.4.20
 	 */
-	public static function set_shipping( Product &$google_product, array $value ) {
-		$shipping = new ProductShipping();
-		$shipping->setCountry( $value[ 'country' ] ?? '' );
-		$shipping->setService( $value[ 'service' ] ?? '' );
-		$shipping->setPrice( new Price( [
-			'value'    => $value[ 'price' ] ?? '',
-			'currency' => get_option( 'woocommerce_currency' ),
-		] ) );
-		$google_product->setShipping( [ $shipping ] );
+	public static function set_shipping( Product &$google_product, $value = array() ) {
+		if ( empty( $value ) || ! is_array( $value ) ) {
+			return;
+		}
+
+		$shipping_entries = ( isset( $value['country'] ) || isset( $value['service'] ) || isset( $value['price'] ) || isset( $value['shipping_cost'] ) )
+			? array( $value )
+			: $value;
+
+		$shippings = array();
+		foreach ( $shipping_entries as $entry ) {
+			if ( ! is_array( $entry ) ) {
+				continue;
+			}
+			$price_val = $entry['price'] ?? $entry['shipping_cost'] ?? '';
+			$shipping  = new ProductShipping();
+			$shipping->setCountry( $entry['country'] ?? '' );
+			if ( ! empty( $entry['region'] ) ) {
+				$shipping->setRegion( $entry['region'] );
+			}
+			$shipping->setService( $entry['service'] ?? '' );
+			$shipping->setPrice( new Price( array(
+				'value'    => $price_val,
+				'currency' => get_option( 'woocommerce_currency' ),
+			) ) );
+			$shippings[] = $shipping;
+		}
+
+		if ( ! empty( $shippings ) ) {
+			$google_product->setShipping( $shippings );
+		}
 	}
 
 	/**

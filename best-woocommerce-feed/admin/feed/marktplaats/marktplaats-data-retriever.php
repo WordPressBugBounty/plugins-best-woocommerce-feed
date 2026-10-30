@@ -1,4 +1,5 @@
 <?php
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Class for retriving product data based on user selected feed configuration.
@@ -12,24 +13,34 @@
 class Rex_Product_Marktplaats_Data_Retriever extends Rex_Product_Data_Retriever {
 
 
-    /**
-     * Retrive and setup all data for every feed rules.
-     *
-     * @since    2.5
-     */
-    public function set_all_value() {
-        $this->data = array();
-        foreach ($this->feed_config as $key => $rule) {
-            if($rule['attr'] === 'media') {
-                $value = $this->set_val( $rule );
-                if($value) {
-                    $this->data['media'][] = $this->set_val( $rule );
-                }
-            }else {
-                $this->data[ $rule['attr'] ] = $this->set_val( $rule );
-            }
-        }
-    }
+	/**
+	 * Retrieve and setup all data for every feed rule.
+	 *
+	 * @since 2.5
+	 * @since 7.14.2 Explode comma-separated media URLs into individual entries.
+	 *
+	 * @return void
+	 */
+	public function set_all_value(): void {
+		$this->data = array();
+		foreach ( $this->feed_config as $rule ) {
+			if ( isset( $rule['attr'] ) && 'media' === $rule['attr'] ) {
+				$value = $this->set_val( $rule );
+				if ( is_array( $value ) ) {
+					$urls = array_filter( array_map( 'trim', $value ) );
+				} elseif ( is_string( $value ) && '' !== $value ) {
+					$urls = array_filter( array_map( 'trim', explode( ',', $value ) ) );
+				} else {
+					$urls = array();
+				}
+				foreach ( $urls as $url ) {
+					$this->data['media'][] = $url;
+				}
+			} elseif ( isset( $rule['attr'] ) ) {
+				$this->data[ $rule['attr'] ] = $this->set_val( $rule );
+			}
+		}
+	}
 
 
     public function get_random_key() {

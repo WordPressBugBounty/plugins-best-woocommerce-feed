@@ -954,12 +954,13 @@ HTML;
 		$chunk_size = 65536;
 		$overlap    = '';
 		$counts = array(
-			'item'    => 0,
-			'entry'   => 0,
-			'offer'   => 0,
-			'product' => 0,
+			'item'       => 0,
+			'entry'      => 0,
+			'offer'      => 0,
+			'product'    => 0,
+			'admarkt:ad' => 0,
 		);
-		$pattern = '/<(item|entry|offer|product)(?:\s|>)/i';
+		$pattern = '/<(item|entry|offer|product|admarkt:ad)(?:\s|>)/i';
 
 		while ( ! feof( $handle ) ) {
 			$chunk = fread( $handle, $chunk_size ); // phpcs:ignore WordPress.WP.AlternativeFunctions
@@ -985,7 +986,7 @@ HTML;
 				++$counts[ strtolower( $match[1][0] ) ];
 			}
 
-			$overlap = substr( $buffer, -8 );
+			$overlap = substr( $buffer, -12 );
 		}
 
 		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions

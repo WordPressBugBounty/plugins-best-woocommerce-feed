@@ -263,7 +263,9 @@ class Rex_Product_Data_Retriever {
                             );
                         } else {
                             $google_shipping_attr = array( 'shipping_country', 'shipping_region', 'shipping_service', 'shipping_price' );
-                            if ( in_array( $rule[ 'attr' ], $google_shipping_attr, true ) && 'google' === $this->feed->merchant ) {
+                            if ( 'image_link' === $rule['attr'] && is_array( $value ) ) {
+                                $this->data[ $rule['attr'] ] = reset( $value ) ?: '';
+                            } elseif ( in_array( $rule[ 'attr' ], $google_shipping_attr, true ) && 'google' === $this->feed->merchant ) {
                                 $this->data[ $rule[ 'attr' ] ][] = $value;
                             } else {
                                 $this->data[ $rule[ 'attr' ] ] = $value;
@@ -329,7 +331,8 @@ class Rex_Product_Data_Retriever {
 			return $value;
 		}
 
-		if ( 'image_link' === strtolower( $attribute ) ) {
+		$clean_attr = trim( strtolower( $attribute ) );
+		if ( 'image_link' === $clean_attr || 'g:image_link' === $clean_attr ) {
 			return $images[0] ?? '';
 		}
 

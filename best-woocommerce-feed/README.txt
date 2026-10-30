@@ -5,7 +5,7 @@ Tags: google shopping, facebook catalog, google merchant center, woocommerce, pr
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 7.14.2
+Stable tag: 7.14.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -421,6 +421,10 @@ You can use the WordPress support forum, product documentation, video tutorials,
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.14.3 (2026-10-30) =
+* Fix: Output separate `<admarkt:image>` elements for multiple media images in Marktplaats feeds
+* Fix: Prevent fatal type errors on image array links and shipping dimension mappings in Google feeds
 
 = 7.14.2 (2026-10-28) =
 * Fix: Require administrator capability and nonce/referer verification for telemetry consent actions to prevent broken access control and CSRF

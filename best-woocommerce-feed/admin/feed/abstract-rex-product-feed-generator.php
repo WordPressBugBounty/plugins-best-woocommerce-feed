@@ -14,6 +14,9 @@
  * @package    Rex_Product_Feed_Abstract_Generator
  * @author     RexTheme <info@rextheme.com>
  */
+
+defined( 'ABSPATH' ) || exit;
+
 abstract class Rex_Product_Feed_Abstract_Generator
 {
 
@@ -1549,7 +1552,8 @@ abstract class Rex_Product_Feed_Abstract_Generator
                 if ( ! apply_filters( 'wpfm_is_premium', false ) ) {
                     $doc = new DOMDocument();
                     if ( @$doc->load( $file ) ) {
-                        $items = $doc->getElementsByTagName( 'item' );
+                        $item_tag_name = ( 'marktplaats' === $this->merchant ) ? 'ad' : 'item';
+                        $items         = $doc->getElementsByTagName( $item_tag_name );
                         if ( $items->length > WPFM_FREE_MAX_PRODUCT_LIMIT ) {
                             for ( $i = $items->length - 1; $i >= WPFM_FREE_MAX_PRODUCT_LIMIT; $i-- ) {
                                 $node = $items->item( $i );
@@ -1918,7 +1922,7 @@ abstract class Rex_Product_Feed_Abstract_Generator
             }
         }
         elseif ( $this->merchant === 'marktplaats' ) {
-            $node = $feed->getElementsByTagName( "admarkt:ad" );
+            $node = $feed->getElementsByTagName( 'ad' );
             if ( $this->batch === $this->tbatch ) {
                 $this->item_wrapper = '<admarkt:ad>';
                 $this->feed_string_footer .= '</admarkt:ads>';

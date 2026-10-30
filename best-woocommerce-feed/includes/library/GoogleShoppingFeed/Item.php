@@ -161,8 +161,11 @@ class Item
      */
     public function image_link($imageLink)
     {
+        if ( is_array( $imageLink ) ) {
+            $imageLink = reset( $imageLink ) ?: '';
+        }
         $node = new Node('image_link');
-        $imageLink = $this->safeCharEncodeURL(urldecode($imageLink));
+        $imageLink = $this->safeCharEncodeURL(urldecode((string) $imageLink));
         $this->nodes['image_link'] = $node->value($imageLink)->_namespace($this->namespace)->addCdata();
     }
 
@@ -309,6 +312,36 @@ class Item
         $node = new Node('shipping_weight');
         $weight = $this->safeCharEncodeText($weight);
         $this->nodes['shipping_weight'] = $node->value($weight)->_namespace($this->namespace)->addCdata();
+    }
+
+    /**
+     * @param $length
+     */
+    public function shipping_length($length)
+    {
+        $node = new Node('shipping_length');
+        $length = $this->safeCharEncodeText($length);
+        $this->nodes['shipping_length'] = $node->value($length)->_namespace($this->namespace)->addCdata();
+    }
+
+    /**
+     * @param $width
+     */
+    public function shipping_width($width)
+    {
+        $node = new Node('shipping_width');
+        $width = $this->safeCharEncodeText($width);
+        $this->nodes['shipping_width'] = $node->value($width)->_namespace($this->namespace)->addCdata();
+    }
+
+    /**
+     * @param $height
+     */
+    public function shipping_height($height)
+    {
+        $node = new Node('shipping_height');
+        $height = $this->safeCharEncodeText($height);
+        $this->nodes['shipping_height'] = $node->value($height)->_namespace($this->namespace)->addCdata();
     }
 
     /**

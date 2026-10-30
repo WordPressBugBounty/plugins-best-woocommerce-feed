@@ -488,6 +488,9 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 						}
 					}
 				} else {
+					if ( 'image_link' === $key && is_array( $value ) ) {
+						$value = reset( $value ) ?: '';
+					}
 					if ($this->rex_feed_skip_row && $this->feed_format === 'xml') {
 						if (!empty($value)) {
 							$item->$key($value); // invoke $key as method of $item object.
@@ -582,7 +585,12 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 		$attrs = array();
 
 		foreach ( $attr_map as $feed_key => $api_key ) {
-			if ( ! empty( $attributes[ $feed_key ] ) && is_string( $attributes[ $feed_key ] ) && '' !== trim( $attributes[ $feed_key ] ) ) {
+			if ( 'image_link' === $feed_key && is_array( $attributes[ $feed_key ] ?? null ) ) {
+				$img_val = reset( $attributes[ $feed_key ] ) ?: '';
+				if ( '' !== trim( (string) $img_val ) ) {
+					$attrs[ $api_key ] = trim( (string) $img_val );
+				}
+			} elseif ( ! empty( $attributes[ $feed_key ] ) && is_string( $attributes[ $feed_key ] ) && '' !== trim( $attributes[ $feed_key ] ) ) {
 				$attrs[ $api_key ] = trim( $attributes[ $feed_key ] );
 			}
 		}
@@ -720,6 +728,31 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 						'currencyCode' => $currency,
 					),
 				);
+			}
+		}
+
+		// Shipping weight & dimensions for Merchant API v1.
+		if ( ! empty( $attributes['shipping_weight'] ) && ! is_array( $attributes['shipping_weight'] ) ) {
+			$weight_numeric = (float) preg_replace( '/[^0-9.]/', '', str_replace( ',', '.', (string) $attributes['shipping_weight'] ) );
+			if ( $weight_numeric > 0 ) {
+				$weight_unit = function_exists( 'get_option' ) ? get_option( 'woocommerce_weight_unit', 'kg' ) : 'kg';
+				$attrs['shippingWeight'] = array(
+					'value' => $weight_numeric,
+					'unit'  => strtolower( (string) $weight_unit ),
+				);
+			}
+		}
+
+		$dimension_unit = function_exists( 'get_option' ) ? get_option( 'woocommerce_dimension_unit', 'cm' ) : 'cm';
+		foreach ( array( 'shipping_length' => 'shippingLength', 'shipping_width' => 'shippingWidth', 'shipping_height' => 'shippingHeight' ) as $dim_feed_key => $dim_api_key ) {
+			if ( ! empty( $attributes[ $dim_feed_key ] ) && ! is_array( $attributes[ $dim_feed_key ] ) ) {
+				$dim_numeric = (float) preg_replace( '/[^0-9.]/', '', str_replace( ',', '.', (string) $attributes[ $dim_feed_key ] ) );
+				if ( $dim_numeric > 0 ) {
+					$attrs[ $dim_api_key ] = array(
+						'value' => $dim_numeric,
+						'unit'  => strtolower( (string) $dimension_unit ),
+					);
+				}
 			}
 		}
 
@@ -947,7 +980,14 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 			'mobile_link'               => 'setMobileLink',
 			'product_type'              => 'setProductTypes',
 			'google_product_category'   => 'setGoogleProductCategory',
-			'image_link'                => 'setImageLink',
+			'image_link'                => function (Product &$google_product, $value) {
+				if (is_array($value)) {
+					$value = reset($value) ?: '';
+				}
+				if (is_string($value) && '' !== trim($value)) {
+					$google_product->setImageLink(trim($value));
+				}
+			},
 			'additional_image_link_1'   => function (Product &$google_product, $value) {
 				Rex_Feed_Handle_Google_Product::set_additional_image_links($google_product, $value);
 			},
@@ -1015,26 +1055,50 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 			'size_type'                 => 'setSizeType',
 			'size_system'               => 'setSizeSystem',
 			'tax'                       => function (Product &$google_product, $value) {
-				Rex_Feed_Handle_Google_Product::set_taxes($google_product, $value);
+				if (!empty($value) && is_array($value)) {
+					Rex_Feed_Handle_Google_Product::set_taxes($google_product, $value);
+				}
 			},
 			'shipping'                  => function (Product &$google_product, $value) {
-				Rex_Feed_Handle_Google_Product::set_shipping($google_product, $value);
+				if (!empty($value) && is_array($value)) {
+					Rex_Feed_Handle_Google_Product::set_shipping($google_product, $value);
+				}
 			},
 			'shipping_country'          => 'setShippingCountry',
 			'shipping_region'           => 'setShippingRegion',
 			'shipping_service'          => 'setShippingService',
 			'shipping_price'            => 'setShippingPrice',
 			'shipping_weight'           => function (Product &$google_product, $value) {
-				Rex_Feed_Handle_Google_Product::set_shipping_weight($google_product, $value);
+				if (!empty($value) && !is_array($value)) {
+					$val = (float) preg_replace('/[^0-9.]/', '', str_replace(',', '.', (string)$value));
+					if ($val > 0) {
+						Rex_Feed_Handle_Google_Product::set_shipping_weight($google_product, $val);
+					}
+				}
 			},
 			'shipping_length'           => function (Product &$google_product, $value) {
-				Rex_Feed_Handle_Google_Product::set_shipping_length($google_product, $value);
+				if (!empty($value) && !is_array($value)) {
+					$val = (float) preg_replace('/[^0-9.]/', '', str_replace(',', '.', (string)$value));
+					if ($val > 0) {
+						Rex_Feed_Handle_Google_Product::set_shipping_length($google_product, $val);
+					}
+				}
 			},
 			'shipping_width'            => function (Product &$google_product, $value) {
-				Rex_Feed_Handle_Google_Product::set_shipping_width($google_product, $value);
+				if (!empty($value) && !is_array($value)) {
+					$val = (float) preg_replace('/[^0-9.]/', '', str_replace(',', '.', (string)$value));
+					if ($val > 0) {
+						Rex_Feed_Handle_Google_Product::set_shipping_width($google_product, $val);
+					}
+				}
 			},
 			'shipping_height'           => function (Product &$google_product, $value) {
-				Rex_Feed_Handle_Google_Product::set_shipping_height($google_product, $value);
+				if (!empty($value) && !is_array($value)) {
+					$val = (float) preg_replace('/[^0-9.]/', '', str_replace(',', '.', (string)$value));
+					if ($val > 0) {
+						Rex_Feed_Handle_Google_Product::set_shipping_height($google_product, $val);
+					}
+				}
 			},
 			'shipping_label'            => 'setShippingLabel',
 			'multipack'                 => 'setMultipack',

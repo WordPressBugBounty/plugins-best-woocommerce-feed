@@ -2,6 +2,8 @@
 
 namespace RexTheme\MarktPlaatsShoppingFeed;
 
+defined( 'ABSPATH' ) || exit;
+
 use SimpleXMLElement;
 use RexTheme\MarktPlaatsShoppingFeed\Item;
 use Gregwar\Cache\Cache;
@@ -229,11 +231,24 @@ class Feed
 					} else if ( preg_match( '/^(attributeValue|attributeName|attributeLocale|attributeLabel)_(\d+)$/', $nodeName, $matches ) ) {
                         $attributes[ $matches[ 2 ] ][ $matches[ 1 ] ] = $nodeValue;
                     } elseif ( 'media' === $nodeName ) {
-						$media  = $feedItemNode->addChild( 'media' );
-						$values = is_array( $nodeValue ) ? $nodeValue : [ $nodeValue ];
-						foreach ( $values as $value ) {
-							$image = $media->addChild( 'image' );
-							$image->addAttribute( 'url', $value );
+						$raw_values = is_array( $nodeValue ) ? $nodeValue : array( $nodeValue );
+						$values     = array();
+						foreach ( $raw_values as $raw_val ) {
+							if ( is_string( $raw_val ) ) {
+								foreach ( explode( ',', $raw_val ) as $url ) {
+									$url = trim( $url );
+									if ( '' !== $url ) {
+										$values[] = $url;
+									}
+								}
+							}
+						}
+						if ( ! empty( $values ) ) {
+							$media = $feedItemNode->addChild( 'media' );
+							foreach ( $values as $value ) {
+								$image = $media->addChild( 'image' );
+								$image->addAttribute( 'url', $value );
+							}
 						}
 					} elseif ( in_array( $nodeName, $budgetNodes ) ) {
 						$budgetNode = $feedItemNode->children( 'admarkt',

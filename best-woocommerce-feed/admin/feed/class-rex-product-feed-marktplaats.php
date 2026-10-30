@@ -15,6 +15,8 @@
 
 use RexTheme\MarktPlaatsShoppingFeed\Containers\MarktPlaatsShopping;
 
+defined( 'ABSPATH' ) || exit;
+
 class Rex_Product_Feed_Marktplaats extends Rex_Product_Feed_Abstract_Generator {
 
     /**
@@ -99,6 +101,14 @@ class Rex_Product_Feed_Marktplaats extends Rex_Product_Feed_Abstract_Generator {
         }
 
         foreach( $this->products as $productId ) {
+            // Free tier: stop processing when total products reach the maximum limit.
+            if ( ! apply_filters( 'wpfm_is_premium', false ) ) {
+                $current_total = (int) $total_products['total'] + count( $simple_products ) + count( $variation_products ) + count( $group_products ) + count( $variable_parent );
+                if ( $current_total >= WPFM_FREE_MAX_PRODUCT_LIMIT ) {
+                    break;
+                }
+            }
+
             $product = wc_get_product( $productId );
 
             if ( ! is_object( $product ) ) {
@@ -118,6 +128,13 @@ class Rex_Product_Feed_Marktplaats extends Rex_Product_Feed_Abstract_Generator {
             }
             if ( $product->is_type( 'variable' ) && $product->has_child() ) {
                 if($this->variable_product && $this->is_out_of_stock( $product ) ) {
+                    // Free tier: check limit before adding parent variable product.
+                    if ( ! apply_filters( 'wpfm_is_premium', false ) ) {
+                        $current_total = (int) $total_products['total'] + count( $simple_products ) + count( $variation_products ) + count( $group_products ) + count( $variable_parent );
+                        if ( $current_total >= WPFM_FREE_MAX_PRODUCT_LIMIT ) {
+                            break;
+                        }
+                    }
                     $variable_parent[] = $productId;
                     $variable_product = new WC_Product_Variable($productId);
                     $this->add_to_feed( $variable_product, $product_meta_keys );
@@ -133,6 +150,13 @@ class Rex_Product_Feed_Marktplaats extends Rex_Product_Feed_Abstract_Generator {
 
                     if ($variations) {
                         foreach ($variations as $variation_id) {
+                            // Free tier: stop adding variations when total products reach the limit.
+                            if ( ! apply_filters( 'wpfm_is_premium', false ) ) {
+                                $current_total = (int) $total_products['total'] + count( $simple_products ) + count( $variation_products ) + count( $group_products ) + count( $variable_parent );
+                                if ( $current_total >= WPFM_FREE_MAX_PRODUCT_LIMIT ) {
+                                    break 2;
+                                }
+                            }
                             $variation_product = wc_get_product($variation_id);
                             if ($variation_product && $this->should_include_variation($variation_product, $variation_id)) {
                                 $variation_products[] = $variation_id;
@@ -148,6 +172,13 @@ class Rex_Product_Feed_Marktplaats extends Rex_Product_Feed_Abstract_Generator {
                     if ( $this->exclude_simple_products ) {
                         continue;
                     }
+                    // Free tier: check limit before adding simple product.
+                    if ( ! apply_filters( 'wpfm_is_premium', false ) ) {
+                        $current_total = (int) $total_products['total'] + count( $simple_products ) + count( $variation_products ) + count( $group_products ) + count( $variable_parent );
+                        if ( $current_total >= WPFM_FREE_MAX_PRODUCT_LIMIT ) {
+                            break;
+                        }
+                    }
                     $simple_products[] = $productId;
                     $this->add_to_feed( $product, $product_meta_keys );
                 }
@@ -155,6 +186,13 @@ class Rex_Product_Feed_Marktplaats extends Rex_Product_Feed_Abstract_Generator {
                 if ( $this->product_scope === 'all' || $this->product_scope === 'product_filter' || $this->custom_filter_option ) {
                     if ( $product->get_type() === 'variation' ) {
 						if ($this->should_include_variation($product, $productId)) {
+                            // Free tier: check limit before adding variation product.
+                            if ( ! apply_filters( 'wpfm_is_premium', false ) ) {
+                                $current_total = (int) $total_products['total'] + count( $simple_products ) + count( $variation_products ) + count( $group_products ) + count( $variable_parent );
+                                if ( $current_total >= WPFM_FREE_MAX_PRODUCT_LIMIT ) {
+                                    break;
+                                }
+                            }
 							$variation_products[] = $productId;
 							$this->add_to_feed($product, $product_meta_keys, 'variation');
 						}
@@ -162,6 +200,13 @@ class Rex_Product_Feed_Marktplaats extends Rex_Product_Feed_Abstract_Generator {
                 }
 
                 if ( $product->is_type( 'grouped' ) && $this->parent_product || $product->is_type( 'woosb' ) ) {
+                    // Free tier: check limit before adding grouped product.
+                    if ( ! apply_filters( 'wpfm_is_premium', false ) ) {
+                        $current_total = (int) $total_products['total'] + count( $simple_products ) + count( $variation_products ) + count( $group_products ) + count( $variable_parent );
+                        if ( $current_total >= WPFM_FREE_MAX_PRODUCT_LIMIT ) {
+                            break;
+                        }
+                    }
                     $group_products[] = $productId;
                     $this->add_to_feed( $product, $product_meta_keys );
                 }
