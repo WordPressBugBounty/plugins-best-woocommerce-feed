@@ -5,7 +5,7 @@ Tags: google shopping, facebook catalog, google merchant center, woocommerce, pr
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 7.14.3
+Stable tag: 7.14.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -421,6 +421,9 @@ You can use the WordPress support forum, product documentation, video tutorials,
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.14.4 (2026-11-05) =
+* Fix: Automatically register and self-heal recurring hourly, daily, and weekly Action Scheduler jobs for scheduled feed updates without requiring plugin reactivation
 
 = 7.14.3 (2026-10-30) =
 * Fix: Output separate `<admarkt:image>` elements for multiple media images in Marktplaats feeds

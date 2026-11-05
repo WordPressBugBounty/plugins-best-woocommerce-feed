@@ -25,62 +25,115 @@ class Rex_Feed_Scheduler {
     private static $action_scheduler_tables_exist = null;
 
     /**
-     * Constructor - attach hooks to detect pro plugin activation/installation
-     * and ensure custom scheduler is registered when pro becomes active.
+     * Whether background schedulers have already been verified during the current request.
+     *
+     * @since 7.14.4
+     * @var bool
+     */
+    private static $background_schedulers_checked = false;
+
+    /**
+     * Constructor - attach hooks to detect plugin activation/installation
+     * and ensure recurring background schedulers are registered.
+     *
      * @since 7.4.55
      */
     public function __construct() {
-        // When any plugin is activated, check if it's the pro plugin and register schedulers
-        add_action( 'activated_plugin', [ $this, 'on_plugin_activated' ], 10, 2 );
+        // When any plugin is activated, check if it's the free or pro plugin and register schedulers.
+        add_action( 'activated_plugin', array( $this, 'on_plugin_activated' ), 10, 2 );
 
-        // When plugins are installed/updated via the updater, catch plugin installs
-        add_action( 'upgrader_process_complete', [ $this, 'on_upgrader_process_complete' ], 10, 2 );
+        // When plugins are installed/updated via the updater, catch plugin installs/updates.
+        add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete' ), 10, 2 );
 
-        // On init, try to register the custom scheduler if pro is active but scheduler not present yet
-        add_action( 'init', [ $this, 'maybe_register_custom_scheduler' ] );
+        // On init, ensure core background schedulers (hourly, daily, weekly, watchdog) are registered.
+        add_action( 'init', array( $this, 'maybe_register_background_schedulers' ) );
 
-        // On init, ensure watchdog scheduler is registered
-        add_action( 'init', [ $this, 'maybe_register_watchdog_scheduler' ] );
+        // On init, try to register the custom scheduler if pro is active but scheduler not present yet.
+        add_action( 'init', array( $this, 'maybe_register_custom_scheduler' ) );
+
+        // On init, ensure watchdog scheduler is registered.
+        add_action( 'init', array( $this, 'maybe_register_watchdog_scheduler' ) );
     }
 
     /**
-     * Fired when any plugin is activated. If the pro plugin was activated, (re-)register schedulers.
+     * Fired when any plugin is activated. If the free or pro plugin was activated, (re-)register schedulers.
      *
-     * @param string $plugin Plugin file path being activated (eg. "plugin-folder/plugin-file.php").
-     * @param bool $network_wide Whether the plugin is activated network wide.
-     * @return void
      * @since 7.4.55
+     *
+     * @param string $plugin       Plugin file path being activated (e.g. "plugin-folder/plugin-file.php").
+     * @param bool   $network_wide Whether the plugin is activated network wide.
+     * @return void
      */
     public function on_plugin_activated( $plugin, $network_wide ) {
-        // Adjust this check to match your pro plugin's main file path if different.
-        $pro_plugin_basename = 'best-woocommerce-feed-pro/rex-product-feed-pro.php';
+        $free_plugin_basename = defined( 'WPFM_PLUGIN_BASE' ) ? WPFM_PLUGIN_BASE : 'best-woocommerce-feed/rex-product-feed.php';
+        $pro_plugin_basename  = 'best-woocommerce-feed-pro/rex-product-feed-pro.php';
+
+        if ( isset( $plugin ) && in_array( $plugin, array( $free_plugin_basename, $pro_plugin_basename ), true ) ) {
+            $this->register_background_schedulers();
+        }
 
         if ( isset( $plugin ) && $plugin === $pro_plugin_basename ) {
-            // Pro plugin activated — ensure custom scheduler is registered
+            // Pro plugin activated — ensure custom scheduler is registered.
             $this->maybe_register_custom_scheduler();
         }
     }
 
     /**
-     * Fired after an upgrader action completes. Used to detect plugin installs via the WP upgrader.
+     * Fired after an upgrader action completes. Used to detect plugin installs/updates via the WP upgrader.
+     *
+     * @since 7.4.55
      *
      * @param WP_Upgrader $upgrader_object Upgrader instance.
-     * @param array $options Array of bulk item update data.
+     * @param array       $options         Array of bulk item update data.
      * @return void
-     * @since 7.4.55
      */
     public function on_upgrader_process_complete( $upgrader_object, $options ) {
         if ( empty( $options ) || ! is_array( $options ) ) {
             return;
         }
 
-        // Check installed plugins list (available for bulk installs)
+        $free_plugin_basename = defined( 'WPFM_PLUGIN_BASE' ) ? WPFM_PLUGIN_BASE : 'best-woocommerce-feed/rex-product-feed.php';
+        $pro_plugin_basename  = 'best-woocommerce-feed-pro/rex-product-feed-pro.php';
+
+        $updated_plugins = array();
         if ( ! empty( $options['plugins'] ) && is_array( $options['plugins'] ) ) {
-            $pro_plugin_basename = 'best-woocommerce-feed-pro/rex-product-feed-pro.php';
-            if ( in_array( $pro_plugin_basename, $options['plugins'], true ) ) {
-                $this->maybe_register_custom_scheduler();
-            }
+            $updated_plugins = $options['plugins'];
+        } elseif ( ! empty( $options['plugin'] ) && is_string( $options['plugin'] ) ) {
+            $updated_plugins = array( $options['plugin'] );
         }
+
+        if ( in_array( $free_plugin_basename, $updated_plugins, true ) || in_array( $pro_plugin_basename, $updated_plugins, true ) ) {
+            $this->register_background_schedulers();
+        }
+
+        if ( in_array( $pro_plugin_basename, $updated_plugins, true ) ) {
+            $this->maybe_register_custom_scheduler();
+        }
+    }
+
+    /**
+     * Ensure core recurring background Action Scheduler jobs (hourly, daily, weekly, watchdog)
+     * are registered if missing. Guarded per request so multiple scheduler instances do not
+     * repeat checks on the same request.
+     *
+     * @since 7.14.4
+     * @return void
+     */
+    public function maybe_register_background_schedulers(): void {
+        if ( self::$background_schedulers_checked ) {
+            return;
+        }
+
+        if ( ! function_exists( 'as_has_scheduled_action' ) || ! function_exists( 'as_schedule_recurring_action' ) ) {
+            return;
+        }
+
+        if ( ! self::action_scheduler_tables_exist() ) {
+            return;
+        }
+
+        self::$background_schedulers_checked = true;
+        $this->register_background_schedulers();
     }
 
     /**
@@ -251,76 +304,77 @@ class Rex_Feed_Scheduler {
     }
 
     /**
-     * Register cron schedules for background feed processing
+     * Register cron schedules for background feed processing.
      *
-     * @return void
      * @since 7.3.0
+     * @return void
      */
     public function register_background_schedulers() {
         $this->deregister_wp_cron_schedules();
 
-        if( function_exists( 'as_has_scheduled_action' ) && function_exists( 'as_schedule_recurring_action' ) ) {
-            $hourly_schedule = as_has_scheduled_action( HOURLY_SCHEDULE_HOOK, null, 'wpfm' );
-            if( !$hourly_schedule ) {
-                as_schedule_recurring_action(
-					time(),
-	                /**
-	                 * Apply a filter to set the interval for the hourly cron job in seconds.
-	                 *
-	                 * @param int $interval The interval in seconds for the hourly cron job.
-	                 * @return int The modified interval in seconds.
-	                 */
-					apply_filters( 'rexfeed_hourly_cron_interval', 3600 ),
-					HOURLY_SCHEDULE_HOOK, [], 'wpfm'
-                );
-            }
-
-            $daily_schedule = as_has_scheduled_action( DAILY_SCHEDULE_HOOK, null, 'wpfm' );
-            if( !$daily_schedule ) {
-                as_schedule_recurring_action(
-					time(),
-	                /**
-	                 * Apply a filter to set the interval for the daily cron job in seconds.
-	                 *
-	                 * @param int $interval The interval in seconds for the daily cron job.
-	                 * @return int The modified interval in seconds.
-	                 */
-	                apply_filters( 'rexfeed_daily_cron_interval', 24 * 3600 ),
-					DAILY_SCHEDULE_HOOK, [], 'wpfm'
-                );
-            }
-
-            $weekly_schedule = as_has_scheduled_action( WEEKLY_SCHEDULE_HOOK, null, 'wpfm' );
-            if( !$weekly_schedule ) {
-                as_schedule_recurring_action(
-					time(),
-	                /**
-	                 * Apply a filter to set the interval for the weekly cron job in seconds.
-	                 *
-	                 * @param int $interval The interval in seconds for the weekly cron job.
-	                 * @return int The modified interval in seconds.
-	                 */
-	                apply_filters( 'rexfeed_weekly_cron_interval', 7 * 24 * 3600 ),
-					WEEKLY_SCHEDULE_HOOK, [], 'wpfm'
-                );
-            }
-
-            $watchdog_hook = defined( 'WATCHDOG_SCHEDULE_HOOK' ) ? WATCHDOG_SCHEDULE_HOOK : 'rex_feed_watchdog_stuck_feeds';
-            $watchdog_schedule = as_has_scheduled_action( $watchdog_hook, null, 'wpfm' );
-            if( !$watchdog_schedule ) {
-                as_schedule_recurring_action(
-					time(),
-	                /**
-	                 * Apply a filter to set the interval for the stuck feed watchdog cron job in seconds.
-	                 *
-	                 * @param int $interval The interval in seconds for the watchdog cron job (default 15 minutes / 900s).
-	                 * @return int The modified interval in seconds.
-	                 */
-					apply_filters( 'rexfeed_watchdog_cron_interval', 15 * 60 ),
-					$watchdog_hook, [], 'wpfm'
-                );
-            }
+        if ( ! function_exists( 'as_has_scheduled_action' ) || ! function_exists( 'as_schedule_recurring_action' ) ) {
+            return;
         }
+
+        if ( ! self::action_scheduler_tables_exist() ) {
+            return;
+        }
+
+        $hourly_schedule = as_has_scheduled_action( HOURLY_SCHEDULE_HOOK, null, 'wpfm' );
+        if ( ! $hourly_schedule ) {
+            as_schedule_recurring_action(
+                time(),
+                /**
+                 * Apply a filter to set the interval for the hourly cron job in seconds.
+                 *
+                 * @since 7.3.0
+                 * @param int $interval The interval in seconds for the hourly cron job.
+                 * @return int The modified interval in seconds.
+                 */
+                apply_filters( 'rexfeed_hourly_cron_interval', 3600 ),
+                HOURLY_SCHEDULE_HOOK,
+                array(),
+                'wpfm'
+            );
+        }
+
+        $daily_schedule = as_has_scheduled_action( DAILY_SCHEDULE_HOOK, null, 'wpfm' );
+        if ( ! $daily_schedule ) {
+            as_schedule_recurring_action(
+                time(),
+                /**
+                 * Apply a filter to set the interval for the daily cron job in seconds.
+                 *
+                 * @since 7.3.0
+                 * @param int $interval The interval in seconds for the daily cron job.
+                 * @return int The modified interval in seconds.
+                 */
+                apply_filters( 'rexfeed_daily_cron_interval', 24 * 3600 ),
+                DAILY_SCHEDULE_HOOK,
+                array(),
+                'wpfm'
+            );
+        }
+
+        $weekly_schedule = as_has_scheduled_action( WEEKLY_SCHEDULE_HOOK, null, 'wpfm' );
+        if ( ! $weekly_schedule ) {
+            as_schedule_recurring_action(
+                time(),
+                /**
+                 * Apply a filter to set the interval for the weekly cron job in seconds.
+                 *
+                 * @since 7.3.0
+                 * @param int $interval The interval in seconds for the weekly cron job.
+                 * @return int The modified interval in seconds.
+                 */
+                apply_filters( 'rexfeed_weekly_cron_interval', 7 * 24 * 3600 ),
+                WEEKLY_SCHEDULE_HOOK,
+                array(),
+                'wpfm'
+            );
+        }
+
+        $this->maybe_register_watchdog_scheduler();
     }
 
     /**
