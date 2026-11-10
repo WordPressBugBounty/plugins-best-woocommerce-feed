@@ -49,6 +49,9 @@ class Rex_Product_Feed_Setup_Wizard
         
         // Load all merchants data into JavaScript
         $merchants_data = $this->get_merchants_for_js();
+        $product_counts = wp_count_posts( 'product' );
+        $product_count  = isset( $product_counts->publish ) ? (int) $product_counts->publish : 0;
+
         wp_localize_script(
             'pfm-setup-wizard',
             'pfmMerchantsData',
@@ -58,6 +61,8 @@ class Rex_Product_Feed_Setup_Wizard
                     'assetsUrl'        => WPFM_PLUGIN_ASSETS_FOLDER . 'icon/setup-wizard-images/',
                     'storeName'        => get_bloginfo( 'name' ),
                     'companionPlugins' => $this->get_companion_plugin_statuses(),
+                    'productCount'     => $product_count,
+                    'addProductUrl'    => admin_url( 'post-new.php?post_type=product' ),
                 )
             )
         );

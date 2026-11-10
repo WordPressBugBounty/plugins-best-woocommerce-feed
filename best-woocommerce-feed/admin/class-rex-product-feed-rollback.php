@@ -75,6 +75,16 @@ class Rex_Feed_Rollback {
 		$plugin_slug    = defined( 'WPFM_SLUG' ) ? WPFM_SLUG : 'best-woocommerce-feed';
 		$plugin_version = sanitize_text_field( $data[ 'version' ] );
 
+		/**
+		 * Fires when a maintenance distress action is triggered.
+		 *
+		 * @since 7.14.5
+		 *
+		 * @param string $action Maintenance action name.
+		 * @param array  $data   Additional contextual data.
+		 */
+		do_action( 'rex_product_feed_maintenance_action', 'rollback', array( 'target_version' => $plugin_version ) );
+
 		$rollback = new Rex_Feed_Rollback(
 			array(
 				'version'     => $plugin_version,

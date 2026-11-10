@@ -1724,6 +1724,16 @@ class Rex_Product_Feed_Ajax {
         }
 
         try {
+            /**
+             * Fires when a maintenance distress action is triggered.
+             *
+             * @since 7.14.5
+             *
+             * @param string $action Maintenance action name.
+             * @param array  $data   Additional contextual data.
+             */
+            do_action( 'rex_product_feed_maintenance_action', 'clear_batch_queue', array( 'feed_id' => $feed_id ) );
+
             // Case 1: Scoped clear for a single feed.
             if ( $feed_id ) {
                 if ( 'product-feed' !== get_post_type( $feed_id ) ) {
@@ -1974,6 +1984,16 @@ class Rex_Product_Feed_Ajax {
      * @return bool[]
      */
     public static function purge_transient_cache() {
+        /**
+         * Fires when a maintenance distress action is triggered.
+         *
+         * @since 7.14.5
+         *
+         * @param string $action Maintenance action name.
+         * @param array  $data   Additional contextual data.
+         */
+        do_action( 'rex_product_feed_maintenance_action', 'purge_cache' );
+
         wpfm_purge_cached_data();
         return array(
                 'success' => true,
@@ -2280,6 +2300,16 @@ class Rex_Product_Feed_Ajax {
      * @since 7.2.20
      */
     public static function update_abandoned_child_list() {
+        /**
+         * Fires when a maintenance distress action is triggered.
+         *
+         * @since 7.14.5
+         *
+         * @param string $action Maintenance action name.
+         * @param array  $data   Additional contextual data.
+         */
+        do_action( 'rex_product_feed_maintenance_action', 'rebuild_orphan_variations' );
+
         $abandoned_childs = wpfm_get_abandoned_child();
         if ( !is_wp_error( $abandoned_childs ) && is_array( $abandoned_childs ) ) {
             update_option( 'rex_feed_abandoned_child_list', $abandoned_childs );

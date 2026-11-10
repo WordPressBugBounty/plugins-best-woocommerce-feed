@@ -20,6 +20,7 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         add_action('wp_ajax_pfm_track_setup_completed', array($this, 'track_setup_completed'));
         add_action('wp_ajax_pfm_track_first_strike', array($this, 'track_first_strike'));
         add_action('wp_ajax_pfm_track_setup_step', array($this, 'track_setup_step'));
+        add_action('wp_ajax_pfm_track_feed_url_copied', array($this, 'track_feed_url_copied'));
         add_action('wp_ajax_pfm_track_upgrade_click', array($this, 'track_upgrade_click'));
         add_action('wp_ajax_pfm_get_all_merchants', array($this, 'get_all_merchants'));
         add_action('wp_ajax_pfm_get_template_mappings', array($this, 'get_template_mappings'));
@@ -152,6 +153,42 @@ add_action('wp_ajax_pfm_dashboard_banner_track',          array($this, 'dashboar
         do_action( 'rex_product_feed_setup_step_completed', $step_index, $step_id );
 
         wp_send_json_success( array( 'message' => 'Setup step tracked' ), 200 );
+    }
+
+    /**
+     * Track setup wizard feed URL copied or opened.
+     *
+     * @since 7.14.5
+     *
+     * @return void
+     */
+    public function track_feed_url_copied() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized user' ), 403 );
+            return;
+        }
+
+        $nonce = isset( $_POST['security'] ) ? sanitize_text_field( wp_unslash( $_POST['security'] ) ) : '';
+        if ( ! wp_verify_nonce( $nonce, 'rex-product-feed' ) && ! wp_verify_nonce( $nonce, 'rex-wpfm-ajax' ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid nonce' ), 400 );
+            return;
+        }
+
+        $action_type = isset( $_POST['url_action'] ) ? sanitize_key( wp_unslash( $_POST['url_action'] ) ) : 'copy';
+        if ( ! in_array( $action_type, array( 'copy', 'open' ), true ) ) {
+            $action_type = 'copy';
+        }
+
+        /**
+         * Fires when an admin interacts with the feed URL in setup wizard Step 3.
+         *
+         * @since 7.14.5
+         *
+         * @param string $action_type Either 'copy' or 'open'.
+         */
+        do_action( 'rex_product_feed_feed_url_copied', $action_type );
+
+        wp_send_json_success( array( 'message' => 'Feed URL interaction tracked' ), 200 );
     }
 
     /**
@@ -752,6 +789,20 @@ add_action('wp_ajax_pfm_dashboard_banner_track',          array($this, 'dashboar
 
         update_option( 'pfm_wizard_onboarding_progress', $progress, false );
         update_user_meta( get_current_user_id(), 'pfm_wizard_dismissed', '1' );
+
+        $started_at   = ! empty( $progress['started_at'] ) ? (int) $progress['started_at'] : time();
+        $elapsed_time = max( 0, time() - $started_at );
+
+        /**
+         * Fires when an admin dismisses the setup wizard.
+         *
+         * @since 7.14.5
+         *
+         * @param string $step_id      Step identifier (e.g. 'merchant', 'configure').
+         * @param int    $step_index   Step index.
+         * @param int    $elapsed_time Time spent in wizard in seconds.
+         */
+        do_action( 'rex_product_feed_setup_dismissed', $step_id, $step_index, $elapsed_time );
 
         $count_posts = wp_count_posts('product-feed');
         $total_feeds = (isset($count_posts->publish) ? $count_posts->publish : 0) + (isset($count_posts->draft) ? $count_posts->draft : 0);

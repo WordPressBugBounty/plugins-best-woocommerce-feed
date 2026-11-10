@@ -9,6 +9,8 @@ jQuery(document).ready(function ($) {
     var allMerchants   = typeof pfmMerchantsData !== 'undefined' ? pfmMerchantsData.merchants      : [];
     var isPremiumUser  = typeof pfmMerchantsData !== 'undefined' ? pfmMerchantsData.isPremium      : false;
     var companionPlugins = typeof pfmMerchantsData !== 'undefined' ? pfmMerchantsData.companionPlugins : {};
+    var productCount   = typeof pfmMerchantsData !== 'undefined' && typeof pfmMerchantsData.productCount !== 'undefined' ? parseInt(pfmMerchantsData.productCount, 10) : 0;
+    var addProductUrl  = typeof pfmMerchantsData !== 'undefined' && pfmMerchantsData.addProductUrl ? pfmMerchantsData.addProductUrl : 'post-new.php?post_type=product';
 
     // Merchant → feed format map (default xml)
     var merchantFormatMap = {
@@ -266,7 +268,11 @@ jQuery(document).ready(function ($) {
 
         $bar.css({ transition: 'none', width: '0%' });
         $status.text('Mapping your product attributes...');
-        $detail.text('Analyzing products...');
+        if (productCount === 0) {
+            $detail.text('Preparing standard attributes for your store...');
+        } else {
+            $detail.text('Analyzing products...');
+        }
 
         // Animate to 80 % over 1.5–2.5 s
         var duration  = 1500 + Math.random() * 1000;
@@ -310,12 +316,20 @@ jQuery(document).ready(function ($) {
         $detail.text('');
         setTimeout(function () {
             var n = mappingData.count;
-            if (n >= 5) {
-                $status.html('<span style="margin-right:6px;">✅</span>' + n + ' attributes mapped automatically');
-            } else if (n > 0) {
-                $status.html('<span style="margin-right:6px;">⚠️</span>' + n + ' attributes mapped. You can add more after your feed is created.');
+            if (productCount === 0) {
+                if (n > 0) {
+                    $status.html('<span style="margin-right:6px;">✅</span>' + n + ' standard attributes prepared for your products');
+                } else {
+                    $status.html('<span style="margin-right:6px;">⚠️</span>No default attributes found. You can map attributes manually after your feed is created.');
+                }
             } else {
-                $status.html('<span style="margin-right:6px;">⚠️</span>We couldn\'t find product data yet. You can map attributes manually after your feed is created.');
+                if (n >= 5) {
+                    $status.html('<span style="margin-right:6px;">✅</span>' + n + ' attributes mapped automatically');
+                } else if (n > 0) {
+                    $status.html('<span style="margin-right:6px;">⚠️</span>' + n + ' attributes mapped. You can add more after your feed is created.');
+                } else {
+                    $status.html('<span style="margin-right:6px;">⚠️</span>We couldn\'t find product data yet. You can map attributes manually after your feed is created.');
+                }
             }
         }, 450);
     }
@@ -325,7 +339,26 @@ jQuery(document).ready(function ($) {
     function mountStep3() {
         var display = selectedMerchantName || 'Your';
 
-        $('#pfmAhaTitle').text('Your ' + display + ' Feed is Ready!');
+        if (productCount === 0) {
+            $('#pfmAhaTitle').text('Your ' + display + ' Feed is Configured!');
+            $('#pfmPropagationNotice').hide();
+            $('#pfmEmptyStoreNotice').show();
+            $('#pfmAddProductBtn').attr('href', addProductUrl).show();
+            $('#pfmGoToDashboardBtn')
+                .removeClass('pfm-btn-primary')
+                .addClass('pfm-btn-secondary')
+                .text('Go to feed dashboard');
+        } else {
+            $('#pfmAhaTitle').text('Your ' + display + ' Feed is Ready!');
+            $('#pfmPropagationNotice').show();
+            $('#pfmEmptyStoreNotice').hide();
+            $('#pfmAddProductBtn').hide();
+            $('#pfmGoToDashboardBtn')
+                .removeClass('pfm-btn-secondary')
+                .addClass('pfm-btn-primary')
+                .text('Go to my feed dashboard');
+        }
+
         $('#pfmAhaFeedName').text(feedData.name || '');
         $('#pfmFeedUrlInput').val(feedData.feed_url || '');
 
@@ -345,8 +378,27 @@ jQuery(document).ready(function ($) {
             'Replace your default checkout with a high-converting page. Add order bumps and upsells so every visitor from <strong>' + display + '</strong> is worth more.'
         );
 
+        // URL copy & open interaction tracking
+        var feedUrlTracked = {};
+        function trackFeedUrlCopied(actionType) {
+            if (feedUrlTracked[actionType]) {
+                return;
+            }
+            feedUrlTracked[actionType] = true;
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'pfm_track_feed_url_copied',
+                    url_action: actionType,
+                    security: pfmNonce
+                }
+            });
+        }
+
         // Copy button
         $('#pfmCopyUrlBtn').off('click').on('click', function () {
+            trackFeedUrlCopied('copy');
             var url  = $('#pfmFeedUrlInput').val();
             var $btn = $(this);
             if (navigator.clipboard) {
@@ -362,11 +414,23 @@ jQuery(document).ready(function ($) {
             }
         });
 
+        // Open button
+        $openBtn.off('click.pfmTrack').on('click.pfmTrack', function () {
+            trackFeedUrlCopied('open');
+        });
+
         // Consent checkbox — checked by default, fire consent immediately on mount
         $('#pfmConsentCheckbox').prop('checked', true);
         saveConsent(true);
         $('#pfmConsentCheckbox').off('change').on('change', function () {
             saveConsent(this.checked);
+        });
+
+        // Add product CTA
+        $('#pfmAddProductBtn').off('click').on('click', function (e) {
+            e.preventDefault();
+            var target = $(this).attr('href') || addProductUrl;
+            markCompleted(function () { window.location.href = target; });
         });
 
         // Dashboard / skip

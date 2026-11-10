@@ -376,6 +376,15 @@ class Rex_Product_Feed_Admin {
             $_get = rex_feed_get_sanitized_get_post();
             $_get = !empty( $_get[ 'get' ] ) ? $_get[ 'get' ] : array();
 
+            if ( 'post-new.php' === $hook && isset( $screen->id ) && 'product-feed' === $screen->id ) {
+                /**
+                 * Fires when an admin opens the manual feed creation page.
+                 *
+                 * @since 7.14.5
+                 */
+                do_action( 'rex_product_feed_manual_feed_started' );
+            }
+
             $is_tour_guide_script = false;
             $tour_state = get_user_meta( get_current_user_id(), 'wpfm_tour_completed_or_skipped', true );
             

@@ -43,7 +43,10 @@ class Rex_Product_Feed_Linno_Telemetry {
         add_action( 'rex_product_feed_consent_updated', array( $this, 'handle_consent_updated' ) );
         add_action( 'rex_product_feed_setup_started', array( $this, 'track_setup_started' ) );
         add_action( 'rex_product_feed_setup_step_completed', array( $this, 'track_setup_step_completed' ), 10, 2 );
+        add_action( 'rex_product_feed_setup_dismissed', array( $this, 'track_setup_dismissed' ), 10, 3 );
+        add_action( 'rex_product_feed_feed_url_copied', array( $this, 'track_feed_url_copied' ), 10, 1 );
         add_action( 'rex_product_feed_setup_completed', array( $this, 'track_onboarding' ) );
+        add_action( 'rex_product_feed_manual_feed_started', array( $this, 'track_manual_feed_started' ) );
         add_action( 'wpfm_flush_feed_telemetry', array( $this, 'flush_daily_telemetry' ) );
         $this->maybe_migrate_flush_cron_to_weekly();
 
@@ -53,6 +56,7 @@ class Rex_Product_Feed_Linno_Telemetry {
         add_action( 'rex_product_feed_upgrade_prompt_shown', array( $this, 'track_upgrade_prompt_shown' ) );
         add_action( 'rex_product_feed_upgrade_prompt_clicked', array( $this, 'track_upgrade_prompt_clicked' ) );
         add_action( 'rex_product_feed_analytics_page_viewed', array( $this, 'track_analytics_page_viewed' ) );
+        add_action( 'rex_product_feed_maintenance_action', array( $this, 'track_maintenance_action' ), 10, 2 );
         add_action( 'rex_product_feed_product_count_requested', array( $this, 'maybe_track_first_feed_completed' ), 10, 2 );
 
         add_filter( 'product-feed-manager_telemetry_deactivation_reasons', array( $this, 'override_deactivation_reasons' ) );
@@ -481,6 +485,103 @@ class Rex_Product_Feed_Linno_Telemetry {
                 ),
             )
         );
+    }
+
+    /**
+     * Track setup wizard dismissal, for drop-off visibility.
+     *
+     * @since 7.14.5
+     *
+     * @param string $step_id      Step identifier (e.g. 'merchant', 'configure').
+     * @param int    $step_index   Zero-based step index.
+     * @param int    $elapsed_time Duration spent in wizard in seconds.
+     *
+     * @return void
+     */
+    public function track_setup_dismissed( $step_id, $step_index, $elapsed_time = 0 ) {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'getDispatcher' ) ) {
+            return;
+        }
+
+        $telemetry_client->getDispatcher()->dispatch_minimal(
+            'activation/setup_dismissed',
+            array(
+                'site_url'           => esc_url_raw( get_site_url() ),
+                'unique_id'          => sanitize_text_field( $telemetry_client->get_unique_id() ),
+                'step_id'            => sanitize_text_field( $step_id ),
+                'step_index'         => (int) $step_index,
+                'time_spent_seconds' => (int) $elapsed_time,
+                'timestamp'          => current_time( 'mysql' ),
+                '__identify'         => array(
+                    'profileId' => sanitize_text_field( $telemetry_client->get_unique_id() ),
+                ),
+            )
+        );
+    }
+
+    /**
+     * Track user interaction (copy or open) with the generated feed URL in Step 3.
+     *
+     * @since 7.14.5
+     *
+     * @param string $action User action ('copy' or 'open').
+     *
+     * @return void
+     */
+    public function track_feed_url_copied( $action = 'copy' ) {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'getDispatcher' ) ) {
+            return;
+        }
+
+        $telemetry_client->getDispatcher()->dispatch_minimal(
+            'activation/feed_url_copied',
+            array(
+                'site_url'   => esc_url_raw( get_site_url() ),
+                'unique_id'  => sanitize_text_field( $telemetry_client->get_unique_id() ),
+                'action'     => sanitize_key( $action ),
+                'timestamp'  => current_time( 'mysql' ),
+                '__identify' => array(
+                    'profileId' => sanitize_text_field( $telemetry_client->get_unique_id() ),
+                ),
+            )
+        );
+    }
+
+    /**
+     * Track manual feed creation started (activation/manual_feed_started).
+     *
+     * Dispatched once per site when an admin enters the add new feed screen.
+     * Deduped via site option '_wpfm_manual_feed_start_tracked'.
+     *
+     * @since 7.14.5
+     *
+     * @return void
+     */
+    public function track_manual_feed_started() {
+        if ( get_option( '_wpfm_manual_feed_start_tracked' ) ) {
+            return;
+        }
+
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'getDispatcher' ) ) {
+            return;
+        }
+
+        $telemetry_client->getDispatcher()->dispatch_minimal(
+            'activation/manual_feed_started',
+            array(
+                'site_url'   => esc_url_raw( get_site_url() ),
+                'unique_id'  => sanitize_text_field( $telemetry_client->get_unique_id() ),
+                'timestamp'  => current_time( 'mysql' ),
+                '__identify' => array(
+                    'profileId' => sanitize_text_field( $telemetry_client->get_unique_id() ),
+                ),
+            )
+        );
+
+        update_option( '_wpfm_manual_feed_start_tracked', true, false );
     }
 
     /**
@@ -951,29 +1052,60 @@ class Rex_Product_Feed_Linno_Telemetry {
         // see docs/TELEMETRY_EVENTS.md for the removal plan.
         $published_product_count = wp_count_posts( 'product' )->publish ?? 0;
 
+        $fb_pixel = ( 'yes' === get_option( 'wpfm_fb_pixel_enabled', 'no' ) || 'yes' === get_option( 'wpfm_enable_fb_pixel', 'no' ) ) ? 'yes' : 'no';
+        $tiktok_pixel = ( 'yes' === get_option( 'wpfm_tiktok_pixel_enabled', 'no' ) ) ? 'yes' : 'no';
+        $google_drm_pixel = ( 'yes' === get_option( 'wpfm_google_drm_pixel_enabled', 'no' ) ) ? 'yes' : 'no';
+
+        $cat_maps = get_option( 'rex-wpfm-category-mapping', array() );
+        $global_category_mapping = ( is_array( $cat_maps ) && ! empty( $cat_maps ) ) ? 'yes' : 'no';
+
+        $product_batch_size = (int) get_option( 'rex-wpfm-product-per-batch', defined( 'WPFM_FREE_MAX_PRODUCT_LIMIT' ) ? WPFM_FREE_MAX_PRODUCT_LIMIT : 50 );
+        $cache_storage = (string) get_option( 'wpfm_feed_cache_storage', 'database' );
+        $generation_mode = (string) get_option( 'rex_feed_generation_mode', 'ajax' );
+
+        $custom_fields_opt = get_option( 'rex-wpfm-product-custom-field', 'no' );
+        $custom_unique_identifiers = ( 'yes' === $custom_fields_opt ) ? 'yes' : 'no';
+
+        $frontend_custom_fields = get_option( 'wpfm_product_custom_fields_frontend', array() );
+        $frontend_custom_fields_enabled = ( ! empty( $frontend_custom_fields ) && is_array( $frontend_custom_fields ) ) ? 'yes' : 'no';
+
+        $error_email_notifications_enabled = ( 'yes' === get_option( 'wpfm_feed_error_email_enabled', 'no' ) ) ? 'yes' : 'no';
+
         $telemetry_client->track(
             'retention/feature_used',
             array(
-                'feature'               => 'feed_generation',
-                'product_count'         => (int) $published_product_count,
-                'feed_count'            => $buffer['feed_count']             ?? 0,
-                'manual_count'          => $buffer['manual_count']           ?? 0,
-                'scheduled_count'       => $buffer['scheduled_count']        ?? 0,
-                'google_api'            => $buffer['google_api']       ?? 'no',
-                'category_mapping'      => $buffer['category_mapping'] ?? 'no',
-                'feed_filter_rules'     => $buffer['feed_filter_rules'] ?? 'no',
-                'utm_tracking'          => $buffer['utm_tracking']     ?? 'no',
-                'analytics_views'       => $analytics_views,
-                'multi_currency'        => $buffer['multi_currency']   ?? 'no',
-                'variation_filters'     => $buffer['variation_filters']?? 'no',
-                'is_pro'                => $buffer['is_pro']           ?? 'no',
-                'advanced_filters'      => $buffer['advanced_filters'] ?? 'no',
-                'custom_fields'         => $buffer['custom_fields']    ?? 'no',
-                'dynamic_mapping'       => $buffer['dynamic_mapping']  ?? 'no',
-                'merchants'             => implode( ',', $buffer['merchants'] ?? array() ),
-                'formats'               => implode( ',', $buffer['formats']   ?? array() ),
-                'intervals'             => implode( ',', array_keys( $intervals ) ),
-                'top_interval'          => array_key_first( $intervals ) ?? '',
+                'feature'                           => 'feed_generation',
+                'product_count'                     => (int) $published_product_count,
+                'feed_count'                        => $buffer['feed_count']             ?? 0,
+                'manual_count'                      => $buffer['manual_count']           ?? 0,
+                'scheduled_count'                   => $buffer['scheduled_count']        ?? 0,
+                'google_api'                        => $buffer['google_api']       ?? 'no',
+                'category_mapping'                  => $buffer['category_mapping'] ?? 'no',
+                'global_category_mapping'           => $global_category_mapping,
+                'feed_filter_rules'                 => $buffer['feed_filter_rules'] ?? 'no',
+                'utm_tracking'                      => $buffer['utm_tracking']     ?? 'no',
+                'analytics_views'                   => $analytics_views,
+                'multi_currency'                    => $buffer['multi_currency']   ?? 'no',
+                'variation_filters'                 => $buffer['variation_filters']?? 'no',
+                'is_pro'                            => $buffer['is_pro']           ?? 'no',
+                'advanced_filters'                  => $buffer['advanced_filters'] ?? 'no',
+                'custom_fields'                     => $buffer['custom_fields']    ?? 'no',
+                'dynamic_mapping'                   => $buffer['dynamic_mapping']  ?? 'no',
+                'fb_pixel'                          => $fb_pixel,
+                'tiktok_pixel'                      => $tiktok_pixel,
+                'google_drm_pixel'                  => $google_drm_pixel,
+                'product_batch_size'                => $product_batch_size,
+                'product_per_batch'                 => $product_batch_size,
+                'custom_batch_size'                 => $product_batch_size,
+                'cache_storage'                     => $cache_storage,
+                'generation_mode'                   => $generation_mode,
+                'custom_unique_identifiers'         => $custom_unique_identifiers,
+                'frontend_custom_fields'            => $frontend_custom_fields_enabled,
+                'error_email_notifications_enabled' => $error_email_notifications_enabled,
+                'merchants'                         => implode( ',', $buffer['merchants'] ?? array() ),
+                'formats'                           => implode( ',', $buffer['formats']   ?? array() ),
+                'intervals'                         => implode( ',', array_keys( $intervals ) ),
+                'top_interval'                      => array_key_first( $intervals ) ?? '',
             )
         );
 
@@ -1169,6 +1301,45 @@ class Rex_Product_Feed_Linno_Telemetry {
         }
 
         $telemetry_client->getDispatcher()->dispatch( 'growth/analytics_page_viewed', array() );
+    }
+
+    /**
+     * Track explicit maintenance actions (rollback, cache purge, batch clear, orphan rebuild).
+     *
+     * Dispatched directly via EventDispatcher::dispatch() so signals are delivered
+     * immediately before any potential plugin deactivation. Gated by telemetry consent.
+     *
+     * @since 7.14.5
+     *
+     * @param string $action Maintenance action name (rollback, purge_cache, clear_batch_queue, rebuild_orphan_variations).
+     * @param array  $data   Optional contextual data (e.g. target_version, feed_id).
+     *
+     * @return void
+     */
+    public function track_maintenance_action( $action, $data = array() ) {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'getDispatcher' ) ) {
+            return;
+        }
+        if ( 'yes' !== $telemetry_client->get_optin_state() ) {
+            return;
+        }
+
+        $properties = array(
+            'action'    => sanitize_key( $action ),
+            'timestamp' => current_time( 'mysql' ),
+        );
+
+        if ( ! empty( $data ) && is_array( $data ) ) {
+            if ( isset( $data['target_version'] ) ) {
+                $properties['target_version'] = sanitize_text_field( $data['target_version'] );
+            }
+            if ( isset( $data['feed_id'] ) ) {
+                $properties['feed_id'] = absint( $data['feed_id'] );
+            }
+        }
+
+        $telemetry_client->getDispatcher()->dispatch( 'maintenance/action_executed', $properties );
     }
 
     /**

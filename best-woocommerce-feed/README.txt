@@ -5,7 +5,7 @@ Tags: google shopping, facebook catalog, google merchant center, woocommerce, pr
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 7.14.4
+Stable tag: 7.15.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -421,6 +421,10 @@ You can use the WordPress support forum, product documentation, video tutorials,
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.15.0 (2026-11-10) =
+* Enhancement: Introduce context-aware setup wizard success state for empty stores, guiding merchants to publish products before submitting feeds
+* Enhancement: Expand retention telemetry and funnel tracking with wizard lifecycle events, maintenance action diagnostics, and feature adoption metrics
 
 = 7.14.4 (2026-11-05) =
 * Fix: Automatically register and self-heal recurring hourly, daily, and weekly Action Scheduler jobs for scheduled feed updates without requiring plugin reactivation

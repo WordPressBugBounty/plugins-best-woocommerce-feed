@@ -187,9 +187,18 @@
             </div>
 
             <!-- Propagation notice -->
-            <div class="pfm-propagation-notice">
+            <div class="pfm-propagation-notice" id="pfmPropagationNotice">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4B9EE8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 <span id="pfmPropagationText"><?php esc_html_e( 'Your feed URL is ready. Submit to your merchant account to start listing your products. The feed file refreshes automatically every day.', 'rex-product-feed' ); ?></span>
+            </div>
+
+            <!-- Empty store notice -->
+            <div class="pfm-empty-store-notice" id="pfmEmptyStoreNotice" style="display:none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <div class="pfm-empty-store-notice-content">
+                    <strong><?php esc_html_e( 'Your store currently has no published products.', 'rex-product-feed' ); ?></strong>
+                    <span id="pfmEmptyStoreText"><?php esc_html_e( 'Your feed URL is configured and scheduled for daily refresh, but the feed file is currently empty. Add products to WooCommerce before submitting this feed URL to merchant channels.', 'rex-product-feed' ); ?></span>
+                </div>
             </div>
 
             <hr class="pfm-divider" />
@@ -202,7 +211,10 @@
             </label>
 
             <!-- CTAs -->
-            <div class="pfm-aha-ctas">
+            <div class="pfm-aha-ctas" id="pfmAhaCtas">
+                <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=product' ) ); ?>" class="pfm-btn-primary" id="pfmAddProductBtn" style="display:none;">
+                    <?php esc_html_e( 'Add Products to Store', 'rex-product-feed' ); ?> &rarr;
+                </a>
                 <button class="pfm-btn-primary" id="pfmGoToDashboardBtn"><?php esc_html_e( 'Go to my feed dashboard', 'rex-product-feed' ); ?></button>
                 <!-- <button class="pfm-btn-text-link" id="pfmSkipForNowBtn"><?php esc_html_e( 'Skip for now', 'rex-product-feed' ); ?></button> -->
             </div>
