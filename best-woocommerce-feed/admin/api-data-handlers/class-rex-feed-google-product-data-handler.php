@@ -20,6 +20,24 @@ use RexFeed\Google\Service\ShoppingContent\ProductUnitPricingMeasure;
  */
 class  Rex_Feed_Handle_Google_Product {
 	/**
+	 * Units Google accepts for unit_pricing_measure and unit_pricing_base_measure.
+	 *
+	 * @see https://support.google.com/merchants/answer/6324455
+	 *
+	 * @since 7.15.1
+	 *
+	 * @var string[]
+	 */
+	const UNIT_PRICING_UNITS = array(
+		'oz', 'lb', 'mg', 'g', 'kg',
+		'floz', 'pt', 'qt', 'gal',
+		'ml', 'cl', 'l', 'cbm',
+		'in', 'ft', 'yd', 'cm', 'm',
+		'sqft', 'sqm',
+		'ct',
+	);
+
+	/**
 	 * Set an additional image link for the Google product.
 	 *
 	 * This method adds additional image URL to the Google product by retrieving the current list of additional
@@ -245,39 +263,150 @@ class  Rex_Feed_Handle_Google_Product {
 	}
 
 	/**
+	 * Parse a mapped unit pricing value such as "160 ml", "100ml", "1,5 kg" or "16 fl oz".
+	 *
+	 * Mapped values are free text, so this is lenient on format (comma or dot decimals,
+	 * thousands separators when both separators appear, NBSP, "fl oz" style units) but
+	 * strict on meaning: anything without a positive number and a Google unit returns null
+	 * so callers skip the attribute instead of throwing or sending bad data.
+	 *
+	 * Ambiguous single-separator values ("1,000 g" = 1000 or 1?) are skipped; see
+	 * normalize_unit_pricing_number().
+	 *
+	 * @since 7.15.1
+	 *
+	 * @param mixed $value Raw mapped attribute value.
+	 * @return array{value: float, unit: string}|null Parsed value and lowercase unit, or null when invalid.
+	 */
+	public static function parse_unit_pricing_value( $value ): ?array {
+		if ( ! is_scalar( $value ) || is_bool( $value ) ) {
+			return null;
+		}
+
+		// [\s\x{00A0}] = whitespace incl. NBSP. Unit parts may be split by a space and/or dot ("fl oz", "fl. oz.").
+		if ( ! preg_match( '/^[\s\x{00A0}]*(\d+(?:[.,]\d+)*)[\s\x{00A0}]*([a-z]+(?:[\s\x{00A0}.]{0,2}[a-z]+)*)\.?[\s\x{00A0}]*$/iu', (string) $value, $matches ) ) {
+			return null;
+		}
+
+		$number = self::normalize_unit_pricing_number( $matches[1] );
+		$unit   = strtolower( preg_replace( '/[^a-z]/i', '', $matches[2] ) );
+
+		if ( null === $number || $number <= 0 || ! in_array( $unit, self::UNIT_PRICING_UNITS, true ) ) {
+			return null;
+		}
+
+		return array(
+			'value' => $number,
+			'unit'  => $unit,
+		);
+	}
+
+	/**
+	 * Convert a matched number string ("1,5", "1.000,5", "1,000.5", "1,000") to float.
+	 *
+	 * When both separators appear, the last one is the decimal mark and the other is a
+	 * thousands separator. A separator repeated more than once is a thousands separator.
+	 *
+	 * Otherwise a single separator is the decimal mark ("1,5", "0,500"), except when it
+	 * follows a non-zero group of 1-3 digits and is followed by exactly three digits
+	 * ("1,000", "12.500"). That text means 1000 in some locales and 1 in others, so it
+	 * returns null and the value is skipped rather than risk a 1000x wrong unit price.
+	 *
+	 * @since 7.15.1
+	 *
+	 * @param string $number Digits with optional "." / "," separators.
+	 * @return float|null Parsed number, or null when the separator is ambiguous.
+	 */
+	private static function normalize_unit_pricing_number( string $number ): ?float {
+		$last_dot   = strrpos( $number, '.' );
+		$last_comma = strrpos( $number, ',' );
+
+		if ( false !== $last_dot && false !== $last_comma ) {
+			$thousands = $last_dot > $last_comma ? ',' : '.';
+			$number    = str_replace( $thousands, '', $number );
+		} elseif ( substr_count( $number, '.' ) > 1 ) {
+			$number = str_replace( '.', '', $number );
+		} elseif ( substr_count( $number, ',' ) > 1 ) {
+			$number = str_replace( ',', '', $number );
+		} elseif ( preg_match( '/^[1-9]\d{0,2}[.,]\d{3}$/', $number ) ) {
+			return null;
+		}
+
+		return (float) str_replace( ',', '.', $number );
+	}
+
+	/**
 	 * Set the unit pricing measure for the Google product.
 	 *
-	 * This method creates a new ProductUnitPricingMeasure object, sets its value, and assigns it to the Google product.
-	 *
-	 * @param Product $google_product The Google product object to set the unit pricing measure for.
-	 * @param float $value The unit pricing measure value to be set.
-	 *
-	 * @return void
+	 * Parses the mapped value (e.g. "160 ml") into value + unit. Values that do not
+	 * parse are skipped. Unit and range rules are left to Google item validation.
 	 *
 	 * @since 7.4.20
+	 * @since 7.15.1 Accepts the raw mapped value and sends the unit.
+	 *
+	 * @param Product $google_product The Google product object to set the unit pricing measure for.
+	 * @param mixed   $value          Raw mapped unit pricing measure value.
+	 * @return void
 	 */
-	public static function set_unit_pricing_measure( Product &$google_product, float $value ) {
+	public static function set_unit_pricing_measure( Product &$google_product, $value ): void {
+		$parsed = self::parse_unit_pricing_value( $value );
+		if ( null === $parsed ) {
+			return;
+		}
+
 		$unitPricingMeasure = new ProductUnitPricingMeasure();
-		$unitPricingMeasure->setValue( $value );
+		$unitPricingMeasure->setValue( $parsed['value'] );
+		$unitPricingMeasure->setUnit( $parsed['unit'] );
 		$google_product->setUnitPricingMeasure( $unitPricingMeasure );
 	}
 
 	/**
 	 * Set the unit pricing base measure for the Google product.
 	 *
-	 * This method creates a new ProductUnitPricingBaseMeasure object, sets its value, and assigns it to the Google product.
-	 *
-	 * @param Product $google_product The Google product object to set the unit pricing base measure for.
-	 * @param float $value The unit pricing base measure value to be set.
-	 *
-	 * @return void
+	 * Parses the mapped value (e.g. "100 ml") into value + unit. Google requires an
+	 * integer base value, so fractional values are skipped. Whether the integer is one
+	 * Google allows (1, 10, 100, 2, 4, 8, ...) is left to Google item validation.
 	 *
 	 * @since 7.4.20
+	 * @since 7.15.1 Accepts the raw mapped value and sends the unit.
+	 *
+	 * @param Product $google_product The Google product object to set the unit pricing base measure for.
+	 * @param mixed   $value          Raw mapped unit pricing base measure value.
+	 * @return void
 	 */
-	public static function set_unit_pricing_base_measure( Product &$google_product, float $value ) {
+	public static function set_unit_pricing_base_measure( Product &$google_product, $value ): void {
+		$parsed = self::parse_unit_pricing_base_measure_value( $value );
+		if ( null === $parsed ) {
+			return;
+		}
+
 		$unitPricingBaseMeasure = new ProductUnitPricingBaseMeasure();
-		$unitPricingBaseMeasure->setValue( $value );
+		$unitPricingBaseMeasure->setValue( $parsed['value'] );
+		$unitPricingBaseMeasure->setUnit( $parsed['unit'] );
 		$google_product->setUnitPricingBaseMeasure( $unitPricingBaseMeasure );
+	}
+
+	/**
+	 * Parse a mapped unit pricing base measure value.
+	 *
+	 * Same as parse_unit_pricing_value(), but the value must be a whole number and is
+	 * returned as a string because the API field is int64 (JSON-encoded as a string).
+	 *
+	 * @since 7.15.1
+	 *
+	 * @param mixed $value Raw mapped attribute value.
+	 * @return array{value: string, unit: string}|null Parsed value and unit, or null when invalid.
+	 */
+	public static function parse_unit_pricing_base_measure_value( $value ): ?array {
+		$parsed = self::parse_unit_pricing_value( $value );
+		if ( null === $parsed || floor( $parsed['value'] ) !== $parsed['value'] ) {
+			return null;
+		}
+
+		return array(
+			'value' => (string) (int) $parsed['value'],
+			'unit'  => $parsed['unit'],
+		);
 	}
 
 	/**

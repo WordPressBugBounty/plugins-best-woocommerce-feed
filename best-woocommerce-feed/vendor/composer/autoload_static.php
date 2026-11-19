@@ -1269,7 +1269,6 @@ class ComposerStaticInit91555ad83e3408c9220dfffb8a2b9d71
         'Rex_Product_Feed_Controller' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-controller.php',
         'Rex_Product_Feed_Create_Contact' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-create-contact.php',
         'Rex_Product_Feed_Daisycon' => __DIR__ . '/../..' . '/admin/feed/class-rex-product-feed-daisycon.php',
-        'Rex_Product_Feed_Dashboard_Banner' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-dashboard-banner.php',
         'Rex_Product_Feed_Data_Handle' => __DIR__ . '/../..' . '/admin/class-rex-product-feed-handle-data.php',
         'Rex_Product_Feed_Deactivator' => __DIR__ . '/../..' . '/includes/class-rex-product-feed-deactivator.php',
         'Rex_Product_Feed_DealsForU' => __DIR__ . '/../..' . '/admin/feed/class_rex_product_feed_deals4u.php',

@@ -29,8 +29,6 @@ class Rex_Product_Feed_Setup_Wizard_Ajax
         add_action('wp_ajax_pfm_install_activate_plugin', array($this, 'install_activate_plugin'));
         add_action('wp_ajax_pfm_skip_upsell', array($this, 'skip_upsell'));
         add_action('wp_ajax_pfm_track_companion_impression', array($this, 'track_companion_impression'));
-add_action('wp_ajax_pfm_dashboard_banner_track',          array($this, 'dashboard_banner_track'));
-        add_action('wp_ajax_pfm_dashboard_banner_dismiss',        array($this, 'dashboard_banner_dismiss'));
         add_action('wp_ajax_pfm_wizard_dismiss',                   array($this, 'dismiss_wizard'));
         add_action('wp_ajax_pfm_wizard_mark_completed',            array($this, 'mark_wizard_completed'));
         add_action('wp_ajax_pfm_tour_update_status',               array($this, 'tour_update_status'));
@@ -707,49 +705,6 @@ add_action('wp_ajax_pfm_dashboard_banner_track',          array($this, 'dashboar
         wp_send_json_success( array( 'message' => 'Impression tracked' ), 200 );
     }
 
-
-    /**
-     * Track a dashboard banner PostHog event.
-     *
-     * Accepted events: impression, click, dismiss.
-     * Props forwarded: variant, user_feed_count, pfm_version.
-     *
-     * @since 7.4.78
-     */
-    public function dashboard_banner_track() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
-            return;
-        }
-
-        wp_send_json_success( array( 'message' => 'Tracked' ), 200 );
-    }
-
-    /**
-     * Persist a banner dismiss decision for the current user.
-     *
-     * type=temp      → 30-day transient
-     * type=permanent → user_meta flag
-     *
-     * @since 7.4.78
-     */
-    public function dashboard_banner_dismiss() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
-            return;
-        }
-
-        $type    = isset( $_POST['type'] ) ? sanitize_text_field( wp_unslash( $_POST['type'] ) ) : 'temp';
-        $user_id = get_current_user_id();
-
-        if ( 'permanent' === $type ) {
-            update_user_meta( $user_id, 'pfm_wpfunnels_banner_dismissed', '1' );
-        } else {
-            set_transient( 'pfm_wpfunnels_banner_temp_' . $user_id, '1', 14 * DAY_IN_SECONDS );
-        }
-
-        wp_send_json_success( array( 'message' => 'Dismissed' ), 200 );
-    }
 
     /**
      * Dismiss the setup wizard for the current session ("remind me later").

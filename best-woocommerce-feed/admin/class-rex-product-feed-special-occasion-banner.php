@@ -100,11 +100,11 @@ class Rex_Feed_Special_Occasion_Banner {
 	}
 
     /**
-     * Calculate time remaining until Halloween
+     * Calculate time remaining until the deal ends
      *
      * @return array Time remaining in days, hours, and minutes
      */
-    public function rex_get_halloween_countdown() {
+    public function rex_get_deal_countdown() {
 	    $diff = $this->end_date - current_time( 'timestamp' );
 	    return [
 		    'days'  => sprintf("%02d", floor( $diff / ( 60 * 60 * 24 ) )),
@@ -147,31 +147,30 @@ class Rex_Feed_Special_Occasion_Banner {
 
         if ($should_show_banner) {
             $time_remaining = $this->end_date - current_time('timestamp');
-            $countdown = $this->rex_get_halloween_countdown();
+            $countdown = $this->rex_get_deal_countdown();
 
             echo '<input type="hidden" id="rexfeed_special_occasion" name="rexfeed_special_occasion" value="' . esc_attr( $this->occasion ) . '">';
             ?>
-            <!-- Name: Halloween 2026 Notification Banner -->
+            <!-- Name: Black Friday 2026 Notification Banner -->
             <div class="rex-feed-tb__notification pfm-banner" id="rexfeed_deal_notification">
                 <div class="rex-notification-counter">
                     <div class="rex-notification-counter__container">
                         <div class="rex-notification-counter__content">
 
                             <figure class="rex-notification-counter__figure-logo">
-                                <img src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . 'assets/icon/banner-images/halloween-img.webp' ); ?>" alt="<?php esc_attr_e( 'Halloween', 'rex-product-feed' ); ?>" class="rex-notification-counter__img">
+                                <img src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . 'assets/icon/banner-images/black-friday.webp' ); ?>" alt="<?php esc_attr_e( 'Black Friday', 'rex-product-feed' ); ?>" class="rex-notification-counter__img">
                             </figure>
 
                             <div class="rex-notification-counter__text">
                                 <p class="rex-notification-counter__title">
-                                    <?php esc_html_e( 'Spooktacular Halloween Sale', 'rex-product-feed' ); ?>
+                                    <?php esc_html_e( 'Biggest Sale of The Year', 'rex-product-feed' ); ?>
                                 </p>
                                 <p class="rex-notification-counter__offer">
-                                    <?php esc_html_e( 'GET 30% OFF!', 'rex-product-feed' ); ?>
-                                    <span aria-hidden="true">&#127875;</span>
+                                    <?php esc_html_e( 'GET 50% OFF!', 'rex-product-feed' ); ?>
                                 </p>
                             </div>
 
-                            <div id="rex-halloween-countdown" class="rex-notification-counter__countdown" aria-live="polite">
+                            <div id="rex-deal-countdown" class="rex-notification-counter__countdown" aria-live="polite">
                                 <span class="screen-reader-text">
                                     <?php esc_html_e( 'Offer Countdown', 'rex-product-feed' ); ?>
                                 </span>
@@ -186,7 +185,7 @@ class Rex_Feed_Special_Occasion_Banner {
                                     foreach ( $countdown_labels as $unit => $label ) :
                                         ?>
                                         <li class="rex-notification-counter__item">
-                                            <span id="rex-feed-halloween-<?php echo esc_attr( $unit ); ?>" class="rex-notification-counter__time">
+                                            <span id="rex-feed-deal-<?php echo esc_attr( $unit ); ?>" class="rex-notification-counter__time">
                                                 <?php echo esc_html( $countdown[ $unit ] ); ?>
                                             </span>
                                             <span class="rex-notification-counter__label">
@@ -198,9 +197,9 @@ class Rex_Feed_Special_Occasion_Banner {
                             </div>
 
                             <div class="rex-notification-counter__btn-area">
-                                <a href="<?php echo esc_url( 'https://rextheme.com/best-woocommerce-product-feed/pricing/?utm_source=website&utm_medium=plugin-ban-pfm&utm_campaign=pfm-halloween2026' ); ?>" class="rex-notification-counter__btn" target="_blank" rel="noopener noreferrer">
+                                <a href="<?php echo esc_url( 'https://rextheme.com/black-friday-deal/?utm_source=in-plugin-banner&utm_medium=button&utm_campaign=bfcm2026#pfm' ); ?>" class="rex-notification-counter__btn" target="_blank" rel="noopener noreferrer">
                                     <span class="screen-reader-text">
-                                        <?php esc_html_e( 'Click to view Halloween sale offers', 'rex-product-feed' ); ?>
+                                        <?php esc_html_e( 'Click to view Black Friday sale offers', 'rex-product-feed' ); ?>
                                     </span>
                                     <?php esc_html_e( 'Claim Your Deal', 'rex-product-feed' ); ?>
                                     <svg width="10" height="10" fill="none" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -213,7 +212,7 @@ class Rex_Feed_Special_Occasion_Banner {
                     </div>
                 </div>
 
-                <button type="button" class="rex-feed-tb__cross-top" id="rexfeed_deal_close_btn" aria-label="<?php esc_attr_e( 'Dismiss Halloween offer', 'rex-product-feed' ); ?>">
+                <button type="button" class="rex-feed-tb__cross-top" id="rexfeed_deal_close_btn" aria-label="<?php esc_attr_e( 'Dismiss Black Friday offer', 'rex-product-feed' ); ?>">
                     <svg width="8" height="8" fill="none" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path stroke="currentColor" stroke-linecap="round" stroke-width="1.2" d="M7.5.5l-7 7m0-7l7 7" />
                     </svg>
@@ -227,10 +226,10 @@ class Rex_Feed_Special_Occasion_Banner {
                     let timeRemaining = <?php echo (int) $time_remaining; ?>;
 
                     const countdownTimer = setInterval(function() {
-                        const daysElement = document.getElementById('rex-feed-halloween-days');
-                        const hoursElement = document.getElementById('rex-feed-halloween-hours');
-                        const minutesElement = document.getElementById('rex-feed-halloween-mins');
-                        const secondsElement = document.getElementById('rex-feed-halloween-secs');
+                        const daysElement = document.getElementById('rex-feed-deal-days');
+                        const hoursElement = document.getElementById('rex-feed-deal-hours');
+                        const minutesElement = document.getElementById('rex-feed-deal-mins');
+                        const secondsElement = document.getElementById('rex-feed-deal-secs');
 
                         timeRemaining--;
 
@@ -328,14 +327,13 @@ class Rex_Feed_Special_Occasion_Banner {
                 isolation: isolate;
             }
 
-            /* Navy gradient, more transparent at the top and towards the right, as in the design. */
+            /* Solid dark background, as in the Black Friday design. */
             .rex-feed-tb__notification.pfm-banner::before {
                 content: '';
                 position: absolute;
                 inset: 0;
                 z-index: -1;
-                /* background: linear-gradient(90deg, #1c1aa6 0%, #1c19a6 20%, #18148a 47%, #131177 62%, #0f0d65 75%, #100e65 100%); */
-                background: linear-gradient(280deg, #100E65 35.16%, #1D19A6 77.3%);
+                background: #040317;
             }
 
             .pfm-banner .rex-notification-counter,
@@ -356,8 +354,7 @@ class Rex_Feed_Special_Occasion_Banner {
 
             .pfm-banner .rex-notification-counter__figure-logo {
                 flex-shrink: 0;
-                width: 174px;
-                transform: translateY(5px);
+                width: 87px;
             }
 
             .pfm-banner .rex-notification-counter__img {
@@ -370,7 +367,7 @@ class Rex_Feed_Special_Occasion_Banner {
             .pfm-banner .rex-notification-counter__text {
                 flex-shrink: 0;
                 align-self: flex-start;
-                margin-left: 25px;
+                margin-left: 30px;
                 padding-top: 11px;
                 white-space: nowrap;
             }
@@ -398,12 +395,6 @@ class Rex_Feed_Special_Occasion_Banner {
                 color: #24ec2c;
             }
 
-            .pfm-banner .rex-notification-counter__offer span {
-                margin-left: 6px;
-                font-size: 20px;
-                line-height: 1;
-            }
-
             .pfm-banner .rex-notification-counter__countdown {
                 flex-shrink: 0;
                 margin-left: 46px;
@@ -425,8 +416,8 @@ class Rex_Feed_Special_Occasion_Banner {
                 width: 53px;
                 height: 50px;
                 margin: 0;
-                background: #100f7b;
-                border: 1px solid #312faa;
+                background: #0B0A12;
+                border: 1px solid #2E2A6E;
                 border-radius: 2px;
             }
 

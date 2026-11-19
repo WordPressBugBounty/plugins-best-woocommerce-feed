@@ -71,7 +71,7 @@ class Rex_Product_Feed_Public {
 		 * class.
 		 */
 
-		$wpfm_fb_pixel_enabled = get_option( 'wpfm_enable_fb_pixel', 'no' );
+		$wpfm_fb_pixel_enabled = get_option( 'wpfm_fb_pixel_enabled', 'no' );
 		if ( $wpfm_fb_pixel_enabled == 'yes' ) {
 			$wpfm_fb_pixel_data = get_option( 'wpfm_fb_pixel_value' );
 			if ( !empty( $wpfm_fb_pixel_data ) ) {
@@ -89,13 +89,28 @@ class Rex_Product_Feed_Public {
 	}
 
 
+	/**
+	 * Return product data for the Facebook Pixel AddToCart event.
+	 *
+	 * Open to guests, so the nonce only guards against CSRF. Access control is
+	 * the product status check: only products any visitor can already see on
+	 * the storefront are returned.
+	 *
+	 * @since 1.0.0
+	 * @since x.x.x Rejects non-public products and invalid IDs.
+	 *
+	 * @return void
+	 */
 	public function wpfm_add_to_cart() {
 		check_ajax_referer( 'wpfm_add_to_cart_nonce', 'security' );
 		$currency   = function_exists( 'get_woocommerce_currency' ) ? get_woocommerce_currency() : 'USD';
-		$product_id = sanitize_text_field( $_POST['product_id'] );
-		$product    = wc_get_product( $product_id );
-		if ( ! is_object( $product ) ) {
-			die();
+		$product_id = isset( $_POST['product_id'] ) ? absint( wp_unslash( $_POST['product_id'] ) ) : 0;
+		if ( ! $product_id ) {
+			wp_send_json_error( null, 400 );
+		}
+		$product = wc_get_product( $product_id );
+		if ( ! $product instanceof WC_Product || ! $this->is_public_product( $product ) ) {
+			wp_send_json_error( null, 403 );
 		}
 		$price           = $product->get_price();
 		$formatted_price = wc_format_decimal( $price, wc_get_price_decimals() );
@@ -110,8 +125,29 @@ class Rex_Product_Feed_Public {
 			'currency'      => $currency,
 			'cats'          => $cats,
 		);
-		echo json_encode( $response );
-		wp_die();
+		wp_send_json( $response );
+	}
+
+	/**
+	 * Check whether a product is visible to any storefront visitor.
+	 *
+	 * Hidden catalog visibility is allowed on purpose: the product page is
+	 * public by direct link and shows the same data.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param WC_Product $product Product or variation.
+	 * @return bool True when published and not password-protected, including the parent of a variation.
+	 */
+	private function is_public_product( WC_Product $product ): bool {
+		if ( 'publish' !== $product->get_status() || post_password_required( $product->get_id() ) ) {
+			return false;
+		}
+		if ( $product->is_type( 'variation' ) ) {
+			$parent = wc_get_product( $product->get_parent_id() );
+			return $parent instanceof WC_Product && $this->is_public_product( $parent );
+		}
+		return true;
 	}
 
 

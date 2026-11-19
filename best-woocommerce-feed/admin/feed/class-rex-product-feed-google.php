@@ -756,6 +756,20 @@ class Rex_Product_Feed_Google extends Rex_Product_Feed_Abstract_Generator
 			}
 		}
 
+		// Unit pricing for Merchant API v1: "160 ml" → { value, unit }. Invalid values are skipped.
+		if ( isset( $attributes['unit_pricing_measure'] ) ) {
+			$unit_measure = Rex_Feed_Handle_Google_Product::parse_unit_pricing_value( $attributes['unit_pricing_measure'] );
+			if ( null !== $unit_measure ) {
+				$attrs['unitPricingMeasure'] = $unit_measure;
+			}
+		}
+		if ( isset( $attributes['unit_pricing_base_measure'] ) ) {
+			$unit_base_measure = Rex_Feed_Handle_Google_Product::parse_unit_pricing_base_measure_value( $attributes['unit_pricing_base_measure'] );
+			if ( null !== $unit_base_measure ) {
+				$attrs['unitPricingBaseMeasure'] = $unit_base_measure;
+			}
+		}
+
 		// item_group_id fallback for variations.
 		if ( 'variation' === $product_type && empty( $attrs['itemGroupId'] ) && ! empty( $attributes['item_group_id'] ) ) {
 			$attrs['itemGroupId'] = (string) $attributes['item_group_id'];

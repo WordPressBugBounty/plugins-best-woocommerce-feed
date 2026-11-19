@@ -149,7 +149,6 @@ class Rex_Product_Feed {
 		require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-setup-wizard.php';
 		require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-create-contact.php';
         require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-linno-telemetry.php';
-        require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-rex-product-feed-dashboard-banner.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-rex-feed-product-count-guard.php';
 
 		/**
@@ -194,7 +193,6 @@ class Rex_Product_Feed {
 	    $scheduler              = new Rex_Feed_Scheduler();
 	    $product_count_guard    = new Rex_Feed_Product_Count_Guard();
 	    $setup_wizard_ajax      = new Rex_Product_Feed_Setup_Wizard_Ajax();
-        $dashboard_banner       = new Rex_Product_Feed_Dashboard_Banner();
 
         /**
          * Initialize the Feed Validator system.
@@ -205,9 +203,9 @@ class Rex_Product_Feed {
 
         // Date format: YYYY-MM-DD HH:MM:SS (site timezone).
         $special_banner = new Rex_Feed_Special_Occasion_Banner(
-            'halloween_deal_2026',
-            '2026-10-15 00:00:00',
-            '2026-10-26 23:59:59'
+            'black_friday_deal_2026',
+            '2026-11-20 00:00:00',
+            '2026-12-11 23:59:59'
         );
 
 

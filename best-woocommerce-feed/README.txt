@@ -5,7 +5,7 @@ Tags: google shopping, facebook catalog, google merchant center, woocommerce, pr
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 7.15.0
+Stable tag: 7.15.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -422,6 +422,10 @@ You can use the WordPress support forum, product documentation, video tutorials,
 
 = Product feed manager (Free) =
 
+= 7.15.1 (2026-11-19) =
+* Fix: Prevent the public add-to-cart AJAX endpoint from exposing details of draft, pending, private, and password-protected products
+* Fix: Load the Facebook Pixel AddToCart event on add-to-cart clicks when the Pixel is enabled in settings
+* Fix: Prevent feed generation TypeError when unit pricing measure or unit pricing base measure is mapped with Google Merchant API sync enabled
 = 7.15.0 (2026-11-10) =
 * Enhancement: Introduce context-aware setup wizard success state for empty stores, guiding merchants to publish products before submitting feeds
 * Enhancement: Expand retention telemetry and funnel tracking with wizard lifecycle events, maintenance action diagnostics, and feature adoption metrics
