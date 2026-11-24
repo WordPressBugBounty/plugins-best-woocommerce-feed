@@ -5,7 +5,7 @@ Tags: google shopping, facebook catalog, google merchant center, woocommerce, pr
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 7.15.1
+Stable tag: 7.16.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -421,6 +421,11 @@ You can use the WordPress support forum, product documentation, video tutorials,
 == Changelog ==
 
 = Product feed manager (Free) =
+
+= 7.16.0 (2026-11-24) =
+* New: Introduce Smart Categorization to automatically suggest merchant categories with confidence levels, alternative suggestions, and quick-fill options
+* Enhancement: Redesign Category Mapping interface with searchable category selectors, category search, row filters, and mapping progress tracking
+* Enhancement: Add bundled localized Google category taxonomies (German, French, Dutch, Polish, Portuguese) and adaptive learning from past mappings
 
 = 7.15.1 (2026-11-19) =
 * Fix: Prevent the public add-to-cart AJAX endpoint from exposing details of draft, pending, private, and password-protected products

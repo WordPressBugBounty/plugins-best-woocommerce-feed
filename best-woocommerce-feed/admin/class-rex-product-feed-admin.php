@@ -385,6 +385,7 @@ class Rex_Product_Feed_Admin {
                 do_action( 'rex_product_feed_manual_feed_started' );
             }
 
+            
             $is_tour_guide_script = false;
             $tour_state = get_user_meta( get_current_user_id(), 'wpfm_tour_completed_or_skipped', true );
             
@@ -443,10 +444,27 @@ class Rex_Product_Feed_Admin {
         }
 
         if ( $screen->id === $this->category_mapping_screen_hook_suffix ) {
+            // Start the background download of the site language's Google taxonomy now,
+            // so localized suggestions are ready by the time "Suggest categories" is clicked.
+            Rex_Feed_Smart_Category_Suggester::maybe_schedule_taxonomy_fetch();
+            wp_enqueue_style(
+                $this->plugin_name . '-category-mapping',
+                WPFM_PLUGIN_ASSETS_FOLDER . 'css/category-mapping.css',
+                array(),
+                $this->version
+            );
+            // Searchable merchant list in the category map editor.
+            wp_enqueue_script(
+                $this->plugin_name . '-select2',
+                WPFM_PLUGIN_ASSETS_FOLDER . 'js/select2.min.js',
+                array( 'jquery' ),
+                $this->version,
+                true
+            );
             wp_enqueue_script(
                 'category-map',
                 WPFM_PLUGIN_ASSETS_FOLDER . 'js/category-mapper.js',
-                array( 'jquery', 'jquery-ui-autocomplete' ),
+                array( 'jquery', $this->plugin_name . '-select2' ),
                 $this->version,
                 true
             );
@@ -457,6 +475,55 @@ class Rex_Product_Feed_Admin {
                     'update_btn'           => __( 'Update', 'rex-product-feed' ),
                     'update_and_close_btn' => __( 'Update & Close', 'rex-product-feed' ),
                     'delete_btn'           => __( 'Delete', 'rex-product-feed' ),
+                    'smart_suggested'      => __( 'Suggested:', 'rex-product-feed' ),
+                    'smart_previous'       => __( 'Used before:', 'rex-product-feed' ),
+                    'smart_merchants'      => self::smart_category_merchants(),
+                    'smart_high'           => __( 'High Confidence', 'rex-product-feed' ),
+                    'smart_medium'         => __( 'Medium Confidence', 'rex-product-feed' ),
+                    'smart_low'            => __( 'Low Confidence', 'rex-product-feed' ),
+                    'smart_accept'         => __( 'Accept', 'rex-product-feed' ),
+                    'smart_alternatives'   => __( 'Alternatives', 'rex-product-feed' ),
+                    'smart_fill_all'       => __( 'Fill All Suggestions', 'rex-product-feed' ),
+                    'smart_fill_more'      => __( 'More fill options', 'rex-product-feed' ),
+                    'smart_fill_high'      => __( 'Fill High Confidence Suggestions', 'rex-product-feed' ),
+                    'smart_fill_medium'    => __( 'Fill Medium Confidence Suggestions', 'rex-product-feed' ),
+                    'smart_fill_low'       => __( 'Fill Low Confidence Suggestions', 'rex-product-feed' ),
+                    'add_title'            => __( 'Add Category Mapping', 'rex-product-feed' ),
+                    'edit_title'           => __( 'Edit Category Mapping', 'rex-product-feed' ),
+                    /* translators: 1: first row number, 2: last row number, 3: total number of store categories. */
+                    'showing'              => __( 'Showing %1$s-%2$s of %3$s categories', 'rex-product-feed' ),
+                    /* translators: %s: category map name. */
+                    'delete_confirm'       => __( 'Are you sure you want to delete the category mapping \'%s\'?', 'rex-product-feed' ),
+                    'saving'               => __( 'Saving...', 'rex-product-feed' ),
+                    'deleting'             => __( 'Deleting...', 'rex-product-feed' ),
+                    'saved'                => __( 'Category mapping saved.', 'rex-product-feed' ),
+                    'deleted'              => __( 'Category mapping deleted.', 'rex-product-feed' ),
+                    'save_failed'          => __( 'Could not save the category mapping. Please try again.', 'rex-product-feed' ),
+                    'delete_failed'        => __( 'Could not delete the category mapping. Please try again.', 'rex-product-feed' ),
+                    /* translators: %s: category map name. */
+                    'edit_label'           => __( 'Edit %s', 'rex-product-feed' ),
+                    /* translators: %s: category map name. */
+                    'delete_label'         => __( 'Delete %s', 'rex-product-feed' ),
+                    /* translators: %s: merchant name, e.g. Google Shopping. */
+                    'merchant_category'    => __( '%s Category', 'rex-product-feed' ),
+                    'suggest'              => __( 'Suggest categories', 'rex-product-feed' ),
+                    'suggesting'           => __( 'Suggesting...', 'rex-product-feed' ),
+                    'suggest_google_only'  => __( 'Category suggestions are available for merchants that use Google product categories.', 'rex-product-feed' ),
+                    /* translators: 1: unmapped store categories with a suggestion, 2: all unmapped store categories. */
+                    'suggest_done'         => __( '%1$s of %2$s categories have suggestions', 'rex-product-feed' ),
+                    'suggest_none'         => __( 'No suggestions for the empty rows.', 'rex-product-feed' ),
+                    'suggest_failed'       => __( 'Could not load suggestions. Please try again.', 'rex-product-feed' ),
+                    /* translators: 1: mapped store categories, 2: all store categories. */
+                    'progress_table'       => __( '%1$s / %2$s mapped', 'rex-product-feed' ),
+                    'combo_search'         => __( 'Search categories', 'rex-product-feed' ),
+                    'combo_loading'        => __( 'Loading categories...', 'rex-product-feed' ),
+                    'combo_no_results'     => __( 'No matching categories.', 'rex-product-feed' ),
+                    'combo_clear'          => __( 'Clear selection', 'rex-product-feed' ),
+                    /* translators: %s: text typed in the category search box. */
+                    'combo_custom'         => __( 'Use "%s"', 'rex-product-feed' ),
+                    'combo_custom_hint'    => __( 'Custom value', 'rex-product-feed' ),
+                    /* translators: 1: number of results shown, 2: number of matches. */
+                    'combo_more'           => __( 'Showing %1$s of %2$s matches. Type more to narrow down.', 'rex-product-feed' ),
                 )
             );
         }
@@ -473,6 +540,22 @@ class Rex_Product_Feed_Admin {
         }
 
     }
+
+    /**
+     * Merchants that get smart category suggestions, for the category mapping script.
+     *
+     * @since 7.14.4
+     *
+     * @return string[] Merchant slugs. Google only if the list cannot be built.
+     */
+    private static function smart_category_merchants(): array {
+        try {
+            return Rex_Feed_Smart_Category_Suggester::supported_merchants();
+        } catch ( \Throwable $e ) {
+            return array( 'google' );
+        }
+    }
+
 
     /**
      * Register Plugin Admin Pages

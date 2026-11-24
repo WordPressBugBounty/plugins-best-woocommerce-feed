@@ -237,6 +237,8 @@ class Rex_Product_Feed {
 	    $this->loader->add_action( 'admin_init', $metabox, 'register_metaboxes' );
 
         $this->loader->add_action( 'admin_init', 'Rex_Product_Feed_Ajax', 'init' );
+        // Background download of the localized Google taxonomy for smart category suggestions (WP-Cron).
+        $this->loader->add_action( 'wpfm_smart_category_fetch_taxonomy', 'Rex_Feed_Smart_Category_Suggester', 'fetch_taxonomy' );
         $this->loader->add_action( 'admin_menu', $plugin_admin, 'load_admin_pages' );
         $this->loader->add_action( 'enter_title_here', $plugin_admin, 'change_feed_title_placeholder' );
         $this->loader->add_action( 'admin_footer', $plugin_admin, 'rex_admin_footer_style' );

@@ -1,43 +1,55 @@
 <?php
 if ( ! function_exists( 'wpfm_hierarchical_product_category_tree' ) ) {
 	/**
-	 * Print hierarchical product categories
+	 * Print hierarchical product categories as category mapping rows.
 	 *
-	 * @param $cat
-	 * @param array $config
+	 * Each row has the store category name with its product count, the parent
+	 * path (child categories only) and an empty Google category input. The category
+	 * mapping script fills the inputs from the map being opened.
+	 *
+	 * @since 1.0.0
+	 * @since 7.14.4 Shows the parent path instead of a `--` prefix; added `$parent_names`.
+	 *               `$config` is no longer used (rows are filled by the script).
+	 *
+	 * @param int      $cat          Parent term ID to list children of (0 = top level).
+	 * @param array    $config       Unused; kept for backward compatibility.
+	 * @param string[] $parent_names Names of the ancestors of `$cat`, top first.
 	 */
-	function wpfm_hierarchical_product_category_tree( $cat, $config = array() ) {
+	function wpfm_hierarchical_product_category_tree( $cat, $config = array(), $parent_names = array() ) {
 		$args = array(
 			'parent'        => $cat,
 			'hide_empty'    => false,
 			'no_found_rows' => true,
 		);
 
-		$next      = get_terms( 'product_cat', $args );
-		$separator = '';
-		if ( $next ) :
+		$next = get_terms( 'product_cat', $args );
+		if ( $next && ! is_wp_error( $next ) ) :
 			foreach ( $next as $cat ) :
-				if ( $cat->parent !== 0 ) {
-					$separator = '--';
-				}
-				$map_value = '';
-				if ( !empty( $config ) ) {
-					$key = array_search( $cat->term_id, array_column( $config, 'map-key' ) );
-					if ( $key !== false ) {
-						$map_value = $config[ $key ]['map-value'];
-					}
-				}
+				$input_id = 'wpfm-category-' . $cat->term_id;
 
 				ob_start();?>
-				<div class='single-category'>
-					<span class='label'><?php echo esc_html( $separator . $cat->name ) . ' (' . esc_html( $cat->count ) . ')'; ?></span>
-					<div class='input-field'><input class='autocomplete category-suggest' type='text' name='category-<?php echo esc_attr( $cat->term_id ); ?>' value='<?php echo esc_attr( $map_value ); ?>' placeholder='Google Merchant Category'/></div>
+				<div class='single-category' data-term-id='<?php echo esc_attr( $cat->term_id ); ?>'>
+					<label class='label' for='<?php echo esc_attr( $input_id ); ?>'>
+						<span class='label__name'><?php echo esc_html( $cat->name ) . ' (' . esc_html( number_format_i18n( (int) $cat->count ) ) . ')'; ?></span>
+						<?php if ( $parent_names ) : ?>
+							<span class='label__parent'><?php echo esc_html( implode( ' › ', $parent_names ) ); ?></span>
+						<?php endif; ?>
+					</label>
+					<div class='input-field'>
+						<input class='category-suggest' type='hidden' name='category-<?php echo esc_attr( $cat->term_id ); ?>' value=''/>
+						<button type='button' id='<?php echo esc_attr( $input_id ); ?>' class='wpfm-catmap-combo' aria-haspopup='listbox' aria-expanded='false'>
+							<span class='wpfm-catmap-combo__value' hidden>
+								<span class='wpfm-catmap-combo__leaf'></span>
+								<span class='wpfm-catmap-combo__path'></span>
+							</span>
+							<span class='wpfm-catmap-combo__placeholder'><?php esc_html_e( 'Select a category', 'rex-product-feed' ); ?></span>
+						</button>
+					</div>
 				</div>
 				<?php
 				echo ob_get_clean();
 
-				$separator = '';
-				wpfm_hierarchical_product_category_tree( $cat->term_id, $config );
+				wpfm_hierarchical_product_category_tree( $cat->term_id, $config, array_merge( $parent_names, array( $cat->name ) ) );
 			endforeach;
 		endif;
 	}

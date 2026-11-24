@@ -52,6 +52,7 @@ class Rex_Product_Feed_Linno_Telemetry {
 
         add_action( 'rex_product_feed_generation_failed', array( $this, 'track_generation_failed' ), 10, 2 );
         add_action( 'rex_product_feed_validation_completed', array( $this, 'track_validation_completed' ), 10, 4 );
+        add_action( 'wpfm_smart_category_feedback', array( $this, 'track_smart_category_feedback' ), 10, 2 );
         add_action( 'rex_product_feed_google_merchant_connected', array( $this, 'track_gmc_connected' ) );
         add_action( 'rex_product_feed_upgrade_prompt_shown', array( $this, 'track_upgrade_prompt_shown' ) );
         add_action( 'rex_product_feed_upgrade_prompt_clicked', array( $this, 'track_upgrade_prompt_clicked' ) );
@@ -1194,6 +1195,109 @@ class Rex_Product_Feed_Linno_Telemetry {
         );
 
         $telemetry_client->track( 'diagnostics/feed_validation_run', $properties );
+    }
+
+    /**
+     * Track smart category suggestion feedback after a category map save.
+     *
+     * Fires on `wpfm_smart_category_feedback`, which only runs when a save recorded new
+     * outcomes. Queued via track() (consent required). Only counts and ratios are sent:
+     * no category names, Google paths or other store data. Keys are flat so they can be
+     * charted directly in PostHog.
+     *
+     * @since 7.14.4
+     *
+     * @param array $counts Outcome counts of this save, from `Rex_Feed_Smart_Category_Tracker::apply()`.
+     * @param array $stats  Stored totals after this save, with `accuracy` and `top1_accuracy`.
+     *
+     * @return void
+     */
+    public function track_smart_category_feedback( $counts, $stats ) {
+        global $telemetry_client;
+        if ( ! is_object( $telemetry_client ) || ! method_exists( $telemetry_client, 'track' ) ) {
+            return;
+        }
+        if ( 'yes' !== $telemetry_client->get_optin_state() ) {
+            return;
+        }
+
+        $properties = self::build_smart_category_payload( (array) $counts, (array) $stats );
+
+        $telemetry_client->track( 'retention/smart_category_feedback', $properties );
+    }
+
+    /**
+     * Build the `retention/smart_category_feedback` properties.
+     *
+     * - `save_*`: this save's counts. `save_ignored` can be negative (ignored rows decided now).
+     * - `total_*`: running totals, plus `accuracy` / `top1_accuracy` (0–1, null when nothing decided).
+     * - `<high|medium|low>_*`: running totals per confidence label, with `<label>_accuracy`.
+     *
+     * @since 7.14.4
+     *
+     * @param array $counts Outcome counts of this save.
+     * @param array $stats  Stored totals after this save.
+     *
+     * @return array<string,int|float|null>
+     */
+    public static function build_smart_category_payload( array $counts, array $stats ): array {
+        $keys       = array( 'shown', 'accepted', 'accepted_alt', 'changed', 'ignored' );
+        $properties = array(
+            'accuracy'      => isset( $stats['accuracy'] ) ? (float) $stats['accuracy'] : null,
+            'top1_accuracy' => isset( $stats['top1_accuracy'] ) ? (float) $stats['top1_accuracy'] : null,
+        );
+
+        foreach ( $keys as $key ) {
+            $properties[ 'save_' . $key ]  = isset( $counts[ $key ] ) ? (int) $counts[ $key ] : 0;
+            $properties[ 'total_' . $key ] = isset( $stats[ $key ] ) ? absint( $stats[ $key ] ) : 0;
+        }
+
+        foreach ( array( 'high', 'medium', 'low' ) as $confidence ) {
+            $bucket = isset( $stats['by_confidence'][ $confidence ] ) && is_array( $stats['by_confidence'][ $confidence ] ) ? $stats['by_confidence'][ $confidence ] : array();
+            foreach ( $keys as $key ) {
+                $properties[ $confidence . '_' . $key ] = isset( $bucket[ $key ] ) ? absint( $bucket[ $key ] ) : 0;
+            }
+
+            $right   = $properties[ $confidence . '_accepted' ] + $properties[ $confidence . '_accepted_alt' ];
+            $decided = $right + $properties[ $confidence . '_changed' ];
+
+            $properties[ $confidence . '_accuracy' ] = $decided ? round( $right / $decided, 4 ) : null;
+        }
+
+        // Rule suggestions vs the store's own earlier mappings (`memory`).
+        foreach ( array( 'rules', 'memory' ) as $source ) {
+            $bucket = isset( $stats['by_source'][ $source ] ) && is_array( $stats['by_source'][ $source ] ) ? $stats['by_source'][ $source ] : array();
+            foreach ( $keys as $key ) {
+                $properties[ $source . '_' . $key ] = isset( $bucket[ $key ] ) ? absint( $bucket[ $key ] ) : 0;
+            }
+            $right   = $properties[ $source . '_accepted' ] + $properties[ $source . '_accepted_alt' ];
+            $decided = $right + $properties[ $source . '_changed' ];
+
+            $properties[ $source . '_accuracy' ] = $decided ? round( $right / $decided, 4 ) : null;
+        }
+
+        // Thresholds in use after local calibration, to tune the defaults across installs.
+        if ( class_exists( 'Rex_Feed_Smart_Category_Tracker' ) && method_exists( 'Rex_Feed_Smart_Category_Tracker', 'calibrated_thresholds' ) && class_exists( 'Rex_Feed_Smart_Category_Matcher' ) ) {
+            try {
+                $thresholds = Rex_Feed_Smart_Category_Tracker::calibrated_thresholds(
+                    array(
+                        'high'   => Rex_Feed_Smart_Category_Matcher::THRESHOLD_HIGH,
+                        'medium' => Rex_Feed_Smart_Category_Matcher::THRESHOLD_MEDIUM,
+                        'low'    => Rex_Feed_Smart_Category_Matcher::THRESHOLD_LOW,
+                    )
+                );
+                // Report what the matcher actually uses: it clamps out-of-range values.
+                $in_use = ( new Rex_Feed_Smart_Category_Matcher( '', array( 'thresholds' => (array) $thresholds ) ) )->get_thresholds();
+
+                $properties['threshold_high']   = round( (float) $in_use['high'], 3 );
+                $properties['threshold_medium'] = round( (float) $in_use['medium'], 3 );
+            } catch ( \Throwable $e ) {
+                $properties['threshold_high']   = null;
+                $properties['threshold_medium'] = null;
+            }
+        }
+
+        return $properties;
     }
 
     /**

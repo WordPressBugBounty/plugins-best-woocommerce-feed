@@ -93,6 +93,10 @@ class Rex_Product_Feed_Ajax {
                         ->with_callback( array( 'Rex_Product_Feed_Ajax', 'delete_category_mapping' ) )
                         ->with_validation( $validations );
 
+        wp_ajax_helper()->handle( 'rexfeed-suggest-categories' )
+                        ->with_callback( array( 'Rex_Product_Feed_Ajax', 'suggest_categories' ) )
+                        ->with_validation( $validations );
+
         // Google merchant settings.
         wp_ajax_helper()->handle( 'rexfeed-google-merchant-settings' )
                         ->with_callback( array( 'Rex_Product_Feed_Ajax', 'save_google_api_credentials' ) )
@@ -853,14 +857,14 @@ class Rex_Product_Feed_Ajax {
      */
     public static function save_category_mapping( $payload ) {
         $cat_map_url = esc_url( admin_url( 'admin.php?page=category_mapping' ) );
-        if( !empty( $payload[ 'map_name' ] ) ) {
-            $map_name     = $payload[ 'map_name' ];
-            $category_map = get_option( 'rex-wpfm-category-mapping' ) ? get_option( 'rex-wpfm-category-mapping' ) : array();
+        $map_name    = self::category_map_name( $payload );
+        if( '' !== $map_name ) {
+            $category_map = self::get_category_maps();
             $status       = 'success';
-            $wpfm_hash    = !empty( $payload[ 'hash' ] ) ? $payload[ 'hash' ] : '';
-            $feed_id_posthog = !empty( $payload[ 'feed_id' ] ) ? $payload[ 'feed_id' ] : '';
+            $wpfm_hash    = isset( $payload[ 'hash' ] ) && is_scalar( $payload[ 'hash' ] ) ? sanitize_key( wp_unslash( (string) $payload[ 'hash' ] ) ) : '';
+            $feed_id_posthog = !empty( $payload[ 'feed_id' ] ) ? absint( $payload[ 'feed_id' ] ) : '';
 
-            $track = 'yes' === $payload[ 'track' ] ?? false;
+            $track = isset( $payload[ 'track' ] ) && 'yes' === $payload[ 'track' ];
             if ( $track) {
                 do_action( 'rex_product_feed_advanced_feature_used',$feed_id_posthog, [
                         'feature' => 'Category Mapping',
@@ -880,31 +884,21 @@ class Rex_Product_Feed_Ajax {
             }
 
             $map_name_hash = '' !== $wpfm_hash ? $wpfm_hash : md5( sanitize_title( $map_name ) . time() );
-            $cat_map_array = array();
-            parse_str( $payload[ 'cat_map' ], $cat_map_array );
-            $config_array = array();
-            $map_array    = array();
-            if( $cat_map_array ) {
-                foreach( $cat_map_array as $key => $value ) {
-                    $cat_id        = preg_replace( '/[^0-9]/', '', $key );
-                    $product_cat   = get_term_by( 'id', $cat_id, 'product_cat' );
-                    $category_name = '';
-                    if( $product_cat ) {
-                        $category_name = $product_cat->name;
-                    }
-                    $config_array[] = array(
-                            'map-key'   => $cat_id,
-                            'map-value' => $value,
-                            'cat-name'  => $category_name,
-                    );
-                }
-            }
+            $config_array  = self::category_map_rows( $payload );
+            $map_array     = array();
+
+            $previous_rows = isset( $category_map[ $map_name_hash ]['map-config'] ) && is_array( $category_map[ $map_name_hash ]['map-config'] ) ? $category_map[ $map_name_hash ]['map-config'] : array();
+            $smart_result  = self::apply_smart_category_feedback( $payload, $config_array, $previous_rows );
+            $config_array  = $smart_result['rows'];
 
             $map_array[ 'map-name' ]   = $map_name;
             $map_array[ 'map-config' ] = $config_array;
+            $map_array[ 'merchant' ]   = self::sanitize_category_map_merchant( $payload, isset( $category_map[ $map_name_hash ] ) && is_array( $category_map[ $map_name_hash ] ) ? $category_map[ $map_name_hash ] : array() );
             $category_map[ $map_name_hash ] = $map_array;
 
             update_option( 'rex-wpfm-category-mapping', $category_map );
+            Rex_Feed_Smart_Category_Tracker::record( $smart_result['counts'] );
+            self::learn_smart_category_values( $config_array, $map_array[ 'merchant' ] );
             do_action( 'wpfm_category_mapping_saved' );
 
             wp_send_json_success( [
@@ -927,35 +921,183 @@ class Rex_Product_Feed_Ajax {
      * @return string
      */
     public static function update_category_mapping( $payload ) {
-        $map_key       = !empty( $payload[ 'map_key' ] ) ? $payload[ 'map_key' ] : '';
-        $map_name      = !empty( $payload[ 'map_name' ] ) ? $payload[ 'map_name' ] : '';
-        $cat_map_array = [];
-        $feed_id_posthog = !empty( $payload[ 'feed_id' ] ) ? $payload[ 'feed_id' ] : '';
-        parse_str( $payload[ 'cat_map' ], $cat_map_array );
-        $config_array = [];
-        $map_array    = [];
-        if ( $cat_map_array ) {
-            foreach ( $cat_map_array as $key => $value ) {
-                $cat_id        = preg_replace( '/[^0-9]/', '', $key );
-                $product_cat   = get_term_by( 'id', $cat_id, 'product_cat' );
-                $category_name = '';
-                if ( $product_cat ) {
-                    $category_name = $product_cat->name;
-                }
-                $config_array[] = [
-                        'map-key'   => $cat_id,
-                        'map-value' => $value,
-                        'cat-name'  => $category_name,
-                ];
-            }
+        $map_key      = self::category_map_key( $payload );
+        $map_name     = self::category_map_name( $payload );
+        $category_map = self::get_category_maps();
+
+        if ( '' === $map_name ) {
+            wp_send_json_error( array( 'message' => __( 'Please enter a mapping name.', 'rex-product-feed' ) ), 400 );
         }
+        if ( '' === $map_key || ! array_key_exists( $map_key, $category_map ) ) {
+            wp_send_json_error( array( 'message' => __( 'This category mapping no longer exists. Reload the page and try again.', 'rex-product-feed' ) ), 404 );
+        }
+
+        $config_array = self::category_map_rows( $payload );
+        $map_array    = [];
+        $previous_rows = isset( $category_map[ $map_key ]['map-config'] ) && is_array( $category_map[ $map_key ]['map-config'] ) ? $category_map[ $map_key ]['map-config'] : array();
+        $smart_result  = self::apply_smart_category_feedback( $payload, $config_array, $previous_rows );
+        $config_array  = $smart_result['rows'];
 
         $map_array[ 'map-name' ]   = $map_name;
         $map_array[ 'map-config' ] = $config_array;
-        $category_map              = get_option( 'rex-wpfm-category-mapping' ) ? get_option( 'rex-wpfm-category-mapping' ) : array();
+        $map_array[ 'merchant' ]   = self::sanitize_category_map_merchant( $payload, is_array( $category_map[ $map_key ] ) ? $category_map[ $map_key ] : array() );
         $category_map[ $map_key ]  = $map_array;
         update_option( 'rex-wpfm-category-mapping', $category_map );
+        Rex_Feed_Smart_Category_Tracker::record( $smart_result['counts'] );
+        self::learn_smart_category_values( $config_array, $map_array[ 'merchant' ] );
         return 'success';
+    }
+
+
+    /**
+     * Saved category maps, always as an array.
+     *
+     * @since 7.14.4
+     *
+     * @return array<string,array<string,mixed>> Maps keyed by map key.
+     */
+    private static function get_category_maps(): array {
+        $maps = get_option( 'rex-wpfm-category-mapping', array() );
+        return is_array( $maps ) ? $maps : array();
+    }
+
+
+    /**
+     * Map key from the request: unslashed, then sanitized as a key.
+     *
+     * Keys are md5 hashes or slugs such as `wpfm_google_product_category_default`. A key that
+     * sanitize_key() would change is not a valid map key and is rejected.
+     *
+     * @since 7.14.4
+     *
+     * @param mixed $payload AJAX payload.
+     *
+     * @return string Key, or an empty string when missing or invalid.
+     */
+    private static function category_map_key( $payload ): string {
+        if ( ! is_array( $payload ) || ! isset( $payload['map_key'] ) || ! is_scalar( $payload['map_key'] ) ) {
+            return '';
+        }
+        $raw = (string) wp_unslash( $payload['map_key'] );
+        $key = sanitize_key( $raw );
+        return $key === $raw ? $key : '';
+    }
+
+
+    /**
+     * Mapping name from the request: unslashed, sanitized, trimmed.
+     *
+     * @since 7.14.4
+     *
+     * @param mixed $payload AJAX payload.
+     *
+     * @return string Name, or an empty string when missing.
+     */
+    private static function category_map_name( $payload ): string {
+        if ( ! is_array( $payload ) || ! isset( $payload['map_name'] ) || ! is_scalar( $payload['map_name'] ) ) {
+            return '';
+        }
+        return trim( sanitize_text_field( wp_unslash( (string) $payload['map_name'] ) ) );
+    }
+
+
+    /**
+     * Map rows from the `cat_map` request field (`category-<term id>=<value>&...`).
+     *
+     * The field is unslashed before parsing, so values such as "Chef's Hats" are not
+     * stored with a backslash. Each value is sanitized as text.
+     *
+     * @since 7.14.4
+     *
+     * @param mixed $payload AJAX payload.
+     *
+     * @return array<int,array{map-key:string,map-value:string,cat-name:string}> Rows in the stored format.
+     */
+    private static function category_map_rows( $payload ): array {
+        if ( ! is_array( $payload ) || ! isset( $payload['cat_map'] ) || ! is_string( $payload['cat_map'] ) ) {
+            return array();
+        }
+
+        $cat_map_array = array();
+        parse_str( wp_unslash( $payload['cat_map'] ), $cat_map_array );
+
+        $rows = array();
+        foreach ( $cat_map_array as $key => $value ) {
+            $cat_id = preg_replace( '/[^0-9]/', '', (string) $key );
+            if ( '' === $cat_id || ! is_scalar( $value ) ) {
+                continue;
+            }
+            $product_cat = get_term_by( 'id', (int) $cat_id, 'product_cat' );
+            $rows[]      = array(
+                'map-key'   => $cat_id,
+                'map-value' => sanitize_text_field( (string) $value ),
+                'cat-name'  => $product_cat instanceof WP_Term ? $product_cat->name : '',
+            );
+        }
+
+        return $rows;
+    }
+
+
+    /**
+     * Merchant slug for a category map save.
+     *
+     * Uses the `merchant` payload field when it is a known merchant, otherwise
+     * keeps the map's stored merchant, otherwise `google` (maps saved before the
+     * merchant was stored were Google maps).
+     *
+     * @since 7.14.4
+     *
+     * @param array $payload  AJAX payload.
+     * @param array $existing Stored map, or empty for a new map.
+     *
+     * @return string Merchant slug.
+     */
+    private static function sanitize_category_map_merchant( $payload, array $existing = array() ): string {
+        $merchant = is_array( $payload ) && isset( $payload['merchant'] ) && is_scalar( $payload['merchant'] ) ? sanitize_key( wp_unslash( (string) $payload['merchant'] ) ) : '';
+        if ( '' !== $merchant ) {
+            $merchants = Rex_Feed_Merchants::get_merchants();
+            foreach ( array( 'popular', 'pro_merchants', 'free_merchants' ) as $group ) {
+                if ( isset( $merchants[ $group ][ $merchant ] ) ) {
+                    return $merchant;
+                }
+            }
+        }
+        if ( ! empty( $existing['merchant'] ) && is_scalar( $existing['merchant'] ) ) {
+            return sanitize_key( (string) $existing['merchant'] );
+        }
+        return 'google';
+    }
+
+
+    /**
+     * Add smart category feedback keys to map rows before a save.
+     *
+     * Reads the optional `suggestions` payload field (JSON `{ term_id: { top, alts[], confidence } }`)
+     * sent by the mapping page for every row that showed a suggestion chip. Rows get
+     * `suggested-value` / `suggestion-outcome`; feed generation reads neither.
+     *
+     * @since 7.14.4
+     *
+     * @param array $payload       AJAX payload.
+     * @param array $rows          Map rows built from `cat_map`.
+     * @param array $previous_rows Rows of the stored map before this save (empty for a new map).
+     *
+     * @return array{rows:array,counts:array} Rows with feedback keys and this save's new outcome counts.
+     */
+    private static function apply_smart_category_feedback( $payload, array $rows, array $previous_rows ): array {
+        $raw = is_array( $payload ) && isset( $payload['suggestions'] ) ? $payload['suggestions'] : '';
+
+        $term_ids = array();
+        foreach ( $rows as $row ) {
+            if ( isset( $row['map-key'] ) ) {
+                $term_ids[] = absint( $row['map-key'] );
+            }
+        }
+
+        $suggestions = Rex_Feed_Smart_Category_Tracker::parse_suggestions( $raw, $term_ids );
+
+        return Rex_Feed_Smart_Category_Tracker::apply( $rows, $suggestions, $previous_rows );
     }
 
 
@@ -967,12 +1109,13 @@ class Rex_Product_Feed_Ajax {
      * @return string
      */
     public static function delete_category_mapping( $payload ) {
-        if( !empty( $payload[ 'map_key' ] ) ) {
-            $map_key      = $payload[ 'map_key' ];
-            $category_map = get_option( 'rex-wpfm-category-mapping' );
-            $feed_id_posthog = !empty( $payload[ 'feed_id' ] ) ? $payload[ 'feed_id' ] : '';
-            unset( $category_map[ $map_key ] );
-            update_option( 'rex-wpfm-category-mapping', $category_map );
+        $map_key = self::category_map_key( $payload );
+        if( '' !== $map_key ) {
+            $category_map = self::get_category_maps();
+            if ( array_key_exists( $map_key, $category_map ) ) {
+                unset( $category_map[ $map_key ] );
+                update_option( 'rex-wpfm-category-mapping', $category_map );
+            }
             return [ 'status' => 'success' ];
         }
         return [ 'status' => 'failed' ];
@@ -1606,6 +1749,60 @@ class Rex_Product_Feed_Ajax {
         Rex_Product_Feed_Activator::update_db_version( '2.2.5' );
         wp_send_json_success( 'success' );
         wp_die();
+    }
+
+
+    /**
+     * Suggest a Google product category for every WooCommerce product category.
+     *
+     * All `product_cat` terms are loaded in one query so the matcher can resolve
+     * parent names for context. Values match the autocomplete strings
+     * (`<id> - A > B > C`), so an accepted suggestion saves in the existing format.
+     *
+     * @since 7.14.4
+     *
+     * @param mixed $payload AJAX payload; optional `map_key` of the map open in the editor.
+     *
+     * @return void Sends `{ term_id: [ { value, score, confidence, source }, ... ] }` as JSON.
+     */
+    public static function suggest_categories( $payload = array() ): void {
+        $terms = get_terms(
+            array(
+                'taxonomy'      => 'product_cat',
+                'hide_empty'    => false,
+                'no_found_rows' => true,
+            )
+        );
+
+        if ( is_wp_error( $terms ) || ! is_array( $terms ) ) {
+            wp_send_json_error( array( 'message' => __( 'Could not load product categories.', 'rex-product-feed' ) ) );
+        }
+
+        // The suggester falls back to the plain matcher on its own if a signal fails. The map
+        // being edited is left out of "Used before", so a value cleared there does not come back.
+        $suggestions = Rex_Feed_Smart_Category_Suggester::suggest_for_terms( $terms, self::category_map_key( $payload ) );
+
+        // Force an object in JSON even when empty or when keys happen to be sequential.
+        wp_send_json_success( (object) $suggestions );
+    }
+
+
+    /**
+     * Remember a saved map's values for later suggestions. Never breaks the save.
+     *
+     * @since 7.14.4
+     *
+     * @param array  $rows     Saved map rows.
+     * @param string $merchant Merchant slug.
+     *
+     * @return void
+     */
+    private static function learn_smart_category_values( array $rows, string $merchant ): void {
+        try {
+            Rex_Feed_Smart_Category_Suggester::learn_from_rows( $rows, $merchant );
+        } catch ( \Throwable $e ) {
+            return;
+        }
     }
 
 
