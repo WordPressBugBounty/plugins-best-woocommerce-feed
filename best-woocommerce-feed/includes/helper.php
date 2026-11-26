@@ -127,7 +127,38 @@ if ( !function_exists( 'wpfm_set_cached_data' ) ) {
 		if ( !$expiration ) {
 			$expiration = get_option( 'wpfm_cache_ttl', 3 * HOUR_IN_SECONDS );
 		}
-		return set_transient( '_wpfm_cache_' . $key, $value, $expiration );
+		$stored = set_transient( '_wpfm_cache_' . $key, $value, $expiration );
+		if ( $stored ) {
+			wpfm_register_cached_data_key( $key );
+		}
+		return $stored;
+	}
+}
+
+
+if ( ! function_exists( 'wpfm_register_cached_data_key' ) ) {
+	/**
+	 * Remember a cache key that lives in a persistent object cache.
+	 *
+	 * Transients kept in Redis/Memcached never reach `wp_options`, so prefix and full purges
+	 * cannot find them with SQL. The registry lets `wpfm_purge_cached_data()` delete them by name.
+	 *
+	 * @since 7.16.1
+	 *
+	 * @param string $key Cache key without the `_wpfm_cache_` prefix.
+	 * @return void
+	 */
+	function wpfm_register_cached_data_key( $key ) {
+		if ( ! wp_using_ext_object_cache() ) {
+			return;
+		}
+		$keys = get_option( 'wpfm_cached_data_keys', array() );
+		$keys = is_array( $keys ) ? $keys : array();
+		if ( in_array( $key, $keys, true ) ) {
+			return;
+		}
+		$keys[] = (string) $key;
+		update_option( 'wpfm_cached_data_keys', $keys, false );
 	}
 }
 
@@ -138,12 +169,18 @@ if ( ! function_exists( 'wpfm_purge_cached_data' ) ) {
 	 *
 	 * This function deletes cached data stored as WordPress options, with the option to delete either exact matches or use a LIKE query to match option names.
 	 *
+	 * Also clears matching transients held in a persistent object cache (Redis/Memcached),
+	 * which the SQL deletes below cannot reach.
+	 *
 	 * @param string|null $key  The cache key or part of the key to be purged.
 	 * @param bool        $like Set to true to use a LIKE query, or false to perform an exact match.
 	 * @since 7.3.0
+	 * @since 7.16.1 Clears persistent object cache entries too.
 	 */
 	function wpfm_purge_cached_data( $key = null, $like = false ) {
 		global $wpdb;
+
+		wpfm_purge_object_cached_data( $key, $like );
 
 		if ( !empty( $key ) ) {
 			if ( $like ) {
@@ -160,6 +197,55 @@ if ( ! function_exists( 'wpfm_purge_cached_data' ) ) {
 			$query = "DELETE FROM $wpdb->options WHERE ({$wpdb->options}.option_name LIKE %s) OR ({$wpdb->options}.option_name LIKE %s)";
 			$query = $wpdb->prepare( $query, '_transient_timeout__wpfm_cache%', '_transient__wpfm_cache_%' );
 			$wpdb->query( $query ); // Delete transients matching the specified pattern.
+		}
+	}
+}
+
+
+if ( ! function_exists( 'wpfm_purge_object_cached_data' ) ) {
+	/**
+	 * Delete cached data through the transient API so persistent object caches are cleared too.
+	 *
+	 * An exact key is always deleted with `delete_transient()`. Prefix and full purges use the
+	 * key registry kept by `wpfm_register_cached_data_key()`, because object cache entries cannot
+	 * be listed with SQL.
+	 *
+	 * @since 7.16.1
+	 *
+	 * @param string|null $key  The cache key or key prefix. Empty purges every registered key.
+	 * @param bool        $like True when `$key` is a prefix.
+	 * @return void
+	 */
+	function wpfm_purge_object_cached_data( $key = null, $like = false ) {
+		if ( ! empty( $key ) && ! $like ) {
+			delete_transient( '_wpfm_cache_' . $key );
+		}
+
+		if ( ! wp_using_ext_object_cache() ) {
+			return;
+		}
+
+		$keys = get_option( 'wpfm_cached_data_keys', array() );
+		if ( empty( $keys ) || ! is_array( $keys ) ) {
+			return;
+		}
+
+		$remaining = array();
+		foreach ( $keys as $registered_key ) {
+			$registered_key = (string) $registered_key;
+			$matches        = empty( $key )
+				|| ( $like && 0 === strpos( $registered_key, (string) $key ) )
+				|| ( ! $like && $registered_key === (string) $key );
+
+			if ( $matches ) {
+				delete_transient( '_wpfm_cache_' . $registered_key );
+			} else {
+				$remaining[] = $registered_key;
+			}
+		}
+
+		if ( count( $remaining ) !== count( $keys ) ) {
+			update_option( 'wpfm_cached_data_keys', $remaining, false );
 		}
 	}
 }

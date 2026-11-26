@@ -1185,12 +1185,12 @@ abstract class Rex_Product_Feed_Abstract_Generator
         }
 
         if ( $this->custom_filter_option ) {
-            $this->custom_filter_args = wpfm_get_cached_data( "rexfeed_custom_filter_query_{$this->id}" );
-            if( empty( $this->custom_filter_args ) ) {
-                $this->custom_filter_args = Rex_Product_Filter::get_custom_filter_where_query( $this->feed_filters );
-                wpfm_set_cached_data( "rexfeed_custom_filter_query_{$this->id}", $this->custom_filter_args );
-            }
+            // Build the clause in this request, never from cache: $wpdb->prepare() swaps every `%`
+            // for a per-request placeholder hash, so a clause cached by an earlier request (kept
+            // byte-for-byte by Redis/Memcached) matches nothing and the feed comes out empty.
+            $this->custom_filter_args = Rex_Product_Filter::get_custom_filter_where_query( $this->feed_filters );
             if( $this->tbatch === $this->batch ) {
+                // Clear clauses cached by older versions so they cannot linger in an object cache.
                 wpfm_purge_cached_data( "rexfeed_custom_filter_query_{$this->id}" );
                 wpfm_purge_cached_data( 'shipping_methods' );
             }
@@ -1260,20 +1260,18 @@ abstract class Rex_Product_Feed_Abstract_Generator
         if( !empty( $this->custom_filter_args[ 'where' ] ) ) {
             $query = $this->custom_filter_args[ 'where' ];
 
-            $term_join = wpfm_get_cached_data( "rexfeed_custom_filter_term_join_$this->id" );
-            if( empty( $term_join ) && !empty( $this->custom_filter_args[ 'term_exists' ] ) ) {
+            // JOINs are rebuilt with the WHERE clause on every request so their aliases always match it.
+            if( !empty( $this->custom_filter_args[ 'term_exists' ] ) ) {
                 $total_join = preg_match_all('/RexTerm/i', $query);
                 if( $total_join ) {
                     for( $i = 1; $i <= $total_join; $i++ ) {
                         $term_join .= " LEFT JOIN {$wpdb->term_relationships} AS RexTerm{$i}";
                         $term_join .= " ON ({$wpdb->posts}.ID = RexTerm{$i}.object_id) ";
                     }
-                    wpfm_set_cached_data( "rexfeed_custom_filter_term_join_$this->id", $term_join );
                 }
             }
 
-            $meta_join = wpfm_get_cached_data( "rexfeed_custom_filter_meta_join_$this->id" );
-            if( empty( $meta_join ) && !empty( $this->custom_filter_args[ 'meta_keys' ] ) ) {
+            if( !empty( $this->custom_filter_args[ 'meta_keys' ] ) ) {
                 $total_meta = count( $this->custom_filter_args[ 'meta_keys' ] );
                 if( $total_meta ) {
 	                for( $i = 1; $i <= $total_meta; $i++ ) {
@@ -1284,12 +1282,12 @@ abstract class Rex_Product_Feed_Abstract_Generator
                             $meta_join .= $wpdb->prepare( " AND (RexMeta{$i}.meta_key = %s) ", $meta_key );
 						}
                     }
-                    wpfm_set_cached_data( "rexfeed_custom_filter_meta_join_$this->id", $meta_join );
                 }
             }
         }
 
         if( $this->tbatch === $this->batch ) {
+            // Clear JOINs cached by older versions so they cannot linger in an object cache.
             wpfm_purge_cached_data( "rexfeed_custom_filter_term_join_$this->id" );
             wpfm_purge_cached_data( "rexfeed_custom_filter_meta_join_$this->id" );
         }
